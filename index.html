@@ -5905,9 +5905,15 @@
       qs('subtotalEmpAndQtde').textContent  = filtrados.length;
       qs('subtotalEmpAndValor').textContent = formatCurrency(filtrados.reduce((s,e) => s+(Number(e.valor)||0), 0));
 
-      body.innerHTML = filtrados.length
-        ? filtrados.map(empRowHtml).join('')
-        : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
+// ANTES:
+body.innerHTML = filtrados.length
+  ? filtrados.map(empRowHtml).join('')
+  : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
+
+// DEPOIS:
+body.innerHTML = filtrados.length
+  ? [...filtrados].sort((a, b) => (a.data || '') > (b.data || '') ? 1 : -1).map(empRowHtml).join('')
+  : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
     }
 
     // ── Empenhos encerrados (status === 'Paga') ──
