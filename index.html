@@ -5851,8 +5851,23 @@
         <span onclick="toggleStatusDropdown(event,'empsdrop-${e.id}')" style="cursor:pointer;">${empStatusBadge(e.status)} ▾</span>
         <div class="status-dropdown hidden" id="empsdrop-${e.id}">${statusOpts}</div>
       </div>`;
+// Calcula dias pendentes
+      let diasPendentesHtml = '';
+      if (e.data) {
+        const hoje = new Date(); hoje.setHours(0,0,0,0);
+        const partes = e.data.split('-');
+        const dataEmp = new Date(Number(partes[0]), Number(partes[1])-1, Number(partes[2]));
+        const diffDias = Math.floor((hoje - dataEmp) / 86400000);
+        if (diffDias > 0) {
+          const cor = diffDias >= 30 ? '#b42318' : diffDias >= 15 ? '#b76a00' : '#1f8a4c';
+          const bg  = diffDias >= 30 ? '#fff1f0' : diffDias >= 15 ? '#fff5e9' : '#eefcf3';
+          diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:${bg};border-radius:5px;padding:1px 5px;">${diffDias} dia${diffDias!==1?'s':''} pendente${diffDias!==1?'s':''}</span>`;
+        } else if (diffDias === 0) {
+          diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#eff6ff;border-radius:5px;padding:1px 5px;">Hoje</span>`;
+        }
+      }
       return `<tr>
-        <td><span class="data-dia">${formatDate(e.data)}</span></td>
+        <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendentesHtml}</div></td>
         <td style="font-weight:700;font-size:10px;">${e.numero || '—'}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${e.orgao || '—'}</div>
