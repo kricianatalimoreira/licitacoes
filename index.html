@@ -5937,9 +5937,15 @@ body.innerHTML = filtrados.length
       qs('empEncStatTotal').textContent  = pagos.length;
       qs('empEncStatValor').textContent  = formatCurrency(pagos.reduce((s,e) => s+(Number(e.valor)||0), 0));
       qs('empEncStatGadita').textContent = formatCurrency(pagos.filter(e=>e.empresa==='Gadita').reduce((s,e)=>s+(Number(e.valor)||0),0));
-      qs('empEncStatHamate').textContent = formatCurrency(pagos.filter(e=>e.empresa==='Hamate').reduce((s,e)=>s+(Number(e.valor)||0),0));
+     // ANTES:
+body.innerHTML = filtrados.length
+  ? filtrados.map(empRowHtml).join('')
+  : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho encerrado (pago) encontrado.</div></td></tr>`;
 
-      // Subtotal
+// DEPOIS:
+body.innerHTML = filtrados.length
+  ? [...filtrados].sort((a, b) => (a.data || '') > (b.data || '') ? 1 : -1).map(empRowHtml).join('')
+  : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho encerrado (pago) encontrado.</div></td></tr>`;
       qs('subtotalEmpEncQtde').textContent  = filtrados.length;
       qs('subtotalEmpEncValor').textContent = formatCurrency(filtrados.reduce((s,e) => s+(Number(e.valor)||0), 0));
 
