@@ -2406,104 +2406,167 @@
         </div>
       </div>
       <div class="login-fields">
-        <div>
-          <label class="login-field-label" for="loginUser">Usuário</label>
-          <input class="login-input" type="text" id="loginUser" placeholder="Digite seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
-        </div>
-        <div>
-          <label class="login-field-label" for="loginPass">Senha</label>
-          <input class="login-input" type="password" id="loginPass" placeholder="Digite sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLogin()">
-        </div>
-        <div id="loginError" class="login-error">Usuário ou senha incorretos.</div>
-        <button class="login-btn" onclick="fazerLogin()">Entrar →</button>
-      </div>
-              <div class="login-divider"><span>ou continue com</span></div>
-        <button class="google-btn" onclick="loginComGoogle()">
+        <div id="loginError" class="login-error" style="display:none;">Erro ao entrar.</div>
+        <button class="google-btn" onclick="loginComGoogle()" style="margin-top:8px;">
           <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 29.8 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.6 20-21 0-1.4-.2-2.7-.5-4z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15.1 15.6 19.2 12 24 12c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3c-7.7 0-14.3 4.6-17.7 11.7z"/><path fill="#FBBC05" d="M24 45c5.6 0 10.6-1.9 14.5-5.1l-6.7-5.5C29.8 36 27 37 24 37c-5.7 0-10.6-3.1-11.8-7.5l-7 5.4C8 41.1 15.4 45 24 45z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.8c-1.1 3.1-3.4 5.6-6.3 7.1l6.7 5.5C40.5 37.4 44.5 31.2 44.5 24c0-1.4-.2-2.7-.5-4z"/></svg>
           Entrar com Google
         </button>
+        <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;">Cada conta Google acessa apenas os seus próprios dados.</p>
         <p class="login-footer">© 2025 Kricia Moreira Gestão de Licitações. Todos os direitos reservados.</p>
+      </div>
     </div>
   </div>
   <script>
     // ══════════════════════════════════════════════════════
-    // ⚙️  CONFIGURAÇÃO — edite aqui
+    // 🔥 LOGIN COM FIREBASE — Google Auth
     // ══════════════════════════════════════════════════════
-
-    // 1) Cole aqui o Client ID do Google Cloud Console:
-    const GOOGLE_CLIENT_ID = '57712884229-s4m0j36tgqu9vpa6e1u0j7vu0mg7927a.apps.googleusercontent.com';
-
-    // 2) E-mails autorizados a entrar via Google (deixe vazio [] para permitir qualquer conta Google):
-    const EMAILS_AUTORIZADOS = [];
-
-    // 3) Credenciais locais (usuário/senha):
-    const USUARIOS = [
-      { usuario: 'admin', senha: 'licitacao2025' },
-      { usuario: 'gestor', senha: 'gestor123' },
-    ];
-
-    // ══════════════════════════════════════════════════════
-
-    const LOGIN_KEY = 'gl_session';
 
     function fazerLogin() {
-      const u = document.getElementById('loginUser').value.trim().toLowerCase();
-      const s = document.getElementById('loginPass').value;
-      const ok = USUARIOS.some(x => x.usuario === u && x.senha === s);
-      if (ok) {
-        sessionStorage.setItem(LOGIN_KEY, '1');
-        document.getElementById('loginOverlay').classList.add('hidden');
-        document.getElementById('loginError').style.display = 'none';
-      } else {
-        document.getElementById('loginError').style.display = 'block';
-        document.getElementById('loginPass').value = '';
-        document.getElementById('loginPass').focus();
-      }
+      // Login removido — use o botão Google
+      loginComGoogle();
     }
 
-    function loginComGoogle() {
-      if (GOOGLE_CLIENT_ID === 'SEU_CLIENT_ID_AQUI.apps.googleusercontent.com') {
-        document.getElementById('loginError').textContent = '⚙️ Configure o Google Client ID no arquivo index.html para usar este botão.';
-        document.getElementById('loginError').style.display = 'block';
-        return;
-      }
-      // Inicia o fluxo OAuth Google via popup
-      google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleLogin,
-        auto_select: false,
-      });
-      google.accounts.id.prompt();
-    }
-
-    function handleGoogleLogin(response) {
+    async function loginComGoogle() {
+      const errEl = document.getElementById('loginError');
+      errEl.style.display = 'none';
       try {
-        // Decodifica o token JWT do Google (sem verificação de assinatura — só client-side)
-        const payload = JSON.parse(atob(response.credential.split('.')[1]));
-        const email = payload.email;
-
-        if (EMAILS_AUTORIZADOS.length > 0 && !EMAILS_AUTORIZADOS.includes(email)) {
-          document.getElementById('loginError').textContent = '⛔ E-mail não autorizado: ' + email;
-          document.getElementById('loginError').style.display = 'block';
+        if (!window._fbSignInWithPopup) {
+          errEl.textContent = '⏳ Aguarde o carregamento...';
+          errEl.style.display = 'block';
           return;
         }
-        sessionStorage.setItem(LOGIN_KEY, '1');
-        sessionStorage.setItem('gl_user', email);
-        document.getElementById('loginOverlay').classList.add('hidden');
-        document.getElementById('loginError').style.display = 'none';
+        await window._fbSignInWithPopup(window._fbAuth, window._fbProvider);
+        // onAuthStateChanged cuida do resto
       } catch(e) {
-        document.getElementById('loginError').textContent = 'Erro ao autenticar com Google.';
-        document.getElementById('loginError').style.display = 'block';
+        if (e.code === 'auth/popup-closed-by-user') return;
+        errEl.textContent = '❌ Erro ao entrar com Google: ' + (e.message || e.code);
+        errEl.style.display = 'block';
       }
     }
 
-    // Verifica sessão ao carregar
-    if (sessionStorage.getItem(LOGIN_KEY) === '1') {
-      document.getElementById('loginOverlay').classList.add('hidden');
+    async function fazerLogout() {
+      if (window._fbSignOut && window._fbAuth) {
+        await window._fbSignOut(window._fbAuth);
+      }
     }
   </script>
-  <!-- Google Identity Services SDK -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAGVJAbqdKTKRfzycm-vEIO44ao8nZQ2jc",
+      authDomain: "km-licitacoes.firebaseapp.com",
+      projectId: "km-licitacoes",
+      storageBucket: "km-licitacoes.firebasestorage.app",
+      messagingSenderId: "679788125805",
+      appId: "1:679788125805:web:497ebf2f31386c3af62964",
+      measurementId: "G-CLL7G34SP8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    // Expõe globalmente para o código legado
+    window._fbAuth = auth;
+    window._fbDb = db;
+    window._fbProvider = provider;
+    window._fbSignInWithPopup = signInWithPopup;
+    window._fbSignOut = signOut;
+    window._fbDoc = doc;
+    window._fbSetDoc = setDoc;
+    window._fbGetDoc = getDoc;
+
+    // ── Salva todos os dados do usuário no Firestore ──
+    window.fbSaveAll = async function() {
+      const user = auth.currentUser;
+      if (!user) return;
+      try {
+        const uid = user.uid;
+        const STORAGE_KEY = 'km_disputas_v60_clean';
+        const EMP_KEY = 'km_empenhos_v60_clean';
+        const CMP_KEY = 'km_compras_v60_clean';
+        const META_KEY = 'km_metas_v60_clean';
+        const TEMA_KEY = 'km_tema_v1';
+
+        const disputasData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        const empenhos = JSON.parse(localStorage.getItem(EMP_KEY) || '[]');
+        const compras = JSON.parse(localStorage.getItem(CMP_KEY) || '[]');
+        const metas = JSON.parse(localStorage.getItem(META_KEY) || '{}');
+        const tema = localStorage.getItem(TEMA_KEY) || 'rosa';
+
+        await setDoc(doc(db, 'usuarios', uid, 'dados', 'principal'), {
+          disputas: disputasData,
+          empenhos: empenhos,
+          compras: compras,
+          metas: metas,
+          tema: tema,
+          updatedAt: new Date().toISOString()
+        });
+      } catch(e) {
+        console.error('Erro ao salvar no Firebase:', e);
+      }
+    };
+
+    // ── Carrega dados do Firestore para localStorage ──
+    window.fbLoadAll = async function() {
+      const user = auth.currentUser;
+      if (!user) return;
+      try {
+        const uid = user.uid;
+        const snap = await getDoc(doc(db, 'usuarios', uid, 'dados', 'principal'));
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.disputas) localStorage.setItem('km_disputas_v60_clean', JSON.stringify(data.disputas));
+          if (data.empenhos) localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(data.empenhos));
+          if (data.compras) localStorage.setItem('km_compras_v60_clean', JSON.stringify(data.compras));
+          if (data.metas) localStorage.setItem('km_metas_v60_clean', JSON.stringify(data.metas));
+          if (data.tema) localStorage.setItem('km_tema_v1', data.tema);
+          return true;
+        }
+        return false;
+      } catch(e) {
+        console.error('Erro ao carregar do Firebase:', e);
+        return false;
+      }
+    };
+
+    // ── Monitora estado de autenticação ──
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Usuário logado
+        window._fbCurrentUser = user;
+        // Atualiza nome/email na topbar se existir
+        const elName = document.getElementById('topbarUserName');
+        const elEmail = document.getElementById('topbarUserEmail');
+        const elAvatar = document.getElementById('topbarUserAvatar');
+        if (elName) elName.textContent = user.displayName || user.email;
+        if (elEmail) elEmail.textContent = user.email;
+        if (elAvatar && user.photoURL) { elAvatar.src = user.photoURL; elAvatar.style.display = 'block'; }
+
+        // Carrega dados do Firebase
+        const loaded = await window.fbLoadAll();
+
+        // Esconde overlay de login
+        const overlay = document.getElementById('loginOverlay');
+        if (overlay) overlay.classList.add('hidden');
+
+        // Reinicializa os dados se carregou do Firebase
+        if (loaded && typeof window.reinitApp === 'function') {
+          window.reinitApp();
+        }
+      } else {
+        // Não logado — mostra tela de login
+        window._fbCurrentUser = null;
+        const overlay = document.getElementById('loginOverlay');
+        if (overlay) overlay.classList.remove('hidden');
+      }
+    });
+  </script>
   <div class="bell-dropdown hidden" id="bellDropdown" style="position:fixed;">
     <div class="bell-dropdown-header">
       <span>⚠️ Contratos a Vencer</span>
@@ -2630,6 +2693,15 @@
               </div>
             </div>
             <span style="font-size:10px;color:var(--muted);" id="dashDataHora"></span>
+            <!-- Usuário logado -->
+            <div style="display:flex;align-items:center;gap:8px;background:var(--primary-soft);border:1px solid var(--primary-border);border-radius:10px;padding:5px 10px;">
+              <img id="topbarUserAvatar" src="" style="width:24px;height:24px;border-radius:50%;display:none;" />
+              <div style="line-height:1.2;">
+                <div style="font-size:10px;font-weight:700;color:var(--text);" id="topbarUserName">—</div>
+                <div style="font-size:9px;color:var(--muted);" id="topbarUserEmail"></div>
+              </div>
+              <button onclick="fazerLogout()" title="Sair" style="background:none;border:1px solid var(--primary-border);border-radius:7px;padding:3px 7px;cursor:pointer;font-size:10px;color:var(--primary-dark);font-weight:700;">Sair</button>
+            </div>
           </div>
         </div>
 
@@ -3857,6 +3929,7 @@
 
     function persist() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ disputas, disputasEncerradas }));
+      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     function toggleSidebar() {
@@ -4661,6 +4734,7 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...base, contratosAtivos, contratosEncerrados }));
       // Atualiza sino e banners sempre que contratos mudam
       if (typeof atualizarSino === 'function') atualizarSino();
+      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     // ── Render Ativos ────────────────────────────────
@@ -5583,6 +5657,7 @@
 
     function persistEmpenhos() {
       localStorage.setItem(EMP_KEY, JSON.stringify(empenhos));
+      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     // Retorna só contratos ativos com saldo de qtd de itens a empenhar
@@ -6467,6 +6542,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
     function persistCompras() {
       localStorage.setItem(CMP_KEY, JSON.stringify(compras));
+      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     // ── Formata item do modal ──────────────────────────────
@@ -7121,6 +7197,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const mensal = qs('dashMetaMensalInput')?.value || '';
       const anual  = qs('dashMetaAnualInput')?.value  || '';
       localStorage.setItem(META_KEY, JSON.stringify({ mensal, anual }));
+      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     function parseMeta(str) {
@@ -7408,6 +7485,30 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       renderEmpAndamento();
     }
 
+    // ── Função de reinicialização (chamada após carregar dados do Firebase) ──
+    window.reinitApp = function() {
+      loadContratos();
+      loadEmpenhos();
+      renderContratosAtivos();
+      renderContratosEncerrados();
+      populateUFs('conUF');
+      populateUFs('disputaUF');
+      populateUFs('encUF');
+      loadData();
+      movePopoversToBody();
+      renderDisputas();
+      renderHistoricoDisputas();
+      atualizarListaOrgaos();
+      loadCompras();
+      carregarMetas();
+      renderEmpenhos();
+      renderCompras();
+      atualizarSino();
+      carregarTema();
+      renderDashboard();
+    };
+
+    // Inicialização padrão (Firebase vai chamar reinitApp se tiver dados)
     loadContratos();
     loadEmpenhos(); // usa empenhosDefault com IDs fixos se não houver dados salvos
 
@@ -7458,6 +7559,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       });
       // Redesenha dashboard para atualizar cores do gráfico
       if (typeof renderDashboard === 'function') renderDashboard();
+      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     function carregarTema() {
