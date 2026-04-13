@@ -2421,41 +2421,31 @@
     // 🔥 LOGIN COM FIREBASE — Google Auth
     // ══════════════════════════════════════════════════════
 
-    function fazerLogin() {
-      // Login removido — use o botão Google
-      loginComGoogle();
+    function fazerLogin() { loginComGoogle(); }
+
+    function loginComGoogle() {
+      var errEl = document.getElementById('loginError');
+      if (errEl) { errEl.style.display = 'none'; }
+      if (typeof firebase === 'undefined') {
+        if (errEl) { errEl.textContent = '⏳ Aguarde o carregamento...'; errEl.style.display = 'block'; }
+        return;
+      }
+      _auth.signInWithPopup(_provider)
+        .catch(function(e) {
+          if (e.code === 'auth/popup-closed-by-user') return;
+          if (errEl) { errEl.textContent = '❌ Erro: ' + (e.message || e.code); errEl.style.display = 'block'; }
+        });
     }
 
-    async function loginComGoogle() {
-      const errEl = document.getElementById('loginError');
-      errEl.style.display = 'none';
-      try {
-        if (!window._fbSignInWithPopup) {
-          errEl.textContent = '⏳ Aguarde o carregamento...';
-          errEl.style.display = 'block';
-          return;
-        }
-        await window._fbSignInWithPopup(window._fbAuth, window._fbProvider);
-        // onAuthStateChanged cuida do resto
-      } catch(e) {
-        if (e.code === 'auth/popup-closed-by-user') return;
-        errEl.textContent = '❌ Erro ao entrar com Google: ' + (e.message || e.code);
-        errEl.style.display = 'block';
-      }
-    }
-
-    async function fazerLogout() {
-      if (window._fbSignOut && window._fbAuth) {
-        await window._fbSignOut(window._fbAuth);
-      }
+    function fazerLogout() {
+      if (typeof _auth !== 'undefined') _auth.signOut();
     }
   </script>
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+  <!-- Firebase SDKs (compat mode - sem módulos ES) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAGVJAbqdKTKRfzycm-vEIO44ao8nZQ2jc",
       authDomain: "km-licitacoes.firebaseapp.com",
@@ -2466,103 +2456,69 @@
       measurementId: "G-CLL7G34SP8"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
+    firebase.initializeApp(firebaseConfig);
+    const _auth = firebase.auth();
+    const _db = firebase.firestore();
+    const _provider = new firebase.auth.GoogleAuthProvider();
 
-    // Expõe globalmente para o código legado
-    window._fbAuth = auth;
-    window._fbDb = db;
-    window._fbProvider = provider;
-    window._fbSignInWithPopup = signInWithPopup;
-    window._fbSignOut = signOut;
-    window._fbDoc = doc;
-    window._fbSetDoc = setDoc;
-    window._fbGetDoc = getDoc;
-
-    // ── Salva todos os dados do usuário no Firestore ──
-    window.fbSaveAll = async function() {
-      const user = auth.currentUser;
+    // ── Salva todos os dados no Firestore ──
+    window.fbSaveAll = function() {
+      const user = _auth.currentUser;
       if (!user) return;
       try {
-        const uid = user.uid;
-        const STORAGE_KEY = 'km_disputas_v60_clean';
-        const EMP_KEY = 'km_empenhos_v60_clean';
-        const CMP_KEY = 'km_compras_v60_clean';
-        const META_KEY = 'km_metas_v60_clean';
-        const TEMA_KEY = 'km_tema_v1';
-
-        const disputasData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        const empenhos = JSON.parse(localStorage.getItem(EMP_KEY) || '[]');
-        const compras = JSON.parse(localStorage.getItem(CMP_KEY) || '[]');
-        const metas = JSON.parse(localStorage.getItem(META_KEY) || '{}');
-        const tema = localStorage.getItem(TEMA_KEY) || 'rosa';
-
-        await setDoc(doc(db, 'usuarios', uid, 'dados', 'principal'), {
-          disputas: disputasData,
-          empenhos: empenhos,
-          compras: compras,
-          metas: metas,
-          tema: tema,
+        const data = {
+          disputas: JSON.parse(localStorage.getItem('km_disputas_v60_clean') || '{}'),
+          empenhos: JSON.parse(localStorage.getItem('km_empenhos_v60_clean') || '[]'),
+          compras: JSON.parse(localStorage.getItem('km_compras_v60_clean') || '[]'),
+          metas: JSON.parse(localStorage.getItem('km_metas_v60_clean') || '{}'),
+          tema: localStorage.getItem('km_tema_v1') || 'rosa',
           updatedAt: new Date().toISOString()
-        });
-      } catch(e) {
-        console.error('Erro ao salvar no Firebase:', e);
-      }
+        };
+        _db.collection('usuarios').doc(user.uid).collection('dados').doc('principal').set(data);
+      } catch(e) { console.error('fbSaveAll erro:', e); }
     };
 
-    // ── Carrega dados do Firestore para localStorage ──
-    window.fbLoadAll = async function() {
-      const user = auth.currentUser;
-      if (!user) return;
-      try {
-        const uid = user.uid;
-        const snap = await getDoc(doc(db, 'usuarios', uid, 'dados', 'principal'));
-        if (snap.exists()) {
-          const data = snap.data();
-          if (data.disputas) localStorage.setItem('km_disputas_v60_clean', JSON.stringify(data.disputas));
-          if (data.empenhos) localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(data.empenhos));
-          if (data.compras) localStorage.setItem('km_compras_v60_clean', JSON.stringify(data.compras));
-          if (data.metas) localStorage.setItem('km_metas_v60_clean', JSON.stringify(data.metas));
-          if (data.tema) localStorage.setItem('km_tema_v1', data.tema);
-          return true;
-        }
-        return false;
-      } catch(e) {
-        console.error('Erro ao carregar do Firebase:', e);
-        return false;
-      }
+    // ── Carrega dados do Firestore ──
+    window.fbLoadAll = function() {
+      const user = _auth.currentUser;
+      if (!user) return Promise.resolve(false);
+      return _db.collection('usuarios').doc(user.uid).collection('dados').doc('principal').get()
+        .then(function(snap) {
+          if (snap.exists) {
+            const d = snap.data();
+            if (d.disputas) localStorage.setItem('km_disputas_v60_clean', JSON.stringify(d.disputas));
+            if (d.empenhos) localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(d.empenhos));
+            if (d.compras) localStorage.setItem('km_compras_v60_clean', JSON.stringify(d.compras));
+            if (d.metas) localStorage.setItem('km_metas_v60_clean', JSON.stringify(d.metas));
+            if (d.tema) localStorage.setItem('km_tema_v1', d.tema);
+            return true;
+          }
+          return false;
+        })
+        .catch(function(e) { console.error('fbLoadAll erro:', e); return false; });
     };
 
-    // ── Monitora estado de autenticação ──
-    onAuthStateChanged(auth, async (user) => {
+    // ── Monitor de autenticação ──
+    _auth.onAuthStateChanged(function(user) {
       if (user) {
-        // Usuário logado
         window._fbCurrentUser = user;
-        // Atualiza nome/email na topbar se existir
-        const elName = document.getElementById('topbarUserName');
-        const elEmail = document.getElementById('topbarUserEmail');
-        const elAvatar = document.getElementById('topbarUserAvatar');
+        var elName = document.getElementById('topbarUserName');
+        var elEmail = document.getElementById('topbarUserEmail');
+        var elAvatar = document.getElementById('topbarUserAvatar');
         if (elName) elName.textContent = user.displayName || user.email;
         if (elEmail) elEmail.textContent = user.email;
         if (elAvatar && user.photoURL) { elAvatar.src = user.photoURL; elAvatar.style.display = 'block'; }
 
-        // Carrega dados do Firebase
-        const loaded = await window.fbLoadAll();
+        var overlay = document.getElementById('loginOverlay');
 
-        // Esconde overlay de login
-        const overlay = document.getElementById('loginOverlay');
-        if (overlay) overlay.classList.add('hidden');
-
-        // Reinicializa os dados se carregou do Firebase
-        if (loaded && typeof window.reinitApp === 'function') {
-          window.reinitApp();
-        }
+        window.fbLoadAll().then(function(loaded) {
+          if (overlay) overlay.classList.add('hidden');
+          if (loaded && typeof window.reinitApp === 'function') window.reinitApp();
+          else if (overlay) overlay.classList.add('hidden');
+        });
       } else {
-        // Não logado — mostra tela de login
         window._fbCurrentUser = null;
-        const overlay = document.getElementById('loginOverlay');
+        var overlay = document.getElementById('loginOverlay');
         if (overlay) overlay.classList.remove('hidden');
       }
     });
@@ -2693,7 +2649,6 @@
               </div>
             </div>
             <span style="font-size:10px;color:var(--muted);" id="dashDataHora"></span>
-            <!-- Usuário logado -->
             <div style="display:flex;align-items:center;gap:8px;background:var(--primary-soft);border:1px solid var(--primary-border);border-radius:10px;padding:5px 10px;">
               <img id="topbarUserAvatar" src="" style="width:24px;height:24px;border-radius:50%;display:none;" />
               <div style="line-height:1.2;">
@@ -4732,7 +4687,6 @@
       let base = {};
       try { base = JSON.parse(raw) || {}; } catch(e) {}
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...base, contratosAtivos, contratosEncerrados }));
-      // Atualiza sino e banners sempre que contratos mudam
       if (typeof atualizarSino === 'function') atualizarSino();
       if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
@@ -7197,7 +7151,6 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const mensal = qs('dashMetaMensalInput')?.value || '';
       const anual  = qs('dashMetaAnualInput')?.value  || '';
       localStorage.setItem(META_KEY, JSON.stringify({ mensal, anual }));
-      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     function parseMeta(str) {
@@ -7485,32 +7438,18 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       renderEmpAndamento();
     }
 
-    // ── Função de reinicialização (chamada após carregar dados do Firebase) ──
     window.reinitApp = function() {
-      loadContratos();
-      loadEmpenhos();
-      renderContratosAtivos();
-      renderContratosEncerrados();
-      populateUFs('conUF');
-      populateUFs('disputaUF');
-      populateUFs('encUF');
-      loadData();
-      movePopoversToBody();
-      renderDisputas();
-      renderHistoricoDisputas();
-      atualizarListaOrgaos();
-      loadCompras();
-      carregarMetas();
-      renderEmpenhos();
-      renderCompras();
-      atualizarSino();
-      carregarTema();
-      renderDashboard();
+      loadContratos(); loadEmpenhos();
+      renderContratosAtivos(); renderContratosEncerrados();
+      populateUFs('conUF'); populateUFs('disputaUF'); populateUFs('encUF');
+      loadData(); movePopoversToBody();
+      renderDisputas(); renderHistoricoDisputas(); atualizarListaOrgaos();
+      loadCompras(); carregarMetas(); renderEmpenhos(); renderCompras();
+      atualizarSino(); carregarTema(); renderDashboard();
     };
 
-    // Inicialização padrão (Firebase vai chamar reinitApp se tiver dados)
     loadContratos();
-    loadEmpenhos(); // usa empenhosDefault com IDs fixos se não houver dados salvos
+    loadEmpenhos();
 
     renderContratosAtivos();
     renderContratosEncerrados();
@@ -7559,7 +7498,6 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       });
       // Redesenha dashboard para atualizar cores do gráfico
       if (typeof renderDashboard === 'function') renderDashboard();
-      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     function carregarTema() {
