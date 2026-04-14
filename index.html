@@ -2391,6 +2391,74 @@
     /* Linha mensal */
     .dash-line-wrap { width: 100%; overflow: hidden; }
   </style>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAGVJAbqdKTKRfzycm-vEIO44ao8nZQ2jc",
+      authDomain: "km-licitacoes.firebaseapp.com",
+      projectId: "km-licitacoes",
+      storageBucket: "km-licitacoes.firebasestorage.app",
+      messagingSenderId: "679788125805",
+      appId: "1:679788125805:web:497ebf2f31386c3af62964"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var _auth = firebase.auth();
+    var _db   = firebase.firestore();
+
+    window.fbSaveAll = function() {
+      var user = _auth.currentUser;
+      if (!user) return;
+      try {
+        _db.collection("usuarios").doc(user.uid)
+           .collection("dados").doc("principal").set({
+          disputas: JSON.parse(localStorage.getItem("km_disputas_v60_clean") || "{}"),
+          empenhos: JSON.parse(localStorage.getItem("km_empenhos_v60_clean") || "[]"),
+          compras:  JSON.parse(localStorage.getItem("km_compras_v60_clean")  || "[]"),
+          metas:    JSON.parse(localStorage.getItem("km_metas_v60_clean")    || "{}"),
+          tema:     localStorage.getItem("km_tema_v1") || "rosa",
+          updatedAt: new Date().toISOString()
+        });
+      } catch(e) { console.error("fbSaveAll:", e); }
+    };
+
+    window.fbLoadAll = function() {
+      var user = _auth.currentUser;
+      if (!user) return Promise.resolve(false);
+      return _db.collection("usuarios").doc(user.uid)
+                .collection("dados").doc("principal").get()
+        .then(function(snap) {
+          if (snap.exists) {
+            var d = snap.data();
+            if (d.disputas) localStorage.setItem("km_disputas_v60_clean", JSON.stringify(d.disputas));
+            if (d.empenhos) localStorage.setItem("km_empenhos_v60_clean", JSON.stringify(d.empenhos));
+            if (d.compras)  localStorage.setItem("km_compras_v60_clean",  JSON.stringify(d.compras));
+            if (d.metas)    localStorage.setItem("km_metas_v60_clean",    JSON.stringify(d.metas));
+            if (d.tema)     localStorage.setItem("km_tema_v1", d.tema);
+            return true;
+          }
+          return false;
+        }).catch(function(e) { console.error("fbLoadAll:", e); return false; });
+    };
+
+    _auth.onAuthStateChanged(function(user) {
+      var overlay = document.getElementById("loginOverlay");
+      if (user) {
+        window._fbCurrentUser = user;
+        var el = document.getElementById("topbarUserName");
+        if (el) el.textContent = user.email;
+        window.fbLoadAll().then(function(loaded) {
+          if (overlay) overlay.classList.add("hidden");
+          if (loaded && typeof window.reinitApp === "function") window.reinitApp();
+        });
+      } else {
+        window._fbCurrentUser = null;
+        if (overlay) overlay.classList.remove("hidden");
+      }
+    });
+  </script>
 </head>
 <body>
   <!-- ═══ TELA DE LOGIN ═══ -->
@@ -2406,122 +2474,45 @@
         </div>
       </div>
       <div class="login-fields">
-        <div id="loginError" class="login-error" style="display:none;">Erro ao entrar.</div>
-        <button class="google-btn" onclick="loginComGoogle()" style="margin-top:8px;">
-          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 29.8 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.6 20-21 0-1.4-.2-2.7-.5-4z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15.1 15.6 19.2 12 24 12c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3c-7.7 0-14.3 4.6-17.7 11.7z"/><path fill="#FBBC05" d="M24 45c5.6 0 10.6-1.9 14.5-5.1l-6.7-5.5C29.8 36 27 37 24 37c-5.7 0-10.6-3.1-11.8-7.5l-7 5.4C8 41.1 15.4 45 24 45z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.8c-1.1 3.1-3.4 5.6-6.3 7.1l6.7 5.5C40.5 37.4 44.5 31.2 44.5 24c0-1.4-.2-2.7-.5-4z"/></svg>
-          Entrar com Google
-        </button>
-        <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;">Cada conta Google acessa apenas os seus próprios dados.</p>
+        <div>
+          <label class="login-field-label" for="loginUser">E-mail</label>
+          <input class="login-input" type="email" id="loginUser" placeholder="seu@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+        </div>
+        <div>
+          <label class="login-field-label" for="loginPass">Senha</label>
+          <input class="login-input" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLogin()">
+        </div>
+        <div id="loginError" class="login-error" style="display:none;">E-mail ou senha incorretos.</div>
+        <button class="login-btn" onclick="fazerLogin()">Entrar →</button>
         <p class="login-footer">© 2025 Kricia Moreira Gestão de Licitações. Todos os direitos reservados.</p>
       </div>
     </div>
   </div>
+    </div>
+  </div>
   <script>
-    // ══════════════════════════════════════════════════════
-    // 🔥 LOGIN COM FIREBASE — Google Auth
-    // ══════════════════════════════════════════════════════
-
-    function fazerLogin() { loginComGoogle(); }
-
-    function loginComGoogle() {
+    // 🔥 LOGIN FIREBASE — e-mail e senha
+    function fazerLogin() {
+      var email = document.getElementById('loginUser').value.trim();
+      var senha = document.getElementById('loginPass').value;
       var errEl = document.getElementById('loginError');
-      if (errEl) { errEl.style.display = 'none'; }
-      if (typeof firebase === 'undefined') {
-        if (errEl) { errEl.textContent = '⏳ Aguarde o carregamento...'; errEl.style.display = 'block'; }
+      errEl.style.display = 'none';
+      if (!email || !senha) {
+        errEl.textContent = 'Preencha e-mail e senha.';
+        errEl.style.display = 'block';
         return;
       }
-      _auth.signInWithPopup(_provider)
+      _auth.signInWithEmailAndPassword(email, senha)
         .catch(function(e) {
-          if (e.code === 'auth/popup-closed-by-user') return;
-          if (errEl) { errEl.textContent = '❌ Erro: ' + (e.message || e.code); errEl.style.display = 'block'; }
+          errEl.textContent = 'E-mail ou senha incorretos.';
+          errEl.style.display = 'block';
+          document.getElementById('loginPass').value = '';
         });
     }
 
     function fazerLogout() {
-      if (typeof _auth !== 'undefined') _auth.signOut();
+      _auth.signOut();
     }
-  </script>
-  <!-- Firebase SDKs (compat mode - sem módulos ES) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAGVJAbqdKTKRfzycm-vEIO44ao8nZQ2jc",
-      authDomain: "km-licitacoes.firebaseapp.com",
-      projectId: "km-licitacoes",
-      storageBucket: "km-licitacoes.firebasestorage.app",
-      messagingSenderId: "679788125805",
-      appId: "1:679788125805:web:497ebf2f31386c3af62964",
-      measurementId: "G-CLL7G34SP8"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const _auth = firebase.auth();
-    const _db = firebase.firestore();
-    const _provider = new firebase.auth.GoogleAuthProvider();
-
-    // ── Salva todos os dados no Firestore ──
-    window.fbSaveAll = function() {
-      const user = _auth.currentUser;
-      if (!user) return;
-      try {
-        const data = {
-          disputas: JSON.parse(localStorage.getItem('km_disputas_v60_clean') || '{}'),
-          empenhos: JSON.parse(localStorage.getItem('km_empenhos_v60_clean') || '[]'),
-          compras: JSON.parse(localStorage.getItem('km_compras_v60_clean') || '[]'),
-          metas: JSON.parse(localStorage.getItem('km_metas_v60_clean') || '{}'),
-          tema: localStorage.getItem('km_tema_v1') || 'rosa',
-          updatedAt: new Date().toISOString()
-        };
-        _db.collection('usuarios').doc(user.uid).collection('dados').doc('principal').set(data);
-      } catch(e) { console.error('fbSaveAll erro:', e); }
-    };
-
-    // ── Carrega dados do Firestore ──
-    window.fbLoadAll = function() {
-      const user = _auth.currentUser;
-      if (!user) return Promise.resolve(false);
-      return _db.collection('usuarios').doc(user.uid).collection('dados').doc('principal').get()
-        .then(function(snap) {
-          if (snap.exists) {
-            const d = snap.data();
-            if (d.disputas) localStorage.setItem('km_disputas_v60_clean', JSON.stringify(d.disputas));
-            if (d.empenhos) localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(d.empenhos));
-            if (d.compras) localStorage.setItem('km_compras_v60_clean', JSON.stringify(d.compras));
-            if (d.metas) localStorage.setItem('km_metas_v60_clean', JSON.stringify(d.metas));
-            if (d.tema) localStorage.setItem('km_tema_v1', d.tema);
-            return true;
-          }
-          return false;
-        })
-        .catch(function(e) { console.error('fbLoadAll erro:', e); return false; });
-    };
-
-    // ── Monitor de autenticação ──
-    _auth.onAuthStateChanged(function(user) {
-      if (user) {
-        window._fbCurrentUser = user;
-        var elName = document.getElementById('topbarUserName');
-        var elEmail = document.getElementById('topbarUserEmail');
-        var elAvatar = document.getElementById('topbarUserAvatar');
-        if (elName) elName.textContent = user.displayName || user.email;
-        if (elEmail) elEmail.textContent = user.email;
-        if (elAvatar && user.photoURL) { elAvatar.src = user.photoURL; elAvatar.style.display = 'block'; }
-
-        var overlay = document.getElementById('loginOverlay');
-
-        window.fbLoadAll().then(function(loaded) {
-          if (overlay) overlay.classList.add('hidden');
-          if (loaded && typeof window.reinitApp === 'function') window.reinitApp();
-          else if (overlay) overlay.classList.add('hidden');
-        });
-      } else {
-        window._fbCurrentUser = null;
-        var overlay = document.getElementById('loginOverlay');
-        if (overlay) overlay.classList.remove('hidden');
-      }
-    });
   </script>
   <div class="bell-dropdown hidden" id="bellDropdown" style="position:fixed;">
     <div class="bell-dropdown-header">
@@ -2650,12 +2641,8 @@
             </div>
             <span style="font-size:10px;color:var(--muted);" id="dashDataHora"></span>
             <div style="display:flex;align-items:center;gap:8px;background:var(--primary-soft);border:1px solid var(--primary-border);border-radius:10px;padding:5px 10px;">
-              <img id="topbarUserAvatar" src="" style="width:24px;height:24px;border-radius:50%;display:none;" />
-              <div style="line-height:1.2;">
-                <div style="font-size:10px;font-weight:700;color:var(--text);" id="topbarUserName">—</div>
-                <div style="font-size:9px;color:var(--muted);" id="topbarUserEmail"></div>
-              </div>
-              <button onclick="fazerLogout()" title="Sair" style="background:none;border:1px solid var(--primary-border);border-radius:7px;padding:3px 7px;cursor:pointer;font-size:10px;color:var(--primary-dark);font-weight:700;">Sair</button>
+              <span style="font-size:11px;font-weight:700;color:var(--text);" id="topbarUserName">—</span>
+              <button onclick="fazerLogout()" style="background:none;border:1px solid var(--primary-border);border-radius:7px;padding:3px 8px;cursor:pointer;font-size:10px;color:var(--primary-dark);font-weight:700;">Sair</button>
             </div>
           </div>
         </div>
@@ -4687,6 +4674,7 @@
       let base = {};
       try { base = JSON.parse(raw) || {}; } catch(e) {}
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...base, contratosAtivos, contratosEncerrados }));
+      // Atualiza sino e banners sempre que contratos mudam
       if (typeof atualizarSino === 'function') atualizarSino();
       if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
@@ -7151,6 +7139,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const mensal = qs('dashMetaMensalInput')?.value || '';
       const anual  = qs('dashMetaAnualInput')?.value  || '';
       localStorage.setItem(META_KEY, JSON.stringify({ mensal, anual }));
+      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     function parseMeta(str) {
