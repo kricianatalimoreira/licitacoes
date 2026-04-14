@@ -2449,9 +2449,13 @@
         window._fbCurrentUser = user;
         var el = document.getElementById("topbarUserName");
         if (el) el.textContent = user.email;
+        // Esconde o login imediatamente — não depende do Firestore
+        if (overlay) overlay.classList.add("hidden");
+        // Carrega dados do Firestore em paralelo (sem bloquear)
         window.fbLoadAll().then(function(loaded) {
-          if (overlay) overlay.classList.add("hidden");
           if (loaded && typeof window.reinitApp === "function") window.reinitApp();
+        }).catch(function(e) {
+          console.warn("fbLoadAll falhou, usando dados locais:", e);
         });
       } else {
         window._fbCurrentUser = null;
