@@ -12,28 +12,54 @@
     :root {
       --sidebar-w: 160px;
       --sidebar-collapsed-w: 52px;
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --line: #e7eaf3;
-      --text: #1f2430;
-      --muted: #6c7486;
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --line: #2a2d3a;
+      --text: #e2e8f0;
+      --muted: #8892a4;
       --primary: #d96c96;
-      --primary-soft: #fbe6ef;
-      --primary-dark: #b84f78;
-      --primary-th1: #fdf0f5;
-      --primary-th2: #fce8f1;
-      --primary-border: #f0b8ce;
-      --primary-border-light: #f7d0e1;
-      --primary-hover: #fff8fb;
-      --success: #1f8a4c;
-      --warning: #b76a00;
-      --danger: #b42318;
-      --shadow: 0 8px 24px rgba(31, 36, 48, 0.08);
+      --primary-soft: #2d1a24;
+      --primary-dark: #f48cb4;
+      --primary-th1: #1e1520;
+      --primary-th2: #251822;
+      --primary-border: #5a2d44;
+      --primary-border-light: #3d1f30;
+      --primary-hover: #1e1520;
+      --success: #2dd47a;
+      --warning: #f0a938;
+      --danger: #f05252;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       --radius: 14px;
       --topbar-h: 54px;
       --kpi-h: 82px;
       --padding-v: 28px;
     }
+
+    /* ── Dark mode globals ── */
+    body { color-scheme: dark; }
+    input, select, textarea {
+      background: var(--bg) !important;
+      color: var(--text) !important;
+      border-color: var(--line) !important;
+    }
+    input::placeholder, textarea::placeholder { color: var(--muted) !important; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+    /* Fix any remaining hardcoded white modal footers */
+    .modal-footer, .con-view-footer, .cmp-stepper-footer {
+      background: var(--card) !important;
+    }
+    .con-view-body { background: var(--card) !important; }
+    /* Fix table row hovers */
+    tbody tr:hover { background: var(--primary-th1) !important; }
+    /* Fix popover/dropdown backgrounds */
+    .bell-dropdown, .historico-inline-popover, .status-side-menu, .filter-popover {
+      background: var(--card) !important;
+      border-color: var(--line) !important;
+    }
+
 
     /* ── Seletor de tema ── */
     .theme-picker {
@@ -121,7 +147,7 @@
 
     .sidebar {
       height: 100vh;
-      background: #fff;
+      background: var(--card);
       border-right: 1px solid var(--line);
       padding: 14px 12px;
       overflow-y: auto;
@@ -268,7 +294,7 @@
       font-size: 11px;
     }
     .btn-primary { background: var(--primary); color: #fff; }
-    .btn-light { background: #fff; border: 1px solid var(--line); color: var(--text); }
+    .btn-light { background: var(--card); border: 1px solid var(--line); color: var(--text); }
     .btn-sm { padding: 5px 8px; font-size: 10px; border-radius: 7px; }
     .btn:hover { filter: brightness(.96); }
 
@@ -278,7 +304,7 @@
       margin-bottom: 10px;
     }
     .disputa-stat-card {
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 13px;
       padding: 10px 13px;
@@ -294,14 +320,14 @@
       font-weight: 800;
       line-height: 1.1;
     }
-    .stat-gray { background: #f8fafc; }
-    .stat-orange { background: #fff5e9; }
+    .stat-gray { background: var(--bg); }
+    .stat-orange { background: #2a1f10; }
     .stat-green { background: #eefcf3; }
-    .stat-red { background: #fff1f1; }
-    .stat-yellow { background: #fff9e8; }
+    .stat-red { background: #2a1010; }
+    .stat-yellow { background: #252010; }
 
     .disputa-table-card {
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 14px;
       overflow: visible;
@@ -386,7 +412,7 @@
       border-bottom: 1px solid var(--line);
       border-right: 1px solid #f0f2f7;
       vertical-align: middle;
-      background: #fff;
+      background: var(--card);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -459,7 +485,7 @@
       height: 18px;
       border-radius: 5px;
       border: 1px solid #f1c9d8;
-      background: #fff7fb;
+      background: var(--primary-soft);
       color: var(--primary-dark);
       cursor: pointer;
       font-size: 10px;
@@ -472,7 +498,7 @@
     .historico-inline-popover {
       position: fixed;
       width: 210px;
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 12px;
       box-shadow: 0 16px 32px rgba(31,36,48,.18);
@@ -517,11 +543,11 @@
       font-size: 10px;
       font-weight: 700;
     }
-    .status-orange { background: #fff4e6; color: #b76a00; }
+    .status-orange { background: #2a1c0a; color: #b76a00; }
     .status-gray { background: #eef0f3; color: #5c6670; }
     .status-green { background: #e9f9ef; color: #1f8a4c; }
     .status-red { background: #fdeaea; color: #b42318; }
-    .status-yellow { background: #fff8e1; color: #a16207; }
+    .status-yellow { background: #252012; color: #a16207; }
 
     .company-badge {
       display: inline-flex;
@@ -571,7 +597,7 @@
       height: 26px;
       border-radius: 7px;
       border: 1px solid var(--line);
-      background: #fff;
+      background: var(--card);
       font-size: 14px;
       color: var(--muted);
       cursor: pointer;
@@ -582,7 +608,7 @@
     .row-menu {
       position: fixed;
       min-width: 195px;
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 11px;
       box-shadow: 0 14px 32px rgba(31, 36, 48, 0.16);
@@ -613,7 +639,7 @@
     .row-submenu {
       position: fixed;
       min-width: 180px;
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 11px;
       box-shadow: 0 14px 32px rgba(31,36,48,.18);
@@ -653,7 +679,7 @@
       width: min(960px, 92vw);
       max-height: 88vh;
       overflow: auto;
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 18px;
       box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
@@ -672,7 +698,7 @@
       height: 30px;
       border-radius: 9px;
       border: 1px solid var(--line);
-      background: #f8fafc;
+      background: var(--bg);
       color: #64748b;
       font-size: 17px;
       line-height: 1;
@@ -700,7 +726,7 @@
       border-top: 1px solid var(--line);
       position: sticky;
       bottom: 0;
-      background: #fff;
+      background: var(--card);
     }
 
     .field-box {
@@ -709,7 +735,7 @@
       padding: 8px 9px;
       border: 1px solid var(--line);
       border-radius: 9px;
-      background: #fff;
+      background: var(--card);
       font-family: inherit;
       font-size: 11px;
     }
@@ -765,7 +791,7 @@
       align-items: center;
       gap: 6px;
       padding: 9px 18px;
-      background: #fff;
+      background: var(--card);
       border: 2px solid rgba(255,255,255,.9);
       border-radius: 12px;
       color: var(--primary-dark);
@@ -806,7 +832,7 @@
       flex: 0 0 auto;
     }
     .con-view-close:hover { background: rgba(255,255,255,.4); }
-    .con-view-body { padding: 20px 24px; background: #fff; flex: 1; overflow-y: auto; }
+    .con-view-body { padding: 20px 24px; background: var(--card); flex: 1; overflow-y: auto; }
 
     /* Cards de métricas */
     .con-view-metrics {
@@ -815,7 +841,7 @@
       margin-bottom: 18px;
     }
     .con-view-metric-card {
-      background: #f8fafc;
+      background: var(--bg);
       border: 1px solid var(--line);
       border-radius: 13px;
       padding: 13px 16px;
@@ -867,7 +893,7 @@
       gap: 10px;
     }
     .con-view-emp-card {
-      background: #fff;
+      background: var(--card);
       border-radius: 10px;
       padding: 11px 14px;
     }
@@ -952,7 +978,7 @@
       gap: 8px;
       padding: 14px 24px;
       border-top: 1px solid var(--line);
-      background: #fff;
+      background: var(--card);
       border-radius: 0 0 20px 20px;
     }
 
@@ -1036,7 +1062,7 @@
       position: absolute;
       width: 14px; height: 14px;
       left: 3px; top: 3px;
-      background: #fff;
+      background: var(--card);
       border-radius: 50%;
       transition: .2s;
     }
@@ -1073,7 +1099,7 @@
       border-radius: 9px;
       font-size: 12px;
       font-family: inherit;
-      background: #fff;
+      background: var(--card);
       color: var(--text);
       box-sizing: border-box;
     }
@@ -1095,7 +1121,7 @@
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 12px 14px;
-      background: #f8fafc;
+      background: var(--bg);
     }
     .con-form-value-card.highlight {
       background: var(--primary-soft);
@@ -1167,7 +1193,7 @@
     .con-form-itens-table td {
       padding: 5px 4px;
       vertical-align: middle;
-      background: #fff;
+      background: var(--card);
     }
     .con-form-itens-table tr:hover td { background: var(--primary-hover); }
     .con-form-itens-table input {
@@ -1192,7 +1218,7 @@
       background: var(--primary-hover);
     }
     .con-form-itens-table input[readonly] {
-      background: #f8fafc;
+      background: var(--bg);
       color: var(--muted);
     }
     /* Larguras das colunas da tabela de itens */
@@ -1223,7 +1249,7 @@
     .con-form-btn-excluir {
       padding: 5px 10px;
       border: 1px solid #fca5a5;
-      background: #fff1f1;
+      background: #2a1010;
       color: #b42318;
       border-radius: 7px;
       font-size: 10px;
@@ -1238,7 +1264,7 @@
       gap: 10px;
       padding: 16px 28px;
       border-top: 1px solid var(--line);
-      background: #fff;
+      background: var(--card);
       border-radius: 0 0 16px 16px;
     }
 
@@ -1285,14 +1311,14 @@
       font-size: 13px;
       font-weight: 800;
       color: var(--primary-dark);
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--primary-border);
       border-radius: 8px;
       padding: 2px 10px;
     }
     .subtotal-clear-btn {
       border: 1px solid var(--primary-border);
-      background: #fff;
+      background: var(--card);
       color: var(--primary-dark);
       border-radius: 8px;
       padding: 3px 10px;
@@ -1378,7 +1404,7 @@
       height: 28px;
       border-radius: 50%;
       border: 2px solid var(--line);
-      background: #fff;
+      background: var(--card);
       color: var(--muted);
       font-size: 11px;
       font-weight: 800;
@@ -1421,7 +1447,7 @@
       margin-bottom: 14px;
     }
     .review-card {
-      background: #f8fafc;
+      background: var(--bg);
       border: 1px solid var(--line);
       border-radius: 11px;
       padding: 11px 14px;
@@ -1451,7 +1477,7 @@
       border: 1px solid var(--line);
     }
     .review-fin-card.highlight { background: var(--primary-soft); border-color: var(--primary-border); }
-    .review-fin-card:not(.highlight) { background: #f8fafc; }
+    .review-fin-card:not(.highlight) { background: var(--bg); }
     .review-fin-label { font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
     .review-fin-card.highlight .review-fin-label { color: var(--primary-dark); }
     .review-fin-value { font-size: 15px; font-weight: 800; color: var(--text); }
@@ -1467,7 +1493,7 @@
       border-top: 1px solid var(--line);
       position: sticky;
       bottom: 0;
-      background: #fff;
+      background: var(--card);
       border-radius: 0 0 16px 16px;
     }
     .stepper-progress {
@@ -1497,7 +1523,7 @@
     .calc-row-label { font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--primary-dark); }
     .calc-row-value { font-size: 14px; font-weight: 800; color: var(--text); }
     .calc-row-sep { font-size: 18px; color: #d9a3b8; font-weight: 300; margin-top: 8px; }
-    .calc-row-result { background: #fff; border-radius: 8px; padding: 6px 12px; }
+    .calc-row-result { background: var(--card); border-radius: 8px; padding: 6px 12px; }
     .calc-row-result .calc-row-value { color: var(--primary-dark); font-size: 16px; }
 
     /* ── Barra de execução do contrato ── */
@@ -1543,7 +1569,7 @@
       margin-top: 3px;
     }
     .con-venc-30  { background: #fdeaea; color: #b42318; }
-    .con-venc-60  { background: #fff4e6; color: #b76a00; }
+    .con-venc-60  { background: #2a1c0a; color: #b76a00; }
 
     /* Info secundária no órgão */
     .con-orgao-wrap { display: flex; flex-direction: column; gap: 2px; }
@@ -1552,7 +1578,7 @@
 
     /* Alert KPI card — vencendo em 60 dias */
     .stat-alert {
-      background: #fff4e6;
+      background: #2a1c0a;
       border-color: #f5a623 !important;
     }
     .stat-alert .disputa-stat-value { color: #b76a00; }
@@ -1576,7 +1602,7 @@
     .status-dropdown {
       position: fixed;
       min-width: 140px;
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 10px;
       box-shadow: 0 12px 28px rgba(31,36,48,.18);
@@ -1674,7 +1700,7 @@
     .emp-form-field textarea {
       width:100%; padding:9px 11px; border:1px solid var(--line);
       border-radius:9px; font-size:12px; font-family:inherit;
-      background:#fff; color:var(--text); box-sizing:border-box;
+      background:var(--card); color:var(--text); box-sizing:border-box;
     }
     .emp-form-field input:focus,
     .emp-form-field select:focus,
@@ -1682,7 +1708,7 @@
       outline:none; border-color:var(--primary);
       box-shadow:0 0 0 3px rgba(217,108,150,.12);
     }
-    .emp-form-field input[readonly] { background:#f8fafc; color:var(--muted); }
+    .emp-form-field input[readonly] { background:var(--bg); color:var(--muted); }
 
     /* Saldo card */
     .emp-saldo-card {
@@ -1747,7 +1773,7 @@
     .emp-contrato-select {
       width: 100%; padding: 9px 11px; border: 1px solid var(--primary-border);
       border-radius: 9px; font-size: 12px; font-family: inherit;
-      background: #fff; color: var(--text);
+      background: var(--card); color: var(--text);
     }
     .emp-contrato-select:focus { outline: none; border-color: var(--primary); }
     .emp-contrato-info { font-size: 10px; color: var(--primary-dark); margin-top: 6px; font-weight: 600; }
@@ -1787,7 +1813,7 @@
       top: 0;
       right: 0;
       width: min(340px, 94vw);
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 14px;
       box-shadow: 0 16px 40px rgba(31,36,48,.15);
@@ -1841,16 +1867,16 @@
     .bell-item-tag {
       font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 6px; white-space: nowrap; flex: 0 0 auto;
     }
-    .bell-tag-red    { background: #fff1f1; color: #b42318; }
-    .bell-tag-orange { background: #fff5e9; color: #b76a00; }
-    .bell-tag-yellow { background: #fff9e8; color: #b59000; }
+    .bell-tag-red    { background: #2a1010; color: #b42318; }
+    .bell-tag-orange { background: #2a1f10; color: #b76a00; }
+    .bell-tag-yellow { background: #252010; color: #b59000; }
 
     /* ── Banner de vencimento ── */
     .venc-banner {
       display: flex;
       align-items: center;
       gap: 10px;
-      background: #fff5e9;
+      background: #2a1f10;
       border: 1px solid #f5c07a;
       border-radius: 10px;
       padding: 8px 14px;
@@ -1875,7 +1901,7 @@
       right: 18px;
       min-width: 240px;
       max-width: 300px;
-      background: #fff;
+      background: var(--card);
       border: 2px solid var(--primary);
       border-radius: 14px;
       box-shadow: 0 16px 40px rgba(217,108,150,.25);
@@ -1950,7 +1976,7 @@
       font-weight: 700;
       cursor: pointer;
       border: 1.5px solid var(--line);
-      background: #fff;
+      background: var(--card);
       color: var(--muted);
       white-space: nowrap;
       transition: all .18s;
@@ -1986,7 +2012,7 @@
       justify-content: space-between;
       padding: 12px 22px;
       border-top: 1px solid var(--line);
-      background: #fff;
+      background: var(--card);
     }
     .cmp-step-counter {
       font-size: 10px;
@@ -2027,7 +2053,7 @@
       transition: background .15s;
     }
     .btn-toggle-manual.is-manual {
-      background: #fff5e9;
+      background: #2a1f10;
       border-color: #f5a623;
       color: #b76a00;
     }
@@ -2054,7 +2080,7 @@
     }
     .cmp-readonly-field .cmp-val {
       font-size: 12px; font-weight: 700; color: var(--text);
-      background: #f8fafc; border: 1px solid var(--line);
+      background: var(--bg); border: 1px solid var(--line);
       border-radius: 8px; padding: 7px 10px;
     }
     .cmp-edit-grid {
@@ -2070,9 +2096,9 @@
     .cmp-field input, .cmp-field select {
       width: 100%; padding: 8px 10px; border: 1px solid var(--line);
       border-radius: 8px; font-size: 11px; font-family: inherit;
-      background: #fff; box-sizing: border-box;
+      background: var(--card); box-sizing: border-box;
     }
-    .cmp-field input[readonly] { background: #f8fafc; color: var(--muted); font-weight: 700; }
+    .cmp-field input[readonly] { background: var(--bg); color: var(--muted); font-weight: 700; }
     .cmp-field input.lucro-positivo { color: #1f8a4c !important; }
     .cmp-field input.lucro-negativo { color: #b42318 !important; }
     .cmp-field input:focus, .cmp-field select:focus {
@@ -2102,7 +2128,7 @@
       gap: 10px;
     }
     .dash-kpi-card {
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 13px;
       padding: 13px 16px;
@@ -2117,7 +2143,7 @@
 
     /* Cards grandes */
     .dash-card {
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 16px 18px;
@@ -2133,7 +2159,7 @@
 
     /* Meta card */
     .meta-card {
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 16px 18px;
@@ -2212,78 +2238,7 @@
     /* Linha mensal */
     .dash-line-wrap { width: 100%; overflow: hidden; }
   </style>
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAGVJAbqdKTKRfzycm-vEIO44ao8nZQ2jc",
-      authDomain: "km-licitacoes.firebaseapp.com",
-      projectId: "km-licitacoes",
-      storageBucket: "km-licitacoes.firebasestorage.app",
-      messagingSenderId: "679788125805",
-      appId: "1:679788125805:web:497ebf2f31386c3af62964"
-    };
-    firebase.initializeApp(firebaseConfig);
-    var _auth = firebase.auth();
-    var _db   = firebase.firestore();
 
-    window.fbSaveAll = function() {
-      var user = _auth.currentUser;
-      if (!user) return;
-      try {
-        _db.collection("usuarios").doc(user.uid)
-           .collection("dados").doc("principal").set({
-          disputas: JSON.parse(localStorage.getItem("km_disputas_v60_clean") || "{}"),
-          empenhos: JSON.parse(localStorage.getItem("km_empenhos_v60_clean") || "[]"),
-          compras:  JSON.parse(localStorage.getItem("km_compras_v60_clean")  || "[]"),
-          metas:    JSON.parse(localStorage.getItem("km_metas_v60_clean")    || "{}"),
-          tema:     localStorage.getItem("km_tema_v1") || "rosa",
-          updatedAt: new Date().toISOString()
-        });
-      } catch(e) { console.error("fbSaveAll:", e); }
-    };
-
-    window.fbLoadAll = function() {
-      var user = _auth.currentUser;
-      if (!user) return Promise.resolve(false);
-      return _db.collection("usuarios").doc(user.uid)
-                .collection("dados").doc("principal").get()
-        .then(function(snap) {
-          if (snap.exists) {
-            var d = snap.data();
-            if (d.disputas) localStorage.setItem("km_disputas_v60_clean", JSON.stringify(d.disputas));
-            if (d.empenhos) localStorage.setItem("km_empenhos_v60_clean", JSON.stringify(d.empenhos));
-            if (d.compras)  localStorage.setItem("km_compras_v60_clean",  JSON.stringify(d.compras));
-            if (d.metas)    localStorage.setItem("km_metas_v60_clean",    JSON.stringify(d.metas));
-            if (d.tema)     localStorage.setItem("km_tema_v1", d.tema);
-            return true;
-          }
-          return false;
-        }).catch(function(e) { console.error("fbLoadAll:", e); return false; });
-    };
-
-    _auth.onAuthStateChanged(function(user) {
-      var overlay = document.getElementById("loginOverlay");
-      if (user) {
-        window._fbCurrentUser = user;
-        var el = document.getElementById("topbarUserName");
-        if (el) el.textContent = user.email;
-        // Esconde o login imediatamente — não depende do Firestore
-        if (overlay) overlay.classList.add("hidden");
-        // Carrega dados do Firestore em paralelo (sem bloquear)
-        window.fbLoadAll().then(function(loaded) {
-          if (loaded && typeof window.reinitApp === "function") window.reinitApp();
-        }).catch(function(e) {
-          console.warn("fbLoadAll falhou, usando dados locais:", e);
-        });
-      } else {
-        window._fbCurrentUser = null;
-        if (overlay) overlay.classList.remove("hidden");
-      }
-    });
-  </script>
 </head>
 <body>
 
@@ -2404,10 +2359,6 @@
 </div>
 </div>
 <span id="dashDataHora" style="font-size:10px;color:var(--muted);"></span>
-<div style="display:flex;align-items:center;gap:8px;background:var(--primary-soft);border:1px solid var(--primary-border);border-radius:10px;padding:5px 10px;">
-<span id="topbarUserName" style="font-size:11px;font-weight:700;color:var(--text);">—</span>
-<button onclick="fazerLogout()" style="background:none;border:1px solid var(--primary-border);border-radius:7px;padding:3px 8px;cursor:pointer;font-size:10px;color:var(--primary-dark);font-weight:700;">Sair</button>
-</div>
 </div>
 </div>
 <!-- Linha 1: Botões rápidos -->
@@ -3344,7 +3295,7 @@
 </div>
 <div class="con-form-field">
 <label>Vencimento <span style="font-size:9px;color:var(--primary-dark);">(automático — 12 meses)</span></label>
-<input id="conDataFim" readonly="" style="background:#f8fafc;color:var(--muted);" type="date"/>
+<input id="conDataFim" readonly="" style="background:var(--bg);color:var(--muted);" type="date"/>
 </div>
 </div>
 </div>
@@ -3500,11 +3451,11 @@
 <div class="modal-field"><label>Valor Compra Prevista (R$)</label><input class="field-box" id="eConACompra" min="0" oninput="calcularCustoModalEdit('A')" step="0.01" type="number"/></div>
 <div class="modal-field"><label>Royalties (R$)</label><input class="field-box" id="eConARoyalties" min="0" oninput="calcularCustoModalEdit('A')" step="0.01" type="number"/></div>
 <div class="modal-field"><label>Imposto da Nota (R$)</label><input class="field-box" id="eConAImposto" min="0" oninput="calcularCustoModalEdit('A')" step="0.01" type="number"/></div>
-<div class="modal-field"><label>Custo Previsto (R$)</label><input class="field-box" id="eConACusto" readonly="" step="0.01" style="background:#f8fafc;color:#b76a00;font-weight:700;" type="number"/></div>
-<div class="modal-field"><label>Lucro Previsto (R$)</label><input class="field-box" id="eConALucro" readonly="" step="0.01" style="background:#f8fafc;color:#1f8a4c;font-weight:700;" type="number"/></div>
+<div class="modal-field"><label>Custo Previsto (R$)</label><input class="field-box" id="eConACusto" readonly="" step="0.01" style="background:var(--bg);color:#b76a00;font-weight:700;" type="number"/></div>
+<div class="modal-field"><label>Lucro Previsto (R$)</label><input class="field-box" id="eConALucro" readonly="" step="0.01" style="background:var(--bg);color:#1f8a4c;font-weight:700;" type="number"/></div>
 <div class="modal-field"><label>Total de itens do contrato</label><input class="field-box" id="eConATotalItens" min="0" placeholder="Ex: 109" step="1" type="number"/></div>
 <div class="modal-field"><label>💰 Valor Empenhado (R$)</label><input class="field-box" id="eConAEmpenhado" min="0" oninput="calcularSaldoContrato()" placeholder="0,00" step="0.01" type="number"/></div>
-<div class="modal-field"><label>📊 Saldo Restante (R$)</label><input class="field-box" id="eConASaldo" readonly="" step="0.01" style="background:#f8fafc;color:#2563eb;font-weight:700;" type="number"/></div>
+<div class="modal-field"><label>📊 Saldo Restante (R$)</label><input class="field-box" id="eConASaldo" readonly="" step="0.01" style="background:var(--bg);color:#2563eb;font-weight:700;" type="number"/></div>
 <div class="modal-field"><label>🖥️ Link do sistema</label><input class="field-box" id="eConASala" type="url"/></div>
 <div class="modal-field"><label>💾 Link do drive</label><input class="field-box" id="eConADrive" type="url"/></div>
 <div class="modal-field" style="grid-column:1 / -1;"><label>Observação</label><textarea class="field-box" id="eConAObs"></textarea></div>
@@ -3533,8 +3484,8 @@
 <div class="modal-field"><label>Valor Compra Prevista (R$)</label><input class="field-box" id="eConECompra" min="0" oninput="calcularCustoModalEdit('E')" step="0.01" type="number"/></div>
 <div class="modal-field"><label>Royalties (R$)</label><input class="field-box" id="eConERoyalties" min="0" oninput="calcularCustoModalEdit('E')" step="0.01" type="number"/></div>
 <div class="modal-field"><label>Imposto da Nota (R$)</label><input class="field-box" id="eConEImposto" min="0" oninput="calcularCustoModalEdit('E')" step="0.01" type="number"/></div>
-<div class="modal-field"><label>Custo Previsto (R$)</label><input class="field-box" id="eConECusto" readonly="" step="0.01" style="background:#f8fafc;color:#b76a00;font-weight:700;" type="number"/></div>
-<div class="modal-field"><label>Lucro Previsto (R$)</label><input class="field-box" id="eConELucro" readonly="" step="0.01" style="background:#f8fafc;color:#1f8a4c;font-weight:700;" type="number"/></div>
+<div class="modal-field"><label>Custo Previsto (R$)</label><input class="field-box" id="eConECusto" readonly="" step="0.01" style="background:var(--bg);color:#b76a00;font-weight:700;" type="number"/></div>
+<div class="modal-field"><label>Lucro Previsto (R$)</label><input class="field-box" id="eConELucro" readonly="" step="0.01" style="background:var(--bg);color:#1f8a4c;font-weight:700;" type="number"/></div>
 <div class="modal-field"><label>🖥️ Link do sistema</label><input class="field-box" id="eConESala" type="url"/></div>
 <div class="modal-field"><label>💾 Link do drive</label><input class="field-box" id="eConEDrive" type="url"/></div>
 <div class="modal-field" style="grid-column:1 / -1;"><label>Observação</label><textarea class="field-box" id="eConEObs"></textarea></div>
@@ -3583,7 +3534,6 @@
 
     function persist() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ disputas, disputasEncerradas }));
-      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     function toggleSidebar() {
@@ -4388,7 +4338,6 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...base, contratosAtivos, contratosEncerrados }));
       // Atualiza sino e banners sempre que contratos mudam
       if (typeof atualizarSino === 'function') atualizarSino();
-      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     // ── Render Ativos ────────────────────────────────
@@ -5187,7 +5136,7 @@
         'Paga':                  '#e9f9ef',
       };
       if (!empDoContrato.length) {
-        empWrap.innerHTML = `<div style="padding:14px 16px;background:#f8fafc;border:1px dashed #d0d5dd;border-radius:10px;color:var(--muted);font-size:11px;text-align:center;">Nenhum empenho emitido para este contrato.</div>`;
+        empWrap.innerHTML = `<div style="padding:14px 16px;background:var(--bg);border:1px dashed #d0d5dd;border-radius:10px;color:var(--muted);font-size:11px;text-align:center;">Nenhum empenho emitido para este contrato.</div>`;
       } else {
         const totalEmpV = empDoContrato.reduce((s,e) => s+(Number(e.valor)||0), 0);
         const saldoEmp  = (Number(c.valor)||0) - totalEmpV;
@@ -5202,7 +5151,7 @@
               <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:${saldoEmp>=0?'#1f8a4c':'#b42318'};margin-bottom:4px;">Saldo restante</div>
               <div style="font-size:15px;font-weight:800;color:${saldoEmp>=0?'#1f8a4c':'#b42318'};">${formatCurrency(saldoEmp)}</div>
             </div>
-            <div style="background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px 14px;">
+            <div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 14px;">
               <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px;">Qtd. empenhos</div>
               <div style="font-size:15px;font-weight:800;color:var(--text);">${empDoContrato.length}</div>
             </div>
@@ -5311,7 +5260,6 @@
 
     function persistEmpenhos() {
       localStorage.setItem(EMP_KEY, JSON.stringify(empenhos));
-      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     // Retorna só contratos ativos com saldo de qtd de itens a empenhar
@@ -6047,7 +5995,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         const totalEmpV = empenhos.filter(e => e.contratoId === c.id).reduce((s,e) => s + (Number(e.valor)||0), 0);
         const saldoV = (Number(c.valor)||0) - totalEmpV;
         return `<button onclick="qs('miniSeletorContratoWrap').classList.add('hidden');abrirCadastroEmpenho('${c.id}')"
-          style="text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;font-family:inherit;transition:background .15s;"
+          style="text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;font-family:inherit;transition:background .15s;"
           onmouseover="this.style.background=var(--primary-hover)" onmouseout="this.style.background='#fff'">
           <div style="font-size:11px;font-weight:700;color:var(--text);">${c.orgao}</div>
           <div style="font-size:9px;color:var(--muted);margin-top:2px;">${c.contrato||c.processo||'—'} · ${c.empresa} · Saldo: <strong style="color:${saldoV>=0?'#2563eb':'#b42318'}">${formatCurrency(saldoV)}</strong></div>
@@ -6196,7 +6144,6 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
     function persistCompras() {
       localStorage.setItem(CMP_KEY, JSON.stringify(compras));
-      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     // ── Formata item do modal ──────────────────────────────
@@ -6256,7 +6203,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
             <label>Imposto Unit. (R$) — 5% automático</label>
             <div class="cmp-auto-row">
               <input type="number" id="${id}_impostoUnit" step="0.01" min="0" readonly
-                oninput="recalcCmp(${idx})" style="background:#f8fafc;color:var(--muted);" />
+                oninput="recalcCmp(${idx})" style="background:var(--bg);color:var(--muted);" />
               <button type="button" class="btn-toggle-manual" id="${id}_impostoUnitBtn"
                 onclick="toggleManualCmp('${id}_impostoUnit','${id}_impostoUnitBtn',${idx})">🔒 Auto</button>
             </div>
@@ -6264,13 +6211,13 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           <div class="cmp-field">
             <label>Imposto Total (R$)</label>
             <input type="number" id="${id}_impostoTotal" step="0.01" readonly
-              style="background:#f8fafc;color:var(--muted);" />
+              style="background:var(--bg);color:var(--muted);" />
           </div>
           <div class="cmp-field">
             <label>Royalties Unit. (R$) — 1% automático</label>
             <div class="cmp-auto-row">
               <input type="number" id="${id}_royaltiesUnit" step="0.01" min="0" readonly
-                oninput="recalcCmp(${idx})" style="background:#f8fafc;color:var(--muted);" />
+                oninput="recalcCmp(${idx})" style="background:var(--bg);color:var(--muted);" />
               <button type="button" class="btn-toggle-manual" id="${id}_royaltiesUnitBtn"
                 onclick="toggleManualCmp('${id}_royaltiesUnit','${id}_royaltiesUnitBtn',${idx})">🔒 Auto</button>
             </div>
@@ -6278,7 +6225,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           <div class="cmp-field">
             <label>Royalties Total (R$)</label>
             <input type="number" id="${id}_royaltiesTotal" step="0.01" readonly
-              style="background:#f8fafc;color:var(--muted);" />
+              style="background:var(--bg);color:var(--muted);" />
           </div>
         </div>
         <!-- Lucro -->
@@ -6442,7 +6389,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         return `
         <div class="seletor-item-card" id="sic_${i}" onclick="selecionarSicItem(${i})" style="
           border:2px solid var(--line);border-radius:13px;padding:15px 16px;cursor:pointer;
-          background:#fff;transition:border-color .15s,box-shadow .15s;user-select:none;">
+          background:var(--card);transition:border-color .15s,box-shadow .15s;user-select:none;">
           <div style="font-size:11px;font-weight:800;color:var(--text);line-height:1.35;margin-bottom:8px;">${ie.descricao || 'Item sem descrição'}</div>
           <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">${ie.qtdEmp} un · ${formatCurrency(vlUnit)}/un</div>
           <div style="font-size:10px;font-weight:700;color:${disponivel > 0 ? '#1f8a4c' : '#b42318'};">
@@ -6677,7 +6624,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       // Cria um ie fake para reutilizar cmpItemFormHtml
       const ie = { itemId: c.itemId, descricao: c.descricao, qtdEmp: c.qtdEmp };
       body.innerHTML = `
-        <div style="background:#f8fafc;border:1px solid var(--line);border-radius:11px;padding:11px 16px;margin-bottom:16px;">
+        <div style="background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:11px 16px;margin-bottom:16px;">
           <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Empenho de origem</div>
           <div style="font-size:13px;font-weight:800;">${c.orgao} <span style="font-size:10px;color:var(--muted);font-weight:400;">· ${c.empenhoNumero} · ${c.empresa}</span></div>
         </div>
@@ -6851,7 +6798,6 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const mensal = qs('dashMetaMensalInput')?.value || '';
       const anual  = qs('dashMetaAnualInput')?.value  || '';
       localStorage.setItem(META_KEY, JSON.stringify({ mensal, anual }));
-      if (window.fbSaveAll) setTimeout(window.fbSaveAll, 500);
     }
 
     function parseMeta(str) {
@@ -7296,7 +7242,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 </div>
 </div>
 <!-- Footer fixo -->
-<div class="modal-footer" style="flex:0 0 auto;padding:12px 22px;border-top:1px solid var(--line);background:#fff;">
+<div class="modal-footer" style="flex:0 0 auto;padding:12px 22px;border-top:1px solid var(--line);background:var(--card);">
 <button class="btn btn-light" onclick="fecharCadastroEmpenho()">Cancelar</button>
 <button class="btn btn-primary" onclick="salvarNovoEmpenho()">📄 Registrar Empenho</button>
 </div>
@@ -7311,7 +7257,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 </div>
 <div class="emp-form-body">
 <input id="empEditId" type="hidden"/>
-<div style="background:#f8fafc;border:1px solid var(--line);border-radius:11px;padding:11px 14px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+<div style="background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:11px 14px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
 <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Órgão</div><div id="empEditOrgao" style="font-size:12px;font-weight:700;">—</div></div>
 <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Empresa</div><div id="empEditEmpresa" style="font-size:12px;font-weight:700;">—</div></div>
 <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Valor</div><div id="empEditValor" style="font-size:14px;font-weight:800;color:#2563eb;">—</div></div>
@@ -7333,10 +7279,10 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 <div class="emp-form-field"><label>Contato</label><input id="empEditContato" type="text"/></div>
 </div>
 <!-- PDF do empenho -->
-<div style="background:#f8fafc;border:1px dashed #d0d5dd;border-radius:11px;padding:13px 16px;margin-bottom:14px;">
+<div style="background:var(--bg);border:1px dashed #d0d5dd;border-radius:11px;padding:13px 16px;margin-bottom:14px;">
 <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px;">📎 Documento do Empenho (PDF)</div>
 <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-<label id="empEditPdfLabel" style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:#fff;border:1px solid var(--line);border-radius:9px;cursor:pointer;font-size:11px;font-weight:600;color:var(--text);">
+<label id="empEditPdfLabel" style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:var(--card);border:1px solid var(--line);border-radius:9px;cursor:pointer;font-size:11px;font-weight:600;color:var(--text);">
               📂 Selecionar PDF
               <input accept="application/pdf" id="empEditPdfInput" onchange="onEmpEditPdfChange(this)" style="display:none;" type="file"/>
 </label>
@@ -7415,7 +7361,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 </div>
 </div>
 </div>
-<div class="con-view-footer" style="flex:0 0 auto;display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;border-top:1px solid var(--line);background:#fff;border-radius:0 0 20px 20px;">
+<div class="con-view-footer" style="flex:0 0 auto;display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;border-top:1px solid var(--line);background:var(--card);border-radius:0 0 20px 20px;">
 <button class="btn btn-light" onclick="fecharConView()">Fechar</button>
 <button class="btn btn-primary" onclick="editarContratoDoView()">✏️ Editar Contrato</button>
 </div>
@@ -7436,7 +7382,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 </div>
 <div id="seletorItemGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;"></div>
 </div>
-<div style="padding:12px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;flex:0 0 auto;background:#fff;">
+<div style="padding:12px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;flex:0 0 auto;background:var(--card);">
 <button class="btn btn-light" onclick="qs('seletorItemCompraWrap').classList.add('hidden')">Cancelar</button>
 <button class="btn btn-primary" id="seletorItemSalvarBtn" onclick="confirmarSeletorItem()" style="min-width:130px;">Salvar Compra</button>
 </div>
@@ -7479,7 +7425,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 <div class="emp-form-body" id="cmpEditBody">
 <!-- preenchido dinamicamente -->
 </div>
-<div class="modal-footer" style="flex:0 0 auto;padding:12px 22px;border-top:1px solid var(--line);background:#fff;">
+<div class="modal-footer" style="flex:0 0 auto;padding:12px 22px;border-top:1px solid var(--line);background:var(--card);">
 <button class="btn btn-light" onclick="fecharEditCompra()">Cancelar</button>
 <button class="btn btn-primary" onclick="salvarEditCompra()">💾 Salvar Alterações</button>
 </div>
