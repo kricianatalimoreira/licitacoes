@@ -2286,49 +2286,7 @@
   </script>
 </head>
 <body>
-<!-- ═══ TELA DE LOGIN ═══ -->
 
-<div class="login-fields">
-<div>
-<label class="login-field-label" for="loginUser">E-mail</label>
-
-</div>
-<div>
-<label class="login-field-label" for="loginPass">Senha</label>
-
-</div>
-<div class="login-error" id="loginError" style="display:none;">E-mail ou senha incorretos.</div>
-<button class="login-btn" onclick="fazerLogin()">Entrar →</button>
-<p class="login-footer">© 2025 Kricia Moreira Gestão de Licitações. Todos os direitos reservados.</p>
-</div>
-
-
-
-
-<script>
-    // 🔥 LOGIN FIREBASE — e-mail e senha
-    function fazerLogin() {
-      var email = document.getElementById('loginUser').value.trim();
-      var senha = document.getElementById('loginPass').value;
-      var errEl = document.getElementById('loginError');
-      errEl.style.display = 'none';
-      if (!email || !senha) {
-        errEl.textContent = 'Preencha e-mail e senha.';
-        errEl.style.display = 'block';
-        return;
-      }
-      _auth.signInWithEmailAndPassword(email, senha)
-        .catch(function(e) {
-          errEl.textContent = 'E-mail ou senha incorretos.';
-          errEl.style.display = 'block';
-          document.getElementById('loginPass').value = '';
-        });
-    }
-
-    function fazerLogout() {
-      _auth.signOut();
-    }
-  </script>
 <div class="bell-dropdown hidden" id="bellDropdown" style="position:fixed;">
 <div class="bell-dropdown-header">
 <span>⚠️ Contratos a Vencer</span>
