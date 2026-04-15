@@ -215,8 +215,8 @@
     }
     .menu-parent:hover,
     .menu-parent.is-active {
-      background: var(--primary-soft);
-      color: var(--primary-dark);
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
     }
     .menu-parent-main {
       display: inline-flex;
@@ -250,8 +250,12 @@
     }
     .menu-child:hover,
     .menu-child.active {
-      background: #f9edf3;
-      color: var(--primary-dark);
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+    }
+    .menu-child.active {
+      background: var(--primary-soft);
+      color: var(--primary);
     }
     .menu-child-dot {
       width: 5px;
@@ -631,7 +635,7 @@
       font-size: 10px;
       white-space: nowrap;
     }
-    .row-menu button:hover { background: #f7f8fc; }
+    .row-menu button:hover { background: rgba(255,255,255,0.07); }
 
     /* Sub-menu de Encerrar */
     .row-menu-has-sub { color: var(--primary-dark) !important; font-weight: 700 !important; }
@@ -662,7 +666,7 @@
       font-size: 10px;
       white-space: nowrap;
     }
-    .row-submenu button:hover { background: #f7f8fc; }
+    .row-submenu button:hover { background: rgba(255,255,255,0.07); }
 
     .modal-overlay {
       position: fixed;
