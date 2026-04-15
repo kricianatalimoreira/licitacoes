@@ -7,7 +7,7 @@
 <title>Gestão de Licitações • Disputas</title>
 <style>
     html {
-      font-size: 11px;
+      font-size: 12px;
     }
     :root {
       --sidebar-w: 160px;
@@ -261,7 +261,7 @@
       width: 5px;
       height: 5px;
       border-radius: 999px;
-      background: #d9a3b8;
+      background: var(--primary-border);
       position: absolute;
       left: 16px;
       top: 50%;
@@ -326,7 +326,7 @@
     }
     .stat-gray { background: var(--bg); }
     .stat-orange { background: #2a1f10; }
-    .stat-green { background: #eefcf3; }
+    .stat-green { background: #0a2018; }
     .stat-red { background: #2a1010; }
     .stat-yellow { background: #252010; }
 
@@ -505,7 +505,7 @@
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 12px;
-      box-shadow: 0 16px 32px rgba(31,36,48,.18);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.5);
       padding: 9px;
       z-index: 99999;
       text-transform: none;
@@ -548,9 +548,9 @@
       font-weight: 700;
     }
     .status-orange { background: #2a1c0a; color: #b76a00; }
-    .status-gray { background: #eef0f3; color: #5c6670; }
-    .status-green { background: #e9f9ef; color: #1f8a4c; }
-    .status-red { background: #fdeaea; color: #b42318; }
+    .status-gray { background: #1e2028; color: #8892a4; }
+    .status-green { background: #0a2018; color: #2dd47a; }
+    .status-red { background: #2a0a0a; color: #f05252; }
     .status-yellow { background: #252012; color: #a16207; }
 
     .company-badge {
@@ -561,8 +561,8 @@
       font-size: 10px;
       font-weight: 700;
     }
-    .company-gadita { background:#e7efff; color:#2563eb; }
-    .company-hamate { background:#e6f7ec; color:#1f7a4d; }
+    .company-gadita { background:#0d1e3a; color:#5b9cf6; }
+    .company-hamate { background:#0a2018; color:#2dd47a; }
     .uf-badge {
       display: inline-flex;
       align-items: center;
@@ -570,7 +570,7 @@
       min-width: 24px;
       padding: 3px 6px;
       border-radius: 999px;
-      background: #f1f4f9;
+      background: var(--bg);
       color: #667085;
       font-size: 9px;
       font-weight: 700;
@@ -583,7 +583,7 @@
       border-radius: 999px;
       font-size: 10px;
       font-weight: 700;
-      background: #eef2ff;
+      background: var(--bg);
       color: #3730a3;
       text-decoration: none;
       width: fit-content;
@@ -615,7 +615,7 @@
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 11px;
-      box-shadow: 0 14px 32px rgba(31, 36, 48, 0.16);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.5);
       padding: 5px;
       z-index: 9999;
       display: flex;
@@ -639,14 +639,14 @@
 
     /* Sub-menu de Encerrar */
     .row-menu-has-sub { color: var(--primary-dark) !important; font-weight: 700 !important; }
-    .row-menu-has-sub:hover { background: var(--primary-soft) !important; }
+    .row-menu-has-sub:hover { background: rgba(255,255,255,0.07) !important; }
     .row-submenu {
       position: fixed;
       min-width: 180px;
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 11px;
-      box-shadow: 0 14px 32px rgba(31,36,48,.18);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.5);
       padding: 5px;
       z-index: 10000;
       display: flex;
@@ -1056,7 +1056,7 @@
     .toggle-slider {
       position: absolute;
       inset: 0;
-      background: #d0d5dd;
+      background: #3a3d4a;
       border-radius: 999px;
       cursor: pointer;
       transition: .2s;
@@ -1261,7 +1261,7 @@
       cursor: pointer;
       white-space: nowrap;
     }
-    .con-form-btn-excluir:hover { background: #fdeaea; }
+    .con-form-btn-excluir:hover { background: #2a0a0a; }
     .con-form-footer {
       display: flex;
       justify-content: flex-end;
@@ -1276,7 +1276,7 @@
       padding: 16px;
       border: 1px dashed #e5bfd0;
       border-radius: 10px;
-      background: #fffafd;
+      background: var(--card);
       color: var(--muted);
       margin-top: 10px;
       font-size: 11px;
@@ -1366,7 +1366,7 @@
 
     /* Barra de execução encerrados */
     .exec-enc-wrap { display: flex; flex-direction: column; gap: 3px; }
-    .exec-enc-bar-bg { height: 5px; background: #e7eaf3; border-radius: 999px; overflow: hidden; }
+    .exec-enc-bar-bg { height: 5px; background: var(--line); border-radius: 999px; overflow: hidden; }
     .exec-enc-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%); transition: width .4s; }
     .exec-enc-pct { font-size: 11px; font-weight: 800; color: #2563eb; }
     .exec-enc-sub { font-size: 9px; color: var(--muted); }
@@ -1380,7 +1380,7 @@
       gap: 0;
       padding: 18px 28px 14px;
       border-bottom: 1px solid var(--line);
-      background: #fdf8fb;
+      background: var(--card);
       border-radius: 16px 16px 0 0;
       overflow: hidden;
     }
@@ -1572,7 +1572,7 @@
       border-radius: 6px;
       margin-top: 3px;
     }
-    .con-venc-30  { background: #fdeaea; color: #b42318; }
+    .con-venc-30  { background: #2a0a0a; color: #f05252; }
     .con-venc-60  { background: #2a1c0a; color: #b76a00; }
 
     /* Info secundária no órgão */
@@ -1609,7 +1609,7 @@
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 10px;
-      box-shadow: 0 12px 28px rgba(31,36,48,.18);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.5);
       padding: 4px;
       z-index: 9999;
       display: flex;
@@ -1628,7 +1628,7 @@
       font-size: 10px;
       color: var(--text);
     }
-    .status-dropdown button:hover { background: #f7f8fc; }
+    .status-dropdown button:hover { background: rgba(255,255,255,0.07); }
 
     /* ── Link badges com emoji ── */
     .link-emoji-badge {
@@ -1644,8 +1644,8 @@
       line-height: 1;
     }
     .link-emoji-badge:hover { filter: brightness(.93); transform: scale(1.12); }
-    .link-badge-sistema { background: #eef2ff; }
-    .link-badge-drive   { background: #e6f7ec; }
+    .link-badge-sistema { background: #1a1f3a; }
+    .link-badge-drive   { background: #0f2a1e; }
     .links-emoji-stack  { display: flex; gap: 4px; flex-wrap: nowrap; align-items: center; justify-content: center; }
 
     /* ══════════════════════════════════════
@@ -1663,12 +1663,12 @@
     .emp-table th:nth-child(9), .emp-table td:nth-child(9) { width: 4%; text-align:center; } /* Ações */
 
     /* Status empenho */
-    .emp-status-compra    { background:#e6f7ec; color:#1f7a4d; }
-    .emp-status-transito  { background:#fff5e9; color:#b76a00; }
-    .emp-status-entregue  { background:#e8f4ff; color:#1e4fd6; }
-    .emp-status-liquidacao{ background:#f5f3ff; color:#6d28d9; }
-    .emp-status-paga      { background:#e9f9ef; color:#1f8a4c; }
-    .emp-status-pendente  { background:#fef9e7; color:#7d6608; }
+    .emp-status-compra    { background:#0f2a1e; color:#2dd47a; }
+    .emp-status-transito  { background:#2a1e08; color:#f0a938; }
+    .emp-status-entregue  { background:#0d1e3a; color:#5b9cf6; }
+    .emp-status-liquidacao{ background:#1e1530; color:#a78bfa; }
+    .emp-status-paga      { background:#0a2018; color:#2dd47a; }
+    .emp-status-pendente  { background:#252010; color:#e8c84d; }
 
     /* Modal empenho */
     #cadastroEmpenhoWrap .modal-card {
@@ -1716,7 +1716,7 @@
 
     /* Saldo card */
     .emp-saldo-card {
-      background: #eff6ff;
+      background: var(--bg);
       border: 1px solid #93c5fd;
       border-radius: 12px;
       padding: 12px 16px;
@@ -1730,7 +1730,7 @@
 
     /* Itens picker */
     .emp-itens-picker {
-      background: #fffafd;
+      background: var(--card);
       border: 1px solid var(--primary-border);
       border-radius: 12px;
       padding: 14px 16px;
@@ -1993,7 +1993,7 @@
       color: #fff;
     }
     .cmp-step-pill.done {
-      background: #eefcf3;
+      background: #0a2018;
       border-color: #a7f3d0;
       color: #1f8a4c;
     }
@@ -2044,7 +2044,7 @@
     }
     .btn-toggle-manual {
       flex: 0 0 auto;
-      background: #f0faf4;
+      background: #0a2018;
       border: 1px solid #a7f3d0;
       border-radius: 7px;
       padding: 5px 8px;
@@ -2069,7 +2069,7 @@
       border-radius: 12px;
       padding: 14px 16px;
       margin-bottom: 14px;
-      background: #fffafd;
+      background: var(--card);
     }
     .cmp-item-title {
       font-size: 11px; font-weight: 800; color: var(--primary-dark);
@@ -2111,7 +2111,7 @@
     .cmp-divider { border: none; border-top: 1px solid var(--line); margin: 12px 0; }
     .cmp-lucro-row {
       display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 8px;
-      background: #f0faf4; border: 1px solid #a7f3d0; border-radius: 10px; padding: 10px;
+      background: #0a2018; border: 1px solid #1a6644; border-radius: 10px; padding: 10px;
     }
 
     /* ══ DASHBOARD ══ */
@@ -2832,9 +2832,9 @@
 <div class="disputa-stat-card stat-alert" id="conStatAlertCard"><div class="disputa-stat-label">⚠️ A vencer em 60 dias</div><div class="disputa-stat-value" id="conStatAlert">0</div></div>
 <div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Valor total contratos</div><div class="disputa-stat-value" id="conStatValor" style="font-size:14px;color:#1f8a4c;">R$ 0,00</div></div>
 <div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Compra prevista total</div><div class="disputa-stat-value" id="conStatCompra" style="font-size:14px;color:#a16207;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#fff4e6;border-color:#f5a623;"><div class="disputa-stat-label">Custo previsto total</div><div class="disputa-stat-value" id="conStatCusto" style="font-size:14px;color:#b76a00;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#eff6ff;border-color:#93c5fd;"><div class="disputa-stat-label">💰 Total empenhado</div><div class="disputa-stat-value" id="conStatEmpenhado" style="font-size:14px;color:#2563eb;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#f5f3ff;border-color:#c4b5fd;"><div class="disputa-stat-label">Lucro previsto total</div><div class="disputa-stat-value" id="conStatLucro" style="font-size:14px;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#2a1e08;border-color:#7a4d0a;"><div class="disputa-stat-label">Custo previsto total</div><div class="disputa-stat-value" id="conStatCusto" style="font-size:14px;color:#b76a00;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">💰 Total empenhado</div><div class="disputa-stat-value" id="conStatEmpenhado" style="font-size:14px;color:#2563eb;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#1a1530;border-color:#4a3a8a;"><div class="disputa-stat-label">Lucro previsto total</div><div class="disputa-stat-value" id="conStatLucro" style="font-size:14px;">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -2910,9 +2910,9 @@
 <div class="disputa-stats" style="grid-template-columns:repeat(5,minmax(0,1fr));">
 <div class="disputa-stat-card"><div class="disputa-stat-label">Total encerrados</div><div class="disputa-stat-value" id="conEncStatTotal">0</div></div>
 <div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Valor total contratos</div><div class="disputa-stat-value" id="conEncStatValor" style="font-size:14px;color:#1f8a4c;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#eff6ff;border-color:#93c5fd;"><div class="disputa-stat-label">Total empenhado</div><div class="disputa-stat-value" id="conEncStatEmpenhado" style="font-size:14px;color:#2563eb;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#f5f3ff;border-color:#c4b5fd;"><div class="disputa-stat-label">Lucro dos empenhos</div><div class="disputa-stat-value" id="conEncStatLucro" style="font-size:14px;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#fef9e7;border-color:#f5c842;"><div class="disputa-stat-label">Taxa de execução média</div><div class="disputa-stat-value" id="conEncStatExecucao" style="font-size:18px;color:#a16207;">0%</div></div>
+<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Total empenhado</div><div class="disputa-stat-value" id="conEncStatEmpenhado" style="font-size:14px;color:#2563eb;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#1a1530;border-color:#4a3a8a;"><div class="disputa-stat-label">Lucro dos empenhos</div><div class="disputa-stat-value" id="conEncStatLucro" style="font-size:14px;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#252010;border-color:#7a6408;"><div class="disputa-stat-label">Taxa de execução média</div><div class="disputa-stat-value" id="conEncStatExecucao" style="font-size:18px;color:#a16207;">0%</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -2992,8 +2992,8 @@
 <div class="disputa-stat-card"><div class="disputa-stat-label">Em andamento</div><div class="disputa-stat-value" id="empAndStatTotal">0</div></div>
 <div class="disputa-stat-card stat-orange"><div class="disputa-stat-label">Compra Feita / Em trânsito</div><div class="disputa-stat-value" id="empAndStatAberto">0</div></div>
 <div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Entregues</div><div class="disputa-stat-value" id="empAndStatEntregue">0</div></div>
-<div class="disputa-stat-card" style="background:#f5f3ff;border-color:#c4b5fd;"><div class="disputa-stat-label">Ag. Liquidação</div><div class="disputa-stat-value" id="empAndStatLiquidacao">0</div></div>
-<div class="disputa-stat-card" style="background:#eff6ff;border-color:#93c5fd;"><div class="disputa-stat-label">Valor total</div><div class="disputa-stat-value" id="empAndStatValor" style="font-size:13px;color:#2563eb;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#1a1530;border-color:#4a3a8a;"><div class="disputa-stat-label">Ag. Liquidação</div><div class="disputa-stat-value" id="empAndStatLiquidacao">0</div></div>
+<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Valor total</div><div class="disputa-stat-value" id="empAndStatValor" style="font-size:13px;color:#2563eb;">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -3088,7 +3088,7 @@
 </div>
 <div class="disputa-stats" style="grid-template-columns:repeat(4,minmax(0,1fr));">
 <div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Total pagos</div><div class="disputa-stat-value" id="empEncStatTotal">0</div></div>
-<div class="disputa-stat-card" style="background:#eff6ff;border-color:#93c5fd;"><div class="disputa-stat-label">Valor total pago</div><div class="disputa-stat-value" id="empEncStatValor" style="font-size:13px;color:#2563eb;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Valor total pago</div><div class="disputa-stat-value" id="empEncStatValor" style="font-size:13px;color:#2563eb;">R$ 0,00</div></div>
 <div class="disputa-stat-card"><div class="disputa-stat-label">Gadita</div><div class="disputa-stat-value" id="empEncStatGadita" style="font-size:13px;color:var(--primary-dark);">R$ 0,00</div></div>
 <div class="disputa-stat-card"><div class="disputa-stat-label">Hamate</div><div class="disputa-stat-value" id="empEncStatHamate" style="font-size:13px;color:var(--primary-dark);">R$ 0,00</div></div>
 </div>
@@ -3161,10 +3161,10 @@
 </div>
 <div class="disputa-stats" style="grid-template-columns:repeat(5,minmax(0,1fr));">
 <div class="disputa-stat-card"><div class="disputa-stat-label">Total de compras</div><div class="disputa-stat-value" id="cmpStatTotal">0</div></div>
-<div class="disputa-stat-card" style="background:#eff6ff;border-color:#93c5fd;"><div class="disputa-stat-label">Valor total comprado</div><div class="disputa-stat-value" id="cmpStatValor" style="font-size:13px;color:#2563eb;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Valor total comprado</div><div class="disputa-stat-value" id="cmpStatValor" style="font-size:13px;color:#2563eb;">R$ 0,00</div></div>
 <div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Lucro total</div><div class="disputa-stat-value" id="cmpStatLucro" style="font-size:13px;color:#1f8a4c;">R$ 0,00</div></div>
 <div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">% Lucro médio</div><div class="disputa-stat-value" id="cmpStatPctLucro" style="font-size:18px;">0%</div></div>
-<div class="disputa-stat-card" style="background:#fff4e6;border-color:#f5a623;"><div class="disputa-stat-label">Impostos + Royalties</div><div class="disputa-stat-value" id="cmpStatCusto" style="font-size:13px;color:#b76a00;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#2a1e08;border-color:#7a4d0a;"><div class="disputa-stat-label">Impostos + Royalties</div><div class="disputa-stat-value" id="cmpStatCusto" style="font-size:13px;color:#b76a00;">R$ 0,00</div></div>
 </div>
 <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
 <select class="field-box" id="fCmpEmpresa" onchange="renderCompras()" style="width:130px;padding:7px 10px;font-size:11px;">
@@ -4812,7 +4812,7 @@
         <div class="review-fin-card"><div class="review-fin-label">Compra Prevista</div><div class="review-fin-value">${formatCurrency(compra)}</div></div>
         <div class="review-fin-card"><div class="review-fin-label">Custo Previsto</div><div class="review-fin-value" style="color:#b76a00;">${formatCurrency(custo)}</div></div>
         <div class="review-fin-card highlight"><div class="review-fin-label">Lucro Previsto</div><div class="review-fin-value">${formatCurrency(lucro)}</div></div>
-        ${empenhado > 0 ? `<div class="review-fin-card" style="background:#eff6ff;border-color:#93c5fd;"><div class="review-fin-label">Valor Empenhado</div><div class="review-fin-value" style="color:#2563eb;">${formatCurrency(empenhado)}</div></div>` : ''}`;
+        ${empenhado > 0 ? `<div class="review-fin-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="review-fin-label">Valor Empenhado</div><div class="review-fin-value" style="color:#2563eb;">${formatCurrency(empenhado)}</div></div>` : ''}`;
 
       const ritens = qs('reviewItens');
       if (ritens) {
@@ -5134,7 +5134,7 @@
       const statusBgMap = {
         'Pendente':              '#fef9e7',
         'Compra Feita':          '#e6f7ec',
-        'Em trânsito':           '#fff5e9',
+        'Em trânsito':           '#2a1c08',
         'Entregue':              '#e8f4ff',
         'Aguardando Liquidação': '#f5f3ff',
         'Paga':                  '#e9f9ef',
@@ -5147,7 +5147,7 @@
         empWrap.innerHTML = `
           <!-- Resumo rápido -->
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
-            <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:10px 14px;">
+            <div style="background:#0d1e3a;border:1px solid #2a4d8a;border-radius:10px;padding:10px 14px;">
               <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#2563eb;margin-bottom:4px;">Total emitido</div>
               <div style="font-size:15px;font-weight:800;color:#2563eb;">${formatCurrency(totalEmpV)}</div>
             </div>
@@ -5540,11 +5540,11 @@
         const dataEmp = new Date(Number(partes[0]), Number(partes[1])-1, Number(partes[2]));
         const diffDias = Math.floor((hoje - dataEmp) / 86400000);
         if (diffDias > 0) {
-          const cor = diffDias >= 30 ? '#b42318' : diffDias >= 15 ? '#b76a00' : '#1f8a4c';
-          const bg  = diffDias >= 30 ? '#fff1f0' : diffDias >= 15 ? '#fff5e9' : '#eefcf3';
+          const cor = diffDias >= 30 ? '#f05252' : diffDias >= 15 ? '#f0a938' : '#2dd47a';
+          const bg  = diffDias >= 30 ? '#2a0a0a' : diffDias >= 15 ? '#2a1c08' : '#0a2018';
           diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:${bg};border-radius:5px;padding:1px 5px;">${diffDias} dia${diffDias!==1?'s':''} pendente${diffDias!==1?'s':''}</span>`;
         } else if (diffDias === 0) {
-          diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#eff6ff;border-radius:5px;padding:1px 5px;">Hoje</span>`;
+          diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#0d1e3a;border-radius:5px;padding:1px 5px;">Hoje</span>`;
         }
       }
       return `<tr>
@@ -6756,7 +6756,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           <td>${companyBadge(c.empresa)}</td>
           <td class="cell-wrap" style="font-size:10px;">
             ${c.fornecedor || '—'}
-            ${c.linkCompra ? `<a href="${c.linkCompra}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;font-size:9px;color:#2563eb;font-weight:700;text-decoration:none;background:#eff6ff;padding:2px 6px;border-radius:6px;">🔗 Ver compra</a>` : ''}
+            ${c.linkCompra ? `<a href="${c.linkCompra}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;font-size:9px;color:#2563eb;font-weight:700;text-decoration:none;background:#0d1e3a;padding:2px 6px;border-radius:6px;">🔗 Ver compra</a>` : ''}
           </td>
           <td style="font-size:10px;">${pagStr}</td>
           <td style="font-weight:700;color:#2563eb;">${formatCurrency(c.vlTotalCompra)}</td>
@@ -6943,10 +6943,10 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         } else {
           vl.innerHTML = vencList.map(({c,dias}) => {
             const [dotCls, tagCls, tagTxt] = dias < 0
-              ? ['#b42318','background:#fff1f1;color:#b42318', `Vencido há ${Math.abs(dias)}d`]
+              ? ['#b42318','background:#2a0a0a;color:#f05252', `Vencido há ${Math.abs(dias)}d`]
               : dias <= 30
-                ? ['#b76a00','background:#fff5e9;color:#b76a00', `${dias}d`]
-                : ['#b59000','background:#fff9e8;color:#b59000', `${dias}d`];
+                ? ['#b76a00','background:#2a1c08;color:#f0a938', `${dias}d`]
+                : ['#b59000','background:#252010;color:#e8c84d', `${dias}d`];
             return `<div class="dash-venc-item">
               <div class="dash-venc-dot" style="background:${dotCls};"></div>
               <div class="dash-venc-orgao">${c.orgao || '—'}</div>
@@ -7232,7 +7232,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;margin-bottom:4px;align-items:start;">
 <div>
 <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:5px;">Valor Total</div>
-<div id="empValorTotal" style="padding:10px 13px;border:1px solid #93c5fd;border-radius:9px;font-size:16px;font-weight:800;color:#2563eb;background:#eff6ff;">R$ 0,00</div>
+<div id="empValorTotal" style="padding:10px 13px;border:1px solid #2a4d8a;border-radius:9px;font-size:16px;font-weight:800;color:#5b9cf6;background:#0d1e3a;">R$ 0,00</div>
 </div>
 <div class="emp-form-field" style="margin-bottom:0;"><label>Observações</label><textarea id="empObs2" placeholder="Prazo de entrega, pendências..." rows="3"></textarea></div>
 </div>
