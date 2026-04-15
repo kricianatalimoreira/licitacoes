@@ -20,11 +20,11 @@
       --primary: #d96c96;
       --primary-soft: #2d1a24;
       --primary-dark: #f48cb4;
-      --primary-th1: #1e1520;
-      --primary-th2: #251822;
+      --primary-th1: #1c1f2b;
+      --primary-th2: #1e2232;
       --primary-border: #5a2d44;
       --primary-border-light: #3d1f30;
-      --primary-hover: #1e1520;
+      --primary-hover: #1c1f2b;
       --success: #2dd47a;
       --warning: #f0a938;
       --danger: #f05252;
@@ -2671,7 +2671,7 @@
 <div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Vencidas</div><div class="disputa-stat-value" id="disputaStatVencidas">0</div></div>
 <div class="disputa-stat-card stat-red"><div class="disputa-stat-label">Perdidas</div><div class="disputa-stat-value" id="disputaStatPerdidas">0</div></div>
 <div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Fracassado/Suspenso</div><div class="disputa-stat-value" id="disputaStatFracassado">0</div></div>
-<div class="disputa-stat-card" style="border-color:#f5c8d8; background:#fff7fb;"><div class="disputa-stat-label">Bruto total</div><div class="disputa-stat-value" id="disputaStatBrutoTotal" style="font-size:20px;color:var(--primary-dark);">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="border-color:var(--primary-border); background:var(--primary-soft);"><div class="disputa-stat-label">Bruto total</div><div class="disputa-stat-value" id="disputaStatBrutoTotal" style="font-size:20px;color:var(--primary-dark);">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -6000,7 +6000,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         const saldoV = (Number(c.valor)||0) - totalEmpV;
         return `<button onclick="qs('miniSeletorContratoWrap').classList.add('hidden');abrirCadastroEmpenho('${c.id}')"
           style="text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;font-family:inherit;transition:background .15s;"
-          onmouseover="this.style.background=var(--primary-hover)" onmouseout="this.style.background='#fff'">
+          onmouseover="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--primary-hover')" onmouseout="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--card')">
           <div style="font-size:11px;font-weight:700;color:var(--text);">${c.orgao}</div>
           <div style="font-size:9px;color:var(--muted);margin-top:2px;">${c.contrato||c.processo||'—'} · ${c.empresa} · Saldo: <strong style="color:${saldoV>=0?'#2563eb':'#b42318'}">${formatCurrency(saldoV)}</strong></div>
         </button>`;
@@ -7125,10 +7125,10 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     const TEMA_KEY = 'km_tema_v1';
 
     const TEMAS = {
-      rosa:    { primary: '#d96c96', soft: '#fbe6ef', dark: '#b84f78', th1: '#fdf0f5', th2: '#fce8f1', border: '#f0b8ce', borderLight: '#f7d0e1', hover: '#fff8fb' },
-      azul:    { primary: '#2563eb', soft: '#dbeafe', dark: '#1d4ed8', th1: '#eff6ff', th2: '#dbeafe', border: '#93c5fd', borderLight: '#bfdbfe', hover: '#f0f7ff' },
-      verde:   { primary: '#1a9b5e', soft: '#d1fae5', dark: '#15804d', th1: '#f0fdf4', th2: '#dcfce7', border: '#86efac', borderLight: '#bbf7d0', hover: '#f0fff6' },
-      laranja: { primary: '#d97706', soft: '#fef3c7', dark: '#b45309', th1: '#fffbeb', th2: '#fef3c7', border: '#fcd34d', borderLight: '#fde68a', hover: '#fffcf0' },
+      rosa:    { primary: '#d96c96', soft: '#2d1a24', dark: '#f48cb4', th1: '#1e1520', th2: '#221620', border: '#5a2d44', borderLight: '#3d1f30', hover: '#1e1520' },
+      azul:    { primary: '#4d8ef0', soft: '#142040', dark: '#7aabff', th1: '#111e38', th2: '#132040', border: '#2a4d8a', borderLight: '#1e3666', hover: '#111e38' },
+      verde:   { primary: '#2ec27a', soft: '#0d2e1e', dark: '#5de8a6', th1: '#0d2218', th2: '#0f2820', border: '#1a6644', borderLight: '#134d33', hover: '#0d2218' },
+      laranja: { primary: '#e8950a', soft: '#2e1e08', dark: '#ffc04d', th1: '#221808', th2: '#261c08', border: '#7a4d0a', borderLight: '#5a3808', hover: '#221808' },
     };
 
     function aplicarTema(nome) {
