@@ -5088,54 +5088,88 @@
       const c = contratosAtivos.find(x => x.id === id);
       if (!c) return;
       editingContratoAtivoId = id;
-      qs('eConAData').value      = c.data       || '';
-      qs('eConAOrgao').value     = c.orgao      || '';
-      if (qs('eConAContrato'))  qs('eConAContrato').value  = c.contrato  || '';
-      if (qs('eConAProcesso'))  qs('eConAProcesso').value  = c.processo  || '';
-      if (qs('eConASistema'))   qs('eConASistema').value   = c.sistema   || '';
-      qs('eConAEmpresa').value   = c.empresa    || '';
-      qs('eConAStatus').value    = c.status     || '';
-      qs('eConAValor').value     = c.valor      || 0;
-      qs('eConACompra').value    = c.compra     || 0;
-      qs('eConARoyalties').value = c.royalties  || 0;
-      qs('eConAImposto').value   = c.imposto    || 0;
-      const custo = calcCusto(c.royalties, c.imposto);
-      qs('eConACusto').value     = custo.toFixed(2);
-      qs('eConALucro').value     = calcLucro(c.valor, c.compra, custo).toFixed(2);
-      qs('eConASala').value      = c.sala       || '';
-      qs('eConADrive').value     = c.drive      || '';
-      qs('eConAObs').value       = c.obs        || '';
-      if (qs('eConATotalItens')) qs('eConATotalItens').value = c.totalItens || 0;
-      if (qs('eConAEmpenhado')) qs('eConAEmpenhado').value = c.valorEmpenhado || 0;
-      calcularSaldoContrato();
-      qs('editContratoAtivoWrap').classList.remove('hidden');
+
+      // Reutiliza o modal de Novo Contrato (stepper) preenchido com dados do contrato
+      _conItens = structuredClone(c.itensLotes || []);
+
+      // Limpa campos primeiro
+      ['conData','conDataFim','conContrato','conOrgao','conUF','conEmpresa','conSistema',
+       'conProcesso','conDrive','conValor','conCompra','conCustoDisplay','conLucroDisplay','conObs'].forEach(fid => {
+        const el = qs(fid); if (el) el.value = '';
+      });
+
+      // Preenche todos os campos
+      if (qs('conData'))     { qs('conData').value = c.data || ''; autoVencimento('conData','conDataFim'); }
+      if (qs('conDataFim') && c.dataFim) qs('conDataFim').value = c.dataFim;
+      if (qs('conContrato')) qs('conContrato').value = c.contrato || '';
+      if (qs('conOrgao'))    qs('conOrgao').value    = c.orgao    || '';
+      if (qs('conUF'))       qs('conUF').value        = c.uf      || '';
+      if (qs('conEmpresa'))  qs('conEmpresa').value   = c.empresa || '';
+      if (qs('conSistema'))  qs('conSistema').value   = c.sistema || '';
+      if (qs('conProcesso')) qs('conProcesso').value  = c.processo || '';
+      if (qs('conDrive'))    qs('conDrive').value     = c.drive   || '';
+      if (qs('conObs'))      qs('conObs').value       = c.obs     || '';
+
+      renderItensContrato('con');
+      calcularTotaisItens('con');
+      atualizarCalcRow();
+      stepperIr(1);
+
+      // Muda título e botão salvar para modo edição
+      qs('cadastroContratoTitulo').textContent = '✏️ Editar Contrato Ativo';
+      const btnSalvar = qs('btnStepSave');
+      if (btnSalvar) {
+        btnSalvar.textContent = '✅ Salvar alterações';
+        btnSalvar.onclick = salvarEdicaoViaModal;
+      }
+      qs('cadastroContratoWrap').classList.remove('hidden');
       closeAllMenus();
     }
-    function fecharEditContratoAtivo() {
-      qs('editContratoAtivoWrap').classList.add('hidden');
-      editingContratoAtivoId = null;
-    }
-    function salvarEditContratoAtivo() {
+
+    function salvarEdicaoViaModal() {
       const idx = contratosAtivos.findIndex(c => c.id === editingContratoAtivoId);
-      if (idx < 0) return;
-      const valor          = Number(qs('eConAValor')?.value     || 0);
-      const compra         = Number(qs('eConACompra')?.value    || 0);
-      const royalties      = Number(qs('eConARoyalties')?.value || 0);
-      const imposto        = Number(qs('eConAImposto')?.value   || 0);
-      const valorEmpenhado = Number(qs('eConAEmpenhado')?.value || 0);
+      if (idx < 0) { salvarContrato(); return; } // fallback para novo contrato
+
+      const valor     = Number(qs('conValor')?.value   || 0);
+      const compra    = Number(qs('conCompra')?.value   || 0);
+      const royalties = Number(qs('conRoyalties')?.value || 0);
+      const imposto   = Number(qs('conImposto')?.value  || 0);
+
       contratosAtivos[idx] = { ...contratosAtivos[idx],
-        data: qs('eConAData').value, orgao: qs('eConAOrgao').value.trim().toUpperCase(),
-        contrato: qs('eConAContrato')?.value?.trim() || contratosAtivos[idx].contrato || '',
-        processo: qs('eConAProcesso')?.value?.trim() || contratosAtivos[idx].processo || '',
-        sistema:  qs('eConASistema')?.value  || contratosAtivos[idx].sistema  || '',
-        empresa: qs('eConAEmpresa').value, status: qs('eConAStatus').value.trim(),
-        valor, compra, royalties, imposto, valorEmpenhado,
-        totalItens: Number(qs('eConATotalItens')?.value || contratosAtivos[idx].totalItens || 0),
-        sala: qs('eConASala').value.trim(), drive: qs('eConADrive').value.trim(),
-        obs: qs('eConAObs').value.trim()
+        data:      qs('conData')?.value     || contratosAtivos[idx].data,
+        dataFim:   qs('conDataFim')?.value  || contratosAtivos[idx].dataFim,
+        contrato:  qs('conContrato')?.value?.trim() || contratosAtivos[idx].contrato,
+        orgao:     (qs('conOrgao')?.value || '').trim().toUpperCase() || contratosAtivos[idx].orgao,
+        uf:        qs('conUF')?.value       || contratosAtivos[idx].uf,
+        empresa:   qs('conEmpresa')?.value  || contratosAtivos[idx].empresa,
+        sistema:   qs('conSistema')?.value  || contratosAtivos[idx].sistema,
+        processo:  qs('conProcesso')?.value?.trim() || contratosAtivos[idx].processo,
+        drive:     qs('conDrive')?.value?.trim()    || contratosAtivos[idx].drive,
+        obs:       qs('conObs')?.value?.trim()      || '',
+        valor, compra, royalties, imposto,
+        itensLotes: structuredClone(_conItens),
       };
-      persistAll(); renderContratosAtivos(); fecharEditContratoAtivo();
+
+      editingContratoAtivoId = null;
+      // Restaura botão para modo "criar"
+      const btnSalvar = qs('btnStepSave');
+      if (btnSalvar) { btnSalvar.textContent = '✅ Salvar Contrato'; btnSalvar.onclick = salvarContrato; }
+      qs('cadastroContratoTitulo').textContent = '📝 Novo Contrato';
+      qs('cadastroContratoWrap').classList.add('hidden');
+      persistAll(); renderContratosAtivos();
     }
+
+    function fecharEditContratoAtivo() {
+      // Restaura modo "criar" ao fechar
+      editingContratoAtivoId = null;
+      const btnSalvar = qs('btnStepSave');
+      if (btnSalvar) { btnSalvar.textContent = '✅ Salvar Contrato'; btnSalvar.onclick = salvarContrato; }
+      if (qs('cadastroContratoTitulo')) qs('cadastroContratoTitulo').textContent = '📝 Novo Contrato';
+      qs('editContratoAtivoWrap')?.classList.add('hidden');
+      qs('cadastroContratoWrap')?.classList.add('hidden');
+    }
+
+    function salvarEditContratoAtivo() { salvarEdicaoViaModal(); }
 
     // ── Editar Encerrado ─────────────────────────────
     function abrirEditContratoEnc(id) {
