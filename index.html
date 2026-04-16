@@ -4298,11 +4298,7 @@
       closeAllStatusDropdowns();
     });
 
-    [qs('cadastroDisputaWrap'), qs('editEncerradaWrap')].forEach(overlay => {
-      overlay?.addEventListener('click', (e) => {
-        if (e.target === overlay) overlay.classList.add('hidden');
-      });
-    });
+    // Click fora dos modais desabilitado
 
     // ════════════════════════════════════════════════════
     //  SISTEMA DE ALARME SONORO — Disputas
@@ -5419,10 +5415,7 @@
       else abrirEditContratoAtivo(_conViewId);
     }
 
-    // Fechar clicando fora
-    qs('conViewWrap')?.addEventListener('click', e => {
-      if (e.target === qs('conViewWrap') || e.target.closest('.modal-overlay') === qs('conViewWrap') && !e.target.closest('.modal-card')) fecharConView();
-    });
+
 
     function excluirContratoAtivo(id) {
       if (!confirm('Deseja excluir este contrato ativo?')) return;
@@ -5435,11 +5428,7 @@
       persistAll(); renderContratosEncerrados(); closeAllMenus();
     }
 
-    // ── Fechar modais clicando fora ──────────────────
-    ['cadastroContratoWrap','editContratoAtivoWrap','editContratoEncWrap'].forEach(id => {
-      const el = qs(id);
-      el?.addEventListener('click', e => { if (e.target === el) el.classList.add('hidden'); });
-    });
+
 
     // Limpa chaves antigas de versões anteriores (força reset dos dados simulados)
     ['km_disputas_modulo_limpo_v1','km_disputas_modulo_v28_preview',
@@ -6197,7 +6186,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
             </div>
           </div>`;
         document.body.appendChild(mini);
-        mini.addEventListener('click', e => { if (e.target === mini) mini.classList.add('hidden'); });
+        // miniSeletor click outside desabilitado
       }
       // Preenche lista
       const lista = qs('miniSeletorLista');
