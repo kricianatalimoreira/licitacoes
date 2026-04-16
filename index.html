@@ -7,6 +7,28 @@
 <title>Gestão de Licitações • Disputas</title>
 <style>
 
+
+    /* ── Sort select in subtotal bar ── */
+    .sort-select-wrap {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .sort-select-wrap label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--primary-dark); opacity: .7;
+      white-space: nowrap;
+    }
+    .sort-select {
+      background: var(--card); border: 1px solid var(--primary-border);
+      color: var(--text); border-radius: 7px;
+      padding: 3px 24px 3px 8px; font-size: 10px; font-weight: 600;
+      font-family: inherit; cursor: pointer; outline: none;
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238892a4'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 7px center;
+      min-width: 140px;
+    }
+    .sort-select:focus { border-color: var(--primary); }
+
     /* ── Login Screen ── */
     #loginScreen {
       position: fixed; inset: 0; z-index: 99999;
@@ -1341,8 +1363,8 @@
       justify-content: flex-end;
       gap: 20px;
       padding: 8px 16px;
-      background: linear-gradient(90deg, #fff0f6 0%, var(--primary-soft) 100%);
-      border-top: 2px solid var(--primary);
+      background: linear-gradient(180deg, var(--primary-th1) 0%, var(--primary-th2) 100%);
+      border-top: 1px solid var(--primary-border);
       border-radius: 0 0 14px 14px;
     }
     .subtotal-label {
@@ -2711,6 +2733,11 @@
 </div>
 <div class="subtotal-bar" id="subtotalAndamento">
 <button class="subtotal-clear-btn" onclick="limparFiltrosAndamento()">✕ Limpar filtros</button>
+<div class="sort-select-wrap">
+<label>Ordenar</label>
+<select class="sort-select" id="sortAndamento" onchange="renderDisputas()">
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="processo_asc">Processo A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="sistema_asc">Sistema A→Z</option><option value="status_asc">Status A→Z</option></select>
+</div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Subtotal filtrado</span>
 <div class="subtotal-item">
@@ -2862,6 +2889,11 @@
 </div>
 <div class="subtotal-bar" id="subtotalEncerradas">
 <button class="subtotal-clear-btn" onclick="limparFiltrosEncerradas()">✕ Limpar filtros</button>
+<div class="sort-select-wrap">
+<label>Ordenar</label>
+<select class="sort-select" id="sortEncerradas" onchange="renderHistoricoDisputas()">
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="processo_asc">Processo A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="sistema_asc">Sistema A→Z</option><option value="status_asc">Status A→Z</option></select>
+</div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Subtotal filtrado</span>
 <div class="subtotal-item">
@@ -2952,6 +2984,11 @@
 </div>
 <div class="subtotal-bar" id="subtotalConAtivos">
 <button class="subtotal-clear-btn" onclick="limparFiltrosConAtivos()">✕ Limpar filtros</button>
+<div class="sort-select-wrap">
+<label>Ordenar</label>
+<select class="sort-select" id="sortConAtivos" onchange="renderContratosAtivos()">
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
+</div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Subtotal filtrado</span>
 <div class="subtotal-item"><span class="subtotal-item-label">Contratos</span><span class="subtotal-item-value" id="subtotalConAQtde">0</span></div>
@@ -3028,6 +3065,11 @@
 </div>
 <div class="subtotal-bar" id="subtotalConEncerrados">
 <button class="subtotal-clear-btn" onclick="limparFiltrosConEncerrados()">✕ Limpar filtros</button>
+<div class="sort-select-wrap">
+<label>Ordenar</label>
+<select class="sort-select" id="sortConEncerrados" onchange="renderContratosEncerrados()">
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
+</div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Subtotal filtrado</span>
 <div class="subtotal-item"><span class="subtotal-item-label">Contratos</span><span class="subtotal-item-value" id="subtotalConEQtde">0</span></div>
@@ -3132,6 +3174,11 @@
 </table>
 </div>
 <div class="subtotal-bar" id="subtotalEmpAnd">
+<div class="sort-select-wrap">
+<label>Ordenar</label>
+<select class="sort-select" id="sortEmpAnd" onchange="renderEmpAndamento()">
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
+</div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Filtrado</span>
 <div class="subtotal-item"><span class="subtotal-item-label">Empenhos</span><span class="subtotal-item-value" id="subtotalEmpAndQtde">0</span></div>
@@ -3211,6 +3258,11 @@
 </table>
 </div>
 <div class="subtotal-bar" id="subtotalEmpEnc">
+<div class="sort-select-wrap">
+<label>Ordenar</label>
+<select class="sort-select" id="sortEmpEnc" onchange="renderEmpEncerrados()">
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
+</div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Filtrado</span>
 <div class="subtotal-item"><span class="subtotal-item-label">Empenhos</span><span class="subtotal-item-value" id="subtotalEmpEncQtde">0</span></div>
@@ -3262,6 +3314,11 @@
 </table>
 </div>
 <div class="subtotal-bar" id="subtotalCompras">
+<div class="sort-select-wrap">
+<label>Ordenar</label>
+<select class="sort-select" id="sortCompras" onchange="renderCompras()">
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
+</div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Filtrado</span>
 <div class="subtotal-item"><span class="subtotal-item-label">Compras</span><span class="subtotal-item-value" id="subtotalCmpQtde">0</span></div>
@@ -3816,12 +3873,22 @@
       // Subtotal filtrado
       qs('subtotalAndQtde').textContent = filtradas.length;
 
-      if (!filtradas.length) {
+      const sortedAnd = applySortOrder(filtradas, 'sortAndamento', {
+        data:     i => i.data || '',
+        orgao:    i => i.orgao || '',
+        processo: i => i.processo || '',
+        empresa:  i => i.empresa || '',
+        sistema:  i => i.sistema || '',
+        status:   i => i.status || '',
+        valor:    i => Number(i.valor) || 0,
+      });
+
+      if (!sortedAnd.length) {
         body.innerHTML = `<tr><td colspan="10"><div class="empty-state">Nenhuma disputa encontrada em andamento.</div></td></tr>`;
         return;
       }
 
-      body.innerHTML = filtradas.map(item => {
+      body.innerHTML = sortedAnd.map(item => {
         const data    = formatDateTime(item.data);
         const retorno = formatDateTime(item.retorno);
         return `
@@ -3882,12 +3949,22 @@
       qs('subtotalEncQtde').textContent  = filtradas.length;
       qs('subtotalEncBruto').textContent = formatCurrency(brutoFiltrado);
 
-      if (!filtradas.length) {
+      const sortedEnc = applySortOrder(filtradas, 'sortEncerradas', {
+        data:     i => i.data || '',
+        orgao:    i => i.orgao || '',
+        processo: i => i.processo || '',
+        empresa:  i => i.empresa || '',
+        sistema:  i => i.sistema || '',
+        status:   i => i.status || '',
+        valor:    i => Number(i.bruto) || 0,
+      });
+
+      if (!sortedEnc.length) {
         body.innerHTML = `<tr><td colspan="10"><div class="empty-state">Nenhuma disputa encerrada encontrada.</div></td></tr>`;
         return;
       }
 
-      body.innerHTML = filtradas.map(item => {
+      body.innerHTML = sortedEnc.map(item => {
         const data = formatDateTime(item.data);
         return `
           <tr>
@@ -4482,12 +4559,20 @@
       if (qs('subtotalConAValor')) qs('subtotalConAValor').textContent = formatCurrency(sfValor);
       if (qs('subtotalConALucro')) qs('subtotalConALucro').textContent = formatCurrency(sfLucro);
 
-      if (!filtrados.length) {
+      const sortedConA = applySortOrder(filtrados, 'sortConAtivos', {
+        data:    c => c.data || '',
+        orgao:   c => c.orgao || '',
+        empresa: c => c.empresa || '',
+        status:  c => c.status || '',
+        valor:   c => Number(c.valor) || 0,
+      });
+
+      if (!sortedConA.length) {
         body.innerHTML = `<tr><td colspan="9"><div class="empty-state">Nenhum contrato ativo encontrado.</div></td></tr>`;
         return;
       }
 
-      body.innerHTML = filtrados.map(c => {
+      body.innerHTML = sortedConA.map(c => {
         const custo = calcCusto(c.royalties, c.imposto);
         const lucro = calcLucro(c.valor, c.compra, custo);
         const alerta = vencimentoAlertaHtml(c.dataFim);
@@ -4584,12 +4669,20 @@
       if (qs('subtotalConEEmpenhado')) qs('subtotalConEEmpenhado').textContent = formatCurrency(sfEmpenhado);
       if (qs('subtotalConELucro'))     qs('subtotalConELucro').textContent     = formatCurrency(sfLucro);
 
-      if (!filtrados.length) {
-        body.innerHTML = `<tr><td colspan="8"><div class="empty-state">Nenhum contrato encerrado encontrado.</div></td></tr>`;
+      const sortedConE = applySortOrder(filtrados, 'sortConEncerrados', {
+        data:    c => c.data || '',
+        orgao:   c => c.orgao || '',
+        empresa: c => c.empresa || '',
+        status:  c => c.status || '',
+        valor:   c => Number(c.valor) || 0,
+      });
+
+      if (!sortedConE.length) {
+        body.innerHTML = `<tr><td colspan="9"><div class="empty-state">Nenhum contrato encerrado encontrado.</div></td></tr>`;
         return;
       }
 
-      body.innerHTML = filtrados.map(c => {
+      body.innerHTML = sortedConE.map(c => {
         const valorEmp = totalEmpenhado(c.id);
         const lucroEmp = lucroEmpenhos(c);
         const taxa     = taxaExecucao(c);
@@ -5668,15 +5761,16 @@
       qs('subtotalEmpAndQtde').textContent  = filtrados.length;
       qs('subtotalEmpAndValor').textContent = formatCurrency(filtrados.reduce((s,e) => s+(Number(e.valor)||0), 0));
 
-// ANTES:
-body.innerHTML = filtrados.length
-  ? filtrados.map(empRowHtml).join('')
-  : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
-
-// DEPOIS:
-body.innerHTML = filtrados.length
-  ? [...filtrados].sort((a, b) => (a.data || '') > (b.data || '') ? 1 : -1).map(empRowHtml).join('')
-  : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
+      const sortedEmpAnd = applySortOrder(filtrados, 'sortEmpAnd', {
+        data:    e => e.data || '',
+        orgao:   e => e.orgao || '',
+        empresa: e => e.empresa || '',
+        status:  e => e.status || '',
+        valor:   e => Number(e.valor) || 0,
+      });
+      body.innerHTML = sortedEmpAnd.length
+        ? sortedEmpAnd.map(empRowHtml).join('')
+        : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
     }
 
     // ── Empenhos encerrados (status === 'Paga') ──
@@ -5700,20 +5794,18 @@ body.innerHTML = filtrados.length
       qs('empEncStatTotal').textContent  = pagos.length;
       qs('empEncStatValor').textContent  = formatCurrency(pagos.reduce((s,e) => s+(Number(e.valor)||0), 0));
       qs('empEncStatGadita').textContent = formatCurrency(pagos.filter(e=>e.empresa==='Gadita').reduce((s,e)=>s+(Number(e.valor)||0),0));
-     // ANTES:
-body.innerHTML = filtrados.length
-  ? filtrados.map(empRowHtml).join('')
-  : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho encerrado (pago) encontrado.</div></td></tr>`;
-
-// DEPOIS:
-body.innerHTML = filtrados.length
-  ? [...filtrados].sort((a, b) => (a.data || '') > (b.data || '') ? 1 : -1).map(empRowHtml).join('')
-  : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho encerrado (pago) encontrado.</div></td></tr>`;
       qs('subtotalEmpEncQtde').textContent  = filtrados.length;
       qs('subtotalEmpEncValor').textContent = formatCurrency(filtrados.reduce((s,e) => s+(Number(e.valor)||0), 0));
 
-      body.innerHTML = filtrados.length
-        ? filtrados.map(empRowHtml).join('')
+      const sortedEmpEnc = applySortOrder(filtrados, 'sortEmpEnc', {
+        data:    e => e.data || '',
+        orgao:   e => e.orgao || '',
+        empresa: e => e.empresa || '',
+        status:  e => e.status || '',
+        valor:   e => Number(e.valor) || 0,
+      });
+      body.innerHTML = sortedEmpEnc.length
+        ? sortedEmpEnc.map(empRowHtml).join('')
         : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho encerrado (pago) encontrado.</div></td></tr>`;
     }
 
@@ -6805,12 +6897,20 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       qs('subtotalCmpValor').textContent = formatCurrency(sfValor);
       qs('subtotalCmpLucro').textContent = formatCurrency(sfLucro);
 
-      if (!filtradas.length) {
+      const sortedCmp = applySortOrder(filtradas, 'sortCompras', {
+        data:    c => c.data || '',
+        orgao:   c => c.descricao || '',
+        empresa: c => c.empresa || '',
+        status:  c => c.pagamento || '',
+        valor:   c => Number(c.vlTotalCompra) || 0,
+      });
+
+      if (!sortedCmp.length) {
         body.innerHTML = `<tr><td colspan="10"><div class="empty-state">Nenhuma compra encontrada.</div></td></tr>`;
         return;
       }
 
-      body.innerHTML = filtradas.map(c => {
+      body.innerHTML = sortedCmp.map(c => {
         const pagStr = c.pagamento === 'Cartão de Crédito' && c.parcelas > 1
           ? `Cartão ${c.parcelas}×` : c.pagamento;
         const lucroColor = Number(c.lucroTotal) >= 0 ? '#1f8a4c' : '#b42318';
@@ -7235,6 +7335,24 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     if (dashEl) dashEl.classList.remove('hidden');
     renderDashboard();
   
+
+    // ── Sort helper ──────────────────────────────
+    function applySortOrder(arr, selectId, cfg) {
+      const sel = document.getElementById(selectId);
+      const val = sel ? sel.value : '';
+      if (!val) return arr;
+      const [field, dir] = val.split('_');
+      const asc = dir === 'asc';
+      return [...arr].sort((a, b) => {
+        let va = cfg[field] ? cfg[field](a) : '';
+        let vb = cfg[field] ? cfg[field](b) : '';
+        if (typeof va === 'number' && typeof vb === 'number') return asc ? va - vb : vb - va;
+        va = String(va || '').toLowerCase();
+        vb = String(vb || '').toLowerCase();
+        return asc ? va.localeCompare(vb) : vb.localeCompare(va);
+      });
+    }
+
     // ══════════════════════════════════════════════
     // SUPABASE CONFIG & SYNC
     // ══════════════════════════════════════════════
