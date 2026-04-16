@@ -4079,16 +4079,25 @@
         const el = qs(id); if (el) el.value = '';
       });
 
-      // Preenche campos do contrato
-      if (qs('conData'))    { qs('conData').value = new Date().toISOString().slice(0,10); autoVencimento('conData','conDataFim'); }
+      // Data da disputa ou hoje
+      const dataDisputa = disputa.data ? disputa.data.slice(0,10) : new Date().toISOString().slice(0,10);
+      if (qs('conData')) { qs('conData').value = dataDisputa; autoVencimento('conData','conDataFim'); }
+
+      // Preenche todos os campos possiveis
       if (qs('conOrgao'))   qs('conOrgao').value   = disputa.orgao   || '';
-      if (qs('conEmpresa')) qs('conEmpresa').value = disputa.empresa || '';
-      if (qs('conSistema')) qs('conSistema').value = disputa.sistema || '';
-      if (qs('conDrive'))   qs('conDrive').value   = disputa.drive && disputa.drive !== '#' ? disputa.drive : '';
+      if (qs('conUF'))      qs('conUF').value       = disputa.uf      || '';
+      if (qs('conEmpresa')) qs('conEmpresa').value  = disputa.empresa || '';
+      if (qs('conSistema')) qs('conSistema').value  = disputa.sistema || '';
+
       const processoLabel = [disputa.tipo, disputa.processo].filter(Boolean).join(' ');
       if (qs('conProcesso')) qs('conProcesso').value = processoLabel;
 
-      // Pré-adiciona 1 item com dados da disputa
+      // Drive: usa o da disputa se tiver, senao link do edital
+      const driveVal = (disputa.drive && disputa.drive !== '#') ? disputa.drive
+                     : (disputa.linkEdital || '');
+      if (qs('conDrive')) qs('conDrive').value = driveVal;
+
+      // Item pre-preenchido
       _conItens = [{
         id:         crypto.randomUUID(),
         descricao:  processoLabel || disputa.orgao || '',
@@ -4103,8 +4112,12 @@
       calcularTotaisItens('con');
       atualizarCalcRow();
       stepperIr(1);
-      qs('cadastroContratoTitulo').textContent = '📝 Novo Contrato — Disputa Vencida';
+      qs('cadastroContratoTitulo').textContent = 'Novo Contrato - Disputa Vencida';
       qs('cadastroContratoWrap').classList.remove('hidden');
+
+      // Navega para Contratos Ativos em segundo plano
+      const btnContratos = document.querySelector('[data-section-target="contratos-ativos"]');
+      if (btnContratos) showSection('contratos-ativos', btnContratos);
     }
 
     function reativarDisputa(id) {
