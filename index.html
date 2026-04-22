@@ -3431,7 +3431,7 @@
 <div class="con-form-field"><label>Número do Contrato</label><input id="conContrato" placeholder="Ex: CT 001/2026" type="text"/></div>
 <div class="con-form-field"><label>Órgão *</label><input autocomplete="new-password" id="conOrgao" type="text"/></div>
 <div class="con-form-field"><label>UF</label><select id="conUF"></select></div>
-<div class="con-form-field"><label>Empresa</label><select id="conEmpresa"><option value="">Selecione</option><option>Gadita</option><option>Hamate</option></select></div>
+<div class="con-form-field"><label>Empresa</label><select id="conEmpresa" onchange="ajustarImpostoPorEmpresa('con')"><option value="">Selecione</option><option>Gadita</option><option>Hamate</option></select></div>
 </div>
 <div class="con-form-grid-3" style="margin-bottom:14px;">
 <div class="con-form-field"><label>Sistema</label><select id="conSistema"><option value="">Selecione</option><option>Licitanet</option><option>Licitar Digital</option><option>ComprasGOV</option></select></div>
@@ -3518,7 +3518,7 @@
 </div>
 </div>
 <div class="con-form-field">
-<label>Imposto (%)</label>
+<label>Imposto (%) <span id="conImpostoBadge" style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:4px;background:#0a2018;color:#2dd47a;">Simples Nacional</span></label>
 <div style="display:flex;align-items:center;gap:6px;">
 <input id="conImpostoPct" max="100" min="0" oninput="reRenderItens('con');atualizarCalcRow()" step="0.1" style="flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:12px;font-family:inherit;" type="number" value="5"/>
 <span style="font-size:11px;color:var(--muted);">%</span>
@@ -3573,12 +3573,12 @@
 <div class="modal-field"><label>Nº do Contrato</label><input class="field-box" id="eConAContrato" placeholder="Ex: CT 001/2026" type="text"/></div>
 <div class="modal-field"><label>Processo</label><input class="field-box" id="eConAProcesso" type="text"/></div>
 <div class="modal-field"><label>Sistema</label><select class="field-box" id="eConASistema"><option value="">Selecione</option><option>Licitanet</option><option>Licitar Digital</option><option>ComprasGOV</option></select></div>
-<div class="modal-field"><label>Empresa</label><select class="field-box" id="eConAEmpresa"><option value="">Selecione</option><option>Gadita</option><option>Hamate</option></select></div>
+<div class="modal-field"><label>Empresa</label><select class="field-box" id="eConAEmpresa" onchange="ajustarImpostoEditModal('A')"><option value="">Selecione</option><option>Gadita</option><option>Hamate</option></select></div>
 <div class="modal-field"><label>Status</label><input class="field-box" id="eConAStatus" type="text"/></div>
 <div class="modal-field"><label>Valor do Contrato (R$)</label><input class="field-box" id="eConAValor" min="0" oninput="calcularCustoModalEdit('A');calcularSaldoContrato()" step="0.01" type="number"/></div>
 <div class="modal-field"><label>Valor Compra Prevista (R$)</label><input class="field-box" id="eConACompra" min="0" oninput="calcularCustoModalEdit('A')" step="0.01" type="number"/></div>
 <div class="modal-field"><label>Royalties (R$)</label><input class="field-box" id="eConARoyalties" min="0" oninput="calcularCustoModalEdit('A')" step="0.01" type="number"/></div>
-<div class="modal-field"><label>Imposto da Nota (R$)</label><input class="field-box" id="eConAImposto" min="0" oninput="calcularCustoModalEdit('A')" step="0.01" type="number"/></div>
+<div class="modal-field"><label>Imposto da Nota (R$) <span id="eConAImpostoBadge" style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:4px;background:#0a2018;color:#2dd47a;">Simples Nacional</span></label><input class="field-box" id="eConAImposto" min="0" oninput="calcularCustoModalEdit('A')" step="0.01" type="number"/></div>
 <div class="modal-field"><label>Custo Previsto (R$)</label><input class="field-box" id="eConACusto" readonly="" step="0.01" style="background:var(--bg);color:#b76a00;font-weight:700;" type="number"/></div>
 <div class="modal-field"><label>Lucro Previsto (R$)</label><input class="field-box" id="eConALucro" readonly="" step="0.01" style="background:var(--bg);color:#1f8a4c;font-weight:700;" type="number"/></div>
 <div class="modal-field"><label>Total de itens do contrato</label><input class="field-box" id="eConATotalItens" min="0" placeholder="Ex: 109" step="1" type="number"/></div>
@@ -3606,12 +3606,12 @@
 <div class="modal-grid-4">
 <div class="modal-field"><label>Data da Assinatura</label><input class="field-box" id="eConEData" type="date"/></div>
 <div class="modal-field"><label>Órgão</label><input autocomplete="new-password" class="field-box" id="eConEOrgao" type="text"/></div>
-<div class="modal-field"><label>Empresa</label><select class="field-box" id="eConEEmpresa"><option value="">Selecione</option><option>Gadita</option><option>Hamate</option></select></div>
+<div class="modal-field"><label>Empresa</label><select class="field-box" id="eConEEmpresa" onchange="ajustarImpostoEditModal('E')"><option value="">Selecione</option><option>Gadita</option><option>Hamate</option></select></div>
 <div class="modal-field"><label>Status</label><input class="field-box" id="eConEStatus" type="text"/></div>
 <div class="modal-field"><label>Valor do Contrato (R$)</label><input class="field-box" id="eConEValor" min="0" oninput="calcularCustoModalEdit('E')" step="0.01" type="number"/></div>
 <div class="modal-field"><label>Valor Compra Prevista (R$)</label><input class="field-box" id="eConECompra" min="0" oninput="calcularCustoModalEdit('E')" step="0.01" type="number"/></div>
 <div class="modal-field"><label>Royalties (R$)</label><input class="field-box" id="eConERoyalties" min="0" oninput="calcularCustoModalEdit('E')" step="0.01" type="number"/></div>
-<div class="modal-field"><label>Imposto da Nota (R$)</label><input class="field-box" id="eConEImposto" min="0" oninput="calcularCustoModalEdit('E')" step="0.01" type="number"/></div>
+<div class="modal-field"><label>Imposto da Nota (R$) <span id="eConEImpostoBadge" style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:4px;background:#0a2018;color:#2dd47a;">Simples Nacional</span></label><input class="field-box" id="eConEImposto" min="0" oninput="calcularCustoModalEdit('E')" step="0.01" type="number"/></div>
 <div class="modal-field"><label>Custo Previsto (R$)</label><input class="field-box" id="eConECusto" readonly="" step="0.01" style="background:var(--bg);color:#b76a00;font-weight:700;" type="number"/></div>
 <div class="modal-field"><label>Lucro Previsto (R$)</label><input class="field-box" id="eConELucro" readonly="" step="0.01" style="background:var(--bg);color:#1f8a4c;font-weight:700;" type="number"/></div>
 <div class="modal-field"><label>🖥️ Link do sistema</label><input class="field-box" id="eConESala" type="url"/></div>
@@ -4859,6 +4859,63 @@
       if (qs(`${pfx}TotalItens`)) qs(`${pfx}TotalItens`).value = _conItens.reduce((s,x)=>s+Number(x.qtd||0),0);
     }
 
+    // ── Ajuste de imposto por regime tributário ──────────
+    // Gadita = Lucro Presumido (campo livre)
+    // Hamate = Simples Nacional (fixo 5%, campo bloqueado)
+    function ajustarImpostoPorEmpresa(pfx) {
+      const empresa = qs('conEmpresa')?.value || '';
+      const isGadita = empresa === 'Gadita';
+      const inputPct  = qs('conImpostoPct');
+      const badge     = qs('conImpostoBadge');
+      if (!inputPct) return;
+      if (isGadita) {
+        inputPct.readOnly = false;
+        inputPct.style.background = '';
+        inputPct.style.color = '';
+        inputPct.style.cursor = '';
+        inputPct.title = 'Lucro Presumido — insira o percentual de imposto';
+        if (badge) {
+          badge.textContent = 'Lucro Presumido';
+          badge.style.background = '#0d1e3a';
+          badge.style.color = '#5b9cf6';
+        }
+      } else {
+        inputPct.readOnly = true;
+        inputPct.value = 5;
+        inputPct.style.background = 'var(--bg)';
+        inputPct.style.color = 'var(--muted)';
+        inputPct.style.cursor = 'not-allowed';
+        inputPct.title = 'Simples Nacional — fixo em 5%';
+        if (badge) {
+          badge.textContent = 'Simples Nacional';
+          badge.style.background = '#0a2018';
+          badge.style.color = '#2dd47a';
+        }
+      }
+      reRenderItens('con');
+      atualizarCalcRow();
+    }
+
+    function ajustarImpostoEditModal(tipo) {
+      // tipo: 'A' (ativo via stepper) ou 'E' (encerrado)
+      const empresaId = tipo === 'E' ? 'eConEEmpresa' : 'eConAEmpresa';
+      const empresa   = qs(empresaId)?.value || '';
+      const isGadita  = empresa === 'Gadita';
+      const badgeId   = `eCon${tipo}ImpostoBadge`;
+      const badge     = qs(badgeId);
+      if (badge) {
+        if (isGadita) {
+          badge.textContent = 'Lucro Presumido';
+          badge.style.background = '#0d1e3a';
+          badge.style.color = '#5b9cf6';
+        } else {
+          badge.textContent = 'Simples Nacional';
+          badge.style.background = '#0a2018';
+          badge.style.color = '#2dd47a';
+        }
+      }
+    }
+
     function showCadastroContrato() {
       _conItens = [];
       // Limpa campos
@@ -4869,6 +4926,7 @@
       if (qs('conStatus')) qs('conStatus').value = 'Vigente';
       if (qs('conRoyaltiesPct')) qs('conRoyaltiesPct').value = 1;
       if (qs('conImpostoPct'))   qs('conImpostoPct').value   = 5;
+      ajustarImpostoPorEmpresa('con'); // empresa vazia = comportamento Hamate (bloqueado)
       renderItensContrato('con');
       calcularTotaisItens('con');
       atualizarCalcRow();
@@ -5106,6 +5164,7 @@
       if (qs('conDrive'))    qs('conDrive').value     = c.drive   || '';
       if (qs('conObs'))      qs('conObs').value       = c.obs     || '';
 
+      ajustarImpostoPorEmpresa('con'); // ajusta campo imposto pelo regime da empresa
       renderItensContrato('con');
       calcularTotaisItens('con');
       atualizarCalcRow();
@@ -5186,6 +5245,7 @@
       qs('eConESala').value      = c.sala       || '';
       qs('eConEDrive').value     = c.drive      || '';
       qs('eConEObs').value       = c.obs        || '';
+      ajustarImpostoEditModal('E');
       qs('editContratoEncWrap').classList.remove('hidden');
       closeAllMenus();
     }
