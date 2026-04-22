@@ -2450,6 +2450,25 @@
 <div class="theme-swatch" data-theme="verde" onclick="aplicarTema('verde')" title="Verde"></div>
 <div class="theme-swatch" data-theme="laranja" onclick="aplicarTema('laranja')" title="Laranja"></div>
 </div>
+<!-- Toggle claro/escuro estilo iOS -->
+<div onclick="toggleModoClaro()" id="darkLightToggle" title="Alternar modo claro/escuro" style="
+  display:flex;align-items:center;gap:7px;cursor:pointer;
+  background:var(--card);border:1px solid var(--line);
+  border-radius:20px;padding:4px 10px 4px 8px;
+  user-select:none;transition:all .2s;
+">
+  <span id="darkLightIcon" style="font-size:13px;">🌙</span>
+  <div style="position:relative;width:34px;height:20px;">
+    <div style="position:absolute;inset:0;background:var(--line);border-radius:10px;transition:background .25s;" id="darkLightTrack"></div>
+    <div id="darkLightThumb" style="
+      position:absolute;top:3px;left:3px;
+      width:14px;height:14px;border-radius:50%;
+      background:#fff;transition:transform .25s,background .25s;
+      box-shadow:0 1px 3px rgba(0,0,0,.3);
+    "></div>
+  </div>
+  <span id="darkLightLabel" style="font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap;">Escuro</span>
+</div>
 </div>
 <span id="dashDataHora" style="font-size:10px;color:var(--muted);"></span>
 </div>
@@ -8493,6 +8512,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     //  TEMA DE CORES
     // ══════════════════════════════════════════════════════════
     const TEMA_KEY = 'km_tema_v1';
+    const MODO_KEY = 'km_modo_v1'; // 'dark' | 'light'
 
     const TEMAS = {
       rosa:    { primary: '#d96c96', soft: '#2d1a24', dark: '#f48cb4', th1: '#1e1520', th2: '#221620', border: '#5a2d44', borderLight: '#3d1f30', hover: '#1e1520' },
@@ -8500,6 +8520,61 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       verde:   { primary: '#2ec27a', soft: '#0d2e1e', dark: '#5de8a6', th1: '#0d2218', th2: '#0f2820', border: '#1a6644', borderLight: '#134d33', hover: '#0d2218' },
       laranja: { primary: '#e8950a', soft: '#2e1e08', dark: '#ffc04d', th1: '#221808', th2: '#261c08', border: '#7a4d0a', borderLight: '#5a3808', hover: '#221808' },
     };
+
+    // Variáveis de modo claro
+    const MODO_CLARO = {
+      '--bg':         '#f0f2f7',
+      '--sidebar':    '#ffffff',
+      '--card':       '#ffffff',
+      '--card-header':'#f5f7fc',
+      '--text':       '#1a1d2e',
+      '--muted':      '#6b7280',
+      '--line':       '#e2e6f0',
+      '--input-bg':   '#f8faff',
+    };
+    const MODO_ESCURO = {
+      '--bg':         '#12141c',
+      '--sidebar':    '#1a1d2a',
+      '--card':       '#1e2130',
+      '--card-header':'#252840',
+      '--text':       '#e8eaf0',
+      '--muted':      '#6b7280',
+      '--line':       '#2a2d3e',
+      '--input-bg':   '#1a1d2a',
+    };
+
+    function aplicarModo(modo) {
+      const root = document.documentElement;
+      const vars = modo === 'light' ? MODO_CLARO : MODO_ESCURO;
+      Object.entries(vars).forEach(([k,v]) => root.style.setProperty(k, v));
+      localStorage.setItem(MODO_KEY, modo);
+
+      // Atualiza toggle UI
+      const icon  = document.getElementById('darkLightIcon');
+      const thumb = document.getElementById('darkLightThumb');
+      const track = document.getElementById('darkLightTrack');
+      const label = document.getElementById('darkLightLabel');
+      if (!icon) return;
+      if (modo === 'light') {
+        icon.textContent  = '☀️';
+        label.textContent = 'Claro';
+        thumb.style.transform   = 'translateX(14px)';
+        track.style.background  = 'var(--primary)';
+        label.style.color       = 'var(--primary)';
+      } else {
+        icon.textContent  = '🌙';
+        label.textContent = 'Escuro';
+        thumb.style.transform   = 'translateX(0)';
+        track.style.background  = 'var(--line)';
+        label.style.color       = 'var(--muted)';
+      }
+    }
+
+    function toggleModoClaro() {
+      const atual = localStorage.getItem(MODO_KEY) || 'dark';
+      aplicarModo(atual === 'dark' ? 'light' : 'dark');
+      if (typeof renderDashboard === 'function') renderDashboard();
+    }
 
     function aplicarTema(nome) {
       const t = TEMAS[nome] || TEMAS.rosa;
@@ -8524,6 +8599,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     function carregarTema() {
       const saved = localStorage.getItem(TEMA_KEY) || 'rosa';
       aplicarTema(saved);
+      const modo = localStorage.getItem(MODO_KEY) || 'dark';
+      aplicarModo(modo);
     }
 
     // Inicia o tema salvo
