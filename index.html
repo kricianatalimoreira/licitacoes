@@ -2591,6 +2591,10 @@
 <p>Disputas ativas com acompanhamento em tempo real.</p>
 </div>
 <div class="actions">
+<button class="btn btn-light" onclick="abrirImportarExcel()" style="display:flex;align-items:center;gap:6px;">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+  Importar Excel
+</button>
 <button class="btn btn-primary" onclick="showCadastroDisputa()">+ Nova Disputa</button>
 </div>
 </div>
@@ -2984,6 +2988,14 @@
 </div>
 <div class="subtotal-bar" id="subtotalConAtivos">
 <button class="subtotal-clear-btn" onclick="limparFiltrosConAtivos()">✕ Limpar filtros</button>
+<button id="btnFiltroRascunho" onclick="toggleFiltroRascunho()" style="
+  display:flex;align-items:center;gap:5px;
+  background:#0d1e3a;border:1px solid #2a4d8a;color:#5b9cf6;
+  border-radius:8px;padding:4px 10px;font-size:10px;font-weight:700;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+" title="Mostrar apenas contratos importados sem dados completos">
+  📋 Só rascunhos
+</button>
 <div class="sort-select-wrap">
 <label>Ordenar</label>
 <select class="sort-select" id="sortConAtivos" onchange="renderContratosAtivos()">
@@ -4531,6 +4543,24 @@
       </div>`;
     }
 
+    let _filtroRascunhoAtivo = false;
+
+    function toggleFiltroRascunho() {
+      _filtroRascunhoAtivo = !_filtroRascunhoAtivo;
+      const btn = qs('btnFiltroRascunho');
+      if (btn) {
+        btn.style.background    = _filtroRascunhoAtivo ? '#1a3a6a' : '#0d1e3a';
+        btn.style.borderColor   = _filtroRascunhoAtivo ? '#5b9cf6' : '#2a4d8a';
+        btn.style.boxShadow     = _filtroRascunhoAtivo ? '0 0 0 2px #5b9cf633' : 'none';
+        btn.textContent         = _filtroRascunhoAtivo ? '📋 Rascunhos ✓' : '📋 Só rascunhos';
+      }
+      renderContratosAtivos();
+    }
+
+    function isRascunho(c) {
+      return (c.obs || '').includes('Importado via planilha') || !c.contrato;
+    }
+
     function renderContratosAtivos() {
       const body = qs('conAtivosBody');
       const fData  = qs('fConAData')?.value   || '';
@@ -4541,6 +4571,7 @@
         if (fData  && (c.data || '') !== fData)                                      return false;
         if (fOrgao && !String(c.orgao || '').toLowerCase().includes(fOrgao))          return false;
         if (fEmp   && c.empresa !== fEmp)                                             return false;
+        if (_filtroRascunhoAtivo && !isRascunho(c))                                   return false;
         return true;
       });
 
@@ -4585,15 +4616,19 @@
         const custo = calcCusto(c.royalties, c.imposto);
         const lucro = calcLucro(c.valor, c.compra, custo);
         const alerta = vencimentoAlertaHtml(c.dataFim);
+        const rascunho = isRascunho(c);
+        const rascunhoBadge = rascunho
+          ? `<span style="display:inline-block;margin-left:5px;background:#0d1e3a;color:#5b9cf6;font-size:9px;font-weight:700;padding:1px 6px;border-radius:6px;border:1px solid #2a4d8a;vertical-align:middle;">📋 rascunho</span>`
+          : '';
         return `
-          <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','ativo')" title="Clique para ver detalhes">
+          <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','ativo')" title="Clique para ver detalhes" style="${rascunho ? 'border-left:3px solid #2a4d8a;' : ''}">
             <td>
               <div class="cell-data-hora">
                 <span class="data-dia">${formatDate(c.data)}</span>
                 ${alerta}
               </div>
             </td>
-            <td>${orgaoInfoHtml(c)}</td>
+            <td>${orgaoInfoHtml(c)}${rascunhoBadge}</td>
             <td>${companyBadge(c.empresa)}</td>
             <td style="font-weight:700;">${formatCurrency(c.valor)}</td>
             <td>${formatCurrency(c.compra)}</td>
@@ -4734,6 +4769,9 @@
     // ── Filtros ──────────────────────────────────────
     function limparFiltrosConAtivos() {
       ['fConAData','fConAOrgao','fConAEmpresa','fConAStatus'].forEach(id => { const el = qs(id); if(el) el.value=''; });
+      _filtroRascunhoAtivo = false;
+      const btn = qs('btnFiltroRascunho');
+      if (btn) { btn.style.background='#0d1e3a'; btn.style.borderColor='#2a4d8a'; btn.style.boxShadow='none'; btn.textContent='📋 Só rascunhos'; }
       renderContratosAtivos(); closeAllPopovers();
     }
     function limparFiltrosConEncerrados() {
@@ -7372,6 +7410,1075 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     populateUFs('disputaUF');
     populateUFs('encUF');
     loadData();
+
+    // ── Injeção de dados históricos (Gadita – Março 2025) ──────────────────
+    (function injetarDadosMarco2025() {
+      const MARKER = 'km_injected_marco2025_gadita';
+      if (localStorage.getItem(MARKER)) return; // já injetado
+
+      const vencidas = [
+        { data:'2025-03-10', orgao:'AMVAP/VALE DO PARANAIBA/MG',              processo:'Dispensa 004/2025',  sistema:'Licitanet', bruto:8750.00  },
+        { data:'2025-03-13', orgao:'CÂMARA ALVORADA DO OESTE/RO',             processo:'Dispensa 04/2025',   sistema:'Licitanet', bruto:3551.90  },
+        { data:'2025-03-14', orgao:'CÂMARA MUNICIPAL DE CARIRA/SE',           processo:'Dispensa 002/2025',  sistema:'Licitanet', bruto:3020.00  },
+        { data:'2025-03-31', orgao:'CÂMARA MUNICIPAL DE MARQUINHO/PR',        processo:'Dispensa 001/2025',  sistema:'Licitanet', bruto:3800.00  },
+        { data:'2025-03-18', orgao:'MUNICÍPIO DE ALTO PARAÍSO/RO',            processo:'Pregão 003/2025',    sistema:'Licitanet', bruto:11852.00 },
+        { data:'2025-03-24', orgao:'MUNICÍPIO DE BARRA DO GARÇAS/MT',         processo:'Pregão 008/2025',    sistema:'Licitanet', bruto:982.00   },
+        { data:'2025-03-19', orgao:'MUNICÍPIO DE CARANGOLA/MG',               processo:'Pregão 015/2025',    sistema:'Licitanet', bruto:5273.26  },
+        { data:'2025-03-26', orgao:'MUNICÍPIO DE COCALZINHO DE GOIÁS/GO',     processo:'Pregão 006/2025',    sistema:'Licitanet', bruto:6210.00  },
+        { data:'2025-03-28', orgao:'MUNICÍPIO DE COMENDADOR GOMES/MG',        processo:'Dispensa 006/2025',  sistema:'Licitanet', bruto:568.30   },
+        { data:'2025-03-06', orgao:'MUNICÍPIO DE PIUMHI/MG',                  processo:'Pregão 013/2025',    sistema:'Licitanet', bruto:9807.92  },
+        { data:'2025-03-13', orgao:'MUNICÍPIO DE SALTO DO CÉU/MT',            processo:'Pregão 005/2025',    sistema:'Licitanet', bruto:8290.00  },
+        { data:'2025-03-31', orgao:'PREFEITURA MUNICIPAL DE PORTO DA FOLHA/SE',processo:'Pregão 011/2025',   sistema:'Licitanet', bruto:57742.00 },
+      ];
+
+      const perdidas = [
+        { data:'2025-03-07', orgao:'CÂMARA MUNICIPAL DE BURITIS/RO',                processo:'Pregão 004/2025',   sistema:'Licitanet' },
+        { data:'2025-03-11', orgao:'CÂMARA MUNICIPAL DE CARANGOLA/MG',              processo:'Dispensa 06/2025',  sistema:'Licitanet' },
+        { data:'2025-03-28', orgao:'CÂMARA MUNICIPAL DE MARUIM/SE',                 processo:'Dispensa 004/2025', sistema:'Licitanet' },
+        { data:'2025-03-18', orgao:'CÂMARA MUNICIPAL SANTA LUZIA DO ITANHI/SE',     processo:'Dispensa 008/2025', sistema:'Licitanet' },
+        { data:'2025-03-26', orgao:'FUNDO MUNICIPAL DE SAÚDE DE RIO VERDE/GO',      processo:'Dispensa 028/2025', sistema:'Licitanet' },
+        { data:'2025-03-28', orgao:'MUNICIPIO DE CAMPOS DE JULIO/MT',               processo:'Pregão 006/2025',   sistema:'Licitanet' },
+        { data:'2025-03-17', orgao:'MUNICÍPIO DE JARÚ/RO',                          processo:'Pregão 35/2025',    sistema:'Licitanet' },
+        { data:'2025-03-11', orgao:'MUNICÍPIO DE RODELAS/BA',                       processo:'Dispensa 014/2025', sistema:'Licitanet' },
+        { data:'2025-03-26', orgao:'MUNICÍPIO DE SÃO MIGUEL DO GUAPORÉ/RO',         processo:'Dispensa 008/2025', sistema:'Licitanet' },
+        { data:'2025-03-19', orgao:'PREFEITURA MUNICIPAL DE BRASIL NOVO/PA',        processo:'Pregão 006/2025',   sistema:'Licitanet' },
+        { data:'2025-03-19', orgao:'PREFEITURA MUNICIPAL DE BREJO DE AREIA/MA',     processo:'Pregão 010/2025',   sistema:'Licitanet' },
+      ];
+
+      // Adiciona encerradas (vencidas + perdidas)
+      vencidas.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'',
+          ...v
+        });
+      });
+      perdidas.forEach(p => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Perdida', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0,
+          ...p
+        });
+      });
+
+      // Cria contratos rascunho para as vencidas
+      vencidas.forEach(v => {
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim: '', contrato: '',
+          orgao: v.orgao, uf: '', empresa: 'Gadita',
+          sistema: v.sistema, processo: v.processo,
+          drive: '', sala: '',
+          obs: '📋 Importado via planilha. Complete dados pendentes: contrato, itens, links.',
+          status: 'Vigente',
+          valor: v.bruto, compra: 0,
+          royalties: 0, royaltiesPct: 1,
+          imposto: 0,   impostoPct: 5,
+          custo: 0,     lucro: v.bruto,
+          empenhado: 0, totalItens: 0,
+          itensLotes: [{
+            id: crypto.randomUUID(),
+            descricao: v.processo || v.orgao,
+            marca:'', modelo:'', qtd:1,
+            vlUnit: v.bruto, compraUnit:0
+          }],
+        });
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção ──────────────────────────────────────────────────────────
+
+    // ── Injeção de dados históricos (Gadita – Maio 2025) ──────────────────
+    (function injetarDadosMaio2025() {
+      const MARKER = 'km_injected_maio2025_gadita';
+      if (localStorage.getItem(MARKER)) return;
+
+      const limpar = s => s.replace(/^Gabi\*/i, '').trim();
+
+      const vencidas = [
+        { data:'2025-05-13', orgao:'MUNICÍPIO DE JAPARATUBA/SE',                              processo:'Pregão 022/2025',    sistema:'Licitanet', bruto:1250.48     },
+        { data:'2025-05-20', orgao:'MUNICÍPIO DE ALTO ALEGRE DOS PARECIS/RO',                 processo:'Pregão 021/2025',    sistema:'Licitanet', bruto:1196809.10  },
+        { data:'2025-05-15', orgao:'MUNICÍPIO DE ALTA FLORESTA DO OESTE/RO',                  processo:'Pregão 020/2025',    sistema:'Licitanet', bruto:2840.60     },
+        { data:'2025-05-08', orgao:'MUNICÍPIO DE ALTA FLORESTA DO OESTE/RO',                  processo:'Dispensa 065/2025',  sistema:'Licitanet', bruto:13566.99    },
+        { data:'2025-05-16', orgao:limpar('Gabi*MUNICIPIO DE SANTO ANTÔNIO DO CAIUÁ/PR'),     processo:'Dispensa 001/2025',  sistema:'Licitanet', bruto:1336.12     },
+        { data:'2025-05-13', orgao:limpar('Gabi*MUNICÍPIO DE JEREMOABO/BA'),                  processo:'Pregão 025/2025',    sistema:'Licitanet', bruto:67738.56    },
+      ];
+
+      const encerradas = [
+        { data:'2025-05-14', orgao:'PGM/PROCURADORIA GERAL DO MUNICÍPIO DE ARACAJU/SE',       processo:'Dispensa 310/2025',  sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-14', orgao:'MUNICÍPIO DE VITÓRIA DO XINGU/PA',                        processo:'Pregão 025/2025',    sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-27', orgao:'MUNICÍPIO DE URUPÁ/RO',                                   processo:'Pregão 009/2025',    sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-20', orgao:'MUNICÍPIO DE RIO REAL/BA',                                processo:'Pregão 031/2025',    sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-13', orgao:'MUNICIPIO DE PARAISO DO NORTE/PR',                        processo:'Pregão 031/2025',    sistema:'Licitanet', status:'Fracassada'},
+        { data:'2025-05-15', orgao:'MUNICIPIO DE MONTE CARMELO/MG',                           processo:'Pregão 028/2025',    sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-08', orgao:'MUNICIPIO DE ESPLANADA/BA',                               processo:'Pregão 014/2025',    sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-28', orgao:'MUNICÍPIO DE CUJUBIM/RO',                                 processo:'Pregão 017/2025',    sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-09', orgao:'MUNICÍPIO DE CARMÉSIA/MG',                                processo:'Dispensa 007/2025',  sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-22', orgao:'MUNICIPIO DE CARDEAL DA SILVA/BA',                        processo:'Pregão 012/2025',    sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-28', orgao:'MUNICÍPIO DE CAMPOS ALTOS/MG',                            processo:'Dispensa 013/2025',  sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-26', orgao:'MUNICÍPIO DE CAMPOS ALTOS/MG',                            processo:'Dispensa 012/2025',  sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-16', orgao:'MUNICÍPIO DE ARAUÁ/SE',                                   processo:'Dispensa 005/2025',  sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-22', orgao:'MUNICIPIO DE ARARUAMA/RJ',                                processo:'Dispensa 006/2025',  sistema:'Licitanet', status:'Fracassada'},
+        { data:'2025-05-09', orgao:'MUNICÍPIO DE ÁGUA COMPRIDA/MG',                           processo:'Pregão 007/2025',    sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-14', orgao:limpar('Gabi*SERVICO AUTONOMO DE AGUA E ESGOTO DE AÇAILÂNDIA/SAAE/MA'), processo:'Pregão 007/2025', sistema:'Licitanet', status:'Revogada' },
+        { data:'2025-05-20', orgao:limpar('Gabi*MUNICIPIO DE PRESIDENTE TANCREDO NEVES/BA'),  processo:'Pregão 053/2025',    sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-30', orgao:'FUNDO MUNICIPAL DE SAUDE DO MUNICIPIO DE CASTANHAL/PA',   processo:'Pregão 011/2025',    sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-28', orgao:'FUNDO MUNICIPAL DE SAÚDE DE SENADOR JOSÉ PORFÍRIO/PA',    processo:'Pregão 013/2025',    sistema:'Licitanet', status:'Revogada'  },
+        { data:'2025-05-20', orgao:'FUNDO MUNICIPAL DE SAÚDE DE RIO VERDE/GO',                processo:'Dispensa 043/2025',  sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-27', orgao:'FUNDO MUNICIPAL DE SAÚDE DE MACAMBIRA/SE',                processo:'Pregão 007/2025',    sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-14', orgao:'FUNDO MUNICIPAL DE SAÚDE DE AQUIDABÃ/SE',                 processo:'Pregão 03/2025',     sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-09', orgao:'FUNDAT DE ARACAJU/SE',                                    processo:'Dispensa 296/2025',  sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-16', orgao:'FMS/FUNDO MUNICIPAL DE SAÚDE DE CAVALCANTE/GO',           processo:'Dispensa 4427/2025', sistema:'Licitanet', status:'Perdida'   },
+        { data:'2025-05-21', orgao:'CONSELHO REGIONAL DE QUÍMICA DA 18ª REGIÃO/PI',           processo:'Dispensa 005/2025',  sistema:'Licitanet', status:'Perdida'   },
+      ];
+
+      // Encerradas (não-vencidas)
+      encerradas.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0,
+          ...e
+        });
+      });
+
+      // Vencidas → encerradas + contrato rascunho
+      vencidas.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'',
+          ...v
+        });
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim:'', contrato:'',
+          orgao: v.orgao, uf:'', empresa:'Gadita',
+          sistema: v.sistema, processo: v.processo,
+          drive:'', sala:'',
+          obs:'📋 Importado via planilha (maio/2025). Complete dados pendentes: contrato, itens, links.',
+          status:'Vigente',
+          valor: v.bruto, compra:0,
+          royalties:0, royaltiesPct:1,
+          imposto:0,   impostoPct:5,
+          custo:0,     lucro:v.bruto,
+          empenhado:0, totalItens:0,
+          itensLotes:[{
+            id: crypto.randomUUID(),
+            descricao: v.processo || v.orgao,
+            marca:'', modelo:'', qtd:1,
+            vlUnit:v.bruto, compraUnit:0
+          }],
+        });
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção maio 2025 ────────────────────────────────────────────────
+
+    // ── Injeção de dados históricos (Gadita – Junho 2025) ─────────────────
+    (function injetarDadosJunho2025() {
+      const MARKER = 'km_injected_junho2025_gadita';
+      if (localStorage.getItem(MARKER)) return;
+
+      const limpar = s => s.replace(/^Gabi\*/i, '').trim();
+
+      const vencidas = [
+        { data:'2025-06-13', orgao:'FUNDO MUNICIPAL DE SAÚDE DE TOBIAS BARRETO/SE',          processo:'Pregão 006/2025',    sistema:'Licitanet', bruto:8500.00   },
+        { data:'2025-06-03', orgao:'MUNICIPIO DE BARRA DO CHOÇA/BA',                          processo:'Pregão 029/2025',    sistema:'Licitanet', bruto:21469.43  },
+        { data:'2025-06-18', orgao:'FUNDO MUNICIPAL DE SAÚDE DE NOSSA SENHORA DAS DORES/SE',  processo:'Pregão 07/2025',     sistema:'Licitanet', bruto:7948.56   },
+        { data:'2025-06-18', orgao:'FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE ESTÂNCIA/SE',    processo:'Dispensa 03/2025',   sistema:'Licitanet', bruto:9799.93   },
+        { data:'2025-06-26', orgao:'MUNICÍPIO DE UNIFLOR/PR',                                 processo:'Dispensa 006/2025',  sistema:'Licitanet', bruto:6500.00   },
+        { data:'2025-06-05', orgao:limpar('Gabi*MUNICÍPIO DE CARMÉSIA/MG'),                   processo:'Pregão 007/2025',    sistema:'Licitanet', bruto:1084.89   },
+        { data:'2025-06-25', orgao:'MUNICÍPIO DE CABO FRIO/RJ',                               processo:'Dispensa 007/2025',  sistema:'Licitanet', bruto:717.43    },
+        { data:'2025-06-27', orgao:'FUNDO MUNICIPAL DE SAÚDE DE RIO VERDE/GO',                processo:'Dispensa 62/2025',   sistema:'Licitanet', bruto:899.00    },
+        { data:'2025-06-12', orgao:'MUNÍCIPIO DE COMBINADO/TO',                               processo:'Dispensa 001/2025',  sistema:'Licitanet', bruto:1629.35   },
+        { data:'2025-06-12', orgao:'MUNICÍPIO DE HELIÓPOLIS/BA',                              processo:'Pregão 026/2025',    sistema:'Licitanet', bruto:10717.56  },
+        { data:'2025-06-10', orgao:limpar('Gabi*MUNICÍPIO DE CARANGOLA/MG'),                  processo:'Pregão 055/2025',    sistema:'Licitanet', bruto:6052.00   },
+        { data:'2025-06-05', orgao:'SEMED/SECRETARIA MUNICIPAL DA EDUCAÇÃO DE ARACAJU/SE',    processo:'Dispensa 389/2025',  sistema:'Licitanet', bruto:1550.00   },
+        { data:'2025-06-10', orgao:'MUNICÍPIO DE PEDREIRAS/MA',                               processo:'Dispensa 017/2025',  sistema:'Licitanet', bruto:14082.40  },
+      ];
+
+      const emAndamento = [
+        { data:'2025-06-17', orgao:'FUNDO MUNICIPAL DE SAÚDE E BEM ESTAR SOCIAL DE LARANJEIRAS/SE', processo:'Pregão 3/2025', sistema:'Licitanet', bruto:1666.00 },
+      ];
+
+      const encerradas = [
+        { data:'2025-06-24', orgao:'MUNICÍPIO DE JAURU/MT',                                          processo:'Pregão 013/2025',    sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-11', orgao:'FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE TERRA SANTA/PA',        processo:'Dispensa 005/2025',  sistema:'Licitanet', status:'Revogada' },
+        { data:'2025-06-26', orgao:limpar('Gabi*MUNICÍPIO DE SÃO GONÇALO DO ABAETÉ/MG'),            processo:'Pregão 015/2025',    sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-12', orgao:'MUNICIPIO DE MAGALHÃES BARATA/PA',                               processo:'Pregão 003/2025',    sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-17', orgao:'MUNICÍPIO DE CARANGOLA/MG',                                      processo:'Pregão 061/2025',    sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-04', orgao:'MUNICÍPIO DE ALTA FLORESTA DO OESTE/RO',                         processo:'Pregão 028/2025',    sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-26', orgao:'MUNICIPIO DE ALTO TAQUARI/MT',                                   processo:'Pregão 24/2025',     sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-04', orgao:'SERVIÇO NACIONAL DE APRENDIZAGEM COMERCIAL/SENAC/SE',            processo:'Pregão 027/2025',    sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-18', orgao:'MUNICÍPIO DE PORTO ALEGRE DO NORTE/MT',                          processo:'Pregão 25/2025',     sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-27', orgao:'FUNDO MUNICIPAL DE SAÚDE DE RIO VERDE/GO',                       processo:'Dispensa 61/2025',   sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-24', orgao:'MUNICÍPIO DE CASTELO/ES',                                        processo:'Pregão 075/2025',    sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-18', orgao:'CÂMARA MUNICIPAL DE SÃO GOTARDO/MG',                             processo:'Dispensa 006/2025',  sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-12', orgao:'FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE FÁTIMA/TO',             processo:'Dispensa 001/2025',  sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-18', orgao:'MUNICÍPIO DE CÓRREGO DANTA/MG',                                  processo:'Pregão 012/2025',    sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-12', orgao:'MUNICÍPIO DE CARMO/RJ',                                          processo:'Pregão 022/2025',    sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-13', orgao:'FUNDO MUNICIPAL DE SAÚDE DE RIO VERDE/GO',                       processo:'Dispensa 058/2025',  sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-16', orgao:'FUNDO MUNICIPAL DE SAÚDE DE RIO VERDE/GO',                       processo:'Dispensa 058/2025',  sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-03', orgao:'MUNICÍPIO DE ALTO ALEGRE DOS PARECIS/RO',                        processo:'Pregão 026/2025',    sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-04', orgao:limpar('Gabi*FUNDO MUNICIPAL DE SAÚDE DE TOBIAS BARRETO/SE'),    processo:'Dispensa 004/2025',  sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-06', orgao:'MUNICÍPIO DE SÃO FÉLIX DO CORIBE/BA',                            processo:'Pregão 011/2025',    sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-11', orgao:'FMS/FUNDO MUNICIPAL DE SAÚDE DE BOM JARDIM/RJ',                  processo:'Pregão 009/2025',    sistema:'Licitanet', status:'Perdida'  },
+        { data:'2025-06-26', orgao:'CÂMARA MUNICIPAL DE MIRANTE DA SERRA/RO',                        processo:'Dispensa 3/2025',    sistema:'Licitanet', status:'Anulada'  },
+      ];
+
+      emAndamento.forEach(e => {
+        disputas.push({
+          id: crypto.randomUUID(), status:'Em andamento', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'',
+          ...e
+        });
+      });
+
+      encerradas.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0,
+          ...e
+        });
+      });
+
+      vencidas.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'',
+          ...v
+        });
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim:'', contrato:'',
+          orgao: v.orgao, uf:'', empresa:'Gadita',
+          sistema: v.sistema, processo: v.processo,
+          drive:'', sala:'',
+          obs:'📋 Importado via planilha (junho/2025). Complete dados pendentes: contrato, itens, links.',
+          status:'Vigente',
+          valor: v.bruto, compra:0,
+          royalties:0, royaltiesPct:1,
+          imposto:0,   impostoPct:5,
+          custo:0,     lucro:v.bruto,
+          empenhado:0, totalItens:0,
+          itensLotes:[{
+            id: crypto.randomUUID(),
+            descricao: v.processo || v.orgao,
+            marca:'', modelo:'', qtd:1,
+            vlUnit:v.bruto, compraUnit:0
+          }],
+        });
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção junho 2025 ───────────────────────────────────────────────
+
+    // ── Injeção de dados históricos (Gadita – Julho 2025) ─────────────────
+    (function injetarDadosJulho2025() {
+      const MARKER = 'km_injected_julho2025_gadita';
+      if (localStorage.getItem(MARKER)) return;
+
+      const vencidas = [
+        { data:'2025-07-30', orgao:'MUNICÍPIO DE CAMAÇARI/BA',                                processo:'Dispensa 16/2025',   sistema:'Licitanet', bruto:2010.00    },
+        { data:'2025-07-17', orgao:'MUNICÍPIO DE MACAMBIRA/SE',                               processo:'Pregão 14/2025',     sistema:'Licitanet', bruto:58530.78   },
+        { data:'2025-07-11', orgao:'MUNÍCIPIO DE BUJARI/AC',                                  processo:'Pregão 005/2025',    sistema:'Licitanet', bruto:307971.74  },
+        { data:'2025-07-29', orgao:'CÂMARA MUNICIPAL DE PRESIDENTE DUTRA/MA',                 processo:'Pregão 001/2025',    sistema:'Licitanet', bruto:3569.00    },
+        { data:'2025-07-29', orgao:'MUNICIPIO DE ITURAMA/MG',                                 processo:'Pregão 036/2025',    sistema:'Licitanet', bruto:4079.20    },
+        { data:'2025-07-17', orgao:'MUNICIPIO DE BARRA DO CHOÇA/BA',                          processo:'Pregão 032/2025',    sistema:'Licitanet', bruto:116328.45  },
+        { data:'2025-07-29', orgao:'MUNICÍPIO DE CENTRAL DE MINAS/MG',                        processo:'Pregão 14/2025',     sistema:'Licitanet', bruto:2755.65    },
+        { data:'2025-07-10', orgao:'MUNICÍPIO DE ALTA FLORESTA DO OESTE/RO',                  processo:'Dispensa 104/2025',  sistema:'Licitanet', bruto:1294.00    },
+        { data:'2025-07-01', orgao:'MUNICÍPIO DE PATROCÍNIO PAULISTA/SP',                     processo:'Pregão 35/2025',     sistema:'Licitanet', bruto:46917.80   },
+        { data:'2025-07-16', orgao:'MUNICÍPIO DE BELO MONTE/AL',                              processo:'Pregão 017/2025',    sistema:'Licitanet', bruto:21395.64   },
+        { data:'2025-07-16', orgao:'FUNDO MUNICIPAL DE SAÚDE DE RIO VERDE/GO',                processo:'Dispensa 072/2025',  sistema:'Licitanet', bruto:1480.00    },
+        { data:'2025-07-01', orgao:'MUNICÍPIO DE ALTINÓPOLIS/SP',                             processo:'Pregão 31/2025',     sistema:'Licitanet', bruto:2360.00    },
+        { data:'2025-07-01', orgao:'MUNICÍPIO DE MORRO DA FUMAÇA/SC',                         processo:'Dispensa 119/2025',  sistema:'Licitanet', bruto:4026.30    },
+      ];
+
+      const encerradas = [
+        { data:'2025-07-29', orgao:'MUNICÍPIO DE POCONE/MT',                                              processo:'Pregão 3/2025',      sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-30', orgao:'AGSUS',                                                               processo:'Pregão 90003/2025',  sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-23', orgao:'CÂMARA MUNICIPAL DE SÃO GOTARDO/MG',                                  processo:'Pregão 002/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-30', orgao:'FUNDO MUNICIPAL DE EDUCAÇÃO DE AFOGADOS DA INGAZEIRA/FMEAI/PE',       processo:'Pregão 06/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-07', orgao:'FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE ORIXIMINÁ/PA',               processo:'Pregão 007/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-29', orgao:'FUNDAÇÃO DE ENSINO TÉCNICO INTENSIVO DR. RENE BARSAM/FETI/MG',       processo:'Dispensa 02/2025',   sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-10', orgao:'MUNICÍPIO DE MATA DE SÃO JOÃO/BA',                                    processo:'Pregão 58/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-16', orgao:'MUNICÍPIO DE BARROLÂNDIA/TO',                                         processo:'Pregão 011/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-17', orgao:'MUNICÍPIO DE PRATINHA/MG',                                            processo:'Dispensa 041/2025',  sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-11', orgao:'MUNICIPIO DE BRASNORTE/MT',                                           processo:'Pregão 004/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-10', orgao:'MUNICÍPIO DE BRAGANÇA/PA',                                            processo:'Dispensa 003/2025',  sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-10', orgao:'MUNICIPIO DE FRUTAL/MG',                                              processo:'Pregão 39/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-11', orgao:'CÂMARA MUNICIPAL DE ARACAJU/SE',                                      processo:'Pregão 013/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-08', orgao:'EMPRESA DE DESENVOLVIMENTO URBANO/EMDUR/RO',                          processo:'Pregão 21/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-07-08', orgao:'MUNICÍPIO DE CAPIM GROSSO/BA',                                        processo:'Dispensa 016/2025',  sistema:'Licitanet', status:'Perdida' },
+      ];
+
+      encerradas.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0,
+          ...e
+        });
+      });
+
+      vencidas.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'',
+          ...v
+        });
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim:'', contrato:'',
+          orgao: v.orgao, uf:'', empresa:'Gadita',
+          sistema: v.sistema, processo: v.processo,
+          drive:'', sala:'',
+          obs:'📋 Importado via planilha (julho/2025). Complete dados pendentes: contrato, itens, links.',
+          status:'Vigente',
+          valor: v.bruto, compra:0,
+          royalties:0, royaltiesPct:1,
+          imposto:0,   impostoPct:5,
+          custo:0,     lucro:v.bruto,
+          empenhado:0, totalItens:0,
+          itensLotes:[{
+            id: crypto.randomUUID(),
+            descricao: v.processo || v.orgao,
+            marca:'', modelo:'', qtd:1,
+            vlUnit:v.bruto, compraUnit:0
+          }],
+        });
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção julho 2025 ───────────────────────────────────────────────
+
+    // ── Injeção de dados históricos (Gadita – Agosto 2025) ────────────────
+    (function injetarDadosAgosto2025() {
+      const MARKER = 'km_injected_agosto2025_gadita';
+      if (localStorage.getItem(MARKER)) return;
+
+      const vencidas = [
+        { data:'2025-08-18', orgao:'MUNICÍPIO DE LUNARDELLI/PR',                      processo:'Pregão 43/2025',     sistema:'Licitanet', bruto:35922.00   },
+        { data:'2025-08-21', orgao:'SEPLOG DE ARACAJU/SE',                            processo:'Dispensa 621/2025',  sistema:'Licitanet', bruto:6655.99    },
+        { data:'2025-08-04', orgao:'MUNICÍPIO DE SAPUCAIA/RJ',                        processo:'Pregão 23/2025',     sistema:'Licitanet', bruto:275.22     },
+        { data:'2025-08-05', orgao:'MUNICÍPIO DE PALMAS DE MONTE ALTO/BA',            processo:'Dispensa 38/2025',   sistema:'Licitanet', bruto:9989.00    },
+        { data:'2025-08-29', orgao:'MUNICIPIO DE ITACOATIARA/AM',                     processo:'Pregão 36/2025',     sistema:'Licitanet', bruto:101190.00  },
+        { data:'2025-08-04', orgao:'MUNICÍPIO DE CARANGOLA/MG',                       processo:'Dispensa 790/2025',  sistema:'Licitanet', bruto:2660.07    },
+        { data:'2025-08-20', orgao:'MUNÍCIPIO DE BUJARI/AC',                          processo:'Pregão 8/2025',      sistema:'Licitanet', bruto:22688.08   },
+        { data:'2025-08-20', orgao:'CÂMARA MUNICIPAL DE PALMAS DE MONTE ALTO/BA',     processo:'Dispensa 15/2025',   sistema:'Licitanet', bruto:18999.99   },
+      ];
+
+      const encerradas = [
+        { data:'2025-08-21', orgao:'MUNICÍPIO DE MIRASSOL D`OESTE/MT',                          processo:'Pregão 38/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-28', orgao:'MUNICÍPIO DE CARANGOLA/MG',                                 processo:'Pregão 91/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-19', orgao:'SETUR/SECRETARIA MUNICIPAL DO TURISMO DE ARACAJU/SE',       processo:'Dispensa 583/2025',  sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-01', orgao:'SERVIÇO AUTÔNOMO DE ÁGUA E ESGOTO/SAAE DE IBIÁ/MG',        processo:'Pregão 10/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-15', orgao:'SECLOG/SECRETARIA ESPECIAL DE GESTÃO DO ESTADO DE SERGIPE/SE', processo:'Pregão 254/2025', sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-29', orgao:'MUNICÍPIO DE VALE DE SÃO DOMINGOS/MT',                      processo:'Dispensa 44/2025',   sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-04', orgao:'MUNICÍPIO DE VALE DE SÃO DOMINGOS/MT',                      processo:'Dispensa 39/2025',   sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-01', orgao:'MUNICIPIO DE POCINHOS/PB',                                  processo:'Pregão 31/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-20', orgao:'MUNICÍPIO DE NOVO SANTO ANTONIO/MT',                        processo:'Pregão 35/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-29', orgao:'MUNICÍPIO DE MURIBECA/SE',                                  processo:'Pregão 14/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-14', orgao:'MUNICÍPIO DE MERCÊS/MG',                                    processo:'Dispensa 10/2025',   sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-01', orgao:'MUNICIPIO DE MATA GRANDE/AL',                               processo:'Pregão 40/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-14', orgao:'MUNICÍPIO DE JUNCO DO SERIDÓ/PB',                           processo:'Pregão 11/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-19', orgao:'MUNICÍPIO DE IPIAÇU/MG',                                    processo:'Pregão 21/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-29', orgao:'MUNICÍPIO DE ILHÉUS/BA',                                    processo:'Pregão 21/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-05', orgao:'MUNICIPIO DE FRUTAL/MG',                                    processo:'Pregão 54/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-05', orgao:'MUNICIPIO DE APORÁ/BA',                                     processo:'Pregão 23/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-05', orgao:'MUNICIPIO DE APORÁ/BA',                                     processo:'Pregão 24/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-27', orgao:'FUNDO MUNICIPAL DE SAÚDE DE RIO VERDE/GO',                  processo:'Dispensa 92/2025',   sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-08', orgao:'FUNDO MUNICIPAL DE EDUCAÇÃO DE CENTENÁRIO/TO',              processo:'Pregão 12/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-13', orgao:'FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE TERRA SANTA/PA',   processo:'Dispensa 13/2025',   sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-27', orgao:'FME/FUNDO MUNICIPAL DE EDUCAÇÃO DE BOM JARDIM/RJ',          processo:'Pregão 31/2025',     sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-22', orgao:'CÂMARA MUNICIPAL DE TIROS/MG',                              processo:'Dispensa 3/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-08-21', orgao:'AGSUS',                                                     processo:'Pregão 90004/2025',  sistema:'Licitanet', status:'Perdida' },
+      ];
+
+      encerradas.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0,
+          ...e
+        });
+      });
+
+      vencidas.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'',
+          ...v
+        });
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim:'', contrato:'',
+          orgao: v.orgao, uf:'', empresa:'Gadita',
+          sistema: v.sistema, processo: v.processo,
+          drive:'', sala:'',
+          obs:'📋 Importado via planilha (agosto/2025). Complete dados pendentes: contrato, itens, links.',
+          status:'Vigente',
+          valor: v.bruto, compra:0,
+          royalties:0, royaltiesPct:1,
+          imposto:0,   impostoPct:5,
+          custo:0,     lucro:v.bruto,
+          empenhado:0, totalItens:0,
+          itensLotes:[{
+            id: crypto.randomUUID(),
+            descricao: v.processo || v.orgao,
+            marca:'', modelo:'', qtd:1,
+            vlUnit:v.bruto, compraUnit:0
+          }],
+        });
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção agosto 2025 ──────────────────────────────────────────────
+
+    // ── Injeção de dados históricos (Gadita – Setembro 2025) ──────────────
+    (function injetarDadosSetembro2025() {
+      const MARKER = 'km_injected_setembro2025_gadita';
+      if (localStorage.getItem(MARKER)) return;
+
+      const vencidas = [
+        { data:'2025-09-24', orgao:'MUNICÍPIO DE ABARÉ/BA',                              processo:'Pregão 27/2025',    sistema:'Licitanet', bruto:32142.75  },
+        { data:'2025-09-29', orgao:'MUNICÍPIO DE CARIRA/SE',                             processo:'Pregão 14/2025',    sistema:'Licitanet', bruto:8329.75   },
+        { data:'2025-09-22', orgao:'CÂMARA MUNICIPAL CANABRAVA DO NORTE/MT',             processo:'Dispensa 03/2025',  sistema:'Licitanet', bruto:7636.90   },
+        { data:'2025-09-23', orgao:'CÂMARA MUNICIPAL DE GOIOXIM/PR',                     processo:'Dispensa 02/2025',  sistema:'Licitanet', bruto:2500.00   },
+        { data:'2025-09-23', orgao:'CIDESA VALE DO GUAPORE/MT',                          processo:'Dispensa 07/2025',  sistema:'Licitanet', bruto:14400.00  },
+        { data:'2025-09-24', orgao:'CÂMARA MUNICIPAL DE SARZEDO/MG',                     processo:'Pregão 11/2025',    sistema:'Licitanet', bruto:17701.90  },
+        { data:'2025-09-24', orgao:'MUNICÍPIO DE PATROCÍNIO/MG',                         processo:'Pregão 118/2025',   sistema:'Licitanet', bruto:32200.00  },
+        { data:'2025-09-24', orgao:'MUNICÍPIO DE FARIA LEMOS/MG',                        processo:'Dispensa 22/2025',  sistema:'Licitanet', bruto:7118.80   },
+        { data:'2025-09-24', orgao:'MUNICÍPIO DE FARIA LEMOS/MG',                        processo:'Compra Direta',     sistema:'Licitanet', bruto:750.00    },
+        { data:'2025-09-26', orgao:'MUNICÍPIO DE PARANACITY/PR',                         processo:'Pregão 35/2025',    sistema:'Licitanet', bruto:4468.30   },
+        { data:'2025-09-30', orgao:'CÂMARA MUNICIPAL DE JARÚ/RO',                        processo:'Pregão 14/2025',    sistema:'Licitanet', bruto:39875.97  },
+      ];
+
+      const encerradas = [
+        { data:'2025-09-23', orgao:'SERVIÇO NACIONAL DE APRENDIZAGEM COMERCIAL/SENAC/SE',                                       processo:'Pregão 42/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-02', orgao:'MUNICIPIO DE VERDEJANTE/PE',                                                                processo:'Pregão 35/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-03', orgao:'CÂMARA MUNICIPAL DE PIMENTA BUENO/RO',                                                     processo:'Dispensa 17/2025',  sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-09', orgao:'MUNICÍPIO DE SÃO JOÃO DA BARRA/RJ',                                                        processo:'Pregão 23/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-09', orgao:'FUNDO MUNICIPAL DE EDUCAÇÃO DE PORTO REAL DO COLÉGIO/AL',                                  processo:'Dispensa 04/2025',  sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-10', orgao:'EMSURB/EMPRESA MUNICIPAL DE SERVIÇOS URBANOS DE ARACAJU/SE',                               processo:'Pregão 08/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-10', orgao:'FUNDO MUNICIPAL DE SAÚDE DE ÁGUA BRANCA/AL',                                               processo:'Dispensa 18/2025',  sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-17', orgao:'MUNICÍPIO DE DOURADOQUARA/MG',                                                             processo:'Pregão 22/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-17', orgao:'HMSI/HOSPITAL E MATERNIDADE SANTA ISABEL/AAB/ASSOCIAÇÃO ARACAJUANA DE BENEFICÊNCIA/SE',    processo:'Dispensa 08/2025',  sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-17', orgao:'MUNICÍPIO DE CARMO/RJ',                                                                    processo:'Pregão 36/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-19', orgao:'FUNDO MUNICIPAL DE EDUCAÇÃO DE CACHOEIRA ALTA/GO',                                        processo:'Pregão 39/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-22', orgao:'CÂMARA MUNICIPAL DE PATOS DE MINAS/MG',                                                   processo:'Pregão 02/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-22', orgao:'SERVICO AUTONOMO DE AGUA E ESGOTO DE AÇAILÂNDIA/SAAE/MA',                                 processo:'Dispensa 10/2025',  sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-23', orgao:'MUNICÍPIO DE FIRMINO ALVES/BA',                                                            processo:'Pregão 13/2025',    sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-26', orgao:'FUNDO MUNICIPAL DE SAÚDE DE ÁGUA BRANCA/AL',                                               processo:'Dispensa 21/2025',  sistema:'Licitanet', status:'Perdida' },
+        { data:'2025-09-29', orgao:'MUNICÍPIO DE BARRA DO CORDA/MA',                                                           processo:'Dispensa 12/2025',  sistema:'Licitanet', status:'Perdida' },
+      ];
+
+      encerradas.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0,
+          ...e
+        });
+      });
+
+      vencidas.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'',
+          ...v
+        });
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim:'', contrato:'',
+          orgao: v.orgao, uf:'', empresa:'Gadita',
+          sistema: v.sistema, processo: v.processo,
+          drive:'', sala:'',
+          obs:'📋 Importado via planilha (setembro/2025). Complete dados pendentes: contrato, itens, links.',
+          status:'Vigente',
+          valor: v.bruto, compra:0,
+          royalties:0, royaltiesPct:1,
+          imposto:0,   impostoPct:5,
+          custo:0,     lucro:v.bruto,
+          empenhado:0, totalItens:0,
+          itensLotes:[{
+            id: crypto.randomUUID(),
+            descricao: v.processo || v.orgao,
+            marca:'', modelo:'', qtd:1,
+            vlUnit:v.bruto, compraUnit:0
+          }],
+        });
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção setembro 2025 ────────────────────────────────────────────
+
+    // ── Injeção de dados históricos (Gadita – Outubro 2025) ───────────────
+    (function injetarDadosOutubro2025() {
+      const MARKER = 'km_injected_outubro2025_gadita';
+      if (localStorage.getItem(MARKER)) return;
+
+      const vencidas = [
+        { data:'2025-10-21', orgao:'FUNDO MUNICIPAL DE SAÚDE E BEM ESTAR SOCIAL DE LARANJEIRAS/SE', processo:'Pregão 7/2025',     sistema:'Licitanet',      bruto:5599.98  },
+        { data:'2025-10-21', orgao:'MUNICIPIO DE IBITIARA/BA',                                       processo:'Pregão 16/2025',    sistema:'Licitanet',      bruto:37999.80 },
+        { data:'2025-10-29', orgao:'FUNDO MUNICIPAL DE SAÚDE DE PATOS DE MINAS/MG',                 processo:'Pregão 116/2025',   sistema:'Licitanet',      bruto:35000.00 },
+        { data:'2025-10-30', orgao:'MUNICÍPIO DE CAMPOS ALTOS/MG',                                  processo:'Pregão 75/2025',    sistema:'Licitanet',      bruto:6231.00  },
+        { data:'2025-10-28', orgao:'SOPH/SOCIEDADE DE PORTOS E HIDROVIAS DO ESTADO DE RONDÔNIA/RO', processo:'Pregão 06/2025',    sistema:'Licitanet',      bruto:10565.00 },
+        { data:'2025-10-29', orgao:'MUNICIPIO DE BARREIRAS/BA',                                     processo:'Dispensa 19/2025',  sistema:'Licitanet',      bruto:7871.25  },
+        { data:'2025-10-29', orgao:'MUNICIPIO DE BARREIRAS/BA',                                     processo:'Dispensa 20/2025',  sistema:'Licitanet',      bruto:7310.74  },
+        { data:'2025-10-22', orgao:'CÂMARA MUNICIPAL DE NOVA UNIÃO/RO',                             processo:'Pregão 4/2025',     sistema:'Licitanet',      bruto:16300.00 },
+        { data:'2025-10-29', orgao:'MUNICÍPIO DE ÁGUA COMPRIDA/MG',                                 processo:'Pregão 34/2025',    sistema:'Licitanet',      bruto:3550.00  },
+        { data:'2025-10-01', orgao:'MUNICÍPIO DE PIUMHI/MG',                                        processo:'Pregão 72/2025',    sistema:'Licitanet',      bruto:1750.00  },
+        { data:'2025-10-16', orgao:'CONSÓRCIO INTERMUNICIPAL DE SAÚDE DO CENTRO NORDESTE/CISCEN',   processo:'Dispensa 15/2025',  sistema:'Licitar Digital', bruto:616.00   },
+      ];
+
+      const emRecurso = [
+        { data:'2025-10-31', orgao:'MUNICÍPIO DE JUTAÍ/AM', processo:'Pregão 43/2025', sistema:'Licitanet', bruto:41679.00 },
+      ];
+
+      const encerradas = [
+        { data:'2025-10-29', orgao:'MUNICÍPIO DE SÃO JOÃO DO PARAISO/MA',                              processo:'Pregão 15/2025',      sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-30', orgao:'MUNICÍPIO DE AGUANIL/MG',                                          processo:'Pregão 54/2025',      sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-09', orgao:'MUNICÍPIO DE ARAXA/MG',                                            processo:'Pregão 65/2025',      sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-01', orgao:'MUNICÍPIO DE CASTELO/ES',                                          processo:'Pregão 146/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-29', orgao:'MUNICÍPIO DE PATOS DE MINAS/MG',                                   processo:'Pregão 115/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-30', orgao:'MUNICÍPIO DE PERDIZES/MG',                                         processo:'Pregão 49/2025',      sistema:'Licitanet',       status:'Fracassada'},
+        { data:'2025-10-22', orgao:'MUNICÍPIO DE SANTA TEREZINHA DO TOCANTINS/TO',                     processo:'Pregão 18/2025',      sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-22', orgao:'MONTE BELO/MG',                                                    processo:'Pregão 134/2025',     sistema:'Licitar Digital', status:'Perdida'   },
+        { data:'2025-10-28', orgao:'PREFEITURA MUNICIPAL DE SÃO GONÇALO DO RIO ABAIXO/MG',            processo:'Pregão 77/2025',      sistema:'Licitar Digital', status:'Anulada'   },
+        { data:'2025-10-20', orgao:'MUNICIPIO DE FRUTAL/MG',                                           processo:'Pregão 85/2025',      sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-29', orgao:'MUNICIPIO DE IPUEIRAS/CE',                                         processo:'Dispensa 17/2025',    sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-30', orgao:'FCAA/FUNDAÇÃO DA CRIANÇA E DO ADOLESCENTE DE ARAXÁ/MG',           processo:'Pregão 06/2025',      sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-15', orgao:'SEMED/SECRETARIA MUNICIPAL DA EDUCAÇÃO DE ARACAJU/SE',            processo:'Pregão 74/2025',      sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-02', orgao:'MUNICIPIO DE IPUEIRAS/CE',                                         processo:'Dispensa 16/2025',    sistema:'Licitanet',       status:'Fracassada'},
+        { data:'2025-10-02', orgao:'CÂMARA MUNICIPAL DE PATROCÍNIO/MG',                               processo:'Pregão 7/2025',       sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-06', orgao:'FUNDO MUNICIPAL DE SAUDE DE BRAZABRANTES/GO',                     processo:'Pregão 25/2025',      sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-06', orgao:'MUNICÍPIO DE CABO FRIO/RJ',                                        processo:'Dispensa 15/2025',    sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-10', orgao:'MUNICÍPIO DE SÃO GONÇALO DO ABAETÉ/MG',                           processo:'Pregão 27/2025',      sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-15', orgao:'FMAS/FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE ARACAJU/SE',        processo:'Dispensa 760/2025',   sistema:'Licitanet',       status:'Fracassada'},
+        { data:'2025-10-16', orgao:'FUNDO PENITENCIARIO NACIONAL',                                     processo:'Dispensa 8/2026',     sistema:'ComprasGOV',      status:'Perdida'   },
+        { data:'2025-10-16', orgao:'PREFEITURA MUNICIPAL DE CARMO DO CAJURU/MG',                       processo:'Dispensa 127/2025',   sistema:'Licitar Digital', status:'Perdida'   },
+        { data:'2025-10-17', orgao:'MUNICIPIO DE ARARUAMA/RJ',                                         processo:'Pregão 63/2025',      sistema:'Licitanet',       status:'Fracassada'},
+        { data:'2025-10-17', orgao:'FELIXLÂNDIA/MG',                                                   processo:'Pregão 36/2025',      sistema:'Licitar Digital', status:'Perdida'   },
+        { data:'2025-10-22', orgao:'CÂMARA DE VEREADORES DO MUNICÍPIO DE ESPIGÃO DO OESTE/RO',        processo:'Pregão 01/2025',      sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-22', orgao:'MUNICÍPIO DE NOVA NAZARÉ/MT',                                      processo:'Dispensa 41/2025',    sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-22', orgao:'AGÊNCIA DE COOPERAÇÃO INTERMUNICIPAL EM SAÚDE PÉ DA SERRA/ACISPES',processo:'Pregão 89/2025',     sistema:'Licitar Digital', status:'Perdida'   },
+        { data:'2025-10-23', orgao:'MUNICÍPIO DE PALMEIRAS/BA',                                        processo:'Dispensa 2/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-23', orgao:'PREFEITURA MUNICIPAL DE FERVEDOURO/MG',                            processo:'Pregão 50/2025',      sistema:'Licitar Digital', status:'Perdida'   },
+        { data:'2025-10-29', orgao:'CÂMARA MUNICIPAL DE ROLIM DE MOURA/RO',                            processo:'Dispensa 10/2025',    sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-10-29', orgao:'MUNICÍPIO DE ROMARIA/MG',                                          processo:'Pregão 008/2025',     sistema:'Licitanet',       status:'Perdida'   },
+      ];
+
+      // Em recurso → vai para disputas ativas com status "Em recurso"
+      emRecurso.forEach(e => {
+        disputas.push({
+          id: crypto.randomUUID(), status:'Em recurso', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'',
+          ...e
+        });
+      });
+
+      encerradas.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0,
+          ...e
+        });
+      });
+
+      vencidas.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'',
+          ...v
+        });
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim:'', contrato:'',
+          orgao: v.orgao, uf:'', empresa:'Gadita',
+          sistema: v.sistema, processo: v.processo,
+          drive:'', sala:'',
+          obs:'📋 Importado via planilha (outubro/2025). Complete dados pendentes: contrato, itens, links.',
+          status:'Vigente',
+          valor: v.bruto, compra:0,
+          royalties:0, royaltiesPct:1,
+          imposto:0,   impostoPct:5,
+          custo:0,     lucro:v.bruto,
+          empenhado:0, totalItens:0,
+          itensLotes:[{
+            id: crypto.randomUUID(),
+            descricao: v.processo || v.orgao,
+            marca:'', modelo:'', qtd:1,
+            vlUnit:v.bruto, compraUnit:0
+          }],
+        });
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção outubro 2025 ─────────────────────────────────────────────
+
+    // ── Injeção de dados históricos (Gadita – Novembro 2025) ──────────────
+    (function injetarDadosNovembro2025() {
+      const MARKER = 'km_injected_novembro2025_gadita';
+      if (localStorage.getItem(MARKER)) return;
+
+      const limparOrgao = s => s.replace(/\s+P\.E\.\s+\S+|\s+D\.\s+\S+/g,'').trim();
+
+      const vencidas = [
+        { data:'2025-11-27', orgao:'MUNICÍPIO DE URUPÁ/RO',                          processo:'Pregão 28/2025',   sistema:'Licitanet',       bruto:4700.00    },
+        { data:'2025-11-06', orgao:'MUNICÍPIO DE RIO VERMELHO/MG',                   processo:'Pregão 54/2025',   sistema:'Licitar Digital', bruto:4680.00    },
+        { data:'2025-11-12', orgao:'MUNICÍPIO DE PATROCÍNIO/MG',                     processo:'Pregão 142/2025',  sistema:'Licitanet',       bruto:264568.50  },
+        { data:'2025-11-03', orgao:'MUNICÍPIO DE CARMÉSIA/MG',                       processo:'Dispensa 31/2025', sistema:'Licitanet',       bruto:31500.00   },
+        { data:'2025-11-04', orgao:'MUNICÍPIO DE DORES DE GUANHÃES/MG',              processo:'Pregão 32/2025',   sistema:'Licitanet',       bruto:1100.00    },
+        { data:'2025-11-06', orgao:'CÂMARA MUNICIPAL DE CASTANHEIRAS/RO',            processo:'Pregão 1/2025',    sistema:'Licitanet',       bruto:5600.00    },
+        { data:'2025-11-06', orgao:'MUNICIPIO DE FRONTEIRA/MG',                      processo:'Dispensa 20/2025', sistema:'Licitanet',       bruto:3349.50    },
+        { data:'2025-11-13', orgao:'MUNICIPIO DE SANTO ANTÔNIO DO CAIUÁ/PR',         processo:'Pregão 41/2025',   sistema:'Licitanet',       bruto:8744.00    },
+        { data:'2025-11-24', orgao:'CÂMARA MUNICIPAL DE ARMAÇÃO DE BÚZIOS/RJ',       processo:'Pregão 04/2025',   sistema:'Licitanet',       bruto:15297.00   },
+        { data:'2025-11-28', orgao:'PREFEITURA MUNICIPAL DE DORES DO TURVO/MG',      processo:'Pregão 30/2025',   sistema:'Licitar Digital', bruto:4700.00    },
+        { data:'2025-11-14', orgao:'CAMARA MUNICIPAL DE OBIDOS/PA',                  processo:'Pregão 7/2025',    sistema:'Licitanet',       bruto:10976.71   },
+      ];
+
+      const encerradas = [
+        { data:'2025-11-26', orgao:'FUNDO MUNICIPAL DE SAÚDE DE ALTAMIRA/PA',                    processo:'Pregão 45/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-11-27', orgao:'FUNDO MUNICIPAL DE SAÚDE DE ITAOCARA/RJ',                    processo:'Pregão 23/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-11-27', orgao:'MUNICÍPIO DE ALTAMIRA/PA',                                   processo:'Pregão 51/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-11-06', orgao:'MUNICÍPIO DE ITAOCARA/RJ',                                   processo:'Pregão 22/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-11-24', orgao:'FMS/FUNDO MUNICIPAL DE SAÚDE DE BOM JARDIM/RJ',             processo:'Pregão 62/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-11-13', orgao:'MUNICIPIO DE ITABELA/BA',                                    processo:'Pregão 8/2025',      sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-11-27', orgao:'FMAS/SANTA CRUZ DA BAIXA VERDE/PE',                         processo:'Dispensa 03/2025',   sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-11-06', orgao:'MUNICÍPIO DE SETE LAGOAS/MG',                               processo:'Dispensa 230/2025',  sistema:'Licitar Digital', status:'Perdida'   },
+        { data:'2025-11-06', orgao:'MUNICÍPIO DE FELISBURGO/MG',                                processo:'Pregão 39/2025',     sistema:'Licitar Digital', status:'Perdida'   },
+        { data:'2025-11-06', orgao:'MUNICÍPIO DE LAGOA DA PRATA/MG',                            processo:'Dispensa 68/2025',   sistema:'Licitar Digital', status:'Perdida'   },
+        { data:'2025-11-11', orgao:'PREFEITURA MUNICIPAL DE CONCEIÇÃO DO RIO VERDE/MG',         processo:'Pregão 82/2025',     sistema:'Licitar Digital', status:'Perdida'   },
+        { data:'2025-11-24', orgao:'MUNICIPIO DE PIRANHAS/AL',                                  processo:'Pregão 24/2025',     sistema:'Licitanet',       status:'Fracassada'},
+      ];
+
+      encerradas.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0,
+          ...e
+        });
+      });
+
+      vencidas.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'',
+          ...v
+        });
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim:'', contrato:'',
+          orgao: v.orgao, uf:'', empresa:'Gadita',
+          sistema: v.sistema, processo: v.processo,
+          drive:'', sala:'',
+          obs:'📋 Importado via planilha (novembro/2025). Complete dados pendentes: contrato, itens, links.',
+          status:'Vigente',
+          valor: v.bruto, compra:0,
+          royalties:0, royaltiesPct:1,
+          imposto:0,   impostoPct:5,
+          custo:0,     lucro:v.bruto,
+          empenhado:0, totalItens:0,
+          itensLotes:[{
+            id: crypto.randomUUID(),
+            descricao: v.processo || v.orgao,
+            marca:'', modelo:'', qtd:1,
+            vlUnit:v.bruto, compraUnit:0
+          }],
+        });
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção novembro 2025 ────────────────────────────────────────────
+
+    // ── Injeção de dados históricos (Gadita – Dezembro 2025) ──────────────
+    (function injetarDadosDezembro2025() {
+      const MARKER = 'km_injected_dezembro2025_gadita';
+      if (localStorage.getItem(MARKER)) return;
+
+      const vencidas = [
+        { data:'2025-12-01', orgao:'FUNDO MUNICIPAL DE SAÚDE DE RIO VERDE/GO',                       processo:'Pregão 82/2025',    sistema:'Licitanet',       bruto:14140.00  },
+        { data:'2025-12-09', orgao:'MUNICÍPIO DE CORUMBIARA/RO',                                     processo:'Pregão 95/2025',    sistema:'Licitanet',       bruto:1880.00   },
+        { data:'2025-12-09', orgao:'MUNICIPIO DE VÁRZEA DA ROÇA/BA',                                 processo:'Pregão 29/2025',    sistema:'Licitanet',       bruto:15068.00  },
+        { data:'2025-12-10', orgao:'FAMEP/FUNDAÇÃO MUNICIPAL DE ESPORTES E PARADESPORTO DE ARAGUARI/MG', processo:'Pregão 18/2025', sistema:'Licitanet',       bruto:52910.00  },
+        { data:'2025-12-16', orgao:'CÂMARA MUNICIPAL DE BOM JESUS DA PENHA/MG',                      processo:'Dispensa 3/2025',   sistema:'Licitar Digital', bruto:5200.00   },
+        { data:'2025-12-04', orgao:'PREFEITURA MUNICIPAL DE IPATINGA/DEFS/SECLIC/MG',                processo:'Pregão 74/2025',    sistema:'Licitar Digital', bruto:657.75    },
+        { data:'2025-12-03', orgao:'CÂMARA MUNICIPAL DE RIO PIRACICABA/MG',                          processo:'Pregão 02/2025',    sistema:'Licitar Digital', bruto:22800.00  },
+        { data:'2025-12-10', orgao:'PREFEITURA MUNICIPAL DE MONTE FORMOSO/MG',                       processo:'Dispensa 54/2025',  sistema:'Licitar Digital', bruto:500.00    },
+        { data:'2025-12-04', orgao:'MUNICÍPIO DE CARMO/RJ',                                          processo:'Pregão 44/2025',    sistema:'Licitanet',       bruto:1099.00   },
+        { data:'2025-12-02', orgao:'FUNDO MUNICIPAL DE SAÚDE DE ITUMBIARA/FMS/GO',                   processo:'Pregão 26/2025',    sistema:'Licitanet',       bruto:1300.00   },
+      ];
+
+      const encerradas = [
+        { data:'2025-12-09', orgao:'MUNICIPIO DE IBITIARA/BA',                                                    processo:'Pregão 19/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-15', orgao:'FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE NOSSA SENHORA APARECIDA/SE',         processo:'Dispensa 10/2025',   sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-17', orgao:'MUNICÍPIO DE CUJUBIM/RO',                                                     processo:'Pregão 49/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-09', orgao:'MUNICIPIO DE FRECHEIRINHA/CE',                                                processo:'Dispensa 611/2025',  sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-16', orgao:'CÂMARA MUNICIPAL DE EUNÁPOLIS/BA',                                            processo:'Pregão 04/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-18', orgao:'MUNICÍPIO DE SÃO FRANCISCO DO GUAPORÉ/RO',                                    processo:'Pregão 71/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-08', orgao:'SECRETARIA MUNICIPAL DE EDUCAÇÃO DE TERRA SANTA/PA',                          processo:'Pregão 55/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-08', orgao:'MUNICÍPIO DE ALTO ALEGRE DOS PARECIS/RO',                                     processo:'Pregão 58/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-15', orgao:'MUNICÍPIO DE COMENDADOR GOMES/MG',                                            processo:'Dispensa 34/2025',   sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-17', orgao:'FUMPREF/FUNDO MUNICIPAL PREVIDENCIARIO DE ESPERA FELIZ/MG',                   processo:'Dispensa 5/2025',    sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-10', orgao:'MUNICIPIO DE FRUTAL/MG',                                                      processo:'Pregão 112/2025',    sistema:'Licitanet',       status:'Fracassada'},
+        { data:'2025-12-09', orgao:'MUNICÍPIO DE PIMENTA/MG',                                                     processo:'Pregão 29/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-09', orgao:'PREFEITURA MUNICIPAL DE CRISTINA/MG',                                         processo:'Pregão 30/2025',     sistema:'Licitar Digital', status:'Anulada'   },
+        { data:'2025-12-10', orgao:'CONSELHO REGIONAL DE PSICOLOGIA/CRP13/PB',                                    processo:'Dispensa 12/2025',   sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-09', orgao:'MUNICIPIO DE ITAMARI/BA',                                                     processo:'Pregão 29/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-09', orgao:'FUNDO MUNICIPAL DE SAÚDE DE RIO VERDE/GO',                                    processo:'Pregão 90/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-01', orgao:'MUNICÍPIO DE SÃO FÉLIX DO CORIBE/BA',                                         processo:'Pregão 24/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-01', orgao:'MUNICÍPIO DE JESÚPOLIS/GO',                                                   processo:'Pregão 13/2025',     sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-02', orgao:'CÂMARA MUNICIPAL DE CRISÓLITA/MG',                                            processo:'Pregão 04/2025',     sistema:'Licitar Digital', status:'Perdida'   },
+        { data:'2025-12-02', orgao:'MUNICÍPIO DE FREI LAGONEGRO/MG',                                              processo:'Dispensa 25/2025',   sistema:'Licitar Digital', status:'Perdida'   },
+        { data:'2025-12-04', orgao:'MIRASSOL-PREVI/MT',                                                           processo:'Dispensa 01/2025',   sistema:'Licitanet',       status:'Perdida'   },
+        { data:'2025-12-05', orgao:'PREFEITURA MUNICIPAL DE NOVA RESENDE/MG',                                     processo:'Pregão 111/2025',    sistema:'Licitar Digital', status:'Perdida'   },
+        { data:'2025-12-05', orgao:'PREFEITURA MUNICIPAL DE ONÇA DE PITANGUI/MG',                                 processo:'Pregão 03/2025',     sistema:'Licitar Digital', status:'Perdida'   },
+      ];
+
+      encerradas.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0,
+          ...e
+        });
+      });
+
+      vencidas.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'',
+          ...v
+        });
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim:'', contrato:'',
+          orgao: v.orgao, uf:'', empresa:'Gadita',
+          sistema: v.sistema, processo: v.processo,
+          drive:'', sala:'',
+          obs:'📋 Importado via planilha (dezembro/2025). Complete dados pendentes: contrato, itens, links.',
+          status:'Vigente',
+          valor: v.bruto, compra:0,
+          royalties:0, royaltiesPct:1,
+          imposto:0,   impostoPct:5,
+          custo:0,     lucro:v.bruto,
+          empenhado:0, totalItens:0,
+          itensLotes:[{
+            id: crypto.randomUUID(),
+            descricao: v.processo || v.orgao,
+            marca:'', modelo:'', qtd:1,
+            vlUnit:v.bruto, compraUnit:0
+          }],
+        });
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção dezembro 2025 ────────────────────────────────────────────
+
+    // ── Injeção de dados históricos (Gadita + Hamate – Janeiro 2026) ──────
+    (function injetarDadosJaneiro2026() {
+      const MARKER = 'km_injected_janeiro2026';
+      if (localStorage.getItem(MARKER)) return;
+
+      // GADITA – vencidas (DESPACHO e HOMOLOGADO = vencida)
+      const vencidasGadita = [
+        { data:'2026-01-14', orgao:'MUNICÍPIO DE PATROCÍNIO/MG',             processo:'Pregão 165/2025',  sistema:'Licitanet',       bruto:44679.80  },
+        { data:'2026-01-15', orgao:'PREFEITURA MUNICIPAL DE ESTRELA DO INDAIÁ/MG', processo:'Pregão 71/2025', sistema:'Licitar Digital', bruto:1750.00   },
+        { data:'2026-01-20', orgao:'MUNICÍPIO DE JEREMOABO/BA',              processo:'Pregão 1/2026',    sistema:'Licitanet',       bruto:2250.00   },
+        { data:'2026-01-21', orgao:'MUNICÍPIO DE TIROS/MG',                  processo:'Pregão 1/2026',    sistema:'Licitanet',       bruto:4880.00   },
+        { data:'2026-01-21', orgao:'MUNICÍPIO DE PARIPIRANGA/BA',            processo:'Pregão 55/2025',   sistema:'Licitanet',       bruto:164200.00 },
+      ];
+
+      // GADITA – encerradas
+      const encerradasGadita = [
+        { data:'2026-01-21', orgao:'MUNICÍPIO DE PALMAS DE MONTE ALTO/BA',  processo:'Dispensa 2/2026',  sistema:'Licitanet', status:'Perdida'   },
+        { data:'2026-01-06', orgao:'MUNICÍPIO DE COLORADO DO OESTE/RO',     processo:'Pregão 43/2025',   sistema:'Licitanet', status:'Perdida'   },
+        { data:'2026-01-21', orgao:'MUNICIPIO DE IPUEIRAS/CE',              processo:'Dispensa 1/2026',  sistema:'Licitanet', status:'Perdida'   },
+        { data:'2026-01-16', orgao:'MUNICÍPIO DE BORBA/AM',                 processo:'Dispensa 34/2025', sistema:'Licitanet', status:'Fracassada'},
+      ];
+
+      // HAMATE – vencidas
+      const vencidasHamate = [
+        { data:'2026-01-28', orgao:'MUNICÍPIO DE DIVINA PASTORA/SE',                              processo:'Dispensa 01/2026', sistema:'Licitanet', bruto:11003.60 },
+        { data:'2026-01-29', orgao:'FUNDO MUNICIPAL DE SAÚDE DE MARIANÓPOLIS DO TOCANTINS/TO',   processo:'Pregão 01/2026',   sistema:'Licitanet', bruto:35551.27 },
+      ];
+
+      // HAMATE – encerradas
+      const encerradasHamate = [
+        { data:'2026-01-23', orgao:'MUNICÍPIO DE PALMAS DE MONTE ALTO/BA', processo:'Dispensa 04/2026', sistema:'Licitanet', status:'Perdida' },
+      ];
+
+      // Inserir Gadita
+      encerradasGadita.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0, ...e
+        });
+      });
+      vencidasGadita.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', ...v
+        });
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim:'', contrato:'',
+          orgao: v.orgao, uf:'', empresa:'Gadita',
+          sistema: v.sistema, processo: v.processo,
+          drive:'', sala:'',
+          obs:'📋 Importado via planilha (janeiro/2026). Complete dados pendentes: contrato, itens, links.',
+          status:'Vigente',
+          valor: v.bruto, compra:0,
+          royalties:0, royaltiesPct:1,
+          imposto:0,   impostoPct:5,
+          custo:0,     lucro:v.bruto,
+          empenhado:0, totalItens:0,
+          itensLotes:[{ id:crypto.randomUUID(), descricao:v.processo||v.orgao, marca:'', modelo:'', qtd:1, vlUnit:v.bruto, compraUnit:0 }],
+        });
+      });
+
+      // Inserir Hamate
+      encerradasHamate.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Hamate',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0, ...e
+        });
+      });
+      vencidasHamate.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Hamate',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', ...v
+        });
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim:'', contrato:'',
+          orgao: v.orgao, uf:'', empresa:'Hamate',
+          sistema: v.sistema, processo: v.processo,
+          drive:'', sala:'',
+          obs:'📋 Importado via planilha (janeiro/2026). Complete dados pendentes: contrato, itens, links.',
+          status:'Vigente',
+          valor: v.bruto, compra:0,
+          royalties:0, royaltiesPct:1,
+          imposto:0,   impostoPct:5,
+          custo:0,     lucro:v.bruto,
+          empenhado:0, totalItens:0,
+          itensLotes:[{ id:crypto.randomUUID(), descricao:v.processo||v.orgao, marca:'', modelo:'', qtd:1, vlUnit:v.bruto, compraUnit:0 }],
+        });
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção janeiro 2026 ─────────────────────────────────────────────
+
+    // ── Injeção de dados históricos (Gadita + Hamate – Fevereiro 2026) ────
+    (function injetarDadosFevereiro2026() {
+      const MARKER = 'km_injected_fevereiro2026';
+      if (localStorage.getItem(MARKER)) return;
+
+      // GADITA – só perdas
+      const encerradasGadita = [
+        { data:'2026-02-13', orgao:'CONSÓRCIO INTERMUNICIPAL DE SAÚDE DO CENTRO NORDESTE/CISCEN', processo:'Dispensa 02/2026', sistema:'Licitar Digital', status:'Perdida' },
+        { data:'2026-02-01', orgao:'PREFEITURA MUNICIPAL DE PEQUI/MG',                           processo:'Pregão 02/2026',   sistema:'Licitar Digital', status:'Perdida' },
+      ];
+
+      // HAMATE – 1 vencida
+      const vencidasHamate = [
+        { data:'2026-02-10', orgao:'MUNICÍPIO DE PAU BRASIL/BA', processo:'Pregão 01/2026', sistema:'Licitanet', bruto:13899.96 },
+      ];
+
+      // HAMATE – encerradas
+      const encerradasHamate = [
+        { data:'2026-02-13', orgao:'MUNICIPIO DE DEODAPOLIS/MS', processo:'Dispensa 04/2026', sistema:'Licitanet', status:'Perdida' },
+        { data:'2026-02-20', orgao:'MUNICIPIO DE ITAPEBI/BA',    processo:'Pregão 02/2026',   sistema:'Licitanet', status:'Perdida' },
+      ];
+
+      // HAMATE – em andamento (sem status)
+      const andamentoHamate = [
+        { data:'2026-02-26', orgao:'MUNICÍPIO DE DIVINO/MG',         processo:'Dispensa 04/2026', sistema:'Licitanet', bruto:0 },
+        { data:'2026-02-26', orgao:'CÂMARA MUNICIPAL DE ITAGUAI/RJ', processo:'Dispensa 02/2026', sistema:'Licitanet', bruto:0 },
+      ];
+
+      encerradasGadita.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Gadita',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0, ...e
+        });
+      });
+
+      encerradasHamate.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Hamate',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0, ...e
+        });
+      });
+
+      andamentoHamate.forEach(e => {
+        disputas.push({
+          id: crypto.randomUUID(), status:'Em andamento', empresa:'Hamate',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', ...e
+        });
+      });
+
+      vencidasHamate.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Hamate',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', ...v
+        });
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim:'', contrato:'',
+          orgao: v.orgao, uf:'', empresa:'Hamate',
+          sistema: v.sistema, processo: v.processo,
+          drive:'', sala:'',
+          obs:'📋 Importado via planilha (fevereiro/2026). Complete dados pendentes: contrato, itens, links.',
+          status:'Vigente',
+          valor: v.bruto, compra:0,
+          royalties:0, royaltiesPct:1,
+          imposto:0,   impostoPct:5,
+          custo:0,     lucro:v.bruto,
+          empenhado:0, totalItens:0,
+          itensLotes:[{ id:crypto.randomUUID(), descricao:v.processo||v.orgao, marca:'', modelo:'', qtd:1, vlUnit:v.bruto, compraUnit:0 }],
+        });
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção fevereiro 2026 ───────────────────────────────────────────
+
+    // ── Injeção de dados históricos (Hamate – Março 2026) ─────────────────
+    (function injetarDadosMarco2026() {
+      const MARKER = 'km_injected_marco2026_hamate';
+      if (localStorage.getItem(MARKER)) return;
+
+      const vencidas = [
+        { data:'2026-03-09', orgao:'PREFEITURA MUNICIPAL DE PEDRO LEOPOLDO/MG',  processo:'Pregão 26/2025',   sistema:'Licitar Digital', bruto:3118.00  },
+        { data:'2026-03-19', orgao:'PREFEITURA MUNICIPAL DE BAEPENDI/MG',         processo:'Pregão 8/2026',    sistema:'Licitar Digital', bruto:67709.60 },
+        { data:'2026-03-04', orgao:'PREFEITURA MUNICIPAL DE CONCEIÇÃO DO PARÁ/MG',processo:'Pregão 08/2026',   sistema:'Licitar Digital', bruto:5000.00  },
+        { data:'2026-03-05', orgao:'MUNICÍPIO DE CRUZEIRO DO SUL/PR',             processo:'Pregão 5/2026',    sistema:'Licitanet',       bruto:1906.80  },
+        { data:'2026-03-05', orgao:'PREFEITURA MUNICIPAL DE ESTRELA DO INDAIÁ/MG',processo:'Pregão 12/2026',   sistema:'Licitar Digital', bruto:400.00   },
+        { data:'2026-03-05', orgao:'CÂMARA MUNICIPAL DE ASTOLFO DUTRA/MG',        processo:'Pregão 01/2026',   sistema:'Licitar Digital', bruto:905.00   },
+        { data:'2026-03-11', orgao:'MUNICIPIO DE RIO BANANAL/ES',                 processo:'Pregão 10/2026',   sistema:'Licitanet',       bruto:2254.12  },
+        { data:'2026-03-16', orgao:'MUNICIPIO DE PIRANHAS/AL',                    processo:'Pregão 240/2025',  sistema:'Licitanet',       bruto:6499.99  },
+      ];
+
+      const andamento = [
+        { data:'2026-03-04', orgao:'MUNICÍPIO DE SERINGUEIRAS/RO',       processo:'Pregão 17/2026',   sistema:'Licitanet',       bruto:0        },
+        { data:'2026-03-16', orgao:'MUNICÍPIO DE ALÉM PARAÍBA/MG',       processo:'Pregão 14/2026',   sistema:'Licitanet',       bruto:20985.70 },
+        { data:'2026-03-16', orgao:'MUNICIPIO DE MACAÚBAS/BA',           processo:'Pregão 06/2026',   sistema:'Licitanet',       bruto:72500.00 },
+        { data:'2026-03-16', orgao:'PREFEITURA DE TRÊS CORAÇÕES/MG',     processo:'Pregão 171/2025',  sistema:'Licitar Digital', bruto:0        },
+        { data:'2026-03-30', orgao:'MUNICÍPIO DE ALTA FLORESTA DO OESTE/RO', processo:'Pregão 09/2026', sistema:'Licitanet',    bruto:7599.99  },
+      ];
+
+      // Suspenso → em andamento (aguardando desfecho)
+      const suspenso = [
+        { data:'2026-03-11', orgao:'MUNICÍPIO DE BAIANÓPOLIS/BA', processo:'Pregão 03/2026', sistema:'Licitanet', bruto:0 },
+      ];
+
+      const encerradas = [
+        { data:'2026-03-10', orgao:'MUNICÍPIO DE ARAXA/MG',                          processo:'Pregão 16/2026',  sistema:'Licitanet',       status:'Perdida' },
+        { data:'2026-03-10', orgao:'MUNICÍPIO DE PORCIÚNCULA/RJ',                    processo:'Pregão 03/2026',  sistema:'Licitanet',       status:'Perdida' },
+        { data:'2026-03-12', orgao:'PREFEITURA MUNICIPAL DE ITAOBIM/MG',             processo:'Pregão 03/2026',  sistema:'Licitar Digital', status:'Perdida' },
+        { data:'2026-03-02', orgao:'CÂMARA MUNICIPAL DE PIMENTA BUENO/RO',           processo:'Dispensa 2/2026', sistema:'Licitanet',       status:'Perdida' },
+        { data:'2026-03-04', orgao:'FORMIGA/SAAE/MG',                                processo:'Pregão 02/2026',  sistema:'Licitanet',       status:'Perdida' },
+        { data:'2026-03-04', orgao:'CÂMARA MUNICIPAL DE SERRO/MG',                   processo:'Pregão 01/2026',  sistema:'Licitar Digital', status:'Perdida' },
+        { data:'2026-03-09', orgao:'MUNICIPIO DE IPUEIRAS/CE',                       processo:'Dispensa 03/2026',sistema:'Licitanet',       status:'Perdida' },
+        { data:'2026-03-09', orgao:'PREFEITURA MUNICIPAL DE MONTE SANTO DE MINAS/MG',processo:'Dispensa 5/2026', sistema:'Licitar Digital', status:'Perdida' },
+      ];
+
+      andamento.forEach(e => {
+        disputas.push({
+          id: crypto.randomUUID(), status:'Em andamento', empresa:'Hamate',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', ...e
+        });
+      });
+
+      suspenso.forEach(e => {
+        disputas.push({
+          id: crypto.randomUUID(), status:'Em recurso', empresa:'Hamate',
+          tipo:'', uf:'', obs:'⚠️ Disputa suspensa — aguardando desfecho.', drive:'', linkEdital:'', retorno:'', ...e
+        });
+      });
+
+      encerradas.forEach(e => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), empresa:'Hamate',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0, ...e
+        });
+      });
+
+      vencidas.forEach(v => {
+        disputasEncerradas.push({
+          id: crypto.randomUUID(), status:'Vencida', empresa:'Hamate',
+          tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', ...v
+        });
+        contratosAtivos.push({
+          id: crypto.randomUUID(),
+          data: v.data, dataFim:'', contrato:'',
+          orgao: v.orgao, uf:'', empresa:'Hamate',
+          sistema: v.sistema, processo: v.processo,
+          drive:'', sala:'',
+          obs:'📋 Importado via planilha (março/2026). Complete dados pendentes: contrato, itens, links.',
+          status:'Vigente',
+          valor: v.bruto, compra:0,
+          royalties:0, royaltiesPct:1,
+          imposto:0,   impostoPct:5,
+          custo:0,     lucro:v.bruto,
+          empenhado:0, totalItens:0,
+          itensLotes:[{ id:crypto.randomUUID(), descricao:v.processo||v.orgao, marca:'', modelo:'', qtd:1, vlUnit:v.bruto, compraUnit:0 }],
+        });
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção março 2026 ───────────────────────────────────────────────
+
+    // ── Injeção de dados históricos (Hamate – Abril 2026) ─────────────────
+    (function injetarDadosAbril2026() {
+      const MARKER = 'km_injected_abril2026_hamate';
+      if (localStorage.getItem(MARKER)) return;
+
+      disputasEncerradas.push({
+        id: crypto.randomUUID(), empresa:'Hamate', status:'Perdida',
+        data:'2026-04-07', orgao:'MUNICÍPIO DE SENADOR GUIOMARD/AC',
+        processo:'Pregão 06/2026', sistema:'Licitanet',
+        tipo:'', uf:'', obs:'', drive:'', linkEdital:'', retorno:'', bruto:0
+      });
+
+      persist();
+      persistAll();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim injeção abril 2026 ───────────────────────────────────────────────
+
     movePopoversToBody();
     renderDisputas();
     renderHistoricoDisputas();
@@ -7880,5 +8987,353 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 </div>
 </div>
 </div>
+<!-- ═══ MODAL IMPORTAR DO EXCEL ═══ -->
+<div class="modal-overlay hidden" id="importarExcelWrap" style="z-index:10000;">
+<div class="modal-card" style="max-width:820px;width:95vw;max-height:90vh;display:flex;flex-direction:column;">
+<div class="modal-header">
+  <h3 id="importarExcelTitulo">📋 Importar Disputas do Excel</h3>
+  <button class="modal-close" onclick="fecharImportarExcel()">×</button>
+</div>
+<div class="modal-body" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:16px;">
+
+  <!-- PASSO 1: Colar dados -->
+  <div id="importStep1">
+    <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.06em;margin-bottom:8px;">📌 Como usar</div>
+      <ol style="font-size:12px;color:var(--text);line-height:1.8;margin:0;padding-left:18px;">
+        <li>Abra sua planilha no Excel</li>
+        <li>Selecione as linhas (incluindo o cabeçalho) e copie <kbd style="background:#2a2d3a;border:1px solid #3a3d4a;border-radius:4px;padding:1px 5px;font-size:11px;">Ctrl+C</kbd></li>
+        <li>Clique na área abaixo e cole <kbd style="background:#2a2d3a;border:1px solid #3a3d4a;border-radius:4px;padding:1px 5px;font-size:11px;">Ctrl+V</kbd></li>
+      </ol>
+    </div>
+    <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px;">Cole os dados aqui:</label>
+    <textarea id="importPasteArea" placeholder="Cole aqui os dados copiados do Excel..." 
+      style="width:100%;min-height:140px;background:var(--card);border:2px dashed var(--primary-border);border-radius:10px;padding:12px;font-size:12px;font-family:inherit;color:var(--text);resize:vertical;outline:none;transition:border-color .2s;box-sizing:border-box;"
+      onfocus="this.style.borderColor='var(--primary)'" 
+      onblur="this.style.borderColor='var(--primary-border)'"
+      oninput="importarAnalisarDados()"></textarea>
+    <div id="importErro" style="display:none;color:#b42318;font-size:12px;margin-top:8px;padding:8px 12px;background:#2a1010;border-radius:8px;"></div>
+  </div>
+
+  <!-- PASSO 2: Mapeamento de colunas -->
+  <div id="importStep2" style="display:none;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.06em;margin-bottom:10px;">🗂️ Mapeie as colunas detectadas</div>
+    <div id="importMapeamento" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;"></div>
+
+    <!-- Preview da tabela -->
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.06em;margin-bottom:8px;">👁️ Preview <span id="importPreviewCount" style="color:var(--primary);font-size:10px;"></span></div>
+    <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--line);">
+      <table style="width:100%;border-collapse:collapse;font-size:11px;" id="importPreviewTable">
+        <thead id="importPreviewHead" style="background:var(--card-header);"></thead>
+        <tbody id="importPreviewBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Resumo das vencidas -->
+    <div id="importVencidasAlert" style="display:none;margin-top:12px;padding:10px 14px;background:#0d1e0a;border:1px solid #1f8a4c;border-radius:10px;font-size:12px;color:#2dd47a;">
+      🏆 <span id="importVencidasMsg"></span>
+    </div>
+  </div>
+
+</div>
+<div class="modal-footer" style="justify-content:space-between;">
+  <button class="btn btn-light" onclick="fecharImportarExcel()">Cancelar</button>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <span id="importStatusMsg" style="font-size:11px;color:var(--muted);"></span>
+    <button class="btn btn-primary" id="importBtnConfirmar" onclick="confirmarImportacao()" style="display:none;">
+      ✅ Confirmar Importação
+    </button>
+  </div>
+</div>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  IMPORTAR DO EXCEL
+// ══════════════════════════════════════════════
+
+const IMPORT_CAMPOS = [
+  { key: 'data',     label: 'Data',              tipo: 'date' },
+  { key: 'orgao',    label: 'Órgão / Cliente',   tipo: 'text' },
+  { key: 'processo', label: 'Nº do Processo',    tipo: 'text' },
+  { key: 'empresa',  label: 'Empresa',           tipo: 'select', opts: ['Gadita','Hamate'] },
+  { key: 'sistema',  label: 'Sistema',           tipo: 'select', opts: ['Licitanet','Licitar Digital','ComprasGOV'] },
+  { key: 'status',   label: 'Status',            tipo: 'text' },
+  { key: 'bruto',    label: 'Valor (R$)',         tipo: 'currency' },
+  { key: '_ignorar', label: '— Ignorar coluna —', tipo: 'ignore' },
+];
+
+let _importLinhas   = [];   // linhas brutas (array de arrays)
+let _importHeaders  = [];   // cabeçalhos detectados
+let _importMapeamento = {}; // { colIdx: campoKey }
+
+function abrirImportarExcel() {
+  qs('importarExcelWrap').classList.remove('hidden');
+  qs('importStep1').style.display = '';
+  qs('importStep2').style.display = 'none';
+  qs('importBtnConfirmar').style.display = 'none';
+  qs('importPasteArea').value = '';
+  qs('importErro').style.display = 'none';
+  qs('importStatusMsg').textContent = '';
+  _importLinhas = [];
+  _importHeaders = [];
+  _importMapeamento = {};
+}
+
+function fecharImportarExcel() {
+  qs('importarExcelWrap').classList.add('hidden');
+}
+
+function importarAnalisarDados() {
+  const raw = qs('importPasteArea').value.trim();
+  qs('importErro').style.display = 'none';
+  qs('importStep2').style.display = 'none';
+  qs('importBtnConfirmar').style.display = 'none';
+  if (!raw) return;
+
+  // Parse TSV (Excel copia como tab-separated)
+  const linhas = raw.split('\n').map(l => l.split('\t').map(c => c.trim().replace(/\r/,'')));
+  if (linhas.length < 2) {
+    mostrarImportErro('Cole pelo menos 2 linhas (cabeçalho + 1 dado).');
+    return;
+  }
+
+  _importHeaders = linhas[0];
+  _importLinhas  = linhas.slice(1).filter(l => l.some(c => c !== ''));
+
+  if (_importLinhas.length === 0) {
+    mostrarImportErro('Nenhuma linha de dados encontrada após o cabeçalho.');
+    return;
+  }
+
+  // Auto-mapear colunas pelo nome do cabeçalho
+  _importMapeamento = {};
+  _importHeaders.forEach((h, idx) => {
+    const hn = h.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if (/data/.test(hn))                           _importMapeamento[idx] = 'data';
+    else if (/org|client|prefeit|camara/.test(hn)) _importMapeamento[idx] = 'orgao';
+    else if (/process|licit|preg|disp/.test(hn))   _importMapeamento[idx] = 'processo';
+    else if (/empres|empresa/.test(hn))            _importMapeamento[idx] = 'empresa';
+    else if (/sistem|plataform/.test(hn))          _importMapeamento[idx] = 'sistema';
+    else if (/status|situac|result/.test(hn))      _importMapeamento[idx] = 'status';
+    else if (/valor|vl|preco|bruto|proposta/.test(hn)) _importMapeamento[idx] = 'bruto';
+    else                                           _importMapeamento[idx] = '_ignorar';
+  });
+
+  renderizarMapeamento();
+  renderizarPreview();
+  qs('importStep2').style.display = '';
+  qs('importBtnConfirmar').style.display = '';
+}
+
+function mostrarImportErro(msg) {
+  const el = qs('importErro');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = '';
+}
+
+function renderizarMapeamento() {
+  const wrap = qs('importMapeamento');
+  wrap.innerHTML = _importHeaders.map((h, idx) => {
+    const opcoesHtml = IMPORT_CAMPOS.map(c =>
+      `<option value="${c.key}" ${_importMapeamento[idx] === c.key ? 'selected' : ''}>${c.label}</option>`
+    ).join('');
+    return `
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <label style="font-size:10px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${h}">Coluna: <strong style="color:var(--text);">${h || '(sem nome)'}</strong></label>
+        <select style="background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:11px;font-family:inherit;color:var(--text);"
+          onchange="_importMapeamento[${idx}]=this.value;renderizarPreview()">
+          ${opcoesHtml}
+        </select>
+      </div>`;
+  }).join('');
+}
+
+function parsearValor(v) {
+  if (!v) return 0;
+  const s = String(v).replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.');
+  return parseFloat(s) || 0;
+}
+
+function parsearData(v) {
+  if (!v) return '';
+  // Tenta formatos: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY
+  const s = String(v).trim();
+  const m1 = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (m1) return `${m1[3]}-${m1[2]}-${m1[1]}`;
+  const m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m2) return s;
+  const m3 = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (m3) return `${m3[3]}-${m3[2]}-${m3[1]}`;
+  // Número serial do Excel (dias desde 1900-01-01)
+  const n = parseInt(s);
+  if (!isNaN(n) && n > 40000) {
+    const d = new Date(Date.UTC(1900,0,n-1));
+    return d.toISOString().slice(0,10);
+  }
+  return s;
+}
+
+function montarDisputa(linha) {
+  const obj = {};
+  _importHeaders.forEach((_, idx) => {
+    const campo = _importMapeamento[idx];
+    if (!campo || campo === '_ignorar') return;
+    const val = linha[idx] || '';
+    if (campo === 'bruto') obj[campo] = parsearValor(val);
+    else if (campo === 'data') obj[campo] = parsearData(val);
+    else obj[campo] = val.trim();
+  });
+  return obj;
+}
+
+function renderizarPreview() {
+  // Cabeçalhos mapeados
+  const thead = qs('importPreviewHead');
+  const tbody = qs('importPreviewBody');
+  const camposVisiveis = _importHeaders
+    .map((h, idx) => ({ h, idx, campo: _importMapeamento[idx] }))
+    .filter(x => x.campo !== '_ignorar');
+
+  thead.innerHTML = `<tr>${camposVisiveis.map(x => {
+    const info = IMPORT_CAMPOS.find(c => c.key === x.campo);
+    return `<th style="padding:7px 10px;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:left;background:var(--card-header);white-space:nowrap;">${info?.label || x.h}</th>`;
+  }).join('')}<th style="padding:7px 10px;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--card-header);">Status final</th></tr>`;
+
+  const MAX_PREVIEW = 8;
+  const linhasPreview = _importLinhas.slice(0, MAX_PREVIEW);
+  let vencidas = 0;
+
+  tbody.innerHTML = linhasPreview.map((linha, i) => {
+    const d = montarDisputa(linha);
+    const statusVal = (d.status || '').trim();
+    const isVencida = statusVal.toLowerCase() === 'vencida';
+    if (isVencida) vencidas++;
+    const badgeStatus = isVencida
+      ? `<span style="background:#0d2e0a;color:#2dd47a;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;">🏆 Vencida → Contrato</span>`
+      : `<span style="background:var(--card);color:var(--muted);padding:2px 8px;border-radius:8px;font-size:10px;">${statusVal || '—'}</span>`;
+    const rowStyle = isVencida ? 'background:#0a1a0a;' : (i%2===0?'':'background:rgba(255,255,255,.02);');
+    return `<tr style="${rowStyle}">${camposVisiveis.map(x => {
+      const val = linha[x.idx] || '';
+      return `<td style="padding:6px 10px;font-size:11px;color:var(--text);border-top:1px solid var(--line);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${val}">${val || '—'}</td>`;
+    }).join('')}<td style="padding:6px 10px;border-top:1px solid var(--line);">${badgeStatus}</td></tr>`;
+  }).join('');
+
+  // Contar vencidas em todas as linhas
+  vencidas = _importLinhas.filter(l => {
+    const d = montarDisputa(l);
+    return (d.status||'').toLowerCase() === 'vencida';
+  }).length;
+
+  const total = _importLinhas.length;
+  qs('importPreviewCount').textContent = `— ${total} linha${total!==1?'s':''} detectada${total!==1?'s':''}${total > MAX_PREVIEW ? ` (mostrando ${MAX_PREVIEW})` : ''}`;
+  qs('importStatusMsg').textContent = `${total} disputa${total!==1?'s':''} para importar`;
+
+  if (vencidas > 0) {
+    qs('importVencidasAlert').style.display = '';
+    qs('importVencidasMsg').textContent = `${vencidas} disputa${vencidas>1?'s':''} com status "Vencida" — será criado um contrato rascunho para cada uma após a importação.`;
+  } else {
+    qs('importVencidasAlert').style.display = 'none';
+  }
+}
+
+function confirmarImportacao() {
+  if (_importLinhas.length === 0) return;
+
+  let importadas = 0, contratosCriados = 0;
+  const vencidasParaContrato = [];
+
+  _importLinhas.forEach(linha => {
+    const d = montarDisputa(linha);
+    const statusVal = (d.status || '').trim();
+    const isVencida = statusVal.toLowerCase() === 'vencida';
+
+    const novaDisputa = {
+      id:        crypto.randomUUID(),
+      data:      d.data      || new Date().toISOString().slice(0,10),
+      orgao:     (d.orgao    || '').toUpperCase(),
+      processo:  d.processo  || '',
+      tipo:      '',
+      empresa:   d.empresa   || '',
+      sistema:   d.sistema   || '',
+      status:    isVencida ? 'Vencida' : (statusVal || 'Em andamento'),
+      bruto:     d.bruto     || 0,
+      uf:        d.uf        || '',
+      obs:       '',
+      drive:     '',
+      linkEdital:'',
+    };
+
+    if (isVencida) {
+      // Vai para encerradas
+      disputasEncerradas.unshift(novaDisputa);
+      vencidasParaContrato.push(novaDisputa);
+      contratosCriados++;
+    } else {
+      // Vai para em andamento
+      disputas.unshift(novaDisputa);
+    }
+    importadas++;
+  });
+
+  persist();
+  renderDisputas();
+  renderHistoricoDisputas();
+  fecharImportarExcel();
+
+  // Criar contratos rascunho para vencidas
+  if (vencidasParaContrato.length > 0) {
+    vencidasParaContrato.forEach(disputa => {
+      const novoContrato = {
+        id:           crypto.randomUUID(),
+        data:         disputa.data || '',
+        dataFim:      '',
+        contrato:     '',
+        orgao:        disputa.orgao || '',
+        uf:           disputa.uf || '',
+        empresa:      disputa.empresa || '',
+        sistema:      disputa.sistema || '',
+        processo:     disputa.processo || '',
+        drive:        disputa.drive || disputa.linkEdital || '',
+        obs:          '📋 Contrato criado via importação do Excel. Complete os dados pendentes.',
+        status:       'Vigente',
+        valor:        disputa.bruto || 0,
+        compra:       0,
+        royalties:    0,
+        royaltiesPct: 1,
+        imposto:      0,
+        impostoPct:   5,
+        custo:        0,
+        lucro:        disputa.bruto || 0,
+        empenhado:    0,
+        totalItens:   0,
+        itensLotes:   [{
+          id:         crypto.randomUUID(),
+          descricao:  disputa.processo || disputa.orgao || 'Item a completar',
+          marca:      '',
+          modelo:     '',
+          qtd:        1,
+          vlUnit:     disputa.bruto || 0,
+          compraUnit: 0,
+        }],
+        sala:         '',
+      };
+      contratosAtivos.unshift(novoContrato);
+    });
+
+    persist();
+    renderContratosAtivos?.();
+    renderContratosEncerrados?.();
+
+    // Notificação final
+    const msg = `✅ ${importadas} disputa${importadas>1?'s':''} importada${importadas>1?'s':''}!` +
+      (contratosCriados > 0 ? `\n🏆 ${contratosCriados} contrato${contratosCriados>1?'s':''} rascunho criado${contratosCriados>1?'s':''} em Contratos Ativos.` : '');
+    setTimeout(() => alert(msg), 200);
+  } else {
+    setTimeout(() => alert(`✅ ${importadas} disputa${importadas>1?'s':''} importada${importadas>1?'s':''}!`), 200);
+  }
+}
+</script>
 </main></div></body>
 </html>
