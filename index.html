@@ -8645,12 +8645,35 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         const data = await res.json();
         if (data && data[0] && data[0].payload && Object.keys(data[0].payload).length > 0) {
           const p = data[0].payload;
-          if (p.disputas)  localStorage.setItem('km_disputas_v60_clean',  JSON.stringify(p.disputas));
-          if (p.empenhos)  localStorage.setItem('km_empenhos_v60_clean',  JSON.stringify(p.empenhos));
-          if (p.compras)   localStorage.setItem('km_compras_v60_clean',   JSON.stringify(p.compras));
-          if (p.metas)     localStorage.setItem('km_metas_v60_clean',     JSON.stringify(p.metas));
-          if (p.tema)      localStorage.setItem('km_tema_v1',             p.tema);
-          showSync('ok', '✓ dados atualizados');
+
+          // ── Mescla inteligente: só sobrescreve se cloud tiver MAIS dados ──
+          const localRaw = localStorage.getItem('km_disputas_v60_clean');
+          const localData = localRaw ? (() => { try { return JSON.parse(localRaw); } catch(e) { return {}; } })() : {};
+          const localEnc  = (localData.disputasEncerradas || []).length;
+          const localCon  = (localData.contratosAtivos    || []).length;
+          const localDis  = (localData.disputas           || []).length;
+
+          const cloudDisp = p.disputas || {};
+          const cloudEnc  = (cloudDisp.disputasEncerradas || []).length;
+          const cloudCon  = (cloudDisp.contratosAtivos    || []).length;
+          const cloudDis  = (cloudDisp.disputas           || []).length;
+
+          const localTotal = localEnc + localCon + localDis;
+          const cloudTotal = cloudEnc + cloudCon + cloudDis;
+
+          if (cloudTotal >= localTotal) {
+            // Cloud tem mais ou igual → usa cloud normalmente
+            if (p.disputas)  localStorage.setItem('km_disputas_v60_clean',  JSON.stringify(p.disputas));
+            if (p.empenhos)  localStorage.setItem('km_empenhos_v60_clean',  JSON.stringify(p.empenhos));
+            if (p.compras)   localStorage.setItem('km_compras_v60_clean',   JSON.stringify(p.compras));
+            if (p.metas)     localStorage.setItem('km_metas_v60_clean',     JSON.stringify(p.metas));
+            if (p.tema)      localStorage.setItem('km_tema_v1',             p.tema);
+            showSync('ok', '✓ dados atualizados');
+          } else {
+            // Local tem mais → mantém local e agenda upload para sincronizar cloud
+            showSync('ok', '✓ dados locais preservados');
+            setTimeout(() => syncToCloud(), 3000);
+          }
           return true;
         }
         showSync('ok', '✓ conectado');
