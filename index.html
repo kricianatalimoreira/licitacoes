@@ -8722,12 +8722,37 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     // ── Init App (after login) ──
+    // ── Reparo de contratos com valor/compra zerados mas com itensLotes ──
+    function repararContratosZerados(lista) {
+      let alterou = false;
+      lista.forEach(c => {
+        const itens = c.itensLotes || [];
+        if ((!c.valor || !c.compra) && itens.length > 0) {
+          const r = Number(c.royaltiesPct ?? 1);
+          const i = Number(c.impostoPct  ?? 5);
+          const vlTotal    = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0)), 0);
+          const compraT    = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.compraUnit||0)), 0);
+          const royaltiesT = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0) * r / 100), 0);
+          const impostoT   = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0) * i / 100), 0);
+          if (vlTotal > 0) { c.valor    = vlTotal;    alterou = true; }
+          if (compraT > 0) { c.compra   = compraT;    alterou = true; }
+          if (royaltiesT > 0) { c.royalties = royaltiesT; alterou = true; }
+          if (impostoT  > 0) { c.imposto   = impostoT;   alterou = true; }
+        }
+      });
+      return alterou;
+    }
+
     async function initApp() {
       // Try to get cloud data first
       await syncFromCloud();
       // Then load all modules
       if (typeof loadData === 'function') loadData();
       if (typeof loadContratos === 'function') loadContratos();
+      // Repara contratos com valor/compra zerados mas com itensLotes preenchidos
+      const _reparouA = repararContratosZerados(contratosAtivos);
+      const _reparouE = repararContratosZerados(contratosEncerrados);
+      if (_reparouA || _reparouE) { persistAll(); }
       if (typeof loadEmpenhos === 'function') loadEmpenhos();
       if (typeof loadCompras === 'function') loadCompras();
       // Re-render all sections
