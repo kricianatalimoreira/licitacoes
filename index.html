@@ -5261,6 +5261,7 @@
         valor, compra, royalties, imposto,
         royaltiesPct, impostoPct,
         itensLotes:   structuredClone(_conItens),
+        totalItens:   _conItens.length,
         _editado:     true, // marca como editado manualmente — sai do filtro de rascunhos
       };
 
@@ -8741,6 +8742,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           if (royaltiesT > 0) { c.royalties = royaltiesT; alterou = true; }
           if (impostoT  > 0) { c.imposto   = impostoT;   alterou = true; }
           if (vlTotal > 0) { c._editado = true; } // sai do filtro de rascunhos
+          if (!c.totalItens && itens.length > 0) { c.totalItens = itens.length; alterou = true; }
         }
       });
       return alterou;
