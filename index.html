@@ -1726,15 +1726,18 @@
        MÓDULO EMPENHOS
     ══════════════════════════════════════ */
     /* Tabela empenhos */
-    .emp-table th:nth-child(1), .emp-table td:nth-child(1) { width: 8%; }   /* Data */
-    .emp-table th:nth-child(2), .emp-table td:nth-child(2) { width: 7%; }   /* Nº Empenho */
-    .emp-table th:nth-child(3), .emp-table td:nth-child(3) { width: 22%; white-space:normal; } /* Órgão */
-    .emp-table th:nth-child(4), .emp-table td:nth-child(4) { width: 8%; }   /* Empresa */
-    .emp-table th:nth-child(5), .emp-table td:nth-child(5) { width: 20%; white-space:normal; } /* Itens */
-    .emp-table th:nth-child(6), .emp-table td:nth-child(6) { width: 10%; }  /* Valor */
-    .emp-table th:nth-child(7), .emp-table td:nth-child(7) { width: 14%; white-space:normal; } /* Responsável */
-    .emp-table th:nth-child(8), .emp-table td:nth-child(8) { width: 7%; }   /* Status */
-    .emp-table th:nth-child(9), .emp-table td:nth-child(9) { width: 4%; text-align:center; } /* Ações */
+    .emp-table th:nth-child(1),  .emp-table td:nth-child(1)  { width: 7%; }   /* Data */
+    .emp-table th:nth-child(2),  .emp-table td:nth-child(2)  { width: 6%; }   /* Nº Empenho */
+    .emp-table th:nth-child(3),  .emp-table td:nth-child(3)  { width: 17%; white-space:normal; } /* Órgão */
+    .emp-table th:nth-child(4),  .emp-table td:nth-child(4)  { width: 7%; }   /* Empresa */
+    .emp-table th:nth-child(5),  .emp-table td:nth-child(5)  { width: 14%; white-space:normal; } /* Itens */
+    .emp-table th:nth-child(6),  .emp-table td:nth-child(6)  { width: 8%; }   /* Valor Empenho */
+    .emp-table th:nth-child(7),  .emp-table td:nth-child(7)  { width: 8%; }   /* Vl. Contrato */
+    .emp-table th:nth-child(8),  .emp-table td:nth-child(8)  { width: 8%; }   /* Vl. Compra Prev. */
+    .emp-table th:nth-child(9),  .emp-table td:nth-child(9)  { width: 8%; }   /* Custo Prev. */
+    .emp-table th:nth-child(10), .emp-table td:nth-child(10) { width: 8%; }   /* Lucro Prev. */
+    .emp-table th:nth-child(11), .emp-table td:nth-child(11) { width: 11%; white-space:normal; } /* Status */
+    .emp-table th:nth-child(12), .emp-table td:nth-child(12) { width: 4%; text-align:center; } /* Ações */
 
     /* Status empenho */
     .emp-status-compra    { background:#0f2a1e; color:#2dd47a; }
@@ -3102,12 +3105,17 @@
 <button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
 <button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
 </div>
-<div class="disputa-stats" style="grid-template-columns:repeat(5,minmax(0,1fr));">
+<div class="disputa-stats" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:8px;">
 <div class="disputa-stat-card"><div class="disputa-stat-label">Em andamento</div><div class="disputa-stat-value" id="empAndStatTotal">0</div></div>
-<div class="disputa-stat-card stat-orange"><div class="disputa-stat-label">Compra Feita / Em trânsito</div><div class="disputa-stat-value" id="empAndStatAberto">0</div></div>
-<div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Entregues</div><div class="disputa-stat-value" id="empAndStatEntregue">0</div></div>
+<div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Pendentes</div><div class="disputa-stat-value" id="empAndStatEntregue">0</div></div>
+<div class="disputa-stat-card stat-orange"><div class="disputa-stat-label">Compra Feita</div><div class="disputa-stat-value" id="empAndStatAberto">0</div></div>
 <div class="disputa-stat-card" style="background:#1a1530;border-color:#4a3a8a;"><div class="disputa-stat-label">Ag. Liquidação</div><div class="disputa-stat-value" id="empAndStatLiquidacao">0</div></div>
-<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Valor total</div><div class="disputa-stat-value" id="empAndStatValor" style="font-size:13px;color:#2563eb;">R$ 0,00</div></div>
+</div>
+<div class="disputa-stats" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Vl. Empenho</div><div class="disputa-stat-value" id="empAndStatValor" style="font-size:12px;color:#2563eb;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Vl. Compra Prev.</div><div class="disputa-stat-value" id="empAndStatCompra" style="font-size:12px;color:#a78bfa;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#1a0d08;border-color:#7a3a0a;"><div class="disputa-stat-label">Custo Prev.</div><div class="disputa-stat-value" id="empAndStatCusto" style="font-size:12px;color:#fb923c;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#0a2018;border-color:#1a6040;"><div class="disputa-stat-label">Lucro Prev.</div><div class="disputa-stat-value" id="empAndStatLucro" style="font-size:12px;color:#34d399;">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -3155,6 +3163,10 @@
 </th>
 <th>Itens Empenhados</th>
 <th>Valor</th>
+<th style="color:#a78bfa;">Vl. Contrato</th>
+<th style="color:#60a5fa;">Vl. Compra Prev.</th>
+<th style="color:#fb923c;">Custo Prev.</th>
+<th style="color:#34d399;">Lucro Prev.</th>
 <th class="historico-th">
 <div class="historico-header-cell">
 <span>Status</span>
@@ -3166,9 +3178,7 @@
 <option value="">Todos</option>
 <option>Pendente</option>
 <option>Compra Feita</option>
-<option>Em trânsito</option>
-<option>Entregue</option>
-<option>Aguardando Liquidação</option>
+<option>Ag. Liquidação</option>
 </select>
 <div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltrosEmpAndamento()" type="button">Limpar</button></div>
 </div>
@@ -3257,6 +3267,10 @@
 </th>
 <th>Itens Empenhados</th>
 <th>Valor</th>
+<th style="color:#a78bfa;">Vl. Contrato</th>
+<th style="color:#60a5fa;">Vl. Compra Prev.</th>
+<th style="color:#fb923c;">Custo Prev.</th>
+<th style="color:#34d399;">Lucro Prev.</th>
 <th>Status</th>
 <th>Ações</th></tr></thead>
 <tbody id="empEncTableBody"></tbody>
@@ -5454,7 +5468,7 @@
         'Compra Feita':          '#1f7a4d',
         'Em trânsito':           '#b76a00',
         'Entregue':              '#1e4fd6',
-        'Aguardando Liquidação': '#6d28d9',
+        'Ag. Liquidação': '#6d28d9',
         'Paga':                  '#1f8a4c',
       };
       const statusBgMap = {
@@ -5462,7 +5476,7 @@
         'Compra Feita':          '#e6f7ec',
         'Em trânsito':           '#2a1c08',
         'Entregue':              '#e8f4ff',
-        'Aguardando Liquidação': '#f5f3ff',
+        'Ag. Liquidação': '#f5f3ff',
         'Paga':                  '#e9f9ef',
       };
       if (!empDoContrato.length) {
@@ -5803,7 +5817,7 @@
         'Compra Feita':          'emp-status-compra',
         'Em trânsito':           'emp-status-transito',
         'Entregue':              'emp-status-entregue',
-        'Aguardando Liquidação': 'emp-status-liquidacao',
+        'Ag. Liquidação': 'emp-status-liquidacao',
         'Paga':                  'emp-status-paga',
         'Pendente':              'emp-status-pendente',
       };
@@ -5813,10 +5827,18 @@
     function mudarStatusEmpenho(id, novoStatus) {
       const emp = empenhos.find(e => e.id === id);
       if (emp) {
-        emp.status = novoStatus;
+        // Normaliza label do status
+        const statusNorm = novoStatus === 'Ag. Liquidação' ? 'Ag. Liquidação' : novoStatus;
+        emp.status = statusNorm;
         persistEmpenhos();
         renderEmpAndamento();
         renderEmpEncerrados();
+        // Se marcou como Paga, navega automaticamente para Empenhos Encerrados
+        if (statusNorm === 'Paga') {
+          const secEl = document.querySelector('[data-section-target="empenhos-encerrados"]');
+          if (secEl) showSection('empenhos-encerrados', secEl);
+          mostrarToast('✅ Empenho encerrado!', 'Empenho movido para Encerrados.');
+        }
       }
       closeAllMenus();
     }
@@ -5845,13 +5867,13 @@
         const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
         return `<div style="font-size:10px;line-height:1.4;">${ie.descricao || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
       }).join('');
-      const statusOpts = ['Pendente','Compra Feita','Em trânsito','Entregue','Aguardando Liquidação','Paga']
+      const statusOpts = ['Pendente','Compra Feita','Ag. Liquidação','Paga']
         .map(s => `<button onclick="mudarStatusEmpenho('${e.id}','${s}')">${s}</button>`).join('');
       const statusHtml = `<div class="status-wrap">
         <span onclick="toggleStatusDropdown(event,'empsdrop-${e.id}')" style="cursor:pointer;">${empStatusBadge(e.status)} ▾</span>
         <div class="status-dropdown hidden" id="empsdrop-${e.id}">${statusOpts}</div>
       </div>`;
-// Calcula dias pendentes
+      // Calcula dias pendentes
       let diasPendentesHtml = '';
       if (e.data) {
         const hoje = new Date(); hoje.setHours(0,0,0,0);
@@ -5866,6 +5888,24 @@
           diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#0d1e3a;border-radius:5px;padding:1px 5px;">Hoje</span>`;
         }
       }
+      // Busca dados do contrato vinculado para exibir os 4 novos campos
+      const contrato = contratosAtivos.find(c => c.id === e.contratoId)
+                    || contratosEncerrados.find(c => c.id === e.contratoId);
+      let vlContratoHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let vlCompraPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let custoPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let lucroPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      if (contrato) {
+        const vlContrato = Number(contrato.valor || 0);
+        const vlCompra   = Number(contrato.compra || 0);
+        const custo      = calcCusto(contrato.royalties, contrato.imposto);
+        const lucro      = calcLucro(vlContrato, vlCompra, custo);
+        const lucroColor = lucro > 0 ? '#34d399' : lucro < 0 ? '#f05252' : 'var(--muted)';
+        vlContratoHtml  = `<span style="font-size:10px;font-weight:600;color:#a78bfa;">${formatCurrency(vlContrato)}</span>`;
+        vlCompraPrevHtml= `<span style="font-size:10px;font-weight:600;color:#60a5fa;">${formatCurrency(vlCompra)}</span>`;
+        custoPrevHtml   = `<span style="font-size:10px;font-weight:600;color:#fb923c;">${formatCurrency(custo)}</span>`;
+        lucroPrevHtml   = `<span style="font-size:10px;font-weight:700;color:${lucroColor};">${formatCurrency(lucro)}</span>`;
+      }
       return `<tr>
         <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendentesHtml}</div></td>
         <td style="font-weight:700;font-size:10px;">${e.numero || '—'}</td>
@@ -5876,6 +5916,10 @@
         <td>${companyBadge(e.empresa)}</td>
         <td class="cell-wrap">${itensDesc || '—'}</td>
         <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
+        <td>${vlContratoHtml}</td>
+        <td>${vlCompraPrevHtml}</td>
+        <td>${custoPrevHtml}</td>
+        <td>${lucroPrevHtml}</td>
         <td>${statusHtml}</td>
         <td>
           <div class="row-menu-wrap">
@@ -5911,10 +5955,28 @@
 
       // KPIs (baseados em todos os em andamento, sem filtro)
       qs('empAndStatTotal').textContent     = andamento.length;
-      qs('empAndStatAberto').textContent    = andamento.filter(e => ['Compra Feita','Em trânsito'].includes(e.status)).length;
-      qs('empAndStatEntregue').textContent  = andamento.filter(e => e.status === 'Entregue').length;
-      qs('empAndStatLiquidacao').textContent= andamento.filter(e => e.status === 'Aguardando Liquidação').length;
+      qs('empAndStatAberto').textContent    = andamento.filter(e => e.status === 'Compra Feita').length;
+      qs('empAndStatEntregue').textContent  = andamento.filter(e => e.status === 'Pendente').length;
+      qs('empAndStatLiquidacao').textContent= andamento.filter(e => e.status === 'Ag. Liquidação').length;
       qs('empAndStatValor').textContent     = formatCurrency(andamento.reduce((s,e) => s+(Number(e.valor)||0), 0));
+      // KPI valores financeiros — puxados dos contratos vinculados
+      let _empAndCompraTotal = 0, _empAndCustoTotal = 0, _empAndLucroTotal = 0;
+      andamento.forEach(e => {
+        const c = contratosAtivos.find(x => x.id === e.contratoId)
+               || contratosEncerrados.find(x => x.id === e.contratoId);
+        if (c) {
+          _empAndCompraTotal += Number(c.compra || 0);
+          _empAndCustoTotal  += calcCusto(c.royalties, c.imposto);
+          _empAndLucroTotal  += calcLucro(Number(c.valor||0), Number(c.compra||0), calcCusto(c.royalties, c.imposto));
+        }
+      });
+      if (qs('empAndStatCompra')) qs('empAndStatCompra').textContent = formatCurrency(_empAndCompraTotal);
+      if (qs('empAndStatCusto'))  qs('empAndStatCusto').textContent  = formatCurrency(_empAndCustoTotal);
+      const lucroEl = qs('empAndStatLucro');
+      if (lucroEl) {
+        lucroEl.textContent = formatCurrency(_empAndLucroTotal);
+        lucroEl.style.color = _empAndLucroTotal >= 0 ? '#34d399' : '#f05252';
+      }
 
       // Subtotal
       qs('subtotalEmpAndQtde').textContent  = filtrados.length;
@@ -5931,7 +5993,7 @@
       }, 'data_asc');
       body.innerHTML = sortedEmpAnd.length
         ? sortedEmpAnd.map(empRowHtml).join('')
-        : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
+        : `<tr><td colspan="12"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
     }
 
     // ── Empenhos encerrados (status === 'Paga') ──
@@ -5967,7 +6029,7 @@
       }, 'data_desc');
       body.innerHTML = sortedEmpEnc.length
         ? sortedEmpEnc.map(empRowHtml).join('')
-        : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho encerrado (pago) encontrado.</div></td></tr>`;
+        : `<tr><td colspan="12"><div class="empty-state">Nenhum empenho encerrado (pago) encontrado.</div></td></tr>`;
     }
 
     // Mantida para compatibilidade com chamadas internas (persistEmpenhos, etc.)
@@ -6929,10 +6991,16 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       });
 
       if (!salvou) { alert('Preencha pelo menos um item antes de salvar.'); return; }
+      // Atualiza status do empenho para "Compra Feita" automaticamente (só se ainda Pendente)
+      if (emp.status === 'Pendente') {
+        emp.status = 'Compra Feita';
+        persistEmpenhos();
+      }
       persistCompras();
       renderCompras();
+      renderEmpenhos();
       fecharModalCompras();
-      mostrarToast('🛒 Compra registrada!', `${salvou} item(ns) salvos.`);
+      mostrarToast('🛒 Compra registrada!', `${salvou} item(ns) salvo(s). Status atualizado para "Compra Feita".`);
     }
 
     // ── Editar Compra ─────────────────────────────────────
@@ -8848,8 +8916,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 <div class="emp-form-field"><label>Data</label><input id="empData2" type="date"/></div>
 <div class="emp-form-field"><label>Status</label>
 <select id="empStatus">
-<option selected="">Pendente</option><option>Compra Feita</option><option>Em trânsito</option>
-<option>Entregue</option><option>Aguardando Liquidação</option><option>Paga</option>
+<option selected="">Pendente</option><option>Compra Feita</option>
+<option>Ag. Liquidação</option><option>Paga</option>
 </select>
 </div>
 </div>
@@ -8908,8 +8976,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 <div class="emp-form-field"><label>Nº do Empenho</label><input id="empEditNumero" type="text"/></div>
 <div class="emp-form-field"><label>Status</label>
 <select id="empEditStatus">
-<option>Pendente</option><option>Compra Feita</option><option>Em trânsito</option>
-<option>Entregue</option><option>Aguardando Liquidação</option><option>Paga</option>
+<option>Pendente</option><option>Compra Feita</option>
+<option>Ag. Liquidação</option><option>Paga</option>
 </select>
 </div>
 </div>
