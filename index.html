@@ -1726,16 +1726,16 @@
        MÓDULO EMPENHOS
     ══════════════════════════════════════ */
     /* Tabela empenhos */
-    .emp-table th:nth-child(1),  .emp-table td:nth-child(1)  { width: 7%; }   /* Data */
-    .emp-table th:nth-child(2),  .emp-table td:nth-child(2)  { width: 6%; }   /* Nº Empenho */
-    .emp-table th:nth-child(3),  .emp-table td:nth-child(3)  { width: 17%; white-space:normal; } /* Órgão */
+    .emp-table th:nth-child(1),  .emp-table td:nth-child(1)  { width: 8%; }   /* Data */
+    .emp-table th:nth-child(2),  .emp-table td:nth-child(2)  { width: 7%; }   /* Nº Empenho */
+    .emp-table th:nth-child(3),  .emp-table td:nth-child(3)  { width: 18%; white-space:normal; } /* Órgão */
     .emp-table th:nth-child(4),  .emp-table td:nth-child(4)  { width: 7%; }   /* Empresa */
-    .emp-table th:nth-child(5),  .emp-table td:nth-child(5)  { width: 14%; white-space:normal; } /* Itens */
-    .emp-table th:nth-child(6),  .emp-table td:nth-child(6)  { width: 8%; }   /* Valor Empenho */
-    .emp-table th:nth-child(7),  .emp-table td:nth-child(7)  { width: 8%; }   /* Vl. Contrato */
-    .emp-table th:nth-child(8),  .emp-table td:nth-child(8)  { width: 8%; }   /* Vl. Compra Prev. */
-    .emp-table th:nth-child(9),  .emp-table td:nth-child(9)  { width: 8%; }   /* Custo Prev. */
-    .emp-table th:nth-child(10), .emp-table td:nth-child(10) { width: 8%; }   /* Lucro Prev. */
+    .emp-table th:nth-child(5),  .emp-table td:nth-child(5)  { width: 17%; white-space:normal; } /* Itens */
+    .emp-table th:nth-child(6),  .emp-table td:nth-child(6)  { width: 9%; }   /* Vl. Empenho */
+    .emp-table th:nth-child(7),  .emp-table td:nth-child(7)  { width: 9%; }   /* Vl. Compra Prev. */
+    .emp-table th:nth-child(8),  .emp-table td:nth-child(8)  { width: 9%; }   /* Custo Prev. */
+    .emp-table th:nth-child(9),  .emp-table td:nth-child(9)  { width: 8%; }   /* Lucro Prev. */
+    .emp-table th:nth-child(10), .emp-table td:nth-child(10) { width: 6%; text-align:center; } /* % Lucro */
     .emp-table th:nth-child(11), .emp-table td:nth-child(11) { width: 11%; white-space:normal; } /* Status */
     .emp-table th:nth-child(12), .emp-table td:nth-child(12) { width: 4%; text-align:center; } /* Ações */
 
@@ -3162,11 +3162,11 @@
 </div>
 </th>
 <th>Itens Empenhados</th>
-<th>Valor</th>
-<th style="color:#a78bfa;">Vl. Contrato</th>
+<th style="color:#2563eb;">Vl. Empenho</th>
 <th style="color:#60a5fa;">Vl. Compra Prev.</th>
 <th style="color:#fb923c;">Custo Prev.</th>
 <th style="color:#34d399;">Lucro Prev.</th>
+<th style="color:#a3e635;">% Lucro</th>
 <th class="historico-th">
 <div class="historico-header-cell">
 <span>Status</span>
@@ -3266,11 +3266,11 @@
 </div>
 </th>
 <th>Itens Empenhados</th>
-<th>Valor</th>
-<th style="color:#a78bfa;">Vl. Contrato</th>
+<th style="color:#2563eb;">Vl. Empenho</th>
 <th style="color:#60a5fa;">Vl. Compra Prev.</th>
 <th style="color:#fb923c;">Custo Prev.</th>
 <th style="color:#34d399;">Lucro Prev.</th>
+<th style="color:#a3e635;">% Lucro</th>
 <th>Status</th>
 <th>Ações</th></tr></thead>
 <tbody id="empEncTableBody"></tbody>
@@ -5891,8 +5891,8 @@
       // Busca dados do contrato vinculado para exibir os 4 novos campos
       const contrato = contratosAtivos.find(c => c.id === e.contratoId)
                     || contratosEncerrados.find(c => c.id === e.contratoId);
-      let vlContratoHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let vlCompraPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let pctLucroHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let custoPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let lucroPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
       if (contrato) {
@@ -5901,10 +5901,12 @@
         const custo      = calcCusto(contrato.royalties, contrato.imposto);
         const lucro      = calcLucro(vlContrato, vlCompra, custo);
         const lucroColor = lucro > 0 ? '#34d399' : lucro < 0 ? '#f05252' : 'var(--muted)';
-        vlContratoHtml  = `<span style="font-size:10px;font-weight:600;color:#a78bfa;">${formatCurrency(vlContrato)}</span>`;
         vlCompraPrevHtml= `<span style="font-size:10px;font-weight:600;color:#60a5fa;">${formatCurrency(vlCompra)}</span>`;
         custoPrevHtml   = `<span style="font-size:10px;font-weight:600;color:#fb923c;">${formatCurrency(custo)}</span>`;
         lucroPrevHtml   = `<span style="font-size:10px;font-weight:700;color:${lucroColor};">${formatCurrency(lucro)}</span>`;
+        const margem = vlContrato > 0 ? (lucro / vlContrato) * 100 : 0;
+        const margemColor = margem > 0 ? '#a3e635' : margem < 0 ? '#f05252' : 'var(--muted)';
+        pctLucroHtml = `<span style="font-size:10px;font-weight:800;color:${margemColor};">${margem.toFixed(1)}%</span>`;
       }
       return `<tr>
         <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendentesHtml}</div></td>
@@ -5916,10 +5918,10 @@
         <td>${companyBadge(e.empresa)}</td>
         <td class="cell-wrap">${itensDesc || '—'}</td>
         <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
-        <td>${vlContratoHtml}</td>
         <td>${vlCompraPrevHtml}</td>
         <td>${custoPrevHtml}</td>
         <td>${lucroPrevHtml}</td>
+        <td style="text-align:center;">${pctLucroHtml}</td>
         <td>${statusHtml}</td>
         <td>
           <div class="row-menu-wrap">
