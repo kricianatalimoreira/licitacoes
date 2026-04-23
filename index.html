@@ -4558,6 +4558,7 @@
     }
 
     function isRascunho(c) {
+      if (c._editado) return false; // contrato editado manualmente nunca é rascunho
       return (c.obs || '').includes('Importado via planilha') || !c.contrato;
     }
 
@@ -5260,6 +5261,7 @@
         valor, compra, royalties, imposto,
         royaltiesPct, impostoPct,
         itensLotes:   structuredClone(_conItens),
+        _editado:     true, // marca como editado manualmente — sai do filtro de rascunhos
       };
 
       editingContratoAtivoId = null;
@@ -8738,6 +8740,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           if (compraT > 0) { c.compra   = compraT;    alterou = true; }
           if (royaltiesT > 0) { c.royalties = royaltiesT; alterou = true; }
           if (impostoT  > 0) { c.imposto   = impostoT;   alterou = true; }
+          if (vlTotal > 0) { c._editado = true; } // sai do filtro de rascunhos
         }
       });
       return alterou;
