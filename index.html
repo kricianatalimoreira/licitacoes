@@ -5202,6 +5202,16 @@
       if (qs('conDrive'))    qs('conDrive').value     = c.drive   || '';
       if (qs('conObs'))      qs('conObs').value       = c.obs     || '';
 
+      // Pré-preenche campos de percentual e Raw com valores salvos
+      if (qs('conRoyaltiesPct')) qs('conRoyaltiesPct').value = c.royaltiesPct ?? 1;
+      if (qs('conImpostoPct'))   qs('conImpostoPct').value   = c.impostoPct   ?? 5;
+      // Pré-preenche os campos de texto formatados (para exibição no Step 3)
+      if (qs('conValor'))  qs('conValor').value  = c.valor  ? fmtR(c.valor)  : '';
+      if (qs('conCompra')) qs('conCompra').value = c.compra ? fmtR(c.compra) : '';
+      // Pré-preenche os hidden Raw para garantir que salvarEdicaoViaModal leia corretamente
+      if (qs('conValorRaw'))  qs('conValorRaw').value  = c.valor  || 0;
+      if (qs('conCompraRaw')) qs('conCompraRaw').value = c.compra || 0;
+
       ajustarImpostoPorEmpresa('con'); // ajusta campo imposto pelo regime da empresa
       renderItensContrato('con');
       calcularTotaisItens('con');
@@ -5223,15 +5233,18 @@
       const idx = contratosAtivos.findIndex(c => c.id === editingContratoAtivoId);
       if (idx < 0) { salvarContrato(); return; } // fallback para novo contrato
 
-      // Usa os campos Raw (número puro) para evitar NaN ao converter "R$ X.XXX,XX"
-      const valor       = Number(qs('conValorRaw')?.value  || 0);
-      const compra      = Number(qs('conCompraRaw')?.value || 0);
+      // Garante que os campos hidden estão atualizados antes de ler
+      calcularTotaisItens('con');
       const royaltiesPct = Number(qs('conRoyaltiesPct')?.value || 1);
       const impostoPct   = Number(qs('conImpostoPct')?.value  || 5);
-      // Recalcula royalties e imposto com base nos itens
-      const totalCompra = _conItens.reduce((s, it) => s + (Number(it.compraPreco||0) * Number(it.qtd||1)), 0);
-      const royalties   = totalCompra * royaltiesPct / 100;
-      const imposto     = totalCompra * impostoPct  / 100;
+      // Lê Raw (número puro); se ainda zero, faz fallback para parseCurrency do campo texto
+      const valorRaw  = Number(qs('conValorRaw')?.value  || 0);
+      const compraRaw = Number(qs('conCompraRaw')?.value || 0);
+      const valor     = valorRaw  || parseCurrency(qs('conValor')?.value  || '0');
+      const compra    = compraRaw || parseCurrency(qs('conCompra')?.value || '0');
+      // Lê royalties e imposto já calculados pelos campos hidden
+      const royalties = Number(qs('conRoyalties')?.value || 0);
+      const imposto   = Number(qs('conImposto')?.value   || 0);
 
       contratosAtivos[idx] = { ...contratosAtivos[idx],
         data:         qs('conData')?.value     || contratosAtivos[idx].data,
