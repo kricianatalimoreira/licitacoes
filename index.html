@@ -3189,7 +3189,7 @@
 <div class="sort-select-wrap">
 <label>Ordenar</label>
 <select class="sort-select" id="sortEmpAnd" onchange="renderEmpAndamento()">
-<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
+<option value="">Ordenar por...</option><option value="data_desc" selected>Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
 </div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Filtrado</span>
@@ -3273,7 +3273,7 @@
 <div class="sort-select-wrap">
 <label>Ordenar</label>
 <select class="sort-select" id="sortEmpEnc" onchange="renderEmpEncerrados()">
-<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
+<option value="">Ordenar por...</option><option value="data_desc" selected>Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
 </div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Filtrado</span>
@@ -5933,7 +5933,7 @@
         empresa: e => e.empresa || '',
         status:  e => e.status || '',
         valor:   e => Number(e.valor) || 0,
-      });
+      }, 'data_desc');
       body.innerHTML = sortedEmpAnd.length
         ? sortedEmpAnd.map(empRowHtml).join('')
         : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
@@ -5969,7 +5969,7 @@
         empresa: e => e.empresa || '',
         status:  e => e.status || '',
         valor:   e => Number(e.valor) || 0,
-      });
+      }, 'data_desc');
       body.innerHTML = sortedEmpEnc.length
         ? sortedEmpEnc.map(empRowHtml).join('')
         : `<tr><td colspan="8"><div class="empty-state">Nenhum empenho encerrado (pago) encontrado.</div></td></tr>`;
@@ -8572,9 +8572,9 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
   
 
     // ── Sort helper ──────────────────────────────
-    function applySortOrder(arr, selectId, cfg) {
+    function applySortOrder(arr, selectId, cfg, defaultSort) {
       const sel = document.getElementById(selectId);
-      const val = sel ? sel.value : '';
+      const val = (sel ? sel.value : '') || defaultSort || '';
       if (!val) return arr;
       const [field, dir] = val.split('_');
       const asc = dir === 'asc';
