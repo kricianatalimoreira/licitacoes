@@ -8730,20 +8730,27 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       let alterou = false;
       lista.forEach(c => {
         const itens = c.itensLotes || [];
-        if ((!c.valor || !c.compra) && itens.length > 0) {
-          const r = Number(c.royaltiesPct ?? 1);
-          const i = Number(c.impostoPct  ?? 5);
-          const vlTotal    = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0)), 0);
-          const compraT    = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.compraUnit||0)), 0);
-          const royaltiesT = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0) * r / 100), 0);
-          const impostoT   = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0) * i / 100), 0);
-          if (vlTotal > 0) { c.valor    = vlTotal;    alterou = true; }
-          if (compraT > 0) { c.compra   = compraT;    alterou = true; }
-          if (royaltiesT > 0) { c.royalties = royaltiesT; alterou = true; }
-          if (impostoT  > 0) { c.imposto   = impostoT;   alterou = true; }
-          if (vlTotal > 0) { c._editado = true; } // sai do filtro de rascunhos
-          if (!c.totalItens && itens.length > 0) { c.totalItens = itens.length; alterou = true; }
+        if (itens.length === 0) return;
+        const r = Number(c.royaltiesPct ?? 1);
+        const i = Number(c.impostoPct  ?? 5);
+        const vlTotal    = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0)), 0);
+        const compraT    = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.compraUnit||0)), 0);
+        const royaltiesT = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0) * r / 100), 0);
+        const impostoT   = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0) * i / 100), 0);
+        // Corrige valor/compra se zerados
+        if ((!c.valor || !c.compra) && vlTotal > 0) {
+          if (!c.valor)    { c.valor    = vlTotal;    alterou = true; }
+          if (!c.compra)   { c.compra   = compraT;    alterou = true; }
+          if (!c.royalties){ c.royalties = royaltiesT; alterou = true; }
+          if (!c.imposto)  { c.imposto   = impostoT;   alterou = true; }
         }
+        // Sempre corrige totalItens se divergir do número real de itens
+        if (Number(c.totalItens || 0) !== itens.length) {
+          c.totalItens = itens.length;
+          alterou = true;
+        }
+        // Marca como editado se tiver valor (sai do rascunho)
+        if (vlTotal > 0 && !c._editado) { c._editado = true; alterou = true; }
       });
       return alterou;
     }
