@@ -5223,24 +5223,30 @@
       const idx = contratosAtivos.findIndex(c => c.id === editingContratoAtivoId);
       if (idx < 0) { salvarContrato(); return; } // fallback para novo contrato
 
-      const valor     = Number(qs('conValor')?.value   || 0);
-      const compra    = Number(qs('conCompra')?.value   || 0);
-      const royalties = Number(qs('conRoyalties')?.value || 0);
-      const imposto   = Number(qs('conImposto')?.value  || 0);
+      // Usa os campos Raw (número puro) para evitar NaN ao converter "R$ X.XXX,XX"
+      const valor       = Number(qs('conValorRaw')?.value  || 0);
+      const compra      = Number(qs('conCompraRaw')?.value || 0);
+      const royaltiesPct = Number(qs('conRoyaltiesPct')?.value || 1);
+      const impostoPct   = Number(qs('conImpostoPct')?.value  || 5);
+      // Recalcula royalties e imposto com base nos itens
+      const totalCompra = _conItens.reduce((s, it) => s + (Number(it.compraPreco||0) * Number(it.qtd||1)), 0);
+      const royalties   = totalCompra * royaltiesPct / 100;
+      const imposto     = totalCompra * impostoPct  / 100;
 
       contratosAtivos[idx] = { ...contratosAtivos[idx],
-        data:      qs('conData')?.value     || contratosAtivos[idx].data,
-        dataFim:   qs('conDataFim')?.value  || contratosAtivos[idx].dataFim,
-        contrato:  qs('conContrato')?.value?.trim() || contratosAtivos[idx].contrato,
-        orgao:     (qs('conOrgao')?.value || '').trim().toUpperCase() || contratosAtivos[idx].orgao,
-        uf:        qs('conUF')?.value       || contratosAtivos[idx].uf,
-        empresa:   qs('conEmpresa')?.value  || contratosAtivos[idx].empresa,
-        sistema:   qs('conSistema')?.value  || contratosAtivos[idx].sistema,
-        processo:  qs('conProcesso')?.value?.trim() || contratosAtivos[idx].processo,
-        drive:     qs('conDrive')?.value?.trim()    || contratosAtivos[idx].drive,
-        obs:       qs('conObs')?.value?.trim()      || '',
+        data:         qs('conData')?.value     || contratosAtivos[idx].data,
+        dataFim:      qs('conDataFim')?.value  || contratosAtivos[idx].dataFim,
+        contrato:     qs('conContrato')?.value?.trim() || contratosAtivos[idx].contrato,
+        orgao:        (qs('conOrgao')?.value || '').trim().toUpperCase() || contratosAtivos[idx].orgao,
+        uf:           qs('conUF')?.value       || contratosAtivos[idx].uf,
+        empresa:      qs('conEmpresa')?.value  || contratosAtivos[idx].empresa,
+        sistema:      qs('conSistema')?.value  || contratosAtivos[idx].sistema,
+        processo:     qs('conProcesso')?.value?.trim() || contratosAtivos[idx].processo,
+        drive:        qs('conDrive')?.value?.trim()    || contratosAtivos[idx].drive,
+        obs:          qs('conObs')?.value?.trim()      || '',
         valor, compra, royalties, imposto,
-        itensLotes: structuredClone(_conItens),
+        royaltiesPct, impostoPct,
+        itensLotes:   structuredClone(_conItens),
       };
 
       editingContratoAtivoId = null;
