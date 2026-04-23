@@ -5862,6 +5862,57 @@
     }
 
     // ── Helper compartilhado: gera HTML de uma linha de empenho ──
+    /**
+     * Calcula Vl. Compra Prev., Custo Prev., Lucro Prev. e Vl. Empenho
+     * com base nos ITENS REAIS do empenho (qtdEmp × preços do item no contrato).
+     * Garante que os valores reflitam o empenho específico, não o contrato inteiro.
+     */
+    function calcEmpFinanceiro(e) {
+      const contrato = contratosAtivos.find(c => c.id === e.contratoId)
+                    || contratosEncerrados.find(c => c.id === e.contratoId);
+      const itensEmp = e.itensEmpenhados || [];
+
+      // Se não há itens detalhados nem contrato, retorna zeros
+      if (!itensEmp.length && !contrato) {
+        return { vlCompraEmp: 0, custoEmp: 0, lucroEmp: 0, vlEmpTotal: Number(e.valor || 0) };
+      }
+
+      const royaltiesPct = Number(contrato?.royaltiesPct ?? contrato?.royalties ?? 1);
+      const impostoPct   = Number(contrato?.impostoPct   ?? contrato?.imposto   ?? 5);
+
+      let vlEmpTotal  = 0; // Vl. Empenho = soma(qtdEmp × vlUnit do item empenhado)
+      let vlCompraEmp = 0; // Compra Prev. = soma(qtdEmp × compraUnit do item no contrato)
+      let custoEmp    = 0; // Custo Prev. = royalties + imposto sobre vlEmpTotal
+
+      itensEmp.forEach(ie => {
+        const qtd    = Number(ie.qtdEmp || 0);
+        const vlUnit = Number(ie.vlUnit  || 0);
+
+        // Tenta pegar compraUnit do item no contrato; fallback para o que foi salvo no empenho
+        const itemContrato = (contrato?.itensLotes || []).find(it => it.id === ie.itemId);
+        const compraUnit   = Number(itemContrato?.compraUnit ?? ie.compraUnit ?? 0);
+
+        vlEmpTotal  += qtd * vlUnit;
+        vlCompraEmp += qtd * compraUnit;
+        custoEmp    += qtd * vlUnit * (royaltiesPct / 100)
+                     + qtd * vlUnit * (impostoPct   / 100);
+      });
+
+      // Fallback: se não há itensLotes no contrato, usa o valor total do empenho
+      if (!itensEmp.length && contrato) {
+        vlEmpTotal  = Number(e.valor || 0);
+        // Proporção do empenho em relação ao contrato para estimar compra/custo
+        const proporcao = Number(contrato.valor || 0) > 0
+          ? vlEmpTotal / Number(contrato.valor)
+          : 0;
+        vlCompraEmp = Number(contrato.compra || 0) * proporcao;
+        custoEmp    = (Number(contrato.royalties || 0) + Number(contrato.imposto || 0)) * proporcao;
+      }
+
+      const lucroEmp = vlEmpTotal - vlCompraEmp - custoEmp;
+      return { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal };
+    }
+
     function empRowHtml(e) {
       const itensDesc = (e.itensEmpenhados || []).map(ie => {
         const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
@@ -5888,25 +5939,22 @@
           diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#0d1e3a;border-radius:5px;padding:1px 5px;">Hoje</span>`;
         }
       }
-      // Busca dados do contrato vinculado para exibir os 4 novos campos
-      const contrato = contratosAtivos.find(c => c.id === e.contratoId)
-                    || contratosEncerrados.find(c => c.id === e.contratoId);
+      // Calcula Vl. Compra Prev. / Custo Prev. / Lucro Prev. / % Lucro
+      // com base nos ITENS REAIS DO EMPENHO (não nos totais do contrato)
+      const { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal } = calcEmpFinanceiro(e);
+      const hasFinanceiro = vlEmpTotal > 0 || vlCompraEmp > 0;
       let vlCompraPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
-      let pctLucroHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
-      let custoPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
-      let lucroPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
-      if (contrato) {
-        const vlContrato = Number(contrato.valor || 0);
-        const vlCompra   = Number(contrato.compra || 0);
-        const custo      = calcCusto(contrato.royalties, contrato.imposto);
-        const lucro      = calcLucro(vlContrato, vlCompra, custo);
-        const lucroColor = lucro > 0 ? '#34d399' : lucro < 0 ? '#f05252' : 'var(--muted)';
-        vlCompraPrevHtml= `<span style="font-size:10px;font-weight:600;color:#60a5fa;">${formatCurrency(vlCompra)}</span>`;
-        custoPrevHtml   = `<span style="font-size:10px;font-weight:600;color:#fb923c;">${formatCurrency(custo)}</span>`;
-        lucroPrevHtml   = `<span style="font-size:10px;font-weight:700;color:${lucroColor};">${formatCurrency(lucro)}</span>`;
-        const margem = vlContrato > 0 ? (lucro / vlContrato) * 100 : 0;
+      let pctLucroHtml     = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let custoPrevHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let lucroPrevHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      if (hasFinanceiro) {
+        const lucroColor  = lucroEmp > 0 ? '#34d399' : lucroEmp < 0 ? '#f05252' : 'var(--muted)';
+        vlCompraPrevHtml  = `<span style="font-size:10px;font-weight:600;color:#60a5fa;">${formatCurrency(vlCompraEmp)}</span>`;
+        custoPrevHtml     = `<span style="font-size:10px;font-weight:600;color:#fb923c;">${formatCurrency(custoEmp)}</span>`;
+        lucroPrevHtml     = `<span style="font-size:10px;font-weight:700;color:${lucroColor};">${formatCurrency(lucroEmp)}</span>`;
+        const margem      = vlEmpTotal > 0 ? (lucroEmp / vlEmpTotal) * 100 : 0;
         const margemColor = margem > 0 ? '#a3e635' : margem < 0 ? '#f05252' : 'var(--muted)';
-        pctLucroHtml = `<span style="font-size:10px;font-weight:800;color:${margemColor};">${margem.toFixed(1)}%</span>`;
+        pctLucroHtml      = `<span style="font-size:10px;font-weight:800;color:${margemColor};">${margem.toFixed(1)}%</span>`;
       }
       return `<tr>
         <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendentesHtml}</div></td>
@@ -5961,16 +6009,13 @@
       qs('empAndStatEntregue').textContent  = andamento.filter(e => e.status === 'Pendente').length;
       qs('empAndStatLiquidacao').textContent= andamento.filter(e => e.status === 'Ag. Liquidação').length;
       qs('empAndStatValor').textContent     = formatCurrency(andamento.reduce((s,e) => s+(Number(e.valor)||0), 0));
-      // KPI valores financeiros — puxados dos contratos vinculados
+      // KPI valores financeiros — calculados com base nos ITENS REAIS de cada empenho
       let _empAndCompraTotal = 0, _empAndCustoTotal = 0, _empAndLucroTotal = 0;
       andamento.forEach(e => {
-        const c = contratosAtivos.find(x => x.id === e.contratoId)
-               || contratosEncerrados.find(x => x.id === e.contratoId);
-        if (c) {
-          _empAndCompraTotal += Number(c.compra || 0);
-          _empAndCustoTotal  += calcCusto(c.royalties, c.imposto);
-          _empAndLucroTotal  += calcLucro(Number(c.valor||0), Number(c.compra||0), calcCusto(c.royalties, c.imposto));
-        }
+        const { vlCompraEmp, custoEmp, lucroEmp } = calcEmpFinanceiro(e);
+        _empAndCompraTotal += vlCompraEmp;
+        _empAndCustoTotal  += custoEmp;
+        _empAndLucroTotal  += lucroEmp;
       });
       if (qs('empAndStatCompra')) qs('empAndStatCompra').textContent = formatCurrency(_empAndCompraTotal);
       if (qs('empAndStatCusto'))  qs('empAndStatCusto').textContent  = formatCurrency(_empAndCustoTotal);
@@ -5992,7 +6037,7 @@
         empresa: e => e.empresa || '',
         status:  e => e.status || '',
         valor:   e => Number(e.valor) || 0,
-        pct:     e => { const c = contratosAtivos.find(x => x.id === e.contratoId) || contratosEncerrados.find(x => x.id === e.contratoId); if (!c) return 0; const vl = Number(c.valor||0); const lucro = calcLucro(vl, Number(c.compra||0), calcCusto(c.royalties, c.imposto)); return vl > 0 ? (lucro/vl)*100 : 0; },
+        pct:     e => { const { lucroEmp, vlEmpTotal } = calcEmpFinanceiro(e); return vlEmpTotal > 0 ? (lucroEmp/vlEmpTotal)*100 : 0; },
       }, 'data_asc');
       body.innerHTML = sortedEmpAnd.length
         ? sortedEmpAnd.map(empRowHtml).join('')
@@ -6029,7 +6074,7 @@
         empresa: e => e.empresa || '',
         status:  e => e.status || '',
         valor:   e => Number(e.valor) || 0,
-        pct:     e => { const c = contratosAtivos.find(x => x.id === e.contratoId) || contratosEncerrados.find(x => x.id === e.contratoId); if (!c) return 0; const vl = Number(c.valor||0); const lucro = calcLucro(vl, Number(c.compra||0), calcCusto(c.royalties, c.imposto)); return vl > 0 ? (lucro/vl)*100 : 0; },
+        pct:     e => { const { lucroEmp, vlEmpTotal } = calcEmpFinanceiro(e); return vlEmpTotal > 0 ? (lucroEmp/vlEmpTotal)*100 : 0; },
       }, 'data_desc');
       body.innerHTML = sortedEmpEnc.length
         ? sortedEmpEnc.map(empRowHtml).join('')
