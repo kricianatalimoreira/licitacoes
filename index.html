@@ -4510,9 +4510,20 @@
     }
 
     // ── Render Ativos ────────────────────────────────
-    function execucaoHtml(empenhados, total) {
-      const t = Number(total) || 0;
-      const e = Number(empenhados) || 0;
+    function calcExecucaoContrato(c) {
+      // Denominador: soma das qtd de todos os itensLotes
+      const totalUnid = (c.itensLotes || []).reduce((s, x) => s + (Number(x.qtd) || 0), 0);
+      // Numerador: soma de qtdEmp de todos os empenhos vinculados ao contrato
+      const empenhUnid = empenhos
+        .filter(e => e.contratoId === c.id)
+        .reduce((s, e) => s + (e.itensEmpenhados || []).reduce((ss, ie) => ss + (Number(ie.qtdEmp) || 0), 0), 0);
+      return { totalUnid, empenhUnid };
+    }
+
+    function execucaoHtml(c) {
+      const { totalUnid, empenhUnid } = calcExecucaoContrato(c);
+      const t = totalUnid;
+      const e = empenhUnid;
       const pct = t > 0 ? Math.min(100, (e / t) * 100) : 0;
       const pctStr = pct.toFixed(1);
       return `
@@ -4520,7 +4531,7 @@
           <div class="exec-bar-bg">
             <div class="exec-bar-fill" style="width:${pct}%"></div>
           </div>
-          <span class="exec-label">${e}/${t} itens • <span class="exec-pct">${pctStr}%</span></span>
+          <span class="exec-label">${e}/${t} un • <span class="exec-pct">${pctStr}%</span></span>
         </div>`;
     }
 
@@ -4635,7 +4646,7 @@
             <td>${formatCurrency(c.compra)}</td>
             <td style="color:#b76a00;font-weight:700;">${formatCurrency(custo)}</td>
             <td>${lucroHtml(lucro)}</td>
-            <td>${execucaoHtml(c.itensEmpenhados, c.totalItens)}</td>
+            <td>${execucaoHtml(c)}</td>
             <td>${linksHtml(c)}</td>
             <td>
               <div class="row-menu-wrap">
@@ -5393,14 +5404,13 @@
         <div class="con-view-metric-card highlight"><div class="con-view-metric-label">Lucro Previsto</div><div class="con-view-metric-value">${formatCurrency(lucro)}</div></div>`;
 
       // Seção Empenhos
-      const totalItens = Number(c.totalItens) || 0;
-      const empenhados = Number(c.itensEmpenhados) || 0;
       const valorEmpenhado = Number(c.valorEmpenhado) || 0;
       const saldoRestante = (Number(c.valor) || 0) - valorEmpenhado;
+      const { totalUnid, empenhUnid } = calcExecucaoContrato(c);
       qs('conViewEmpGrid').innerHTML = `
         <div class="con-view-emp-card"><div class="con-view-emp-label">Total Empenhado</div><div class="con-view-emp-value">${formatCurrency(valorEmpenhado)}</div></div>
         <div class="con-view-emp-card"><div class="con-view-emp-label">Saldo Restante</div><div class="con-view-emp-value" style="color:${saldoRestante>=0?'#2563eb':'#b42318'}">${formatCurrency(saldoRestante)}</div></div>
-        <div class="con-view-emp-card"><div class="con-view-emp-label">Qtd. Itens Empenhados</div><div class="con-view-emp-value">${empenhados}</div></div>`;
+        <div class="con-view-emp-card"><div class="con-view-emp-label">Unidades Empenhadas</div><div class="con-view-emp-value">${empenhUnid} / ${totalUnid}</div></div>`;
 
       // Tabela de Itens / Lotes — dados reais do itensLotes
       if (Array.isArray(c.itensLotes) && c.itensLotes.length) {
