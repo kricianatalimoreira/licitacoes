@@ -5701,7 +5701,7 @@
         return `
           <div class="emp-item-row" id="empItemRow-${it.id}">
             <input type="checkbox" class="emp-item-check" id="empChk-${it.id}"
-              onchange="onEmpItemCheck('${it.id}',${it.qtd},'${(it.descricao||'').replace(/'/g,"\\'")}',${it.vlUnit})" />
+              onchange="onEmpItemCheck('${it.id}',${it.qtd},this.dataset.desc,${it.vlUnit})" data-desc="${(it.descricao||'').replace(/"/g,'&quot;')}" />
             <div>
               <div class="emp-item-desc">${it.descricao || '(sem descrição)'}</div>
               <div class="emp-item-meta">Saldo disponível: <strong>${saldo}</strong> | Vl. Unit.: ${formatCurrency(it.vlUnit)}</div>
