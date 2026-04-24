@@ -301,6 +301,49 @@
     :root[data-mode="light"] ::-webkit-scrollbar-track { background: #eef1fb; }
     :root[data-mode="light"] ::-webkit-scrollbar-thumb { background: #c7cad6; }
 
+    /* ── KPI / stat cards no claro ── */
+    :root[data-mode="light"] .dash-kpi-card,
+    :root[data-mode="light"] .disputa-stat-card {
+      background: #ffffff !important;
+      border-color: var(--line) !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07) !important;
+    }
+    :root[data-mode="light"] .stat-orange {
+      background: #fff8f0 !important;
+      border-color: #f5d5a0 !important;
+    }
+    :root[data-mode="light"] .stat-gray {
+      background: #f6f7fb !important;
+      border-color: var(--line) !important;
+    }
+    /* Cards com inline style de fundo escuro (Contratos, Empenhos, etc.) */
+    :root[data-mode="light"] .disputa-stat-card[style*="background"] {
+      background: #ffffff !important;
+      border-color: var(--line) !important;
+    }
+
+    /* ── Badges de empresa no claro ── */
+    :root[data-mode="light"] .company-gadita {
+      background: #ddeaff !important;
+      color: #1a4fb0 !important;
+    }
+    :root[data-mode="light"] .company-hamate {
+      background: #d4f5e5 !important;
+      color: #0e6840 !important;
+    }
+
+    /* ── Status tags no claro ── */
+    :root[data-mode="light"] .status { filter: brightness(0.92) saturate(1.1); }
+
+    /* ── Rodapé (footer bar) no claro ── */
+    :root[data-mode="light"] .footer-bar,
+    :root[data-mode="light"] [class*="footer"],
+    :root[data-mode="light"] [class*="rodape"] {
+      background: #f4f6fb !important;
+      border-top: 1px solid var(--line) !important;
+      color: var(--text) !important;
+    }
+
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -8790,6 +8833,11 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const temaAtual = localStorage.getItem('km_tema_v1') || 'rosa';
       aplicarTema(temaAtual);
       if (typeof renderDashboard === 'function') renderDashboard();
+    }
+
+    // Aplica/remove classe ao body para facilitar overrides CSS
+    function _syncModoBody(isLight) {
+      document.body.classList.toggle('modo-claro', isLight);
     }
 
     function carregarModo() {
