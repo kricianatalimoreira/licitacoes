@@ -226,6 +226,13 @@
       --text: #1a1d27;
       --muted: #6b7280;
       --shadow: 0 4px 16px rgba(0,0,0,.10);
+      /* Sobrescreve cores escuras de tema para modo claro */
+      --primary-th1: #eef1fb;
+      --primary-th2: #e4e8f5;
+      --primary-hover: #eef1fb;
+      --primary-soft: #f0f2fa;
+      --primary-border: #c8cfe8;
+      --primary-border-light: #dde1ea;
     }
     :root[data-mode="light"] body { color-scheme: light; }
     :root[data-mode="light"] input,
@@ -251,7 +258,21 @@
       border-bottom: 1px solid var(--line) !important;
       border-right: 1px solid #d4d8e8 !important;
     }
-    :root[data-mode="light"] tbody tr:hover { background: #f0f2fa !important; }
+    :root[data-mode="light"] tbody tr:hover { background: var(--primary-hover) !important; }
+    :root[data-mode="light"] tbody tr.selected,
+    :root[data-mode="light"] tbody tr[style*="background"] { background: var(--primary-soft) !important; }
+    /* Linhas com fundo escuro herdado do tema escuro */
+    :root[data-mode="light"] tbody tr { background: transparent; color: var(--text) !important; }
+    :root[data-mode="light"] td, :root[data-mode="light"] th { color: var(--text) !important; }
+    /* Cards KPI e contadores */
+    :root[data-mode="light"] .kpi-card { background: var(--card) !important; border: 1px solid var(--line) !important; }
+    /* Rodapé / barra inferior */
+    :root[data-mode="light"] .footer-bar,
+    :root[data-mode="light"] .table-footer { background: var(--card) !important; border-top: 1px solid var(--line) !important; color: var(--text) !important; }
+    /* Linha destacada (dark bg inline) */
+    :root[data-mode="light"] table tbody tr[style*="#1"], 
+    :root[data-mode="light"] table tbody tr[style*="#0"],
+    :root[data-mode="light"] table tbody tr[style*="#2"] { background: var(--primary-soft) !important; }
     :root[data-mode="light"] tbody tr { border-bottom: 1px solid var(--line) !important; }
     /* Rodapé de tabela (tfoot) */
     :root[data-mode="light"] tfoot td,
@@ -8765,7 +8786,9 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         document.body.style.colorScheme = 'light';
       }
       localStorage.setItem(MODO_KEY, isDark ? 'dark' : 'light');
-      // Redesenha dashboard para atualizar cores dos gráficos
+      // Re-aplica tema para ajustar cores de fundo ao modo
+      const temaAtual = localStorage.getItem('km_tema_v1') || 'rosa';
+      aplicarTema(temaAtual);
       if (typeof renderDashboard === 'function') renderDashboard();
     }
 
@@ -8791,20 +8814,31 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     function aplicarTema(nome) {
       const t = TEMAS[nome] || TEMAS.rosa;
       const root = document.documentElement;
-      root.style.setProperty('--primary',            t.primary);
-      root.style.setProperty('--primary-soft',       t.soft);
-      root.style.setProperty('--primary-dark',       t.dark);
-      root.style.setProperty('--primary-th1',        t.th1);
-      root.style.setProperty('--primary-th2',        t.th2);
-      root.style.setProperty('--primary-border',     t.border);
-      root.style.setProperty('--primary-border-light', t.borderLight);
-      root.style.setProperty('--primary-hover',      t.hover);
+      const isLight = root.getAttribute('data-mode') === 'light';
+      // Sempre aplica as cores de acento (primary)
+      root.style.setProperty('--primary',      t.primary);
+      root.style.setProperty('--primary-dark', t.dark);
+      // Cores de fundo: só aplica as escuras se estiver no modo escuro
+      if (isLight) {
+        // No modo claro, usa tons de cinza-azulado derivados da cor primária
+        root.style.setProperty('--primary-soft',         '#f0f2fa');
+        root.style.setProperty('--primary-th1',          '#eef1fb');
+        root.style.setProperty('--primary-th2',          '#e4e8f5');
+        root.style.setProperty('--primary-border',       '#c8cfe8');
+        root.style.setProperty('--primary-border-light', '#dde1ea');
+        root.style.setProperty('--primary-hover',        '#eef1fb');
+      } else {
+        root.style.setProperty('--primary-soft',         t.soft);
+        root.style.setProperty('--primary-th1',          t.th1);
+        root.style.setProperty('--primary-th2',          t.th2);
+        root.style.setProperty('--primary-border',       t.border);
+        root.style.setProperty('--primary-border-light', t.borderLight);
+        root.style.setProperty('--primary-hover',        t.hover);
+      }
       localStorage.setItem(TEMA_KEY, nome);
-      // Atualiza swatch ativo
       document.querySelectorAll('.theme-swatch').forEach(el => {
         el.classList.toggle('active', el.dataset.theme === nome);
       });
-      // Redesenha dashboard para atualizar cores do gráfico
       if (typeof renderDashboard === 'function') renderDashboard();
     }
 
