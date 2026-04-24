@@ -5547,9 +5547,11 @@
     }
 
     function editarContratoDoView() {
+      const id = _conViewId;
+      const tipo = _conViewType;
       fecharConView();
-      if (_conViewType === 'enc') abrirEditContratoEnc(_conViewId);
-      else abrirEditContratoAtivo(_conViewId);
+      if (tipo === 'enc') abrirEditContratoEnc(id);
+      else abrirEditContratoAtivo(id);
     }
 
 
