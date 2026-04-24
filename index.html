@@ -173,6 +173,113 @@
     .theme-swatch[data-theme="verde"]   { background: #1a9b5e; }
     .theme-swatch[data-theme="laranja"] { background: #d97706; }
 
+    /* ── Toggle iOS dark/light ── */
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .mode-toggle-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .ios-switch {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .ios-switch input { opacity: 0; width: 0; height: 0; }
+    .ios-slider {
+      position: absolute;
+      inset: 0;
+      background: #3a3d4d;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: background .25s;
+    }
+    .ios-slider::before {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform .25s;
+      box-shadow: 0 1px 4px rgba(0,0,0,.3);
+    }
+    .ios-switch input:checked + .ios-slider { background: var(--primary); }
+    .ios-switch input:checked + .ios-slider::before { transform: translateX(18px); }
+    .mode-icon { font-size: 13px; line-height: 1; }
+
+    /* ── Tema claro ── */
+    :root[data-mode="light"] {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --line: #dde1ea;
+      --text: #1a1d27;
+      --muted: #6b7280;
+      --shadow: 0 4px 16px rgba(0,0,0,.10);
+    }
+    :root[data-mode="light"] body { color-scheme: light; }
+    :root[data-mode="light"] input,
+    :root[data-mode="light"] select,
+    :root[data-mode="light"] textarea {
+      background: #fff !important;
+      color: var(--text) !important;
+      border-color: var(--line) !important;
+    }
+    :root[data-mode="light"] .ios-slider { background: #c7cad6; }
+    :root[data-mode="light"] .ios-switch input:checked + .ios-slider { background: var(--primary); }
+    /* Topbar / sidebar no claro */
+    :root[data-mode="light"] .topbar { background: var(--card); border-bottom: 1px solid var(--line); }
+    :root[data-mode="light"] .sidebar { background: var(--card); border-right: 1px solid var(--line); }
+    :root[data-mode="light"] .sidebar nav a,
+    :root[data-mode="light"] .sidebar nav span { color: var(--text) !important; }
+    :root[data-mode="light"] .sidebar nav a.active,
+    :root[data-mode="light"] .sidebar nav a:hover { background: var(--primary-soft) !important; }
+    /* Tabelas no claro */
+    :root[data-mode="light"] thead th {
+      background: linear-gradient(180deg, #eef1fb 0%, #e4e8f5 100%) !important;
+      color: var(--primary) !important;
+      border-bottom: 1px solid var(--line) !important;
+      border-right: 1px solid #d4d8e8 !important;
+    }
+    :root[data-mode="light"] tbody tr:hover { background: #f0f2fa !important; }
+    :root[data-mode="light"] tbody tr { border-bottom: 1px solid var(--line) !important; }
+    /* Rodapé de tabela (tfoot) */
+    :root[data-mode="light"] tfoot td,
+    :root[data-mode="light"] tfoot th {
+      background: #eef1fb !important;
+      color: var(--primary) !important;
+      border-top: 1px solid var(--line) !important;
+    }
+    /* Cards e modais no claro */
+    :root[data-mode="light"] .kpi-card,
+    :root[data-mode="light"] .dash-card,
+    :root[data-mode="light"] .modal-card,
+    :root[data-mode="light"] .modal-footer,
+    :root[data-mode="light"] .con-view-footer,
+    :root[data-mode="light"] .con-view-body,
+    :root[data-mode="light"] .cmp-stepper-footer { background: var(--card) !important; border-color: var(--line) !important; }
+    :root[data-mode="light"] .modal-header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important; }
+    :root[data-mode="light"] .modal-header h3,
+    :root[data-mode="light"] .modal-header .modal-close { color: #fff !important; }
+    /* Bell e dropdowns */
+    :root[data-mode="light"] .bell-dropdown,
+    :root[data-mode="light"] .historico-inline-popover,
+    :root[data-mode="light"] .status-side-menu,
+    :root[data-mode="light"] .filter-popover { background: var(--card) !important; border-color: var(--line) !important; box-shadow: 0 4px 16px rgba(0,0,0,.1) !important; }
+    /* Scroll no claro */
+    :root[data-mode="light"] ::-webkit-scrollbar-track { background: #eef1fb; }
+    :root[data-mode="light"] ::-webkit-scrollbar-thumb { background: #c7cad6; }
+
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -2445,6 +2552,14 @@
 <p id="dashSubtitle">Visão geral operacional</p>
 </div>
 <div class="actions" style="gap:14px;">
+<div class="mode-toggle" title="Alternar claro/escuro">
+<span class="mode-icon">☀️</span>
+<label class="ios-switch">
+  <input type="checkbox" id="modeToggle" onchange="toggleModo(this.checked)"/>
+  <span class="ios-slider"></span>
+</label>
+<span class="mode-icon">🌙</span>
+</div>
 <div class="theme-picker">
 <span class="theme-picker-label">🎨 Tema</span>
 <div class="theme-swatches">
@@ -8636,6 +8751,32 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     atualizarSino();
 
     // ══════════════════════════════════════════════════════════
+    //  MODO CLARO / ESCURO
+    // ══════════════════════════════════════════════════════════
+    const MODO_KEY = 'km_modo_v1';
+
+    function toggleModo(isDark) {
+      const root = document.documentElement;
+      if (isDark) {
+        root.removeAttribute('data-mode');
+        document.body.style.colorScheme = 'dark';
+      } else {
+        root.setAttribute('data-mode', 'light');
+        document.body.style.colorScheme = 'light';
+      }
+      localStorage.setItem(MODO_KEY, isDark ? 'dark' : 'light');
+      // Redesenha dashboard para atualizar cores dos gráficos
+      if (typeof renderDashboard === 'function') renderDashboard();
+    }
+
+    function carregarModo() {
+      const saved = localStorage.getItem(MODO_KEY) || 'dark';
+      const isDark = saved === 'dark';
+      const toggle = document.getElementById('modeToggle');
+      if (toggle) toggle.checked = isDark;
+      toggleModo(isDark);
+    }
+
     //  TEMA DE CORES
     // ══════════════════════════════════════════════════════════
     const TEMA_KEY = 'km_tema_v1';
@@ -8672,8 +8813,9 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       aplicarTema(saved);
     }
 
-    // Inicia o tema salvo
+    // Inicia o tema e modo salvos
     carregarTema();
+    carregarModo();
 
     // ── Fim tema ──────────────────────────────────────────────
 
