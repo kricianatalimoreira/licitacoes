@@ -4841,11 +4841,9 @@
         const lucro = calcLucro(c.valor, c.compra, custo);
         const alerta = vencimentoAlertaHtml(c.dataFim);
         const rascunho = isRascunho(c);
-        const rascunhoBadge = rascunho
-          ? `<span style="display:inline-block;margin-left:5px;background:#0d1e3a;color:#5b9cf6;font-size:9px;font-weight:700;padding:1px 6px;border-radius:6px;border:1px solid #2a4d8a;vertical-align:middle;">📋 rascunho</span>`
-          : '';
+        const rascunhoBadge = '';
         return `
-          <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','ativo')" title="Clique para ver detalhes" style="${rascunho ? 'border-left:3px solid #2a4d8a;' : ''}">
+          <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','ativo')" title="Clique para ver detalhes" style="">
             <td>
               <div class="cell-data-hora">
                 <span class="data-dia">${formatDate(c.data)}</span>
