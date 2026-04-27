@@ -2336,6 +2336,12 @@
       color: #b76a00;
     }
     .btn-toggle-manual:hover { filter: brightness(.95); }
+    :root[data-mode="light"] .btn-toggle-manual {
+      background: #d6f5e6; border-color: #7dd4aa; color: #0b7a42;
+    }
+    :root[data-mode="light"] .btn-toggle-manual.is-manual {
+      background: #fff0dd; border-color: #f5c87a; color: #a05a00;
+    }
 
     /* Modal compras itens */
     .cmp-item-card {
@@ -6843,7 +6849,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         <!-- Impostos e Royalties -->
         <div class="cmp-edit-grid-2">
           <div class="cmp-field">
-            <label>Imposto Unit. (R$) — 5% automático</label>
+            <label>Imposto Unit. (R$) — 6% automático</label>
             <div class="cmp-auto-row">
               <input type="number" id="${id}_impostoUnit" step="0.01" min="0" readonly
                 oninput="recalcCmp(${idx})" style="background:var(--bg);color:var(--muted);" />
@@ -6926,7 +6932,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
       const impostoUnitEl   = document.getElementById(`${id}_impostoUnit`);
       const royaltiesUnitEl = document.getElementById(`${id}_royaltiesUnit`);
-      if (impostoUnitEl   && impostoUnitEl.readOnly)   impostoUnitEl.value   = (vlUnitEmp * 0.05).toFixed(2);
+      if (impostoUnitEl   && impostoUnitEl.readOnly)   impostoUnitEl.value   = (vlUnitEmp * 0.06).toFixed(2);
       if (royaltiesUnitEl && royaltiesUnitEl.readOnly) royaltiesUnitEl.value = (vlUnitEmp * 0.01).toFixed(2);
       recalcCmp(idx);
     }
@@ -6949,7 +6955,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       // Imposto Unit: default 5% do vlUnitEmp, mas editável
       const impostoUnitEl = document.getElementById(`${id}_impostoUnit`);
       // Só recalcula auto se estiver em modo readonly (automático)
-      if (impostoUnitEl && impostoUnitEl.readOnly) impostoUnitEl.value = (vlUnitEmp * 0.05).toFixed(2);
+      if (impostoUnitEl && impostoUnitEl.readOnly) impostoUnitEl.value = (vlUnitEmp * 0.06).toFixed(2);
       const impostoUnit = Math.max(0, Number(impostoUnitEl?.value||0));
       const impostoTotal = impostoUnit * qtd;
 
@@ -6985,7 +6991,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const impostoUnitEl   = document.getElementById(`${id}_impostoUnit`);
       const royaltiesUnitEl = document.getElementById(`${id}_royaltiesUnit`);
       // Campos começam em auto (readonly), define valores padrão
-      if (impostoUnitEl)   impostoUnitEl.value   = (vlUnitEmp * 0.05).toFixed(2);
+      if (impostoUnitEl)   impostoUnitEl.value   = (vlUnitEmp * 0.06).toFixed(2);
       if (royaltiesUnitEl) royaltiesUnitEl.value = (vlUnitEmp * 0.01).toFixed(2);
       recalcCmp(idx);
     }
@@ -7825,7 +7831,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status: 'Vigente',
           valor: v.bruto, compra: 0,
           royalties: 0, royaltiesPct: 1,
-          imposto: 0,   impostoPct: 5,
+          imposto: 0,   impostoPct: 6,
           custo: 0,     lucro: v.bruto,
           empenhado: 0, totalItens: 0,
           itensLotes: [{
@@ -7913,7 +7919,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status:'Vigente',
           valor: v.bruto, compra:0,
           royalties:0, royaltiesPct:1,
-          imposto:0,   impostoPct:5,
+          imposto:0,   impostoPct:6,
           custo:0,     lucro:v.bruto,
           empenhado:0, totalItens:0,
           itensLotes:[{
@@ -8015,7 +8021,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status:'Vigente',
           valor: v.bruto, compra:0,
           royalties:0, royaltiesPct:1,
-          imposto:0,   impostoPct:5,
+          imposto:0,   impostoPct:6,
           custo:0,     lucro:v.bruto,
           empenhado:0, totalItens:0,
           itensLotes:[{
@@ -8096,7 +8102,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status:'Vigente',
           valor: v.bruto, compra:0,
           royalties:0, royaltiesPct:1,
-          imposto:0,   impostoPct:5,
+          imposto:0,   impostoPct:6,
           custo:0,     lucro:v.bruto,
           empenhado:0, totalItens:0,
           itensLotes:[{
@@ -8181,7 +8187,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status:'Vigente',
           valor: v.bruto, compra:0,
           royalties:0, royaltiesPct:1,
-          imposto:0,   impostoPct:5,
+          imposto:0,   impostoPct:6,
           custo:0,     lucro:v.bruto,
           empenhado:0, totalItens:0,
           itensLotes:[{
@@ -8261,7 +8267,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status:'Vigente',
           valor: v.bruto, compra:0,
           royalties:0, royaltiesPct:1,
-          imposto:0,   impostoPct:5,
+          imposto:0,   impostoPct:6,
           custo:0,     lucro:v.bruto,
           empenhado:0, totalItens:0,
           itensLotes:[{
@@ -8368,7 +8374,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status:'Vigente',
           valor: v.bruto, compra:0,
           royalties:0, royaltiesPct:1,
-          imposto:0,   impostoPct:5,
+          imposto:0,   impostoPct:6,
           custo:0,     lucro:v.bruto,
           empenhado:0, totalItens:0,
           itensLotes:[{
@@ -8446,7 +8452,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status:'Vigente',
           valor: v.bruto, compra:0,
           royalties:0, royaltiesPct:1,
-          imposto:0,   impostoPct:5,
+          imposto:0,   impostoPct:6,
           custo:0,     lucro:v.bruto,
           empenhado:0, totalItens:0,
           itensLotes:[{
@@ -8532,7 +8538,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status:'Vigente',
           valor: v.bruto, compra:0,
           royalties:0, royaltiesPct:1,
-          imposto:0,   impostoPct:5,
+          imposto:0,   impostoPct:6,
           custo:0,     lucro:v.bruto,
           empenhado:0, totalItens:0,
           itensLotes:[{
@@ -8605,7 +8611,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status:'Vigente',
           valor: v.bruto, compra:0,
           royalties:0, royaltiesPct:1,
-          imposto:0,   impostoPct:5,
+          imposto:0,   impostoPct:6,
           custo:0,     lucro:v.bruto,
           empenhado:0, totalItens:0,
           itensLotes:[{ id:crypto.randomUUID(), descricao:v.processo||v.orgao, marca:'', modelo:'', qtd:1, vlUnit:v.bruto, compraUnit:0 }],
@@ -8634,7 +8640,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status:'Vigente',
           valor: v.bruto, compra:0,
           royalties:0, royaltiesPct:1,
-          imposto:0,   impostoPct:5,
+          imposto:0,   impostoPct:6,
           custo:0,     lucro:v.bruto,
           empenhado:0, totalItens:0,
           itensLotes:[{ id:crypto.randomUUID(), descricao:v.processo||v.orgao, marca:'', modelo:'', qtd:1, vlUnit:v.bruto, compraUnit:0 }],
@@ -8711,7 +8717,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status:'Vigente',
           valor: v.bruto, compra:0,
           royalties:0, royaltiesPct:1,
-          imposto:0,   impostoPct:5,
+          imposto:0,   impostoPct:6,
           custo:0,     lucro:v.bruto,
           empenhado:0, totalItens:0,
           itensLotes:[{ id:crypto.randomUUID(), descricao:v.processo||v.orgao, marca:'', modelo:'', qtd:1, vlUnit:v.bruto, compraUnit:0 }],
@@ -8800,7 +8806,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           status:'Vigente',
           valor: v.bruto, compra:0,
           royalties:0, royaltiesPct:1,
-          imposto:0,   impostoPct:5,
+          imposto:0,   impostoPct:6,
           custo:0,     lucro:v.bruto,
           empenhado:0, totalItens:0,
           itensLotes:[{ id:crypto.randomUUID(), descricao:v.processo||v.orgao, marca:'', modelo:'', qtd:1, vlUnit:v.bruto, compraUnit:0 }],
@@ -9767,7 +9773,7 @@ function confirmarImportacao() {
         royalties:    0,
         royaltiesPct: 1,
         imposto:      0,
-        impostoPct:   5,
+        impostoPct:   6,
         custo:        0,
         lucro:        disputa.bruto || 0,
         empenhado:    0,
