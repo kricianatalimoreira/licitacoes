@@ -644,7 +644,24 @@
     }
     thead th:last-child { border-right: none; }
 
-    /* Altura fixa com scroll apenas nas tabelas de listagem */
+    /* Altura fixa com scroll — thead sticky, tbody scroll via wrapper */
+    .and-table,
+    .enc-table,
+    .con-table,
+    .con-enc-table,
+    .emp-table {
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    .and-table thead,
+    .enc-table thead,
+    .con-table thead,
+    .con-enc-table thead,
+    .emp-table thead {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
     .and-table tbody,
     .enc-table tbody,
     .con-table tbody,
@@ -653,20 +670,19 @@
       display: block;
       height: calc(100vh - var(--topbar-h) - var(--kpi-h) - var(--padding-v) - 76px);
       min-height: 280px;
-      overflow-y: overlay;
+      overflow-y: auto;
       overflow-x: hidden;
     }
-    /* thead: display block simples, sem compensação */
-    .and-table thead,
-    .enc-table thead,
-    .con-table thead,
-    .con-enc-table thead,
-    .emp-table thead {
-      display: block;
-      overflow: hidden;
+    .and-table tbody tr,
+    .enc-table tbody tr,
+    .con-table tbody tr,
+    .con-enc-table tbody tr,
+    .emp-table tbody tr {
+      display: table;
       width: 100%;
+      table-layout: fixed;
     }
-    /* Scrollbar fina sobreposta — não ocupa espaço de layout */
+    /* Scrollbar fina */
     .and-table tbody::-webkit-scrollbar,
     .enc-table tbody::-webkit-scrollbar,
     .con-table tbody::-webkit-scrollbar,
@@ -682,6 +698,14 @@
     .con-table tbody::-webkit-scrollbar-thumb,
     .con-enc-table tbody::-webkit-scrollbar-thumb,
     .emp-table tbody::-webkit-scrollbar-thumb { background: var(--primary-border); border-radius: 4px; }
+    /* Última coluna do thead absorve o espaço da scrollbar (6px) */
+    .and-table thead th:last-child,
+    .enc-table thead th:last-child,
+    .con-table thead th:last-child,
+    .con-enc-table thead th:last-child,
+    .emp-table thead th:last-child {
+      padding-right: calc(7px + 6px);
+    }
 
     /* Tabelas dentro de modais: altura dinâmica, sem scroll fixo */
     .con-view-itens-table,
@@ -2223,15 +2247,23 @@
     }
 
     /* ══ Compras ══ */
+    .cmp-table {
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    .cmp-table thead { display: table; width: 100%; table-layout: fixed; overflow: hidden; }
     .cmp-table tbody {
       display: block;
       height: calc(100vh - var(--topbar-h) - var(--kpi-h) - var(--padding-v) - 76px);
       min-height: 280px;
-      overflow-y: scroll;
+      overflow-y: auto;
       overflow-x: hidden;
-      scrollbar-gutter: stable;
     }
-    .cmp-table thead { padding-right: 17px; display: block; }
+    .cmp-table tbody tr { display: table; width: 100%; table-layout: fixed; }
+    .cmp-table tbody::-webkit-scrollbar { width: 6px; }
+    .cmp-table tbody::-webkit-scrollbar-track { background: transparent; }
+    .cmp-table tbody::-webkit-scrollbar-thumb { background: var(--primary-border); border-radius: 4px; }
+    .cmp-table thead th:last-child { padding-right: calc(7px + 6px); }
     .cmp-table th:nth-child(1)  { width: 8%; }
     .cmp-table th:nth-child(2)  { width: 16%; white-space:normal; }
     .cmp-table th:nth-child(3)  { width: 8%; }
