@@ -657,12 +657,22 @@
       overflow-x: hidden;
       scrollbar-gutter: stable;
     }
-    /* thead padding-right apenas nas tabelas de listagem */
+    /* thead usa scrollbar-gutter também para alinhar com tbody */
     .and-table thead,
     .enc-table thead,
     .con-table thead,
     .con-enc-table thead,
-    .emp-table thead { padding-right: 17px; display: block; }
+    .emp-table thead {
+      display: block;
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+      scrollbar-color: transparent transparent;
+    }
+    .and-table thead::-webkit-scrollbar,
+    .enc-table thead::-webkit-scrollbar,
+    .con-table thead::-webkit-scrollbar,
+    .con-enc-table thead::-webkit-scrollbar,
+    .emp-table thead::-webkit-scrollbar { background: transparent; width: 0; }
 
     /* Tabelas dentro de modais: altura dinâmica, sem scroll fixo */
     .con-view-itens-table,
