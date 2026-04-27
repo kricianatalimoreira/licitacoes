@@ -80,6 +80,11 @@
     #syncStatus.err { color: #f05252; border-color: #5a1010; }
     #syncStatus.saving { color: #f0a938; border-color: #7a4d0a; }
 
+    :root[data-mode="light"] #syncStatus { background: #fff; border-color: #d0d5e8; color: #5a6278; }
+    :root[data-mode="light"] #syncStatus.ok     { background: #d6f5e6; border-color: #7dd4aa; color: #0b7a42; }
+    :root[data-mode="light"] #syncStatus.err    { background: #fde8e8; border-color: #f0b4b4; color: #c0392b; }
+    :root[data-mode="light"] #syncStatus.saving { background: #fff0dd; border-color: #f5c87a; color: #a05a00; }
+
     html {
       font-size: 12px;
     }
@@ -333,7 +338,28 @@
     }
 
     /* ── Status tags no claro ── */
-    :root[data-mode="light"] .status { filter: brightness(0.92) saturate(1.1); }
+    /* Status badges — modo claro */
+    :root[data-mode="light"] .status-gray   { background: #e8eaf0; color: #5a6278; }
+    :root[data-mode="light"] .status-orange { background: #fff0dd; color: #a05a00; }
+    :root[data-mode="light"] .status-green  { background: #d6f5e6; color: #0b7a42; }
+    :root[data-mode="light"] .status-red    { background: #fde8e8; color: #c0392b; }
+    :root[data-mode="light"] .status-yellow { background: #fef9d6; color: #856404; }
+
+    /* Badges de status do dropdown (status-clickable) — modo claro */
+    :root[data-mode="light"] .status-clickable { border: 1px solid transparent; }
+
+    /* Link badges (🖥️ Sistema / 💾 Drive) — modo claro */
+    :root[data-mode="light"] .link-badge-sistema { background: #dde6ff; color: #1a4fb0; }
+    :root[data-mode="light"] .link-badge-drive   { background: #d6f5e6; color: #0b7a42; }
+    :root[data-mode="light"] .link-emoji-badge:hover { filter: brightness(.92); }
+
+    /* Status de empenho — modo claro */
+    :root[data-mode="light"] .emp-status-compra    { background: #d6f5e6; color: #0b7a42; }
+    :root[data-mode="light"] .emp-status-transito  { background: #fff0dd; color: #a05a00; }
+    :root[data-mode="light"] .emp-status-entregue  { background: #dde6ff; color: #1a4fb0; }
+    :root[data-mode="light"] .emp-status-liquidacao{ background: #ede8ff; color: #5b21b6; }
+    :root[data-mode="light"] .emp-status-paga      { background: #d6f5e6; color: #0b7a42; }
+    :root[data-mode="light"] .emp-status-pendente  { background: #fef9d6; color: #856404; }
 
     /* ── Rodapé (footer bar) no claro ── */
     :root[data-mode="light"] .footer-bar,
@@ -5653,7 +5679,7 @@
       const statusBgMap = {
         'Pendente':              '#fef9e7',
         'Compra Feita':          '#e6f7ec',
-        'Em trânsito':           '#2a1c08',
+        'Em trânsito':           '#fff0dd',
         'Entregue':              '#e8f4ff',
         'Ag. Liquidação': '#f5f3ff',
         'Paga':                  '#e9f9ef',
@@ -7382,7 +7408,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           <td>${companyBadge(c.empresa)}</td>
           <td class="cell-wrap" style="font-size:10px;">
             ${c.fornecedor || '—'}
-            ${c.linkCompra ? `<a href="${c.linkCompra}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;font-size:9px;color:#2563eb;font-weight:700;text-decoration:none;background:#0d1e3a;padding:2px 6px;border-radius:6px;">🔗 Ver compra</a>` : ''}
+            ${c.linkCompra ? `<a href="${c.linkCompra}" target="_blank" rel="noopener" class="link-emoji-badge link-badge-sistema" style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;font-size:9px;font-weight:700;text-decoration:none;padding:2px 6px;border-radius:6px;width:auto;height:auto;">🔗 Ver compra</a>` : ''}
           </td>
           <td style="font-size:10px;">${pagStr}</td>
           <td style="font-weight:700;color:#2563eb;">${formatCurrency(c.vlTotalCompra)}</td>
