@@ -8990,12 +8990,15 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
     // ── Collect all local data ──
     function collectAllData() {
+      const disputasRaw = JSON.parse(localStorage.getItem('km_disputas_v60_clean') || '{}');
       return {
-        disputas:           JSON.parse(localStorage.getItem('km_disputas_v60_clean') || '{}'),
-        empenhos:           JSON.parse(localStorage.getItem('km_empenhos_v60_clean') || '[]'),
-        compras:            JSON.parse(localStorage.getItem('km_compras_v60_clean') || '[]'),
-        metas:              JSON.parse(localStorage.getItem('km_metas_v60_clean') || '{}'),
-        tema:               localStorage.getItem('km_tema_v1') || 'rosa',
+        disputas:            disputasRaw,
+        contratosAtivos:     disputasRaw.contratosAtivos     || [],
+        contratosEncerrados: disputasRaw.contratosEncerrados || [],
+        empenhos:            JSON.parse(localStorage.getItem('km_empenhos_v60_clean') || '[]'),
+        compras:             JSON.parse(localStorage.getItem('km_compras_v60_clean')  || '[]'),
+        metas:               JSON.parse(localStorage.getItem('km_metas_v60_clean')    || '{}'),
+        tema:                localStorage.getItem('km_tema_v1') || 'rosa',
       };
     }
 
@@ -9043,30 +9046,37 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           const p = data[0].payload;
 
           // ── Mescla inteligente: só sobrescreve se cloud tiver MAIS dados ──
-          const localRaw = localStorage.getItem('km_disputas_v60_clean');
+          const localRaw  = localStorage.getItem('km_disputas_v60_clean');
           const localData = localRaw ? (() => { try { return JSON.parse(localRaw); } catch(e) { return {}; } })() : {};
           const localEnc  = (localData.disputasEncerradas || []).length;
-          const localCon  = (localData.contratosAtivos    || []).length;
           const localDis  = (localData.disputas           || []).length;
+          const localCon  = (localData.contratosAtivos    || []).length;
 
+          // Contratos podem estar no payload raiz (novo formato) ou dentro de disputas (legado)
           const cloudDisp = p.disputas || {};
           const cloudEnc  = (cloudDisp.disputasEncerradas || []).length;
-          const cloudCon  = (cloudDisp.contratosAtivos    || []).length;
           const cloudDis  = (cloudDisp.disputas           || []).length;
+          const cloudCon  = (p.contratosAtivos || cloudDisp.contratosAtivos || []).length;
 
-          const localTotal = localEnc + localCon + localDis;
-          const cloudTotal = cloudEnc + cloudCon + cloudDis;
+          const localTotal = localEnc + localDis + localCon;
+          const cloudTotal = cloudEnc + cloudDis + cloudCon;
 
           if (cloudTotal >= localTotal) {
-            // Cloud tem mais ou igual → usa cloud normalmente
-            if (p.disputas)  localStorage.setItem('km_disputas_v60_clean',  JSON.stringify(p.disputas));
-            if (p.empenhos)  localStorage.setItem('km_empenhos_v60_clean',  JSON.stringify(p.empenhos));
-            if (p.compras)   localStorage.setItem('km_compras_v60_clean',   JSON.stringify(p.compras));
-            if (p.metas)     localStorage.setItem('km_metas_v60_clean',     JSON.stringify(p.metas));
-            if (p.tema)      localStorage.setItem('km_tema_v1',             p.tema);
+            // Cloud tem mais ou igual → usa cloud
+            // Mescla contratos de volta para dentro do objeto disputas antes de salvar
+            if (p.disputas) {
+              const dispObj = p.disputas;
+              if (p.contratosAtivos)     dispObj.contratosAtivos     = p.contratosAtivos;
+              if (p.contratosEncerrados) dispObj.contratosEncerrados = p.contratosEncerrados;
+              localStorage.setItem('km_disputas_v60_clean', JSON.stringify(dispObj));
+            }
+            if (p.empenhos) localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(p.empenhos));
+            if (p.compras)  localStorage.setItem('km_compras_v60_clean',  JSON.stringify(p.compras));
+            if (p.metas)    localStorage.setItem('km_metas_v60_clean',    JSON.stringify(p.metas));
+            if (p.tema)     localStorage.setItem('km_tema_v1',            p.tema);
             showSync('ok', '✓ dados atualizados');
           } else {
-            // Local tem mais → mantém local e agenda upload para sincronizar cloud
+            // Local tem mais → mantém local e sobe para cloud
             showSync('ok', '✓ dados locais preservados');
             setTimeout(() => syncToCloud(), 3000);
           }
