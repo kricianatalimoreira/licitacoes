@@ -653,26 +653,35 @@
       display: block;
       height: calc(100vh - var(--topbar-h) - var(--kpi-h) - var(--padding-v) - 76px);
       min-height: 280px;
-      overflow-y: scroll;
+      overflow-y: overlay;
       overflow-x: hidden;
-      scrollbar-gutter: stable;
     }
-    /* thead usa scrollbar-gutter também para alinhar com tbody */
+    /* thead: display block simples, sem compensação */
     .and-table thead,
     .enc-table thead,
     .con-table thead,
     .con-enc-table thead,
     .emp-table thead {
       display: block;
-      overflow-y: scroll;
-      scrollbar-gutter: stable;
-      scrollbar-color: transparent transparent;
+      overflow: hidden;
+      width: 100%;
     }
-    .and-table thead::-webkit-scrollbar,
-    .enc-table thead::-webkit-scrollbar,
-    .con-table thead::-webkit-scrollbar,
-    .con-enc-table thead::-webkit-scrollbar,
-    .emp-table thead::-webkit-scrollbar { background: transparent; width: 0; }
+    /* Scrollbar fina sobreposta — não ocupa espaço de layout */
+    .and-table tbody::-webkit-scrollbar,
+    .enc-table tbody::-webkit-scrollbar,
+    .con-table tbody::-webkit-scrollbar,
+    .con-enc-table tbody::-webkit-scrollbar,
+    .emp-table tbody::-webkit-scrollbar { width: 6px; }
+    .and-table tbody::-webkit-scrollbar-track,
+    .enc-table tbody::-webkit-scrollbar-track,
+    .con-table tbody::-webkit-scrollbar-track,
+    .con-enc-table tbody::-webkit-scrollbar-track,
+    .emp-table tbody::-webkit-scrollbar-track { background: transparent; }
+    .and-table tbody::-webkit-scrollbar-thumb,
+    .enc-table tbody::-webkit-scrollbar-thumb,
+    .con-table tbody::-webkit-scrollbar-thumb,
+    .con-enc-table tbody::-webkit-scrollbar-thumb,
+    .emp-table tbody::-webkit-scrollbar-thumb { background: var(--primary-border); border-radius: 4px; }
 
     /* Tabelas dentro de modais: altura dinâmica, sem scroll fixo */
     .con-view-itens-table,
