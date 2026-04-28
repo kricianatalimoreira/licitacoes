@@ -5149,7 +5149,7 @@
 
     function getPct(pfx) {
       const r = Number(qs(`${pfx}RoyaltiesPct`)?.value ?? 1);
-      const i = Number(qs(`${pfx}ImpostoPct`)?.value  ?? 6);
+      const i = Number(qs(`${pfx}ImpostoPct`)?.value  ?? 5);
       return { r: isNaN(r) ? 1 : r, i: isNaN(i) ? 5 : i };
     }
 
@@ -6291,6 +6291,7 @@
         <td>${lucroPrevHtml}</td>
         <td style="text-align:center;">${pctLucroHtml}</td>
         <td>${statusHtml}</td>
+        <td style="font-size:10px;color:var(--muted);text-align:center;">${e.dataPagamento ? formatDate(e.dataPagamento) : '\u2014'}</td>
         <td>
           <div class="row-menu-wrap">
             <button class="row-menu-btn" onclick="toggleRowMenu(event,'empmenu-${e.id}')">⋯</button>
@@ -10016,5 +10017,29 @@ function confirmarImportacao() {
   }
 }
 </script>
-</main></div></body>
+</main></div>
+  <!-- ── Modal: Data de Pagamento ── -->
+  <div class="modal-overlay hidden" id="modalPagamentoWrap" onclick="if(event.target===this)fecharModalPagamento()">
+    <div class="modal-box" style="max-width:380px;padding:32px 28px;text-align:center;">
+      <div style="font-size:28px;margin-bottom:8px;">💰</div>
+      <h3 style="margin:0 0 6px;font-size:15px;font-weight:700;color:var(--text);">Confirmar Pagamento</h3>
+      <p style="font-size:11px;color:var(--muted);margin:0 0 20px;">Informe a data em que o empenho foi pago.<br>Ele será movido para Empenhos Encerrados.</p>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start;margin-bottom:22px;">
+        <label style="font-size:11px;font-weight:600;color:var(--muted);">Data de Pagamento</label>
+        <input id="modalPagDataInput" type="date"
+          style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;
+                 background:var(--card);color:var(--text);font-size:13px;font-family:inherit;box-sizing:border-box;"/>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button onclick="fecharModalPagamento()"
+          style="padding:9px 22px;border-radius:9px;border:1px solid var(--line);background:var(--card);
+                 color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer;">Cancelar</button>
+        <button onclick="confirmarPagamentoEmpenho()"
+          style="padding:9px 22px;border-radius:9px;border:none;background:var(--primary);
+                 color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;">✅ Confirmar Pago</button>
+      </div>
+    </div>
+  </div>
+
+</body>
 </html>
