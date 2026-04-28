@@ -2728,6 +2728,15 @@
 " onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
   ☁️ Salvar
 </button>
+<button onclick="restaurarBackup()" title="Restaurar backup anterior do Supabase" style="
+  display:flex;align-items:center;gap:5px;
+  background:transparent;border:1px solid var(--line);
+  color:var(--muted);border-radius:8px;padding:5px 10px;
+  font-size:10px;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:opacity .15s;white-space:nowrap;
+" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+  🔄 Backup
+</button>
 <span id="dashDataHora" style="font-size:10px;color:var(--muted);"></span>
 </div>
 </div>
@@ -9109,11 +9118,58 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       };
     }
 
+    // ── Salva backup no Supabase (linha id=backup) antes de sobrescrever main ──
+    async function salvarBackupCloud(payloadAtual) {
+      try {
+        // Tenta atualizar linha de backup existente
+        const patch = await fetch(`${SUPA_URL}/rest/v1/app_data?id=eq.backup`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': SUPA_KEY,
+            'Authorization': `Bearer ${SUPA_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ payload: payloadAtual, updated_at: new Date().toISOString() })
+        });
+        // Se não existir ainda, insere
+        if (patch.status === 404 || patch.headers.get('content-range') === '*/0') {
+          await fetch(`${SUPA_URL}/rest/v1/app_data`, {
+            method: 'POST',
+            headers: {
+              'apikey': SUPA_KEY,
+              'Authorization': `Bearer ${SUPA_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({ id: 'backup', payload: payloadAtual, updated_at: new Date().toISOString() })
+          });
+        }
+      } catch(e) {
+        console.warn('[KM] Falha ao salvar backup:', e);
+      }
+    }
+
     // ── Push to Supabase ──
     async function syncToCloud() {
       showSync('saving', '☁ salvando...');
       try {
         const payload = collectAllData();
+
+        // 1. Lê o payload atual do Supabase e salva como backup ANTES de sobrescrever
+        try {
+          const resAtual = await fetch(`${SUPA_URL}/rest/v1/app_data?id=eq.main&select=payload`, {
+            headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+          });
+          if (resAtual.ok) {
+            const dataAtual = await resAtual.json();
+            if (dataAtual && dataAtual[0] && dataAtual[0].payload) {
+              await salvarBackupCloud(dataAtual[0].payload);
+            }
+          }
+        } catch(e) { /* backup falhou, continua o save */ }
+
+        // 2. Salva o payload novo no main
         const res = await fetch(`${SUPA_URL}/rest/v1/app_data?id=eq.main`, {
           method: 'PATCH',
           headers: {
@@ -9134,6 +9190,50 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       } catch(e) {
         console.error('Sync error:', e);
         showSync('err', '✗ sem conexão');
+      }
+    }
+
+    // ── Restaurar backup do Supabase ──
+    async function restaurarBackup() {
+      if (!confirm('⚠️ Restaurar o backup anterior? Os dados atuais serão substituídos.')) return;
+      showSync('saving', '☁ restaurando backup...');
+      try {
+        const res = await fetch(`${SUPA_URL}/rest/v1/app_data?id=eq.backup&select=payload,updated_at`, {
+          headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data || !data[0] || !data[0].payload) {
+          showSync('err', '✗ nenhum backup encontrado');
+          return;
+        }
+        const p = data[0].payload;
+        const dt = new Date(data[0].updated_at).toLocaleString('pt-BR');
+
+        // Aplica o backup no localStorage
+        if (p.disputas)  localStorage.setItem('km_disputas_v60_clean', JSON.stringify(p.disputas));
+        if (p.empenhos)  localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(p.empenhos));
+        if (p.compras)   localStorage.setItem('km_compras_v60_clean',  JSON.stringify(p.compras));
+        if (p.metas)     localStorage.setItem('km_metas_v60_clean',    JSON.stringify(p.metas));
+        if (p.tema)      localStorage.setItem('km_tema_v1',            p.tema);
+
+        // Recarrega todos os módulos
+        if (typeof loadData       === 'function') loadData();
+        if (typeof loadContratos  === 'function') loadContratos();
+        if (typeof loadEmpenhos   === 'function') loadEmpenhos();
+        if (typeof loadCompras    === 'function') loadCompras();
+        if (typeof renderDisputas === 'function') renderDisputas();
+        if (typeof renderHistoricoDisputas === 'function') renderHistoricoDisputas();
+        if (typeof renderContratosAtivos   === 'function') renderContratosAtivos();
+        if (typeof renderContratosEncerrados === 'function') renderContratosEncerrados();
+        if (typeof renderEmpenhos === 'function') renderEmpenhos();
+        if (typeof renderCompras  === 'function') renderCompras();
+        if (typeof renderDashboard === 'function') renderDashboard();
+
+        showSync('ok', `✓ backup de ${dt} restaurado`);
+      } catch(e) {
+        console.error('Restaurar backup error:', e);
+        showSync('err', '✗ erro ao restaurar backup');
       }
     }
 
