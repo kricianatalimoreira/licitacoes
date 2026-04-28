@@ -3914,7 +3914,7 @@
     // Ao bumpar este valor, TODAS as chaves de dados e MARKERs antigos
     // são apagadas automaticamente, forçando re-injeção limpa em qualquer
     // computador que ainda tenha dados de versões anteriores.
-    const SCHEMA_VERSION = 'v61';
+    const SCHEMA_VERSION = 'v62';
     const SCHEMA_KEY     = 'km_schema_version';
 
     // Flag em memória: quando true, syncFromCloud IGNORA o payload do Supabase
@@ -3948,7 +3948,6 @@
       // Registra nova versão e sinaliza que local deve prevalecer sobre cloud
       localStorage.setItem(SCHEMA_KEY, SCHEMA_VERSION);
       _migracaoPendente = true;
-      _skipCloudPull    = true; // garante que initApp não sobrescreva com pull do cloud
       console.info('[KM] Schema migrado para', SCHEMA_VERSION, '— dados locais subirão ao cloud após re-injeção.');
     })();
     // ─────────────────────────────────────────────────────────────
@@ -8926,34 +8925,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     })();
     // ── fim injeção abril 2026 ───────────────────────────────────────────────
 
-    // ── Pós-migração: se schema foi bumped, sobe dados locais para o Supabase
-    //    antes do initApp() para garantir que o cloud tenha os dados corretos.
-    if (_migracaoPendente) {
-      (async function uploadMigracao() {
-        try {
-          const payload = {
-            disputas:            JSON.parse(localStorage.getItem('km_disputas_v60_clean') || '{}'),
-            empenhos:            JSON.parse(localStorage.getItem('km_empenhos_v60_clean') || '[]'),
-            compras:             JSON.parse(localStorage.getItem('km_compras_v60_clean')  || '[]'),
-            metas:               JSON.parse(localStorage.getItem('km_metas_v60_clean')    || '{}'),
-            tema:                localStorage.getItem('km_tema_v1') || 'rosa',
-          };
-          await fetch(`${SUPA_URL}/rest/v1/app_data?id=eq.main`, {
-            method: 'PATCH',
-            headers: {
-              'apikey': SUPA_KEY,
-              'Authorization': `Bearer ${SUPA_KEY}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify({ payload, updated_at: new Date().toISOString() })
-          });
-          console.info('[KM] Dados pós-migração enviados ao Supabase.');
-        } catch(e) {
-          console.warn('[KM] Falha ao subir dados pós-migração:', e);
-        }
-      })();
-    }
+    // Pós-migração: _migracaoPendente será consumido dentro do syncFromCloud,
+    // que vai SUBIR os dados locais (Lenovo = fonte da verdade) para o Supabase.
 
     movePopoversToBody();
     renderDisputas();
@@ -9157,14 +9130,16 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
     // ── Pull from Supabase ──
     async function syncFromCloud() {
-      // Se houve migração de schema nesta sessão, os dados já foram upados
-      // para o cloud antes do login — apenas pula o pull para não sobrescrever.
-      if (_skipCloudPull) {
-        _skipCloudPull    = false;
+      // Migração pendente: dados locais (Lenovo) são a fonte da verdade.
+      // Pula o pull do cloud e sobe o local para o Supabase.
+      if (_migracaoPendente) {
         _migracaoPendente = false;
-        showSync('ok', '✓ dados locais enviados ao cloud');
+        _skipCloudPull    = false;
+        showSync('saving', '☁ sincronizando...');
+        await syncToCloud();
         return false;
       }
+      _skipCloudPull = false;
 
       showSync('saving', '☁ carregando...');
       try {
