@@ -3822,7 +3822,7 @@
 <div class="con-form-field">
 <label>Imposto (%) <span id="conImpostoBadge" style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:4px;background:#0a2018;color:#2dd47a;">Simples Nacional</span></label>
 <div style="display:flex;align-items:center;gap:6px;">
-<input id="conImpostoPct" max="100" min="0" oninput="reRenderItens('con');atualizarCalcRow()" step="0.1" style="flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:12px;font-family:inherit;" type="number" value="5"/>
+<input id="conImpostoPct" max="100" min="0" oninput="reRenderItens('con');atualizarCalcRow()" step="0.1" style="flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:12px;font-family:inherit;" type="number" value="6"/>
 <span style="font-size:11px;color:var(--muted);">%</span>
 </div>
 </div>
@@ -5149,7 +5149,7 @@
 
     function getPct(pfx) {
       const r = Number(qs(`${pfx}RoyaltiesPct`)?.value ?? 1);
-      const i = Number(qs(`${pfx}ImpostoPct`)?.value  ?? 5);
+      const i = Number(qs(`${pfx}ImpostoPct`)?.value  ?? 6);
       return { r: isNaN(r) ? 1 : r, i: isNaN(i) ? 5 : i };
     }
 
@@ -5261,11 +5261,11 @@
         }
       } else {
         inputPct.readOnly = true;
-        inputPct.value = 5;
+        inputPct.value = 6;
         inputPct.style.background = 'var(--bg)';
         inputPct.style.color = 'var(--muted)';
         inputPct.style.cursor = 'not-allowed';
-        inputPct.title = 'Simples Nacional — fixo em 5%';
+        inputPct.title = 'Simples Nacional — fixo em 6%';
         if (badge) {
           badge.textContent = 'Simples Nacional';
           badge.style.background = '#0a2018';
@@ -5305,7 +5305,7 @@
       });
       if (qs('conStatus')) qs('conStatus').value = 'Vigente';
       if (qs('conRoyaltiesPct')) qs('conRoyaltiesPct').value = 1;
-      if (qs('conImpostoPct'))   qs('conImpostoPct').value   = 5;
+      if (qs('conImpostoPct'))   qs('conImpostoPct').value   = 6;
       ajustarImpostoPorEmpresa('con'); // empresa vazia = comportamento Hamate (bloqueado)
       renderItensContrato('con');
       calcularTotaisItens('con');
@@ -5370,7 +5370,7 @@
       const valor  = parseCurrency(qs('conValor')?.value  || '0');
       const compra = parseCurrency(qs('conCompra')?.value || '0');
       const rPct   = Number(qs('conRoyaltiesPct')?.value || 1);
-      const iPct   = Number(qs('conImpostoPct')?.value   || 5);
+      const iPct   = Number(qs('conImpostoPct')?.value   || 6);
       const royalt = valor * rPct / 100;
       const impost = valor * iPct / 100;
       const custo  = royalt + impost;
@@ -5480,7 +5480,7 @@
         itensEmpenhados: 0,
         itensLotes:      structuredClone(_conItens),
         royaltiesPct:    Number(qs('conRoyaltiesPct')?.value || 1),
-        impostoPct:      Number(qs('conImpostoPct')?.value  || 5),
+        impostoPct:      Number(qs('conImpostoPct')?.value  || 6),
         sala:            qs('conSala')?.value?.trim()  || '',
         drive:           qs('conDrive')?.value?.trim() || '',
         obs:             qs('conObs')?.value?.trim()   || ''
@@ -5546,7 +5546,7 @@
 
       // Pré-preenche campos de percentual e Raw com valores salvos
       if (qs('conRoyaltiesPct')) qs('conRoyaltiesPct').value = c.royaltiesPct ?? 1;
-      if (qs('conImpostoPct'))   qs('conImpostoPct').value   = c.impostoPct   ?? 5;
+      if (qs('conImpostoPct'))   qs('conImpostoPct').value   = c.impostoPct   ?? 6;
       // Pré-preenche os campos de texto formatados (para exibição no Step 3)
       if (qs('conValor'))  qs('conValor').value  = c.valor  ? fmtR(c.valor)  : '';
       if (qs('conCompra')) qs('conCompra').value = c.compra ? fmtR(c.compra) : '';
@@ -5578,7 +5578,7 @@
       // Garante que os campos hidden estão atualizados antes de ler
       calcularTotaisItens('con');
       const royaltiesPct = Number(qs('conRoyaltiesPct')?.value || 1);
-      const impostoPct   = Number(qs('conImpostoPct')?.value  || 5);
+      const impostoPct   = Number(qs('conImpostoPct')?.value  || 6);
       // Lê Raw (número puro); se ainda zero, faz fallback para parseCurrency do campo texto
       const valorRaw  = Number(qs('conValorRaw')?.value  || 0);
       const compraRaw = Number(qs('conCompraRaw')?.value || 0);
@@ -6198,7 +6198,7 @@
       }
 
       const royaltiesPct = Number(contrato?.royaltiesPct ?? contrato?.royalties ?? 1);
-      const impostoPct   = Number(contrato?.impostoPct   ?? contrato?.imposto   ?? 5);
+      const impostoPct   = Number(contrato?.impostoPct   ?? contrato?.imposto   ?? 6);
 
       let vlEmpTotal  = 0; // Vl. Empenho = soma(qtdEmp × vlUnit do item empenhado)
       let vlCompraEmp = 0; // Compra Prev. = soma(qtdEmp × compraUnit do item no contrato)
@@ -9334,7 +9334,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         const itens = c.itensLotes || [];
         if (itens.length === 0) return;
         const r = Number(c.royaltiesPct ?? 1);
-        const i = Number(c.impostoPct  ?? 5);
+        const i = Number(c.impostoPct  ?? 6);
         const vlTotal    = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0)), 0);
         const compraT    = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.compraUnit||0)), 0);
         const royaltiesT = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0) * r / 100), 0);
