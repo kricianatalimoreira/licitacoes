@@ -3917,6 +3917,10 @@
     const SCHEMA_VERSION = 'v61';
     const SCHEMA_KEY     = 'km_schema_version';
 
+    // Flag em memória: quando true, syncFromCloud IGNORA o payload do Supabase
+    // e sobe os dados locais recém re-injetados para o cloud.
+    let _migracaoPendente = false;
+
     (function migrarSchemaSeNecessario() {
       const current = localStorage.getItem(SCHEMA_KEY);
       if (current === SCHEMA_VERSION) return; // já está atualizado
@@ -3940,9 +3944,10 @@
         .filter(k => k.startsWith('km_injected_'))
         .forEach(k => localStorage.removeItem(k));
 
-      // Registra nova versão
+      // Registra nova versão e sinaliza que local deve prevalecer sobre cloud
       localStorage.setItem(SCHEMA_KEY, SCHEMA_VERSION);
-      console.info('[KM] Schema migrado para', SCHEMA_VERSION, '— dados re-injetados.');
+      _migracaoPendente = true;
+      console.info('[KM] Schema migrado para', SCHEMA_VERSION, '— dados locais subirão ao cloud após re-injeção.');
     })();
     // ─────────────────────────────────────────────────────────────
 
@@ -9121,6 +9126,15 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
     // ── Pull from Supabase ──
     async function syncFromCloud() {
+      // Se houve migração de schema nesta sessão, os dados locais (recém re-injetados)
+      // devem prevalecer — ignoramos o payload do cloud e subimos o local.
+      if (_migracaoPendente) {
+        _migracaoPendente = false;
+        showSync('saving', '☁ atualizando cloud...');
+        setTimeout(() => syncToCloud(), 1500);
+        return false;
+      }
+
       showSync('saving', '☁ carregando...');
       try {
         const res = await fetch(`${SUPA_URL}/rest/v1/app_data?id=eq.main&select=payload`, {
