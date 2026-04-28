@@ -3910,6 +3910,42 @@
 </div>
 </div>
 <script>
+    // ── SCHEMA VERSION ───────────────────────────────────────────
+    // Ao bumpar este valor, TODAS as chaves de dados e MARKERs antigos
+    // são apagadas automaticamente, forçando re-injeção limpa em qualquer
+    // computador que ainda tenha dados de versões anteriores.
+    const SCHEMA_VERSION = 'v61';
+    const SCHEMA_KEY     = 'km_schema_version';
+
+    (function migrarSchemaSeNecessario() {
+      const current = localStorage.getItem(SCHEMA_KEY);
+      if (current === SCHEMA_VERSION) return; // já está atualizado
+
+      // Remove todas as chaves de dados do sistema
+      const dataKeys = [
+        'km_disputas_v60_clean',
+        'km_empenhos_v60_clean',
+        'km_compras_v60_clean',
+        'km_metas_v60_clean',
+        // chaves de versões anteriores
+        'km_disputas_modulo_limpo_v1','km_disputas_modulo_v28_preview',
+        'km_disputas_modulo_v29_preview','km_empenhos_modulo_v1',
+        'km_disputas_modulo_v30_simdata','km_empenhos_modulo_v2',
+        'km_compras_modulo_v1','km_metas_v1',
+      ];
+      dataKeys.forEach(k => localStorage.removeItem(k));
+
+      // Remove todos os MARKERs de injeção para forçar re-injeção
+      Object.keys(localStorage)
+        .filter(k => k.startsWith('km_injected_'))
+        .forEach(k => localStorage.removeItem(k));
+
+      // Registra nova versão
+      localStorage.setItem(SCHEMA_KEY, SCHEMA_VERSION);
+      console.info('[KM] Schema migrado para', SCHEMA_VERSION, '— dados re-injetados.');
+    })();
+    // ─────────────────────────────────────────────────────────────
+
     const STORAGE_KEY = 'km_disputas_v60_clean';
     const UFS = ['', 'AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
 
@@ -5832,12 +5868,7 @@
 
 
 
-    // Limpa chaves antigas de versões anteriores (força reset dos dados simulados)
-    ['km_disputas_modulo_limpo_v1','km_disputas_modulo_v28_preview',
-     'km_disputas_modulo_v29_preview','km_empenhos_modulo_v1',
-     'km_disputas_modulo_v30_simdata','km_empenhos_modulo_v2',
-     'km_compras_modulo_v1','km_metas_v1'
-    ].forEach(k => localStorage.removeItem(k));
+
 
     // ══════════════════════════════════════════════════════════
     //  MÓDULO EMPENHOS
