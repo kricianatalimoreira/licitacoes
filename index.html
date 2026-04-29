@@ -3387,11 +3387,13 @@
 <button class="btn btn-primary" onclick="abrirSeletorContratoEmpenho()">+ Novo Empenho</button>
 </div>
 </div>
-<div class="disputa-stats" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:8px;">
+<div class="disputa-stats" style="grid-template-columns:repeat(6,minmax(0,1fr));margin-bottom:8px;">
 <div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Pendentes</div><div class="disputa-stat-value" id="empPendStatTotal">0</div></div>
-<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Vl. Empenho</div><div class="disputa-stat-value" id="empPendStatValor" style="font-size:12px;color:#2563eb;">R$ 0,00</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">Gadita</div><div class="disputa-stat-value" id="empPendStatGadita" style="font-size:13px;color:var(--primary-dark);">R$ 0,00</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">Hamate</div><div class="disputa-stat-value" id="empPendStatHamate" style="font-size:13px;color:var(--primary-dark);">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Valor Empenho</div><div class="disputa-stat-value" id="empPendStatValor" style="font-size:12px;color:#2563eb;">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Compra Prevista</div><div class="disputa-stat-value" id="empPendStatCompra" style="font-size:12px;color:var(--text);">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Lucro Previsto</div><div class="disputa-stat-value" id="empPendStatLucro" style="font-size:12px;color:#34d399;">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Gadita</div><div class="disputa-stat-value" id="empPendStatGadita" style="font-size:12px;color:var(--primary-dark);">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Hamate</div><div class="disputa-stat-value" id="empPendStatHamate" style="font-size:12px;color:var(--primary-dark);">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -3439,6 +3441,11 @@
 </th>
 <th>Itens Empenhados</th>
 <th style="color:#2563eb;">Vl. Empenho</th>
+<th>Vl. Compra Prev.</th>
+<th>Custo Prev.</th>
+<th>Lucro Prev.</th>
+<th>% Lucro</th>
+<th>Status</th>
 <th>Ações</th></tr></thead>
 <tbody id="empPendTableBody"></tbody>
 </table>
@@ -6492,12 +6499,37 @@
     }
 
     // ── Empenhos encerrados (status === 'Paga') ──
+    // Helper: verifica se todos os itens foram comprados
+    function todosItensComprados(emp) {
+      const itens = emp.itensEmpenhados || [];
+      if (!itens.length) return false;
+      return itens.every(ie => {
+        const jaComprado = (typeof compras !== 'undefined' ? compras : [])
+          .filter(c => c.empenhoId === emp.id && c.itemId === ie.itemId)
+          .reduce((s, c) => s + (Number(c.qtdCompra) || 0), 0);
+        return jaComprado >= Number(ie.qtdEmp || 0);
+      });
+    }
+
+    // Helper: progresso de compra {comprados, total}
+    function progressoCompra(emp) {
+      const itens = emp.itensEmpenhados || [];
+      if (!itens.length) return { comprados: 0, total: 0 };
+      let comprados = 0;
+      itens.forEach(ie => {
+        const jaComprado = (typeof compras !== 'undefined' ? compras : [])
+          .filter(c => c.empenhoId === emp.id && c.itemId === ie.itemId)
+          .reduce((s, c) => s + (Number(c.qtdCompra) || 0), 0);
+        if (jaComprado >= Number(ie.qtdEmp || 0)) comprados++;
+      });
+      return { comprados, total: itens.length };
+    }
+
     function renderEmpPendentes() {
       const body = qs('empPendTableBody');
       if (!body) return;
       const pendentes = empenhos.filter(e => e.status === 'Pendente');
 
-      // Filtros
       const fData    = (qs('fEmpPendData')?.value    || '').trim();
       const fOrgao   = (qs('fEmpPendOrgao')?.value   || '').trim().toLowerCase();
       const fEmpresa = (qs('fEmpPendEmpresa')?.value  || '').trim();
@@ -6509,7 +6541,6 @@
         return true;
       });
 
-      // Ordenação
       const sort = qs('sortEmpPend')?.value || 'data_asc';
       filtered.sort((a,b) => {
         if (sort === 'data_desc') return new Date(b.data) - new Date(a.data);
@@ -6522,22 +6553,55 @@
       });
 
       // KPIs
+      const _finPend     = pendentes.map(e => calcEmpFinanceiro(e));
+      const _totalValor  = pendentes.reduce((s,e) => s + Number(e.valor||0), 0);
+      const _totalCompra = _finPend.reduce((s,f) => s + f.vlCompraEmp, 0);
+      const _totalLucro  = _finPend.reduce((s,f) => s + f.lucroEmp, 0);
       if (qs('empPendStatTotal'))  qs('empPendStatTotal').textContent  = pendentes.length;
-      if (qs('empPendStatValor'))  qs('empPendStatValor').textContent  = formatCurrency(pendentes.reduce((s,e)=>s+Number(e.valor||0),0));
+      if (qs('empPendStatValor'))  qs('empPendStatValor').textContent  = formatCurrency(_totalValor);
+      if (qs('empPendStatCompra')) qs('empPendStatCompra').textContent = formatCurrency(_totalCompra);
+      if (qs('empPendStatLucro')) {
+        qs('empPendStatLucro').textContent = formatCurrency(_totalLucro);
+        qs('empPendStatLucro').style.color = _totalLucro >= 0 ? '#34d399' : '#f05252';
+      }
       if (qs('empPendStatGadita')) qs('empPendStatGadita').textContent = formatCurrency(pendentes.filter(e=>e.empresa==='Gadita').reduce((s,e)=>s+Number(e.valor||0),0));
       if (qs('empPendStatHamate')) qs('empPendStatHamate').textContent = formatCurrency(pendentes.filter(e=>e.empresa==='Hamate').reduce((s,e)=>s+Number(e.valor||0),0));
-
-      if (qs('subtotalEmpPendQtde')) qs('subtotalEmpPendQtde').textContent = filtered.length;
+      if (qs('subtotalEmpPendQtde'))  qs('subtotalEmpPendQtde').textContent  = filtered.length;
       if (qs('subtotalEmpPendValor')) qs('subtotalEmpPendValor').textContent = formatCurrency(filtered.reduce((s,e)=>s+Number(e.valor||0),0));
 
       body.innerHTML = filtered.length === 0
-        ? '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">Nenhum empenho pendente.</td></tr>'
+        ? '<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--muted);">Nenhum empenho pendente.</td></tr>'
         : filtered.map(e => {
             const data = formatDateTime(e.data);
             const itensDesc = (e.itensEmpenhados || []).map(ie => {
               const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
               return `<div style="font-size:10px;line-height:1.4;">${ie.descricao || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
             }).join('');
+            const prog = progressoCompra(e);
+            const progBadge = prog.total > 0
+              ? `<span style="display:inline-block;margin-top:4px;font-size:9px;font-weight:700;
+                  background:var(--card);border:1px solid ${prog.comprados===prog.total?'#1a6040':prog.comprados>0?'#f0a938':'var(--line)'};
+                  color:${prog.comprados===prog.total?'#34d399':prog.comprados>0?'#f0a938':'var(--muted)'};
+                  border-radius:5px;padding:1px 6px;">🛒 ${prog.comprados}/${prog.total} itens</span>`
+              : '';
+            const fin = calcEmpFinanceiro(e);
+            const { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal } = fin;
+            const hasF = vlEmpTotal > 0 || vlCompraEmp > 0;
+            let vlCompraHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
+            let custoHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
+            let lucroHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
+            let pctHtml      = '<span style="color:var(--muted);font-size:10px;">—</span>';
+            if (hasF) {
+              const lc = lucroEmp > 0 ? '#34d399' : lucroEmp < 0 ? '#f05252' : 'var(--muted)';
+              const lw = lucroEmp !== 0 ? '700' : '400';
+              const mg = vlEmpTotal > 0 ? (lucroEmp/vlEmpTotal)*100 : 0;
+              const mc = mg > 0 ? '#34d399' : mg < 0 ? '#f05252' : 'var(--muted)';
+              const mw = mg !== 0 ? '700' : '400';
+              vlCompraHtml = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraEmp)}</span>`;
+              custoHtml    = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(custoEmp)}</span>`;
+              lucroHtml    = `<span style="font-size:10px;font-weight:${lw};color:${lc};">${formatCurrency(lucroEmp)}</span>`;
+              pctHtml      = `<span style="font-size:10px;font-weight:${mw};color:${mc};">${mg.toFixed(1)}%</span>`;
+            }
             return `<tr>
               <td><div class="cell-data-hora"><span class="data-dia">${data.date}</span><span class="data-hora">${data.time||'—'}</span></div></td>
               <td style="font-weight:700;font-size:10px;">${e.numero||'—'}</td>
@@ -6546,8 +6610,13 @@
                 <div class="con-orgao-info">${e.contrato||''}</div>
               </td>
               <td>${companyBadge(e.empresa)}</td>
-              <td class="cell-wrap">${itensDesc||'—'}</td>
+              <td class="cell-wrap">${itensDesc||'—'}${progBadge}</td>
               <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
+              <td>${vlCompraHtml}</td>
+              <td>${custoHtml}</td>
+              <td>${lucroHtml}</td>
+              <td style="text-align:center;">${pctHtml}</td>
+              <td><div class="status-wrap"><span class="status-badge status-pendente">Pendente</span></div></td>
               <td>
                 <div class="row-menu-wrap">
                   <button class="row-menu-btn" onclick="toggleRowMenu(event,'emppendmenu-${e.id}')">⋯</button>
@@ -7563,19 +7632,24 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       });
 
       if (!salvou) { alert('Preencha pelo menos um item antes de salvar.'); return; }
-      // Atualiza status do empenho para "Compra Feita" automaticamente (só se ainda Pendente)
-      if (emp.status === 'Pendente') {
+      persistCompras();
+      if (emp.status === 'Pendente' && todosItensComprados(emp)) {
         emp.status = 'Compra Feita';
         persistEmpenhos();
-        // Move para Em andamento automaticamente
+        renderCompras();
+        renderEmpenhos();
+        fecharModalCompras();
         const secEl = document.querySelector('[data-section-target="empenhos-andamento"]');
         if (secEl) showSection('empenhos-andamento', secEl);
+        mostrarToast('✅ Todos os itens comprados!', 'Empenho movido para Em andamento.');
+      } else {
+        renderCompras();
+        renderEmpenhos();
+        fecharModalCompras();
+        const { comprados, total } = progressoCompra(emp);
+        const progMsg = total > 0 ? ` Progresso: ${comprados}/${total} itens.` : '';
+        mostrarToast('🛒 Compra registrada!', `${salvou} item(ns) salvo(s).${progMsg}`);
       }
-      persistCompras();
-      renderCompras();
-      renderEmpenhos();
-      fecharModalCompras();
-      mostrarToast('🛒 Compra registrada!', `${salvou} item(ns) salvo(s). Empenho movido para Em andamento.`);
     }
 
     // ── Editar Compra ─────────────────────────────────────
