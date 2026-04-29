@@ -7410,8 +7410,15 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
       const itens = emp.itensEmpenhados || [];
       if (!itens.length) {
-        // Empenho sem itens detalhados — abre stepper direto com item genérico
-        abrirModalCompras(empenhoId);
+        // Empenho sem itens detalhados — abre seletor mostrando só a opção Compra Geral
+        _seletorEmpId    = empenhoId;
+        _seletorItemIdxs = new Set();
+        const grid = qs('seletorItemGrid');
+        if (grid) grid.innerHTML = '';
+        const gridWrap = qs('seletorItemGridWrap');
+        if (gridWrap) gridWrap.style.display = 'none';
+        const sub = qs('compraGeralSubtitle');
+        qs('seletorItemCompraWrap').classList.remove('hidden');
         return;
       }
 
@@ -7439,6 +7446,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         </div>`;
       }).join('');
 
+      const gridWrap = qs('seletorItemGridWrap');
+      if (gridWrap) gridWrap.style.display = '';
       qs('seletorItemCompraWrap').classList.remove('hidden');
     }
 
@@ -7503,6 +7512,172 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       }, 10);
 
       qs('modalComprasWrap').classList.remove('hidden');
+    }
+
+    // ── Compra Geral (empenho sem itens detalhados) ───────
+    let _cgEmpenhoId = null;
+
+    function abrirCompraGeral() {
+      const empId = _seletorEmpId;
+      if (!empId) return;
+      const emp = empenhos.find(e => e.id === empId);
+      if (!emp) return;
+      _cgEmpenhoId = empId;
+      qs('seletorItemCompraWrap').classList.add('hidden');
+
+      // Preenche cabeçalho e vl. empenho
+      const sub = qs('compraGeralSubtitle');
+      if (sub) sub.textContent = `${emp.orgao || '—'} · Empenho ${emp.numero || '—'} · ${emp.empresa || '—'}`;
+      const vlEmp = Number(emp.valor || 0);
+      const cgVl = qs('cgVlEmpenho');
+      if (cgVl) cgVl.textContent = formatCurrency(vlEmp);
+
+      // Defaults
+      const hoje = new Date().toISOString().slice(0,10);
+      const setV = (id, v) => { const el = qs(id); if (el) el.value = v; };
+      setV('cg_data', hoje);
+      setV('cg_fornecedor', '');
+      setV('cg_vlTotalCompra', '');
+      setV('cg_linkCompra', '');
+      setV('cg_pagamento', 'Pix');
+      setV('cg_parcelas', '1');
+
+      // Contrato para pegar % imposto e royalties
+      const contrato = contratosAtivos.find(c => c.id === emp.contratoId)
+                    || contratosEncerrados.find(c => c.id === emp.contratoId);
+      const impostoPct   = Number(contrato?.impostoPct   ?? contrato?.imposto   ?? 6);
+      const royaltiesPct = Number(contrato?.royaltiesPct ?? contrato?.royalties ?? 1);
+      const imposto   = vlEmp * (impostoPct   / 100);
+      const royalties = vlEmp * (royaltiesPct / 100);
+
+      // Campos auto
+      const impostoEl   = qs('cg_imposto');
+      const royaltiesEl = qs('cg_royalties');
+      if (impostoEl)   { impostoEl.value = imposto.toFixed(2);     impostoEl.readOnly = true;   impostoEl.style.background='var(--bg)'; impostoEl.style.color='var(--muted)'; }
+      if (royaltiesEl) { royaltiesEl.value = royalties.toFixed(2); royaltiesEl.readOnly = true; royaltiesEl.style.background='var(--bg)'; royaltiesEl.style.color='var(--muted)'; }
+      const impostoBtn   = qs('cg_impostoBtn');
+      const royaltiesBtn = qs('cg_royaltiesBtn');
+      if (impostoBtn)   { impostoBtn.textContent = '🔒 Auto'; impostoBtn.classList.remove('is-manual'); }
+      if (royaltiesBtn) { royaltiesBtn.textContent = '🔒 Auto'; royaltiesBtn.classList.remove('is-manual'); }
+
+      // Parcelas
+      const parcelasWrap = qs('cg_parcelasWrap');
+      if (parcelasWrap) parcelasWrap.style.display = 'none';
+
+      recalcCompraGeral();
+      qs('modalCompraGeralWrap').classList.remove('hidden');
+    }
+
+    function fecharCompraGeral() {
+      qs('modalCompraGeralWrap').classList.add('hidden');
+      _cgEmpenhoId = null;
+    }
+
+    function toggleParcelasGeral() {
+      const pag = qs('cg_pagamento')?.value;
+      const wrap = qs('cg_parcelasWrap');
+      if (wrap) wrap.style.display = pag === 'Cartão de Crédito' ? '' : 'none';
+    }
+
+    function toggleManualCG(inputId, btnId) {
+      const input = qs(inputId);
+      const btn   = qs(btnId);
+      if (!input || !btn) return;
+      const isManual = input.readOnly;
+      input.readOnly = !isManual;
+      if (isManual) {
+        input.style.background = ''; input.style.color = '';
+        input.focus();
+        btn.textContent = '✏️ Manual'; btn.classList.add('is-manual');
+      } else {
+        input.style.background = 'var(--bg)'; input.style.color = 'var(--muted)';
+        btn.textContent = '🔒 Auto'; btn.classList.remove('is-manual');
+        // Recalcula auto baseado no Vl. Empenho
+        const emp = empenhos.find(e => e.id === _cgEmpenhoId);
+        const vlEmp = Number(emp?.valor || 0);
+        const contrato = contratosAtivos.find(c => c.id === emp?.contratoId)
+                      || contratosEncerrados.find(c => c.id === emp?.contratoId);
+        const impostoPct   = Number(contrato?.impostoPct   ?? contrato?.imposto   ?? 6);
+        const royaltiesPct = Number(contrato?.royaltiesPct ?? contrato?.royalties ?? 1);
+        if (inputId === 'cg_imposto')   input.value = (vlEmp * impostoPct   / 100).toFixed(2);
+        if (inputId === 'cg_royalties') input.value = (vlEmp * royaltiesPct / 100).toFixed(2);
+        recalcCompraGeral();
+      }
+    }
+
+    function recalcCompraGeral() {
+      const emp = empenhos.find(e => e.id === _cgEmpenhoId);
+      const vlEmp        = Number(emp?.valor || 0);
+      const vlCompra     = Math.max(0, Number(qs('cg_vlTotalCompra')?.value || 0));
+      const imposto      = Math.max(0, Number(qs('cg_imposto')?.value      || 0));
+      const royalties    = Math.max(0, Number(qs('cg_royalties')?.value    || 0));
+      const custo        = vlCompra + imposto + royalties;
+      const lucro        = vlEmp - custo;
+      const pct          = vlEmp > 0 ? (lucro / vlEmp * 100) : 0;
+      const lucroColor   = lucro >= 0 ? '#34d399' : '#f05252';
+      const pctColor     = pct  >= 0 ? '#a3e635' : '#f05252';
+      const cgCusto = qs('cgCustoTotal');
+      const cgLucro = qs('cgLucroTotal');
+      const cgPct   = qs('cgPctLucro');
+      if (cgCusto) cgCusto.textContent = formatCurrency(custo);
+      if (cgLucro) { cgLucro.textContent = formatCurrency(lucro); cgLucro.style.color = lucroColor; }
+      if (cgPct)   { cgPct.textContent   = pct.toFixed(1) + '%';  cgPct.style.color   = pctColor;  }
+    }
+
+    function salvarCompraGeral() {
+      const emp = empenhos.find(e => e.id === _cgEmpenhoId);
+      if (!emp) return;
+      const vlTotalCompra = Number(qs('cg_vlTotalCompra')?.value || 0);
+      const fornecedor    = qs('cg_fornecedor')?.value?.trim() || '';
+      if (!fornecedor && vlTotalCompra === 0) { alert('Preencha ao menos o fornecedor ou o valor da compra.'); return; }
+
+      const data       = qs('cg_data')?.value || '';
+      const pagamento  = qs('cg_pagamento')?.value || 'Pix';
+      const parcelas   = pagamento === 'Cartão de Crédito' ? Number(qs('cg_parcelas')?.value || 1) : null;
+      const linkCompra = qs('cg_linkCompra')?.value?.trim() || '';
+      const imposto    = Number(qs('cg_imposto')?.value    || 0);
+      const royalties  = Number(qs('cg_royalties')?.value  || 0);
+      const custo      = vlTotalCompra + imposto + royalties;
+      const vlEmp      = Number(emp.valor || 0);
+      const lucro      = vlEmp - custo;
+      const pct        = vlEmp > 0 ? (lucro / vlEmp * 100).toFixed(2) + '%' : '—';
+
+      compras.unshift({
+        id: crypto.randomUUID(),
+        empenhoId:     emp.id,
+        empenhoNumero: emp.numero || '—',
+        orgao:         emp.orgao  || '—',
+        empresa:       emp.empresa || '—',
+        contratoId:    emp.contratoId || '',
+        itemId:        'geral',
+        descricao:     'Compra Geral',
+        qtdEmp:        1,
+        vlUnitEmp:     vlEmp,
+        vlTotalEmp:    vlEmp,
+        qtdCompra:     1,
+        data, fornecedor, linkCompra, pagamento, parcelas,
+        vlUnitCompra:  vlTotalCompra,
+        vlTotalCompra,
+        impostoUnit:   imposto,
+        impostoTotal:  imposto,
+        royaltUnit:    royalties,
+        royaltTotal:   royalties,
+        lucroUnit:     lucro,
+        lucroTotal:    lucro,
+        pctLucro:      pct,
+        tipoCompra:    'geral',
+      });
+
+      persistCompras();
+      // Muda status do empenho se Pendente
+      if (emp.status === 'Pendente') {
+        emp.status = 'Compra Feita';
+        persistEmpenhos();
+      }
+      renderCompras();
+      renderEmpenhos();
+      fecharCompraGeral();
+      mostrarToast('📋 Compra Geral registrada!', `Empenho ${emp.numero || ''} atualizado.`);
     }
 
     // ── Abrir modal com stepper ────────────────────────────
@@ -9926,15 +10101,118 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 <button class="modal-close" onclick="qs('seletorItemCompraWrap').classList.add('hidden')">×</button>
 </div>
 <div style="padding:18px 22px;flex:1;overflow-y:auto;">
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+<!-- Opção Compra Geral -->
+<div style="margin-bottom:18px;">
+  <button onclick="abrirCompraGeral()" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;border:2px dashed var(--primary);border-radius:13px;background:var(--primary-soft);cursor:pointer;text-align:left;transition:opacity .15s;">
+    <span style="font-size:20px;">📋</span>
+    <div>
+      <div style="font-size:12px;font-weight:800;color:var(--primary-dark);">Compra Geral do Empenho</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px;">Registre o valor total sem detalhar por item — ideal para empenhos antigos</div>
+    </div>
+  </button>
+</div>
+<!-- Divisor -->
+<div id="seletorItemGridWrap">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+  <div style="flex:1;height:1px;background:var(--line);"></div>
+  <span style="font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap;">ou selecione por item</span>
+  <div style="flex:1;height:1px;background:var(--line);"></div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
 <span style="font-size:13px;">🧡</span>
 <span style="font-size:12px;font-weight:700;color:var(--text);">Selecione o Item/Lote</span>
 </div>
 <div id="seletorItemGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;"></div>
 </div>
+</div>
 <div style="padding:12px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;flex:0 0 auto;background:var(--card);">
 <button class="btn btn-light" onclick="qs('seletorItemCompraWrap').classList.add('hidden')">Cancelar</button>
 <button class="btn btn-primary" id="seletorItemSalvarBtn" onclick="confirmarSeletorItem()" style="min-width:130px;">Salvar Compra</button>
+</div>
+</div>
+</div>
+<!-- ═══ MODAL COMPRA GERAL ═══ -->
+<div class="modal-overlay hidden" id="modalCompraGeralWrap">
+<div class="modal-card" style="width:min(560px,94vw);max-height:92vh;display:flex;flex-direction:column;border-radius:16px;padding:0;overflow:hidden;">
+<div class="emp-form-header" style="flex:0 0 auto;">
+  <div>
+    <h3 style="margin:0 0 2px;">📋 Compra Geral</h3>
+    <div id="compraGeralSubtitle" style="font-size:9px;color:rgba(255,255,255,.75);font-weight:400;"></div>
+  </div>
+  <button class="modal-close" onclick="fecharCompraGeral()">×</button>
+</div>
+<div style="padding:22px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;">
+  <!-- Vl. Empenho (readonly) -->
+  <div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:11px;color:var(--muted);font-weight:600;">Vl. Total do Empenho</span>
+    <span style="font-size:14px;font-weight:800;color:#2563eb;" id="cgVlEmpenho">R$ 0,00</span>
+  </div>
+  <!-- Grid de campos -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="cmp-field">
+      <label>Data da Compra</label>
+      <input type="date" id="cg_data" class="field-box" />
+    </div>
+    <div class="cmp-field">
+      <label>Fornecedor</label>
+      <input type="text" id="cg_fornecedor" class="field-box" placeholder="Nome do fornecedor" />
+    </div>
+    <div class="cmp-field">
+      <label>Vl. Total da Compra (R$)</label>
+      <input type="number" id="cg_vlTotalCompra" class="field-box" step="0.01" min="0" placeholder="0,00" oninput="recalcCompraGeral()" />
+    </div>
+    <div class="cmp-field">
+      <label>Forma de Pagamento</label>
+      <select id="cg_pagamento" class="field-box" onchange="toggleParcelasGeral()">
+        <option value="Pix">Pix</option>
+        <option value="Cartão de Crédito">Cartão de Crédito</option>
+      </select>
+    </div>
+    <div class="cmp-field" id="cg_parcelasWrap" style="display:none;">
+      <label>Parcelas</label>
+      <input type="number" id="cg_parcelas" class="field-box" min="1" max="48" value="1" />
+    </div>
+    <div class="cmp-field" style="grid-column:1/-1;">
+      <label>🔗 Link da Compra</label>
+      <input type="url" id="cg_linkCompra" class="field-box" placeholder="https://..." />
+    </div>
+  </div>
+  <!-- Impostos / Royalties -->
+  <div style="border-top:1px solid var(--line);padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="cmp-field">
+      <label>Imposto (R$) — 6% auto</label>
+      <div class="cmp-auto-row">
+        <input type="number" id="cg_imposto" class="field-box" step="0.01" min="0" readonly oninput="recalcCompraGeral()" style="background:var(--bg);color:var(--muted);" />
+        <button type="button" class="btn-toggle-manual" id="cg_impostoBtn" onclick="toggleManualCG('cg_imposto','cg_impostoBtn')">🔒 Auto</button>
+      </div>
+    </div>
+    <div class="cmp-field">
+      <label>Royalties (R$) — 1% auto</label>
+      <div class="cmp-auto-row">
+        <input type="number" id="cg_royalties" class="field-box" step="0.01" min="0" readonly oninput="recalcCompraGeral()" style="background:var(--bg);color:var(--muted);" />
+        <button type="button" class="btn-toggle-manual" id="cg_royaltiesBtn" onclick="toggleManualCG('cg_royalties','cg_royaltiesBtn')">🔒 Auto</button>
+      </div>
+    </div>
+  </div>
+  <!-- Lucro calculado -->
+  <div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+    <div style="text-align:center;">
+      <div style="font-size:9px;color:var(--muted);font-weight:600;margin-bottom:4px;">Custo Total</div>
+      <div style="font-size:12px;font-weight:700;color:#fb923c;" id="cgCustoTotal">R$ 0,00</div>
+    </div>
+    <div style="text-align:center;border-left:1px solid var(--line);border-right:1px solid var(--line);">
+      <div style="font-size:9px;color:var(--muted);font-weight:600;margin-bottom:4px;">Lucro</div>
+      <div style="font-size:12px;font-weight:700;" id="cgLucroTotal">R$ 0,00</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:9px;color:var(--muted);font-weight:600;margin-bottom:4px;">% Lucro</div>
+      <div style="font-size:12px;font-weight:700;" id="cgPctLucro">—</div>
+    </div>
+  </div>
+</div>
+<div style="padding:12px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;flex:0 0 auto;background:var(--card);">
+  <button class="btn btn-light" onclick="fecharCompraGeral()">Cancelar</button>
+  <button class="btn btn-primary" onclick="salvarCompraGeral()">💾 Salvar Compra</button>
 </div>
 </div>
 </div>
