@@ -6585,7 +6585,21 @@
       body.innerHTML = filtered.length === 0
         ? '<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--muted);">Nenhum empenho pendente.</td></tr>'
         : filtered.map(e => {
-            const data = formatDateTime(e.data);
+            // Badge dias pendentes
+            let diasPendBadge = '';
+            if (e.data) {
+              const hoje = new Date(); hoje.setHours(0,0,0,0);
+              const partes = e.data.split('-');
+              const dataEmp = new Date(Number(partes[0]), Number(partes[1])-1, Number(partes[2]));
+              const diff = Math.floor((hoje - dataEmp) / 86400000);
+              if (diff === 0) {
+                diasPendBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#0d1e3a;border-radius:5px;padding:1px 5px;">Hoje</span>`;
+              } else if (diff > 0) {
+                const cor = diff >= 60 ? '#f05252' : diff >= 30 ? '#f0a938' : '#2dd47a';
+                const bg  = diff >= 60 ? '#2a0a0a' : diff >= 30 ? '#2a1c08' : '#0a2018';
+                diasPendBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:${bg};border-radius:5px;padding:1px 5px;">${diff}d pendente${diff!==1?'s':''}</span>`;
+              }
+            }
             const itensDesc = (e.itensEmpenhados || []).map(ie => {
               const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
               return `<div style="font-size:10px;line-height:1.4;">${ie.descricao || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
@@ -6616,7 +6630,7 @@
               pctHtml      = `<span style="font-size:10px;font-weight:${mw};color:${mc};">${mg.toFixed(1)}%</span>`;
             }
             return `<tr>
-              <td><div class="cell-data-hora"><span class="data-dia">${data.date}</span><span class="data-hora">${data.time||'—'}</span></div></td>
+              <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendBadge}</div></td>
               <td style="font-weight:700;font-size:10px;">${e.numero||'—'}</td>
               <td class="cell-wrap">
                 <div class="con-orgao-nome">${e.orgao||'—'}</div>
