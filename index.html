@@ -3494,9 +3494,9 @@
 </div>
 <div class="disputa-stats" style="grid-template-columns:repeat(4,minmax(0,1fr));">
 <div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Vl. Empenho</div><div class="disputa-stat-value" id="empAndStatValor" style="font-size:12px;color:#2563eb;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Vl. Compra Prev.</div><div class="disputa-stat-value" id="empAndStatCompra" style="font-size:12px;color:#a78bfa;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#1a0d08;border-color:#7a3a0a;"><div class="disputa-stat-label">Custo Prev.</div><div class="disputa-stat-value" id="empAndStatCusto" style="font-size:12px;color:#fb923c;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#0a2018;border-color:#1a6040;"><div class="disputa-stat-label">Lucro Prev.</div><div class="disputa-stat-value" id="empAndStatLucro" style="font-size:12px;color:#34d399;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Vl. Compra</div><div class="disputa-stat-value" id="empAndStatCompra" style="font-size:12px;color:#a78bfa;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#1a0d08;border-color:#7a3a0a;"><div class="disputa-stat-label">Custo</div><div class="disputa-stat-value" id="empAndStatCusto" style="font-size:12px;color:#fb923c;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#0a2018;border-color:#1a6040;"><div class="disputa-stat-label">Lucro</div><div class="disputa-stat-value" id="empAndStatLucro" style="font-size:12px;color:#34d399;">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -3544,9 +3544,9 @@
 </th>
 <th>Itens Empenhados</th>
 <th style="color:#2563eb;">Vl. Empenho</th>
-<th style="color:#60a5fa;">Vl. Compra Prev.</th>
-<th style="color:#fb923c;">Custo Prev.</th>
-<th style="color:#34d399;">Lucro Prev.</th>
+<th style="color:#60a5fa;">Vl. Compra</th>
+<th style="color:#fb923c;">Custo</th>
+<th style="color:#34d399;">Lucro</th>
 <th style="color:#a3e635;">% Lucro</th>
 <th class="historico-th">
 <div class="historico-header-cell">
@@ -3557,7 +3557,6 @@
 <label>Status</label>
 <select class="field-box" id="fEmpAndStatus" onchange="renderEmpAndamento()">
 <option value="">Todos</option>
-<option>Pendente</option>
 <option>Compra Feita</option>
 <option>Ag. Liquidação</option>
 </select>
@@ -3568,8 +3567,6 @@
 <th>Ações</th></tr></thead>
 <tbody id="empAndTableBody"></tbody>
 </table>
-</div>
-<div class="subtotal-bar" id="subtotalEmpAnd">
 <div class="sort-select-wrap">
 <label>Ordenar</label>
 <select class="sort-select" id="sortEmpAnd" onchange="renderEmpAndamento()">
@@ -6366,6 +6363,21 @@
       return { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal };
     }
 
+    /* Calcula valores REALIZADOS (com base nas compras registradas) para um empenho */
+    function calcEmpFinanceiroRealizado(e) {
+      const cmpDoEmp = (typeof compras !== 'undefined' ? compras : []).filter(c => c.empenhoId === e.id);
+      const vlEmpTotal   = Number(e.valor || 0);
+      const vlCompraReal = cmpDoEmp.reduce((s, c) => s + (Number(c.vlTotalCompra) || 0), 0);
+      const custoReal    = cmpDoEmp.reduce((s, c) => s + (Number(c.impostoTotal) || 0) + (Number(c.royaltTotal) || 0), 0);
+      const lucroReal    = cmpDoEmp.reduce((s, c) => s + (Number(c.lucroTotal) || 0), 0);
+      // Data da compra mais recente ligada a este empenho
+      let dataCompra = null;
+      cmpDoEmp.forEach(c => {
+        if (c.data && (!dataCompra || c.data > dataCompra)) dataCompra = c.data;
+      });
+      return { vlCompraReal, custoReal, lucroReal, vlEmpTotal, dataCompra, temCompra: cmpDoEmp.length > 0 };
+    }
+
     function empRowHtml(e) {
       const itensDesc = (e.itensEmpenhados || []).map(ie => {
         const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
@@ -6377,40 +6389,42 @@
         <span onclick="toggleStatusDropdown(event,'empsdrop-${e.id}')" style="cursor:pointer;">${empStatusBadge(e.status)} ▾</span>
         <div class="status-dropdown hidden" id="empsdrop-${e.id}">${statusOpts}</div>
       </div>`;
-      // Calcula dias pendentes
-      let diasPendentesHtml = '';
-      if (e.data) {
+
+      // Badge: dias desde a compra (data da compra mais recente)
+      const { vlCompraReal, custoReal, lucroReal, vlEmpTotal, dataCompra, temCompra } = calcEmpFinanceiroRealizado(e);
+      let dataCompraBadge = '';
+      if (dataCompra) {
         const hoje = new Date(); hoje.setHours(0,0,0,0);
-        const partes = e.data.split('-');
-        const dataEmp = new Date(Number(partes[0]), Number(partes[1])-1, Number(partes[2]));
-        const diffDias = Math.floor((hoje - dataEmp) / 86400000);
-        if (diffDias > 0) {
-          const cor = diffDias >= 30 ? '#f05252' : diffDias >= 15 ? '#f0a938' : '#2dd47a';
-          const bg  = diffDias >= 30 ? '#2a0a0a' : diffDias >= 15 ? '#2a1c08' : '#0a2018';
-          diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:${bg};border-radius:5px;padding:1px 5px;">${diffDias} dia${diffDias!==1?'s':''} pendente${diffDias!==1?'s':''}</span>`;
-        } else if (diffDias === 0) {
-          diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#0d1e3a;border-radius:5px;padding:1px 5px;">Hoje</span>`;
+        const partes = dataCompra.split('-');
+        const dtC = new Date(Number(partes[0]), Number(partes[1])-1, Number(partes[2]));
+        const diffDias = Math.floor((hoje - dtC) / 86400000);
+        if (diffDias === 0) {
+          dataCompraBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#0d1e3a;border-radius:5px;padding:1px 5px;">🛒 Hoje</span>`;
+        } else if (diffDias > 0) {
+          const cor = diffDias >= 30 ? '#f0a938' : '#2dd47a';
+          const bg  = diffDias >= 30 ? '#2a1c08' : '#0a2018';
+          dataCompraBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:${bg};border-radius:5px;padding:1px 5px;">🛒 há ${diffDias}d</span>`;
         }
       }
-      // Calcula Vl. Compra Prev. / Custo Prev. / Lucro Prev. / % Lucro
-      // com base nos ITENS REAIS DO EMPENHO (não nos totais do contrato)
-      const { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal } = calcEmpFinanceiro(e);
-      const hasFinanceiro = vlEmpTotal > 0 || vlCompraEmp > 0;
-      let vlCompraPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
-      let pctLucroHtml     = '<span style="color:var(--muted);font-size:10px;">—</span>';
-      let custoPrevHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
-      let lucroPrevHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
-      if (hasFinanceiro) {
-        const lucroColor  = lucroEmp > 0 ? '#34d399' : lucroEmp < 0 ? '#f05252' : 'var(--muted)';
-        vlCompraPrevHtml  = `<span style="font-size:10px;font-weight:600;color:#60a5fa;">${formatCurrency(vlCompraEmp)}</span>`;
-        custoPrevHtml     = `<span style="font-size:10px;font-weight:600;color:#fb923c;">${formatCurrency(custoEmp)}</span>`;
-        lucroPrevHtml     = `<span style="font-size:10px;font-weight:700;color:${lucroColor};">${formatCurrency(lucroEmp)}</span>`;
-        const margem      = vlEmpTotal > 0 ? (lucroEmp / vlEmpTotal) * 100 : 0;
+
+      // Valores realizados
+      const hasR = temCompra;
+      let vlCompraHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let custoHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let lucroHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let pctHtml      = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      if (hasR) {
+        const lucroColor  = lucroReal > 0 ? '#34d399' : lucroReal < 0 ? '#f05252' : 'var(--muted)';
+        const margem      = vlEmpTotal > 0 ? (lucroReal / vlEmpTotal) * 100 : 0;
         const margemColor = margem > 0 ? '#a3e635' : margem < 0 ? '#f05252' : 'var(--muted)';
-        pctLucroHtml      = `<span style="font-size:10px;font-weight:800;color:${margemColor};">${margem.toFixed(1)}%</span>`;
+        vlCompraHtml = `<span style="font-size:10px;font-weight:600;color:#60a5fa;">${formatCurrency(vlCompraReal)}</span>`;
+        custoHtml    = `<span style="font-size:10px;font-weight:600;color:#fb923c;">${formatCurrency(custoReal)}</span>`;
+        lucroHtml    = `<span style="font-size:10px;font-weight:700;color:${lucroColor};">${formatCurrency(lucroReal)}</span>`;
+        pctHtml      = `<span style="font-size:10px;font-weight:800;color:${margemColor};">${margem.toFixed(1)}%</span>`;
       }
+
       return `<tr>
-        <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendentesHtml}</div></td>
+        <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${dataCompraBadge}</div></td>
         <td style="font-weight:700;font-size:10px;">${e.numero || '—'}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${e.orgao || '—'}</div>
@@ -6419,18 +6433,17 @@
         <td>${companyBadge(e.empresa)}</td>
         <td class="cell-wrap">${itensDesc || '—'}</td>
         <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
-        <td>${vlCompraPrevHtml}</td>
-        <td>${custoPrevHtml}</td>
-        <td>${lucroPrevHtml}</td>
-        <td style="text-align:center;">${pctLucroHtml}</td>
+        <td>${vlCompraHtml}</td>
+        <td>${custoHtml}</td>
+        <td>${lucroHtml}</td>
+        <td style="text-align:center;">${pctHtml}</td>
         <td>${statusHtml}</td>
-        <td style="font-size:10px;color:var(--muted);text-align:center;">${e.dataPagamento ? formatDate(e.dataPagamento) : '\u2014'}</td>
         <td>
           <div class="row-menu-wrap">
             <button class="row-menu-btn" onclick="toggleRowMenu(event,'empmenu-${e.id}')">⋯</button>
             <div class="row-menu hidden" id="empmenu-${e.id}">
               <button onclick="abrirEditEmpenho('${e.id}')">✏️ Editar</button>
-              <button onclick="abrirSeletorItemCompra('${e.id}')">🛒 Nova Compra</button>
+              <button onclick="mudarStatusEmpenho('${e.id}','Paga')" style="color:#1f8a4c;">💰 Pagar</button>
               <button onclick="excluirEmpenho('${e.id}')" style="color:#b42318;">🗑️ Excluir</button>
             </div>
           </div>
@@ -6463,13 +6476,13 @@
       // empAndStatEntregue removido (Pendentes agora em seção própria)
       qs('empAndStatLiquidacao').textContent= andamento.filter(e => e.status === 'Ag. Liquidação').length;
       qs('empAndStatValor').textContent     = formatCurrency(andamento.reduce((s,e) => s+(Number(e.valor)||0), 0));
-      // KPI valores financeiros — calculados com base nos ITENS REAIS de cada empenho
+      // KPI valores financeiros — calculados com base nas COMPRAS REALIZADAS de cada empenho
       let _empAndCompraTotal = 0, _empAndCustoTotal = 0, _empAndLucroTotal = 0;
       andamento.forEach(e => {
-        const { vlCompraEmp, custoEmp, lucroEmp } = calcEmpFinanceiro(e);
-        _empAndCompraTotal += vlCompraEmp;
-        _empAndCustoTotal  += custoEmp;
-        _empAndLucroTotal  += lucroEmp;
+        const { vlCompraReal, custoReal, lucroReal } = calcEmpFinanceiroRealizado(e);
+        _empAndCompraTotal += vlCompraReal;
+        _empAndCustoTotal  += custoReal;
+        _empAndLucroTotal  += lucroReal;
       });
       if (qs('empAndStatCompra')) qs('empAndStatCompra').textContent = formatCurrency(_empAndCompraTotal);
       if (qs('empAndStatCusto'))  qs('empAndStatCusto').textContent  = formatCurrency(_empAndCustoTotal);
