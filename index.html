@@ -1668,18 +1668,6 @@
     .lucro-pos { color: #1f8a4c; font-weight: 700; }
     .lucro-neg { color: #b42318; font-weight: 700; }
 
-    @keyframes prejuizo-pulse {
-      0%, 100% { background: rgba(180,35,24,0.08); }
-      50%       { background: rgba(180,35,24,0.20); }
-    }
-    .con-form-itens-table tr.linha-prejuizo td {
-      background: rgba(180,35,24,0.07) !important;
-      animation: prejuizo-pulse 2.4s ease-in-out infinite;
-    }
-    .con-form-itens-table tr.linha-prejuizo td input[readonly] {
-      background: transparent !important;
-    }
-
     /* ── con-enc-table: 8 colunas ── */
     .con-enc-table th:nth-child(1), .con-enc-table td:nth-child(1) { width: 8%; }                      /* Data — igual con-table */
     .con-enc-table th:nth-child(2), .con-enc-table td:nth-child(2) { width: 22%; white-space: normal; } /* Órgão — igual con-table */
@@ -4250,7 +4238,7 @@
         return `
           <tr>
             <td><div class="cell-data-hora"><span class="data-dia">${data.date}</span><span class="data-hora">${data.time || '—'}</span></div></td>
-            <td class="cell-wrap">${item.orgao || '—'}</td>
+            <td class="cell-wrap" style="font-weight:700;">${item.orgao || '—'}</td>
             <td><span class="uf-badge">${item.uf || '—'}</span></td>
             <td><div class="cell-data-hora"><span class="data-dia">${item.tipo || ''}</span><span class="data-hora">${item.processo || '—'}</span></div></td>
             <td>${companyBadge(item.empresa)}</td>
@@ -5200,8 +5188,7 @@
       const { r, i } = getPct(pfx);
       tbody.innerHTML = _conItens.map(item => {
         const { vlTotal, royaltiesR, impostoR, lucroUnit, lucroTotal } = calcItem(item, r, i);
-        const _trCls = lucroTotal < 0 ? 'linha-prejuizo' : '';
-        return `<tr class="${_trCls}">
+        return `<tr>
           <td><input type="text" value="${item.descricao}" placeholder="Descrição do item"
             oninput="_conItens.find(x=>x.id==='${item.id}').descricao=this.value"/></td>
           <td><input type="text" value="${item.marca}" placeholder="Marca"
@@ -6157,48 +6144,23 @@
       return `<span class="status ${map[status] || 'status-gray'}" style="font-size:9px;padding:3px 7px;">${status || '—'}</span>`;
     }
 
-    let _pagandoEmpId = null;
-
     function mudarStatusEmpenho(id, novoStatus) {
-      const statusNorm = novoStatus === 'Ag. Liquidação' ? 'Ag. Liquidação' : novoStatus;
-      if (statusNorm === 'Paga') {
-        _pagandoEmpId = id;
-        const inp = document.getElementById('modalPagDataInput');
-        if (inp) inp.value = new Date().toISOString().split('T')[0];
-        document.getElementById('modalPagamentoWrap').classList.remove('hidden');
-        closeAllMenus();
-        return;
-      }
       const emp = empenhos.find(e => e.id === id);
       if (emp) {
+        // Normaliza label do status
+        const statusNorm = novoStatus === 'Ag. Liquidação' ? 'Ag. Liquidação' : novoStatus;
         emp.status = statusNorm;
         persistEmpenhos();
         renderEmpAndamento();
         renderEmpEncerrados();
+        // Se marcou como Paga, navega automaticamente para Empenhos Encerrados
+        if (statusNorm === 'Paga') {
+          const secEl = document.querySelector('[data-section-target="empenhos-encerrados"]');
+          if (secEl) showSection('empenhos-encerrados', secEl);
+          mostrarToast('✅ Empenho encerrado!', 'Empenho movido para Encerrados.');
+        }
       }
       closeAllMenus();
-    }
-
-    function confirmarPagamentoEmpenho() {
-      const dataPag = document.getElementById('modalPagDataInput')?.value;
-      if (!dataPag) { alert('Informe a data de pagamento.'); return; }
-      const emp = empenhos.find(e => e.id === _pagandoEmpId);
-      if (emp) {
-        emp.status = 'Paga';
-        emp.dataPagamento = dataPag;
-        persistEmpenhos();
-        renderEmpAndamento();
-        renderEmpEncerrados();
-        const secEl = document.querySelector('[data-section-target="empenhos-encerrados"]');
-        if (secEl) showSection('empenhos-encerrados', secEl);
-        mostrarToast('✅ Empenho encerrado!', 'Empenho movido para Encerrados.');
-      }
-      fecharModalPagamento();
-    }
-
-    function fecharModalPagamento() {
-      document.getElementById('modalPagamentoWrap').classList.add('hidden');
-      _pagandoEmpId = null;
     }
 
     function excluirEmpenho(id) {
@@ -6221,57 +6183,54 @@
 
     // ── Helper compartilhado: gera HTML de uma linha de empenho ──
     /**
-     * Calcula Vl. Compra Real, Custo Real, Lucro Real e Vl. Empenho.
-     * Se há compras registradas para o empenho, usa os valores REAIS delas.
-     * Caso contrário, usa os valores previstos (contrato).
+     * Calcula Vl. Compra Prev., Custo Prev., Lucro Prev. e Vl. Empenho
+     * com base nos ITENS REAIS do empenho (qtdEmp × preços do item no contrato).
+     * Garante que os valores reflitam o empenho específico, não o contrato inteiro.
      */
     function calcEmpFinanceiro(e) {
       const contrato = contratosAtivos.find(c => c.id === e.contratoId)
                     || contratosEncerrados.find(c => c.id === e.contratoId);
-      const itensEmp  = e.itensEmpenhados || [];
-      const vlEmpTotal = itensEmp.reduce((s, ie) => s + Number(ie.qtdEmp||0) * Number(ie.vlUnit||0), 0)
-                        || Number(e.valor || 0);
+      const itensEmp = e.itensEmpenhados || [];
 
-      // ── Verifica se há compras reais vinculadas a este empenho ──
-      const comprasEmp = (typeof compras !== 'undefined' ? compras : []).filter(c => c.empenhoId === e.id);
-
-      if (comprasEmp.length > 0) {
-        // Usa dados REAIS das compras
-        const vlCompraEmp = comprasEmp.reduce((s, c) => s + Number(c.vlTotalCompra || 0), 0);
-        const custoEmp    = comprasEmp.reduce((s, c) => s + Number(c.impostoTotal  || 0) + Number(c.royaltTotal || 0), 0);
-        const lucroEmp    = comprasEmp.reduce((s, c) => s + Number(c.lucroTotal    || 0), 0);
-        return { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal, temCompraReal: true };
-      }
-
-      // ── Fallback: valores previstos (contrato) ──
+      // Se não há itens detalhados nem contrato, retorna zeros
       if (!itensEmp.length && !contrato) {
-        return { vlCompraEmp: 0, custoEmp: 0, lucroEmp: 0, vlEmpTotal, temCompraReal: false };
+        return { vlCompraEmp: 0, custoEmp: 0, lucroEmp: 0, vlEmpTotal: Number(e.valor || 0) };
       }
 
       const royaltiesPct = Number(contrato?.royaltiesPct ?? contrato?.royalties ?? 1);
       const impostoPct   = Number(contrato?.impostoPct   ?? contrato?.imposto   ?? 6);
 
-      let vlCompraEmp = 0;
-      let custoEmp    = 0;
+      let vlEmpTotal  = 0; // Vl. Empenho = soma(qtdEmp × vlUnit do item empenhado)
+      let vlCompraEmp = 0; // Compra Prev. = soma(qtdEmp × compraUnit do item no contrato)
+      let custoEmp    = 0; // Custo Prev. = royalties + imposto sobre vlEmpTotal
 
       itensEmp.forEach(ie => {
         const qtd    = Number(ie.qtdEmp || 0);
         const vlUnit = Number(ie.vlUnit  || 0);
+
+        // Tenta pegar compraUnit do item no contrato; fallback para o que foi salvo no empenho
         const itemContrato = (contrato?.itensLotes || []).find(it => it.id === ie.itemId);
         const compraUnit   = Number(itemContrato?.compraUnit ?? ie.compraUnit ?? 0);
+
+        vlEmpTotal  += qtd * vlUnit;
         vlCompraEmp += qtd * compraUnit;
         custoEmp    += qtd * vlUnit * (royaltiesPct / 100)
                      + qtd * vlUnit * (impostoPct   / 100);
       });
 
+      // Fallback: se não há itensLotes no contrato, usa o valor total do empenho
       if (!itensEmp.length && contrato) {
-        const proporcao = Number(contrato.valor || 0) > 0 ? vlEmpTotal / Number(contrato.valor) : 0;
+        vlEmpTotal  = Number(e.valor || 0);
+        // Proporção do empenho em relação ao contrato para estimar compra/custo
+        const proporcao = Number(contrato.valor || 0) > 0
+          ? vlEmpTotal / Number(contrato.valor)
+          : 0;
         vlCompraEmp = Number(contrato.compra || 0) * proporcao;
         custoEmp    = (Number(contrato.royalties || 0) + Number(contrato.imposto || 0)) * proporcao;
       }
 
       const lucroEmp = vlEmpTotal - vlCompraEmp - custoEmp;
-      return { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal, temCompraReal: false };
+      return { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal };
     }
 
     function empRowHtml(e) {
@@ -6294,33 +6253,28 @@
         const diffDias = Math.floor((hoje - dataEmp) / 86400000);
         if (diffDias > 0) {
           const cor = diffDias >= 30 ? '#f05252' : diffDias >= 15 ? '#f0a938' : '#2dd47a';
-          diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:var(--card);border:1px solid var(--line);border-radius:5px;padding:1px 5px;">${diffDias} dia${diffDias!==1?'s':''} pendente${diffDias!==1?'s':''}</span>`;
+          const bg  = diffDias >= 30 ? '#2a0a0a' : diffDias >= 15 ? '#2a1c08' : '#0a2018';
+          diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:${bg};border-radius:5px;padding:1px 5px;">${diffDias} dia${diffDias!==1?'s':''} pendente${diffDias!==1?'s':''}</span>`;
         } else if (diffDias === 0) {
           diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#0d1e3a;border-radius:5px;padding:1px 5px;">Hoje</span>`;
         }
       }
       // Calcula Vl. Compra Prev. / Custo Prev. / Lucro Prev. / % Lucro
       // com base nos ITENS REAIS DO EMPENHO (não nos totais do contrato)
-      const fin = calcEmpFinanceiro(e);
-      const { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal } = fin;
+      const { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal } = calcEmpFinanceiro(e);
       const hasFinanceiro = vlEmpTotal > 0 || vlCompraEmp > 0;
       let vlCompraPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let pctLucroHtml     = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let custoPrevHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let lucroPrevHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
       if (hasFinanceiro) {
-        const lucroColor   = lucroEmp > 0 ? '#34d399' : lucroEmp < 0 ? '#f05252' : 'var(--muted)';
-        const lucroWeight  = lucroEmp !== 0 ? '700' : '400';
-        const margem       = vlEmpTotal > 0 ? (lucroEmp / vlEmpTotal) * 100 : 0;
-        const margemColor  = margem > 0 ? '#34d399' : margem < 0 ? '#f05252' : 'var(--muted)';
-        const margemWeight = margem !== 0 ? '700' : '400';
-        const badgeReal    = fin.temCompraReal
-          ? `<span style="font-size:8px;font-weight:700;background:var(--primary);color:#fff;border-radius:4px;padding:1px 4px;margin-left:4px;vertical-align:middle;">Real</span>`
-          : '';
-        vlCompraPrevHtml = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraEmp)}${badgeReal}</span>`;
-        custoPrevHtml    = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(custoEmp)}</span>`;
-        lucroPrevHtml    = `<span style="font-size:10px;font-weight:${lucroWeight};color:${lucroColor};">${formatCurrency(lucroEmp)}</span>`;
-        pctLucroHtml     = `<span style="font-size:10px;font-weight:${margemWeight};color:${margemColor};">${margem.toFixed(1)}%</span>`;
+        const lucroColor  = lucroEmp > 0 ? '#34d399' : lucroEmp < 0 ? '#f05252' : 'var(--muted)';
+        vlCompraPrevHtml  = `<span style="font-size:10px;font-weight:600;color:#60a5fa;">${formatCurrency(vlCompraEmp)}</span>`;
+        custoPrevHtml     = `<span style="font-size:10px;font-weight:600;color:#fb923c;">${formatCurrency(custoEmp)}</span>`;
+        lucroPrevHtml     = `<span style="font-size:10px;font-weight:700;color:${lucroColor};">${formatCurrency(lucroEmp)}</span>`;
+        const margem      = vlEmpTotal > 0 ? (lucroEmp / vlEmpTotal) * 100 : 0;
+        const margemColor = margem > 0 ? '#a3e635' : margem < 0 ? '#f05252' : 'var(--muted)';
+        pctLucroHtml      = `<span style="font-size:10px;font-weight:800;color:${margemColor};">${margem.toFixed(1)}%</span>`;
       }
       return `<tr>
         <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendentesHtml}</div></td>
@@ -10087,28 +10041,5 @@ function confirmarImportacao() {
     </div>
   </div>
 
-
-  <!-- Modal: Confirmar Data de Pagamento -->
-  <div id="modalPagamentoWrap" class="modal-overlay hidden" onclick="if(event.target===this)fecharModalPagamento()" style="z-index:9999;">
-    <div style="background:var(--card);border-radius:16px;padding:32px 28px;width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
-      <div style="font-size:32px;margin-bottom:10px;">💰</div>
-      <h3 style="margin:0 0 6px;font-size:15px;font-weight:700;color:var(--text);">Confirmar Pagamento</h3>
-      <p style="font-size:11px;color:var(--muted);margin:0 0 22px;line-height:1.5;">Informe a data em que o empenho foi pago.<br>Ele será movido para <strong>Empenhos Encerrados</strong>.</p>
-      <div style="text-align:left;margin-bottom:20px;">
-        <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;">Data de Pagamento</label>
-        <input id="modalPagDataInput" type="date"
-          style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line);
-                 border-radius:9px;background:var(--bg);color:var(--text);font-size:13px;font-family:inherit;"/>
-      </div>
-      <div style="display:flex;gap:10px;justify-content:center;">
-        <button onclick="fecharModalPagamento()"
-          style="padding:9px 20px;border-radius:9px;border:1px solid var(--line);background:var(--card);
-                 color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer;">Cancelar</button>
-        <button onclick="confirmarPagamentoEmpenho()"
-          style="padding:9px 22px;border-radius:9px;border:none;background:var(--primary);
-                 color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;">✅ Confirmar Pago</button>
-      </div>
-    </div>
-  </div>
 </body>
 </html>
