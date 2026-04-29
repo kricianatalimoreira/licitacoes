@@ -6399,11 +6399,11 @@
         const dtC = new Date(Number(partes[0]), Number(partes[1])-1, Number(partes[2]));
         const diffDias = Math.floor((hoje - dtC) / 86400000);
         if (diffDias === 0) {
-          dataCompraBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#0d1e3a;border-radius:5px;padding:1px 5px;">🛒 Hoje</span>`;
+          dataCompraBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#dbeafe;border-radius:5px;padding:1px 5px;">🛒 hoje</span>`;
         } else if (diffDias > 0) {
           const cor = diffDias >= 30 ? '#f0a938' : '#2dd47a';
-          const bg  = diffDias >= 30 ? '#2a1c08' : '#0a2018';
-          dataCompraBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:${bg};border-radius:5px;padding:1px 5px;">🛒 há ${diffDias}d</span>`;
+          const bg  = diffDias >= 30 ? '#fef3c7' : '#d1fae5';
+          dataCompraBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:${bg};border-radius:5px;padding:1px 5px;">🛒 ${diffDias} dias desde a compra</span>`;
         }
       }
 
@@ -6414,13 +6414,13 @@
       let lucroHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let pctHtml      = '<span style="color:var(--muted);font-size:10px;">—</span>';
       if (hasR) {
-        const lucroColor  = lucroReal > 0 ? '#34d399' : lucroReal < 0 ? '#f05252' : 'var(--muted)';
+        const lucroColor  = lucroReal > 0 ? '#1f8a4c' : lucroReal < 0 ? '#b42318' : 'var(--muted)';
         const margem      = vlEmpTotal > 0 ? (lucroReal / vlEmpTotal) * 100 : 0;
-        const margemColor = margem > 0 ? '#a3e635' : margem < 0 ? '#f05252' : 'var(--muted)';
-        vlCompraHtml = `<span style="font-size:10px;font-weight:600;color:#60a5fa;">${formatCurrency(vlCompraReal)}</span>`;
-        custoHtml    = `<span style="font-size:10px;font-weight:600;color:#fb923c;">${formatCurrency(custoReal)}</span>`;
+        const margemColor = margem > 0 ? '#1f8a4c' : margem < 0 ? '#b42318' : 'var(--muted)';
+        vlCompraHtml = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraReal)}</span>`;
+        custoHtml    = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(custoReal)}</span>`;
         lucroHtml    = `<span style="font-size:10px;font-weight:700;color:${lucroColor};">${formatCurrency(lucroReal)}</span>`;
-        pctHtml      = `<span style="font-size:10px;font-weight:800;color:${margemColor};">${margem.toFixed(1)}%</span>`;
+        pctHtml      = `<span style="font-size:10px;font-weight:700;color:${margemColor};">${margem.toFixed(1)}%</span>`;
       }
 
       return `<tr>
