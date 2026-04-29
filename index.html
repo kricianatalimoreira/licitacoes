@@ -2666,13 +2666,17 @@
 <span class="menu-parent-caret">⌃</span>
 </button>
 <div class="menu-children">
+<button class="menu-child" data-section-target="empenhos-pendentes" onclick="showSection('empenhos-pendentes', this);renderEmpPendentes()">
+<span class="menu-child-dot"></span>
+<span class="menu-label">Pendentes</span>
+</button>
 <button class="menu-child" data-section-target="empenhos-andamento" onclick="showSection('empenhos-andamento', this);renderEmpAndamento()">
 <span class="menu-child-dot"></span>
 <span class="menu-label">Em andamento</span>
 </button>
 <button class="menu-child" data-section-target="empenhos-encerrados" onclick="showSection('empenhos-encerrados', this);renderEmpEncerrados()">
 <span class="menu-child-dot"></span>
-<span class="menu-label">Encerrados</span>
+<span class="menu-label">Pagos</span>
 </button>
 </div>
 </div>
@@ -3372,11 +3376,99 @@
 </section>
 <!-- ═══════════════ EMPENHOS ═══════════════ -->
 <!-- ═══════════════ EMPENHOS EM ANDAMENTO ═══════════════ -->
+<!-- ═══════════════ EMPENHOS PENDENTES ═══════════════ -->
+<section class="page-section hidden" id="empenhos-pendentes">
+<div class="topbar">
+<div>
+<h2>📋 Empenhos pendentes</h2>
+<p>Empenhos aguardando compra — status Pendente.</p>
+</div>
+<div class="actions">
+<button class="btn btn-primary" onclick="abrirSeletorContratoEmpenho()">+ Novo Empenho</button>
+</div>
+</div>
+<div class="disputa-stats" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:8px;">
+<div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Pendentes</div><div class="disputa-stat-value" id="empPendStatTotal">0</div></div>
+<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Vl. Empenho</div><div class="disputa-stat-value" id="empPendStatValor" style="font-size:12px;color:#2563eb;">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Gadita</div><div class="disputa-stat-value" id="empPendStatGadita" style="font-size:13px;color:var(--primary-dark);">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Hamate</div><div class="disputa-stat-value" id="empPendStatHamate" style="font-size:13px;color:var(--primary-dark);">R$ 0,00</div></div>
+</div>
+<div class="disputa-table-card">
+<div class="table-wrap">
+<table class="emp-table">
+<thead><tr>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Data</span>
+<button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'empPendPopover-data')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
+<div class="historico-inline-popover hidden" id="empPendPopover-data">
+<div class="historico-popover-title">Filtrar Data</div>
+<div class="historico-filter-grid">
+<div><label>Data exata</label><input class="field-box" id="fEmpPendData" oninput="renderEmpPendentes()" type="date"/></div>
+</div>
+<div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltrosEmpPendentes()" type="button">Limpar</button></div>
+</div>
+</div>
+</th>
+<th>Nº Empenho</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Órgão / Contrato</span>
+<button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'empPendPopover-orgao')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
+<div class="historico-inline-popover hidden" id="empPendPopover-orgao">
+<div class="historico-popover-title">Filtrar Órgão</div>
+<label>Buscar por órgão</label>
+<input autocomplete="new-password" class="field-box" id="fEmpPendOrgao" oninput="renderEmpPendentes()" placeholder="Digite parte do órgão" type="text"/>
+</div>
+</div>
+</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Empresa</span>
+<button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'empPendPopover-empresa')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
+<div class="historico-inline-popover hidden" id="empPendPopover-empresa">
+<div class="historico-popover-title">Filtrar Empresa</div>
+<label>Empresa</label>
+<select class="field-box" id="fEmpPendEmpresa" onchange="renderEmpPendentes()">
+<option value="">Todas</option>
+<option value="Gadita">Gadita</option>
+<option value="Hamate">Hamate</option>
+</select>
+</div>
+</div>
+</th>
+<th>Itens Empenhados</th>
+<th style="color:#2563eb;">Vl. Empenho</th>
+<th>Ações</th></tr></thead>
+<tbody id="empPendTableBody"></tbody>
+</table>
+</div>
+<div class="subtotal-bar" id="subtotalEmpPend">
+<div class="sort-select-wrap">
+<label>Ordenar</label>
+<select class="sort-select" id="sortEmpPend" onchange="renderEmpPendentes()">
+<option value="">Ordenar por...</option>
+<option value="data_asc" selected>Data ↑ (mais antiga)</option>
+<option value="data_desc">Data ↓ (mais recente)</option>
+<option value="orgao_asc">Órgão A→Z</option>
+<option value="empresa_asc">Empresa A→Z</option>
+<option value="valor_desc">Valor ↓</option>
+<option value="valor_asc">Valor ↑</option>
+</select>
+</div>
+<div style="flex:1;"></div>
+<span class="subtotal-label">Filtrado</span>
+<div class="subtotal-item"><span class="subtotal-item-label">Empenhos</span><span class="subtotal-item-value" id="subtotalEmpPendQtde">0</span></div>
+<div class="subtotal-item"><span class="subtotal-item-label">Valor</span><span class="subtotal-item-value" id="subtotalEmpPendValor">R$ 0,00</span></div>
+</div>
+</div>
+</section>
+<!-- ═══════════════ EMPENHOS EM ANDAMENTO ═══════════════ -->
 <section class="page-section hidden" id="empenhos-andamento">
 <div class="topbar">
 <div>
 <h2>📄 Empenhos em andamento</h2>
-<p>Empenhos ativos — status diferente de Paga.</p>
+<p>Empenhos com compra registrada — Compra Feita e Ag. Liquidação.</p>
 </div>
 <div class="actions">
 <button class="btn btn-primary" onclick="abrirSeletorContratoEmpenho()">+ Novo Empenho</button>
@@ -3388,9 +3480,8 @@
 <button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
 <button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
 </div>
-<div class="disputa-stats" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:8px;">
+<div class="disputa-stats" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:8px;">
 <div class="disputa-stat-card"><div class="disputa-stat-label">Em andamento</div><div class="disputa-stat-value" id="empAndStatTotal">0</div></div>
-<div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Pendentes</div><div class="disputa-stat-value" id="empAndStatEntregue">0</div></div>
 <div class="disputa-stat-card stat-orange"><div class="disputa-stat-label">Compra Feita</div><div class="disputa-stat-value" id="empAndStatAberto">0</div></div>
 <div class="disputa-stat-card" style="background:#1a1530;border-color:#4a3a8a;"><div class="disputa-stat-label">Ag. Liquidação</div><div class="disputa-stat-value" id="empAndStatLiquidacao">0</div></div>
 </div>
@@ -3488,7 +3579,7 @@
 <section class="page-section hidden" id="empenhos-encerrados">
 <div class="topbar">
 <div>
-<h2>✅ Empenhos encerrados</h2>
+<h2>✅ Empenhos pagos</h2>
 <p>Empenhos com status Paga — ciclo financeiro concluído.</p>
 </div>
 </div>
@@ -4238,7 +4329,7 @@
         return `
           <tr>
             <td><div class="cell-data-hora"><span class="data-dia">${data.date}</span><span class="data-hora">${data.time || '—'}</span></div></td>
-            <td class="cell-wrap" style="font-weight:700;">${item.orgao || '—'}</td>
+            <td class="cell-wrap">${item.orgao || '—'}</td>
             <td><span class="uf-badge">${item.uf || '—'}</span></td>
             <td><div class="cell-data-hora"><span class="data-dia">${item.tipo || ''}</span><span class="data-hora">${item.processo || '—'}</span></div></td>
             <td>${companyBadge(item.empresa)}</td>
@@ -6157,7 +6248,7 @@
         if (statusNorm === 'Paga') {
           const secEl = document.querySelector('[data-section-target="empenhos-encerrados"]');
           if (secEl) showSection('empenhos-encerrados', secEl);
-          mostrarToast('✅ Empenho encerrado!', 'Empenho movido para Encerrados.');
+          mostrarToast('✅ Empenho pago!', 'Empenho movido para Pagos.');
         }
       }
       closeAllMenus();
@@ -6310,7 +6401,7 @@
       const body = qs('empAndTableBody');
       if (!body) return;
 
-      const andamento = empenhos.filter(e => e.status !== 'Paga');
+      const andamento = empenhos.filter(e => e.status === 'Compra Feita' || e.status === 'Ag. Liquidação');
       const fStatus  = qs('fEmpAndStatus')?.value  || '';
       const fEmpresa = qs('fEmpAndEmpresa')?.value || '';
       const fOrgao   = (qs('fEmpAndOrgao')?.value  || '').trim().toLowerCase();
@@ -6327,7 +6418,7 @@
       // KPIs (baseados em todos os em andamento, sem filtro)
       qs('empAndStatTotal').textContent     = andamento.length;
       qs('empAndStatAberto').textContent    = andamento.filter(e => e.status === 'Compra Feita').length;
-      qs('empAndStatEntregue').textContent  = andamento.filter(e => e.status === 'Pendente').length;
+      // empAndStatEntregue removido (Pendentes agora em seção própria)
       qs('empAndStatLiquidacao').textContent= andamento.filter(e => e.status === 'Ag. Liquidação').length;
       qs('empAndStatValor').textContent     = formatCurrency(andamento.reduce((s,e) => s+(Number(e.valor)||0), 0));
       // KPI valores financeiros — calculados com base nos ITENS REAIS de cada empenho
@@ -6366,6 +6457,81 @@
     }
 
     // ── Empenhos encerrados (status === 'Paga') ──
+    function renderEmpPendentes() {
+      const body = qs('empPendTableBody');
+      if (!body) return;
+      const pendentes = empenhos.filter(e => e.status === 'Pendente');
+
+      // Filtros
+      const fData    = (qs('fEmpPendData')?.value    || '').trim();
+      const fOrgao   = (qs('fEmpPendOrgao')?.value   || '').trim().toLowerCase();
+      const fEmpresa = (qs('fEmpPendEmpresa')?.value  || '').trim();
+
+      let filtered = pendentes.filter(e => {
+        if (fData    && (e.data||'').slice(0,10) !== fData) return false;
+        if (fOrgao   && !(e.orgao||'').toLowerCase().includes(fOrgao)) return false;
+        if (fEmpresa && e.empresa !== fEmpresa) return false;
+        return true;
+      });
+
+      // Ordenação
+      const sort = qs('sortEmpPend')?.value || 'data_asc';
+      filtered.sort((a,b) => {
+        if (sort === 'data_desc') return new Date(b.data) - new Date(a.data);
+        if (sort === 'data_asc')  return new Date(a.data) - new Date(b.data);
+        if (sort === 'orgao_asc') return (a.orgao||'').localeCompare(b.orgao||'');
+        if (sort === 'empresa_asc') return (a.empresa||'').localeCompare(b.empresa||'');
+        if (sort === 'valor_desc') return Number(b.valor||0) - Number(a.valor||0);
+        if (sort === 'valor_asc')  return Number(a.valor||0) - Number(b.valor||0);
+        return 0;
+      });
+
+      // KPIs
+      if (qs('empPendStatTotal'))  qs('empPendStatTotal').textContent  = pendentes.length;
+      if (qs('empPendStatValor'))  qs('empPendStatValor').textContent  = formatCurrency(pendentes.reduce((s,e)=>s+Number(e.valor||0),0));
+      if (qs('empPendStatGadita')) qs('empPendStatGadita').textContent = formatCurrency(pendentes.filter(e=>e.empresa==='Gadita').reduce((s,e)=>s+Number(e.valor||0),0));
+      if (qs('empPendStatHamate')) qs('empPendStatHamate').textContent = formatCurrency(pendentes.filter(e=>e.empresa==='Hamate').reduce((s,e)=>s+Number(e.valor||0),0));
+
+      if (qs('subtotalEmpPendQtde')) qs('subtotalEmpPendQtde').textContent = filtered.length;
+      if (qs('subtotalEmpPendValor')) qs('subtotalEmpPendValor').textContent = formatCurrency(filtered.reduce((s,e)=>s+Number(e.valor||0),0));
+
+      body.innerHTML = filtered.length === 0
+        ? '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">Nenhum empenho pendente.</td></tr>'
+        : filtered.map(e => {
+            const data = formatDateTime(e.data);
+            const itensDesc = (e.itensEmpenhados || []).map(ie => {
+              const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
+              return `<div style="font-size:10px;line-height:1.4;">${ie.descricao || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
+            }).join('');
+            return `<tr>
+              <td><div class="cell-data-hora"><span class="data-dia">${data.date}</span><span class="data-hora">${data.time||'—'}</span></div></td>
+              <td style="font-weight:700;font-size:10px;">${e.numero||'—'}</td>
+              <td class="cell-wrap">
+                <div class="con-orgao-nome">${e.orgao||'—'}</div>
+                <div class="con-orgao-info">${e.contrato||''}</div>
+              </td>
+              <td>${companyBadge(e.empresa)}</td>
+              <td class="cell-wrap">${itensDesc||'—'}</td>
+              <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
+              <td>
+                <div class="row-menu-wrap">
+                  <button class="row-menu-btn" onclick="toggleRowMenu(event,'emppendmenu-${e.id}')">⋯</button>
+                  <div class="row-menu hidden" id="emppendmenu-${e.id}">
+                    <button onclick="abrirEditEmpenho('${e.id}')">✏️ Editar</button>
+                    <button onclick="abrirSeletorItemCompra('${e.id}')">🛒 Nova Compra</button>
+                    <button onclick="excluirEmpenho('${e.id}')" style="color:#b42318;">🗑️ Excluir</button>
+                  </div>
+                </div>
+              </td>
+            </tr>`;
+          }).join('');
+    }
+
+    function limparFiltrosEmpPendentes() {
+      ['fEmpPendData','fEmpPendOrgao','fEmpPendEmpresa'].forEach(id => { const el = qs(id); if(el) el.value=''; });
+      renderEmpPendentes();
+    }
+
     function renderEmpEncerrados() {
       const body = qs('empEncTableBody');
       if (!body) return;
@@ -6404,6 +6570,7 @@
 
     // Mantida para compatibilidade com chamadas internas (persistEmpenhos, etc.)
     function renderEmpenhos() {
+      renderEmpPendentes();
       renderEmpAndamento();
       renderEmpEncerrados();
     }
@@ -7365,12 +7532,15 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       if (emp.status === 'Pendente') {
         emp.status = 'Compra Feita';
         persistEmpenhos();
+        // Move para Em andamento automaticamente
+        const secEl = document.querySelector('[data-section-target="empenhos-andamento"]');
+        if (secEl) showSection('empenhos-andamento', secEl);
       }
       persistCompras();
       renderCompras();
       renderEmpenhos();
       fecharModalCompras();
-      mostrarToast('🛒 Compra registrada!', `${salvou} item(ns) salvo(s). Status atualizado para "Compra Feita".`);
+      mostrarToast('🛒 Compra registrada!', `${salvou} item(ns) salvo(s). Empenho movido para Em andamento.`);
     }
 
     // ── Editar Compra ─────────────────────────────────────
