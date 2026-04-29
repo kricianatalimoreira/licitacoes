@@ -5113,13 +5113,23 @@
         return empenhosDoContrato(contratoId).reduce((s,e) => s + (Number(e.valor)||0), 0);
       }
       function lucroEmpenhos(c) {
-        // Lucro real = valor empenhado - (compra proporcional + custo proporcional)
-        const valorEmp = totalEmpenhado(c.id);
-        if (!valorEmp || !c.valor) return 0;
-        const proporcao = valorEmp / (Number(c.valor)||1);
-        const compraProp = (Number(c.compra)||0) * proporcao;
-        const custoProp  = calcCusto(c.royalties, c.imposto) * proporcao;
-        return valorEmp - compraProp - custoProp;
+        // Lucro realizado = soma dos lucroTotal das compras vinculadas aos empenhos deste contrato
+        const empsDoContrato = empenhos.filter(e => e.contratoId === c.id);
+        let lucroReal = 0;
+        empsDoContrato.forEach(e => {
+          const { lucroReal: lr } = calcEmpFinanceiroRealizado(e);
+          lucroReal += lr;
+        });
+        // Fallback para empenhos sem compras: usa cálculo proporcional previsto
+        if (lucroReal === 0) {
+          const valorEmp = totalEmpenhado(c.id);
+          if (!valorEmp || !c.valor) return 0;
+          const proporcao = valorEmp / (Number(c.valor)||1);
+          const compraProp = (Number(c.compra)||0) * proporcao;
+          const custoProp  = calcCusto(c.royalties, c.imposto) * proporcao;
+          return valorEmp - compraProp - custoProp;
+        }
+        return lucroReal;
       }
       function taxaExecucao(c) {
         const valorEmp = totalEmpenhado(c.id);
