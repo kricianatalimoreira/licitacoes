@@ -3054,11 +3054,12 @@
 <button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
 <button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
 </div>
-<div class="disputa-stats" style="grid-template-columns: repeat(5,minmax(0,1fr));">
+<div class="disputa-stats" style="grid-template-columns: repeat(6,minmax(0,1fr));">
 <div class="disputa-stat-card"><div class="disputa-stat-label">Total encerradas</div><div class="disputa-stat-value" id="disputaStatEncTotal">0</div></div>
 <div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Vencidas</div><div class="disputa-stat-value" id="disputaStatVencidas">0</div></div>
 <div class="disputa-stat-card stat-red"><div class="disputa-stat-label">Perdidas</div><div class="disputa-stat-value" id="disputaStatPerdidas">0</div></div>
 <div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Fracassado/Suspenso</div><div class="disputa-stat-value" id="disputaStatFracassado">0</div></div>
+<div class="disputa-stat-card" style="border-color:#2563eb33; background:#2563eb0d;"><div class="disputa-stat-label">Taxa de Conversão</div><div class="disputa-stat-value" id="disputaStatConversao" style="font-size:20px;color:#2563eb;">—</div><div class="disputa-stat-sub" id="disputaStatConversaoSub" style="font-size:10px;color:var(--muted);margin-top:2px;"></div></div>
 <div class="disputa-stat-card" style="border-color:var(--primary-border); background:var(--primary-soft);"><div class="disputa-stat-label">Bruto total</div><div class="disputa-stat-value" id="disputaStatBrutoTotal" style="font-size:20px;color:var(--primary-dark);">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
@@ -4385,6 +4386,21 @@
       qs('disputaStatPerdidas').textContent    = perdidas.length;
       qs('disputaStatFracassado').textContent  = fracassadas.length;
       qs('disputaStatBrutoTotal').textContent  = formatCurrency(brutoTotal);
+
+      // Taxa de Conversão = Vencidas / (Vencidas + Perdidas)
+      const totalDisputed = vencidas.length + perdidas.length;
+      const taxaConv = totalDisputed > 0 ? (vencidas.length / totalDisputed * 100) : null;
+      const convEl = qs('disputaStatConversao');
+      const convSub = qs('disputaStatConversaoSub');
+      if (taxaConv !== null) {
+        convEl.textContent = taxaConv.toFixed(1) + '%';
+        convEl.style.color = taxaConv >= 50 ? '#1f8a4c' : '#b42318';
+        convSub.textContent = vencidas.length + ' v / ' + perdidas.length + ' p';
+      } else {
+        convEl.textContent = '—';
+        convEl.style.color = '#2563eb';
+        convSub.textContent = 'sem dados';
+      }
 
       // Subtotal filtrado
       const brutoFiltrado = filtradas.reduce((acc, i) => acc + (Number(i.bruto) || 0), 0);
@@ -8256,7 +8272,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         { data:'2025-05-14', orgao:'MUNICÍPIO DE VITÓRIA DO XINGU/PA',                        processo:'Pregão 025/2025',    sistema:'Licitanet', status:'Perdida'   },
         { data:'2025-05-27', orgao:'MUNICÍPIO DE URUPÁ/RO',                                   processo:'Pregão 009/2025',    sistema:'Licitanet', status:'Perdida'   },
         { data:'2025-05-20', orgao:'MUNICÍPIO DE RIO REAL/BA',                                processo:'Pregão 031/2025',    sistema:'Licitanet', status:'Perdida'   },
-        { data:'2025-05-13', orgao:'MUNICIPIO DE PARAISO DO NORTE/PR',                        processo:'Pregão 031/2025',    sistema:'Licitanet', status:'Fracassada'},
+        { data:'2025-05-13', orgao:'MUNICIPIO DE PARAISO DO NORTE/PR',                        processo:'Pregão 031/2025',    sistema:'Licitanet', status:'Fracassado/Suspenso'},
         { data:'2025-05-15', orgao:'MUNICIPIO DE MONTE CARMELO/MG',                           processo:'Pregão 028/2025',    sistema:'Licitanet', status:'Perdida'   },
         { data:'2025-05-08', orgao:'MUNICIPIO DE ESPLANADA/BA',                               processo:'Pregão 014/2025',    sistema:'Licitanet', status:'Perdida'   },
         { data:'2025-05-28', orgao:'MUNICÍPIO DE CUJUBIM/RO',                                 processo:'Pregão 017/2025',    sistema:'Licitanet', status:'Perdida'   },
@@ -8265,7 +8281,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         { data:'2025-05-28', orgao:'MUNICÍPIO DE CAMPOS ALTOS/MG',                            processo:'Dispensa 013/2025',  sistema:'Licitanet', status:'Perdida'   },
         { data:'2025-05-26', orgao:'MUNICÍPIO DE CAMPOS ALTOS/MG',                            processo:'Dispensa 012/2025',  sistema:'Licitanet', status:'Perdida'   },
         { data:'2025-05-16', orgao:'MUNICÍPIO DE ARAUÁ/SE',                                   processo:'Dispensa 005/2025',  sistema:'Licitanet', status:'Perdida'   },
-        { data:'2025-05-22', orgao:'MUNICIPIO DE ARARUAMA/RJ',                                processo:'Dispensa 006/2025',  sistema:'Licitanet', status:'Fracassada'},
+        { data:'2025-05-22', orgao:'MUNICIPIO DE ARARUAMA/RJ',                                processo:'Dispensa 006/2025',  sistema:'Licitanet', status:'Fracassado/Suspenso'},
         { data:'2025-05-09', orgao:'MUNICÍPIO DE ÁGUA COMPRIDA/MG',                           processo:'Pregão 007/2025',    sistema:'Licitanet', status:'Perdida'   },
         { data:'2025-05-14', orgao:limpar('Gabi*SERVICO AUTONOMO DE AGUA E ESGOTO DE AÇAILÂNDIA/SAAE/MA'), processo:'Pregão 007/2025', sistema:'Licitanet', status:'Revogada' },
         { data:'2025-05-20', orgao:limpar('Gabi*MUNICIPIO DE PRESIDENTE TANCREDO NEVES/BA'),  processo:'Pregão 053/2025',    sistema:'Licitanet', status:'Perdida'   },
@@ -8372,7 +8388,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         { data:'2025-06-04', orgao:limpar('Gabi*FUNDO MUNICIPAL DE SAÚDE DE TOBIAS BARRETO/SE'),    processo:'Dispensa 004/2025',  sistema:'Licitanet', status:'Perdida'  },
         { data:'2025-06-06', orgao:'MUNICÍPIO DE SÃO FÉLIX DO CORIBE/BA',                            processo:'Pregão 011/2025',    sistema:'Licitanet', status:'Perdida'  },
         { data:'2025-06-11', orgao:'FMS/FUNDO MUNICIPAL DE SAÚDE DE BOM JARDIM/RJ',                  processo:'Pregão 009/2025',    sistema:'Licitanet', status:'Perdida'  },
-        { data:'2025-06-26', orgao:'CÂMARA MUNICIPAL DE MIRANTE DA SERRA/RO',                        processo:'Dispensa 3/2025',    sistema:'Licitanet', status:'Anulada'  },
+        { data:'2025-06-26', orgao:'CÂMARA MUNICIPAL DE MIRANTE DA SERRA/RO',                        processo:'Dispensa 3/2025',    sistema:'Licitanet', status:'Fracassado/Suspenso'  },
       ];
 
       emAndamento.forEach(e => {
@@ -8700,23 +8716,23 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         { data:'2025-10-09', orgao:'MUNICÍPIO DE ARAXA/MG',                                            processo:'Pregão 65/2025',      sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-10-01', orgao:'MUNICÍPIO DE CASTELO/ES',                                          processo:'Pregão 146/2025',     sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-10-29', orgao:'MUNICÍPIO DE PATOS DE MINAS/MG',                                   processo:'Pregão 115/2025',     sistema:'Licitanet',       status:'Perdida'   },
-        { data:'2025-10-30', orgao:'MUNICÍPIO DE PERDIZES/MG',                                         processo:'Pregão 49/2025',      sistema:'Licitanet',       status:'Fracassada'},
+        { data:'2025-10-30', orgao:'MUNICÍPIO DE PERDIZES/MG',                                         processo:'Pregão 49/2025',      sistema:'Licitanet',       status:'Fracassado/Suspenso'},
         { data:'2025-10-22', orgao:'MUNICÍPIO DE SANTA TEREZINHA DO TOCANTINS/TO',                     processo:'Pregão 18/2025',      sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-10-22', orgao:'MONTE BELO/MG',                                                    processo:'Pregão 134/2025',     sistema:'Licitar Digital', status:'Perdida'   },
-        { data:'2025-10-28', orgao:'PREFEITURA MUNICIPAL DE SÃO GONÇALO DO RIO ABAIXO/MG',            processo:'Pregão 77/2025',      sistema:'Licitar Digital', status:'Anulada'   },
+        { data:'2025-10-28', orgao:'PREFEITURA MUNICIPAL DE SÃO GONÇALO DO RIO ABAIXO/MG',            processo:'Pregão 77/2025',      sistema:'Licitar Digital', status:'Fracassado/Suspenso'   },
         { data:'2025-10-20', orgao:'MUNICIPIO DE FRUTAL/MG',                                           processo:'Pregão 85/2025',      sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-10-29', orgao:'MUNICIPIO DE IPUEIRAS/CE',                                         processo:'Dispensa 17/2025',    sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-10-30', orgao:'FCAA/FUNDAÇÃO DA CRIANÇA E DO ADOLESCENTE DE ARAXÁ/MG',           processo:'Pregão 06/2025',      sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-10-15', orgao:'SEMED/SECRETARIA MUNICIPAL DA EDUCAÇÃO DE ARACAJU/SE',            processo:'Pregão 74/2025',      sistema:'Licitanet',       status:'Perdida'   },
-        { data:'2025-10-02', orgao:'MUNICIPIO DE IPUEIRAS/CE',                                         processo:'Dispensa 16/2025',    sistema:'Licitanet',       status:'Fracassada'},
+        { data:'2025-10-02', orgao:'MUNICIPIO DE IPUEIRAS/CE',                                         processo:'Dispensa 16/2025',    sistema:'Licitanet',       status:'Fracassado/Suspenso'},
         { data:'2025-10-02', orgao:'CÂMARA MUNICIPAL DE PATROCÍNIO/MG',                               processo:'Pregão 7/2025',       sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-10-06', orgao:'FUNDO MUNICIPAL DE SAUDE DE BRAZABRANTES/GO',                     processo:'Pregão 25/2025',      sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-10-06', orgao:'MUNICÍPIO DE CABO FRIO/RJ',                                        processo:'Dispensa 15/2025',    sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-10-10', orgao:'MUNICÍPIO DE SÃO GONÇALO DO ABAETÉ/MG',                           processo:'Pregão 27/2025',      sistema:'Licitanet',       status:'Perdida'   },
-        { data:'2025-10-15', orgao:'FMAS/FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE ARACAJU/SE',        processo:'Dispensa 760/2025',   sistema:'Licitanet',       status:'Fracassada'},
+        { data:'2025-10-15', orgao:'FMAS/FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE ARACAJU/SE',        processo:'Dispensa 760/2025',   sistema:'Licitanet',       status:'Fracassado/Suspenso'},
         { data:'2025-10-16', orgao:'FUNDO PENITENCIARIO NACIONAL',                                     processo:'Dispensa 8/2026',     sistema:'ComprasGOV',      status:'Perdida'   },
         { data:'2025-10-16', orgao:'PREFEITURA MUNICIPAL DE CARMO DO CAJURU/MG',                       processo:'Dispensa 127/2025',   sistema:'Licitar Digital', status:'Perdida'   },
-        { data:'2025-10-17', orgao:'MUNICIPIO DE ARARUAMA/RJ',                                         processo:'Pregão 63/2025',      sistema:'Licitanet',       status:'Fracassada'},
+        { data:'2025-10-17', orgao:'MUNICIPIO DE ARARUAMA/RJ',                                         processo:'Pregão 63/2025',      sistema:'Licitanet',       status:'Fracassado/Suspenso'},
         { data:'2025-10-17', orgao:'FELIXLÂNDIA/MG',                                                   processo:'Pregão 36/2025',      sistema:'Licitar Digital', status:'Perdida'   },
         { data:'2025-10-22', orgao:'CÂMARA DE VEREADORES DO MUNICÍPIO DE ESPIGÃO DO OESTE/RO',        processo:'Pregão 01/2025',      sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-10-22', orgao:'MUNICÍPIO DE NOVA NAZARÉ/MT',                                      processo:'Dispensa 41/2025',    sistema:'Licitanet',       status:'Perdida'   },
@@ -8811,7 +8827,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         { data:'2025-11-06', orgao:'MUNICÍPIO DE FELISBURGO/MG',                                processo:'Pregão 39/2025',     sistema:'Licitar Digital', status:'Perdida'   },
         { data:'2025-11-06', orgao:'MUNICÍPIO DE LAGOA DA PRATA/MG',                            processo:'Dispensa 68/2025',   sistema:'Licitar Digital', status:'Perdida'   },
         { data:'2025-11-11', orgao:'PREFEITURA MUNICIPAL DE CONCEIÇÃO DO RIO VERDE/MG',         processo:'Pregão 82/2025',     sistema:'Licitar Digital', status:'Perdida'   },
-        { data:'2025-11-24', orgao:'MUNICIPIO DE PIRANHAS/AL',                                  processo:'Pregão 24/2025',     sistema:'Licitanet',       status:'Fracassada'},
+        { data:'2025-11-24', orgao:'MUNICIPIO DE PIRANHAS/AL',                                  processo:'Pregão 24/2025',     sistema:'Licitanet',       status:'Fracassado/Suspenso'},
       ];
 
       encerradas.forEach(e => {
@@ -8885,9 +8901,9 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         { data:'2025-12-08', orgao:'MUNICÍPIO DE ALTO ALEGRE DOS PARECIS/RO',                                     processo:'Pregão 58/2025',     sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-12-15', orgao:'MUNICÍPIO DE COMENDADOR GOMES/MG',                                            processo:'Dispensa 34/2025',   sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-12-17', orgao:'FUMPREF/FUNDO MUNICIPAL PREVIDENCIARIO DE ESPERA FELIZ/MG',                   processo:'Dispensa 5/2025',    sistema:'Licitanet',       status:'Perdida'   },
-        { data:'2025-12-10', orgao:'MUNICIPIO DE FRUTAL/MG',                                                      processo:'Pregão 112/2025',    sistema:'Licitanet',       status:'Fracassada'},
+        { data:'2025-12-10', orgao:'MUNICIPIO DE FRUTAL/MG',                                                      processo:'Pregão 112/2025',    sistema:'Licitanet',       status:'Fracassado/Suspenso'},
         { data:'2025-12-09', orgao:'MUNICÍPIO DE PIMENTA/MG',                                                     processo:'Pregão 29/2025',     sistema:'Licitanet',       status:'Perdida'   },
-        { data:'2025-12-09', orgao:'PREFEITURA MUNICIPAL DE CRISTINA/MG',                                         processo:'Pregão 30/2025',     sistema:'Licitar Digital', status:'Anulada'   },
+        { data:'2025-12-09', orgao:'PREFEITURA MUNICIPAL DE CRISTINA/MG',                                         processo:'Pregão 30/2025',     sistema:'Licitar Digital', status:'Fracassado/Suspenso'   },
         { data:'2025-12-10', orgao:'CONSELHO REGIONAL DE PSICOLOGIA/CRP13/PB',                                    processo:'Dispensa 12/2025',   sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-12-09', orgao:'MUNICIPIO DE ITAMARI/BA',                                                     processo:'Pregão 29/2025',     sistema:'Licitanet',       status:'Perdida'   },
         { data:'2025-12-09', orgao:'FUNDO MUNICIPAL DE SAÚDE DE RIO VERDE/GO',                                    processo:'Pregão 90/2025',     sistema:'Licitanet',       status:'Perdida'   },
@@ -8961,7 +8977,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         { data:'2026-01-21', orgao:'MUNICÍPIO DE PALMAS DE MONTE ALTO/BA',  processo:'Dispensa 2/2026',  sistema:'Licitanet', status:'Perdida'   },
         { data:'2026-01-06', orgao:'MUNICÍPIO DE COLORADO DO OESTE/RO',     processo:'Pregão 43/2025',   sistema:'Licitanet', status:'Perdida'   },
         { data:'2026-01-21', orgao:'MUNICIPIO DE IPUEIRAS/CE',              processo:'Dispensa 1/2026',  sistema:'Licitanet', status:'Perdida'   },
-        { data:'2026-01-16', orgao:'MUNICÍPIO DE BORBA/AM',                 processo:'Dispensa 34/2025', sistema:'Licitanet', status:'Fracassada'},
+        { data:'2026-01-16', orgao:'MUNICÍPIO DE BORBA/AM',                 processo:'Dispensa 34/2025', sistema:'Licitanet', status:'Fracassado/Suspenso'},
       ];
 
       // HAMATE – vencidas
