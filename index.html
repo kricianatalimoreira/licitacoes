@@ -2741,6 +2741,25 @@
 " onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
   🔄 Backup
 </button>
+<button onclick="exportarBackupLocal()" title="Exportar todos os dados como arquivo JSON" style="
+  display:flex;align-items:center;gap:5px;
+  background:#1f8a4c18;border:1px solid #1f8a4c55;
+  color:#1f8a4c;border-radius:8px;padding:5px 10px;
+  font-size:10px;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:opacity .15s;white-space:nowrap;
+" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+  ⬇️ Exportar
+</button>
+<label title="Importar dados de um arquivo JSON exportado anteriormente" style="
+  display:flex;align-items:center;gap:5px;
+  background:#2563eb18;border:1px solid #2563eb55;
+  color:#2563eb;border-radius:8px;padding:5px 10px;
+  font-size:10px;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:opacity .15s;white-space:nowrap;
+" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+  ⬆️ Importar
+  <input type="file" accept=".json" onchange="importarBackupLocal(event)" style="display:none;">
+</label>
 <span id="dashDataHora" style="font-size:10px;color:var(--muted);"></span>
 </div>
 </div>
@@ -9250,6 +9269,31 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     })();
     // ── fim injeção abril 2026 ───────────────────────────────────────────────
 
+    // ── Restauração de dados reais (localStorage exportado em 29/04/2026) ──
+    (function restaurarDadosReais() {
+      const MARKER = 'km_restaurado_29042026';
+      if (localStorage.getItem(MARKER)) return;
+
+      // Disputas em andamento reais
+      const disputasReais = [{"id":"da41f8b6-e770-49b7-816d-57e2340f488f","uf":"SE","obs":"","data":"2025-06-17T09:00","sala":"https://portal.licitanet.com.br/sala-disputa/137657","tipo":"Pregão","bruto":1666,"drive":"https://drive.google.com/drive/folders/1vPo0auIf-cVo4XLVAcfA0fOxLwyoLgbs?usp=drive_link","orgao":"FUNDO MUNICIPAL DE SAÚDE E BEM ESTAR SOCIAL DE LARANJEIRAS/SE","status":"Em andamento","empresa":"Gadita","retorno":"","sistema":"Licitanet","processo":"03/2025","linkEdital":""},{"id":"77c4e1d6-0b28-4f87-be9f-5239b7fb0d6a","uf":"AM","obs":"","data":"2025-10-31T08:10","sala":"https://portal.licitanet.com.br/sala-disputa/158923","tipo":"Pregão","bruto":0,"drive":"https://drive.google.com/drive/folders/1WISHaTF3Y74R9Hjwf34Uheo6nX-VDKNa?usp=drive_link","orgao":"MUNICÍPIO DE JUTAÍ/AM","status":"Em recurso","empresa":"Gadita","retorno":"","sistema":"Licitanet","processo":"43/2025","linkEdital":""},{"id":"ca255802-f867-4fa4-88e0-cc62c2e471f2","uf":"MG","obs":"","data":"2026-03-16T13:00","sala":"https://portal.licitanet.com.br/sala-disputa/174815","tipo":"Pregão","bruto":20985.7,"drive":"https://drive.google.com/drive/folders/1SRh1GMxHjvn9iH4bpJlT-VqHIiaChOeL?usp=drive_link","orgao":"MUNICÍPIO DE ALÉM PARAÍBA/MG","status":"Em andamento","empresa":"Hamate","retorno":"","sistema":"Licitanet","processo":"14/2026","linkEdital":""},{"id":"6f6e6dc3-292c-4650-92d3-0eeca1db1ce2","uf":"BA","obs":"","data":"2026-03-17T08:30","sala":"https://portal.licitanet.com.br/sala-disputa/175204","tipo":"Pregão","bruto":72500,"drive":"https://drive.google.com/drive/folders/1OJxJ0SR5AltzwZLUCUZRtftFMU7oCQbG?usp=drive_link","orgao":"MUNICIPIO DE MACAÚBAS/BA","status":"Em andamento","empresa":"Hamate","retorno":"","sistema":"Licitanet","processo":"06/2026","linkEdital":""},{"id":"2878d44a-4408-43ff-b90c-a473e80fca11","uf":"MG","obs":"","data":"2026-03-16T14:00","sala":"https://disputa.licitardigital.com.br/oauth2/callback/?redirectUri=&auction=92916&hash=b7ce43f9efe3773a9a00991d0e27e03d&code=bzrH18M3FGi9oynQizNmeYc6tT6AkyNwpNewftWXtsXwzamOP5MuMVhHuCWJALAbYlFstgEnzf45HKEh2VGdhqnPtP2yAOglsxBDLwrl75_h3VE63Huo0ldgGy15LbmY&state=state","tipo":"Pregão","bruto":0,"drive":"https://drive.google.com/drive/folders/1kDfHHIDq3LwvUmz7eroHgWK66CaKxaUP?usp=drive_link","orgao":"PREFEITURA DE TRÊS CORAÇÕES/MG","status":"Em andamento","empresa":"Hamate","retorno":"","sistema":"Licitar Digital","processo":"171/2025","linkEdital":""},{"id":"8dd116a1-3c38-4a66-84c4-4c5ee7d48d91","uf":"RO","obs":"","data":"2026-03-30T10:00","sala":"https://portal.licitanet.com.br/sala-disputa/177204","tipo":"Pregão","bruto":7599.99,"drive":"https://drive.google.com/drive/folders/1alg5WoSoz-qYS818f--CazarGKKjgd6U?usp=drive_link","orgao":"MUNICÍPIO DE ALTA FLORESTA DO OESTE/RO","status":"Em andamento","empresa":"Hamate","retorno":"","sistema":"Licitanet","processo":"09/2026","linkEdital":""}];
+
+      // Empenhos reais
+      const empenhosReais = [{"id":"26ca500e-e1db-43c5-818e-797506735a02","obs":"","data":"2025-11-28","orgao":"MUNICÍPIO DE ÁGUA COMPRIDA/MG","valor":2370,"numero":"006702","status":"Pendente","empresa":"Gadita","contrato":"129/2025","contratoId":"243648ab-2ff8-47b9-b4dc-6c86200cc2ee","responsavel":"","itensEmpenhados":[{"itemId":"bdb5d3a0-6460-483f-9c54-03d7efa0f6d3","qtdEmp":3,"vlUnit":790,"descricao":"Fogão 4 Bocas"}],"responsavelSetor":"","responsavelContato":""},{"id":"d1f45f77-977b-45a9-a727-637cb31a1d40","obs":"","data":"2025-11-28","orgao":"MUNICÍPIO DE ÁGUA COMPRIDA/MG","valor":1180,"numero":"006703","status":"Pendente","empresa":"Gadita","contrato":"129/2025","contratoId":"243648ab-2ff8-47b9-b4dc-6c86200cc2ee","responsavel":"","dataPagamento":"2025-12-30","itensEmpenhados":[{"itemId":"ad06ced0-9993-40b1-ad5a-1ea6b7787b75","qtdEmp":1,"vlUnit":1180,"descricao":"Projetor"}],"responsavelSetor":"","responsavelContato":""}];
+
+      // Mesclar disputas em andamento reais (evitar duplicatas por ID)
+      const idsExistentes = new Set(disputas.map(d => d.id));
+      disputasReais.forEach(d => { if (!idsExistentes.has(d.id)) disputas.push(d); });
+
+      // Mesclar empenhos reais (evitar duplicatas por ID)
+      const idsEmp = new Set(empenhos.map(e => e.id));
+      empenhosReais.forEach(e => { if (!idsEmp.has(e.id)) empenhos.push(e); });
+
+      persist();
+      persistEmpenhos();
+      localStorage.setItem(MARKER, '1');
+    })();
+    // ── fim restauração 29/04/2026 ──────────────────────────────────────────
+
     // Pós-migração: _migracaoPendente será consumido dentro do syncFromCloud,
     // que vai SUBIR os dados locais (Lenovo = fonte da verdade) para o Supabase.
 
@@ -9498,6 +9542,61 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         console.error('Sync error:', e);
         showSync('err', '✗ sem conexão');
       }
+    }
+
+    // ── Exportar backup local (JSON) ──────────────────────────────────────
+    function exportarBackupLocal() {
+      try {
+        const data = {
+          _versao: '1.0',
+          _exportadoEm: new Date().toISOString(),
+          km_disputas_v60_clean:  JSON.parse(localStorage.getItem('km_disputas_v60_clean')  || '{}'),
+          km_empenhos_v60_clean:  JSON.parse(localStorage.getItem('km_empenhos_v60_clean')  || '[]'),
+          km_compras_v60_clean:   JSON.parse(localStorage.getItem('km_compras_v60_clean')   || '[]'),
+          km_metas_v60_clean:     JSON.parse(localStorage.getItem('km_metas_v60_clean')     || '{}'),
+          km_tema_v1:             localStorage.getItem('km_tema_v1') || 'rosa',
+          km_modo_v1:             localStorage.getItem('km_modo_v1') || 'light',
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        const ts   = new Date().toISOString().slice(0,10);
+        a.href     = url;
+        a.download = `backup_licitacoes_${ts}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showSync('ok', '✓ backup exportado');
+      } catch(e) {
+        showSync('error', '✗ erro ao exportar');
+      }
+    }
+
+    // ── Importar backup local (JSON) ────────────────────────────────────────
+    function importarBackupLocal(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!confirm('⚠️ Importar backup? Os dados atuais serão substituídos pelos dados do arquivo.')) {
+            event.target.value = '';
+            return;
+          }
+          if (data.km_disputas_v60_clean)  localStorage.setItem('km_disputas_v60_clean',  JSON.stringify(data.km_disputas_v60_clean));
+          if (data.km_empenhos_v60_clean)  localStorage.setItem('km_empenhos_v60_clean',  JSON.stringify(data.km_empenhos_v60_clean));
+          if (data.km_compras_v60_clean)   localStorage.setItem('km_compras_v60_clean',   JSON.stringify(data.km_compras_v60_clean));
+          if (data.km_metas_v60_clean)     localStorage.setItem('km_metas_v60_clean',     JSON.stringify(data.km_metas_v60_clean));
+          if (data.km_tema_v1)             localStorage.setItem('km_tema_v1',             data.km_tema_v1);
+          if (data.km_modo_v1)             localStorage.setItem('km_modo_v1',             data.km_modo_v1);
+          showSync('ok', '✓ backup importado — recarregando...');
+          setTimeout(() => location.reload(), 1200);
+        } catch(err) {
+          showSync('error', '✗ arquivo inválido');
+        }
+        event.target.value = '';
+      };
+      reader.readAsText(file);
     }
 
     // ── Restaurar backup do Supabase ──
