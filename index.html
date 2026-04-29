@@ -3387,13 +3387,11 @@
 <button class="btn btn-primary" onclick="abrirSeletorContratoEmpenho()">+ Novo Empenho</button>
 </div>
 </div>
-<div class="disputa-stats" style="grid-template-columns:repeat(6,minmax(0,1fr));margin-bottom:8px;">
+<div class="disputa-stats" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:8px;">
 <div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Pendentes</div><div class="disputa-stat-value" id="empPendStatTotal">0</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">Valor Empenho</div><div class="disputa-stat-value" id="empPendStatValor" style="font-size:12px;color:#2563eb;">R$ 0,00</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">Compra Prevista</div><div class="disputa-stat-value" id="empPendStatCompra" style="font-size:12px;color:var(--text);">R$ 0,00</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">Lucro Previsto</div><div class="disputa-stat-value" id="empPendStatLucro" style="font-size:12px;color:#34d399;">R$ 0,00</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">Gadita</div><div class="disputa-stat-value" id="empPendStatGadita" style="font-size:12px;color:var(--primary-dark);">R$ 0,00</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">Hamate</div><div class="disputa-stat-value" id="empPendStatHamate" style="font-size:12px;color:var(--primary-dark);">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Vl. Empenho</div><div class="disputa-stat-value" id="empPendStatValor" style="font-size:12px;color:#2563eb;">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Gadita</div><div class="disputa-stat-value" id="empPendStatGadita" style="font-size:13px;color:var(--primary-dark);">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Hamate</div><div class="disputa-stat-value" id="empPendStatHamate" style="font-size:13px;color:var(--primary-dark);">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -3441,11 +3439,6 @@
 </th>
 <th>Itens Empenhados</th>
 <th style="color:#2563eb;">Vl. Empenho</th>
-<th>Vl. Compra Prev.</th>
-<th>Custo Prev.</th>
-<th>Lucro Prev.</th>
-<th>% Lucro</th>
-<th>Status</th>
 <th>Ações</th></tr></thead>
 <tbody id="empPendTableBody"></tbody>
 </table>
@@ -3494,9 +3487,9 @@
 </div>
 <div class="disputa-stats" style="grid-template-columns:repeat(4,minmax(0,1fr));">
 <div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Vl. Empenho</div><div class="disputa-stat-value" id="empAndStatValor" style="font-size:12px;color:#2563eb;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Vl. Compra Prev.</div><div class="disputa-stat-value" id="empAndStatCompra" style="font-size:12px;color:#a78bfa;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#1a0d08;border-color:#7a3a0a;"><div class="disputa-stat-label">Custo Prev.</div><div class="disputa-stat-value" id="empAndStatCusto" style="font-size:12px;color:#fb923c;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#0a2018;border-color:#1a6040;"><div class="disputa-stat-label">Lucro Prev.</div><div class="disputa-stat-value" id="empAndStatLucro" style="font-size:12px;color:#34d399;">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Vl. Compra</div><div class="disputa-stat-value" id="empAndStatCompra" style="font-size:12px;color:var(--text);">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Custo</div><div class="disputa-stat-value" id="empAndStatCusto" style="font-size:12px;color:var(--text);">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Lucro</div><div class="disputa-stat-value" id="empAndStatLucro" style="font-size:12px;color:#34d399;">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -3544,10 +3537,10 @@
 </th>
 <th>Itens Empenhados</th>
 <th style="color:#2563eb;">Vl. Empenho</th>
-<th style="color:#60a5fa;">Vl. Compra Prev.</th>
-<th style="color:#fb923c;">Custo Prev.</th>
-<th style="color:#34d399;">Lucro Prev.</th>
-<th style="color:#a3e635;">% Lucro</th>
+<th>Vl. Compra</th>
+<th>Custo</th>
+<th>Lucro</th>
+<th>% Lucro</th>
 <th class="historico-th">
 <div class="historico-header-cell">
 <span>Status</span>
@@ -6336,46 +6329,33 @@
         const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
         return `<div style="font-size:10px;line-height:1.4;">${ie.descricao || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
       }).join('');
-      const statusOpts = ['Pendente','Compra Feita','Ag. Liquidação','Paga']
+      const statusOpts = ['Compra Feita','Ag. Liquidação','Paga']
         .map(s => `<button onclick="mudarStatusEmpenho('${e.id}','${s}')">${s}</button>`).join('');
       const statusHtml = `<div class="status-wrap">
         <span onclick="toggleStatusDropdown(event,'empsdrop-${e.id}')" style="cursor:pointer;">${empStatusBadge(e.status)} ▾</span>
         <div class="status-dropdown hidden" id="empsdrop-${e.id}">${statusOpts}</div>
       </div>`;
-      // Calcula dias pendentes
-      let diasPendentesHtml = '';
-      if (e.data) {
-        const hoje = new Date(); hoje.setHours(0,0,0,0);
-        const partes = e.data.split('-');
-        const dataEmp = new Date(Number(partes[0]), Number(partes[1])-1, Number(partes[2]));
-        const diffDias = Math.floor((hoje - dataEmp) / 86400000);
-        if (diffDias > 0) {
-          const cor = diffDias >= 30 ? '#f05252' : diffDias >= 15 ? '#f0a938' : '#2dd47a';
-          const bg  = diffDias >= 30 ? '#2a0a0a' : diffDias >= 15 ? '#2a1c08' : '#0a2018';
-          diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:${bg};border-radius:5px;padding:1px 5px;">${diffDias} dia${diffDias!==1?'s':''} pendente${diffDias!==1?'s':''}</span>`;
-        } else if (diffDias === 0) {
-          diasPendentesHtml = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#0d1e3a;border-radius:5px;padding:1px 5px;">Hoje</span>`;
-        }
-      }
-      // Calcula Vl. Compra Prev. / Custo Prev. / Lucro Prev. / % Lucro
-      // com base nos ITENS REAIS DO EMPENHO (não nos totais do contrato)
-      const { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal } = calcEmpFinanceiro(e);
+      // Financeiro: usa dados REAIS da compra (calcEmpFinanceiro já prioriza compras reais)
+      const fin = calcEmpFinanceiro(e);
+      const { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal } = fin;
       const hasFinanceiro = vlEmpTotal > 0 || vlCompraEmp > 0;
-      let vlCompraPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
-      let pctLucroHtml     = '<span style="color:var(--muted);font-size:10px;">—</span>';
-      let custoPrevHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
-      let lucroPrevHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let vlCompraHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let custoHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let lucroHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
+      let pctHtml      = '<span style="color:var(--muted);font-size:10px;">—</span>';
       if (hasFinanceiro) {
-        const lucroColor  = lucroEmp > 0 ? '#34d399' : lucroEmp < 0 ? '#f05252' : 'var(--muted)';
-        vlCompraPrevHtml  = `<span style="font-size:10px;font-weight:600;color:#60a5fa;">${formatCurrency(vlCompraEmp)}</span>`;
-        custoPrevHtml     = `<span style="font-size:10px;font-weight:600;color:#fb923c;">${formatCurrency(custoEmp)}</span>`;
-        lucroPrevHtml     = `<span style="font-size:10px;font-weight:700;color:${lucroColor};">${formatCurrency(lucroEmp)}</span>`;
-        const margem      = vlEmpTotal > 0 ? (lucroEmp / vlEmpTotal) * 100 : 0;
-        const margemColor = margem > 0 ? '#a3e635' : margem < 0 ? '#f05252' : 'var(--muted)';
-        pctLucroHtml      = `<span style="font-size:10px;font-weight:800;color:${margemColor};">${margem.toFixed(1)}%</span>`;
+        const lucroColor   = lucroEmp > 0 ? '#34d399' : lucroEmp < 0 ? '#f05252' : 'var(--muted)';
+        const lucroWeight  = lucroEmp !== 0 ? '700' : '400';
+        const margem       = vlEmpTotal > 0 ? (lucroEmp / vlEmpTotal) * 100 : 0;
+        const margemColor  = margem > 0 ? '#34d399' : margem < 0 ? '#f05252' : 'var(--muted)';
+        const margemWeight = margem !== 0 ? '700' : '400';
+        vlCompraHtml = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraEmp)}</span>`;
+        custoHtml    = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(custoEmp)}</span>`;
+        lucroHtml    = `<span style="font-size:10px;font-weight:${lucroWeight};color:${lucroColor};">${formatCurrency(lucroEmp)}</span>`;
+        pctHtml      = `<span style="font-size:10px;font-weight:${margemWeight};color:${margemColor};">${margem.toFixed(1)}%</span>`;
       }
       return `<tr>
-        <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendentesHtml}</div></td>
+        <td><span class="data-dia">${formatDate(e.data)}</span></td>
         <td style="font-weight:700;font-size:10px;">${e.numero || '—'}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${e.orgao || '—'}</div>
@@ -6384,18 +6364,18 @@
         <td>${companyBadge(e.empresa)}</td>
         <td class="cell-wrap">${itensDesc || '—'}</td>
         <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
-        <td>${vlCompraPrevHtml}</td>
-        <td>${custoPrevHtml}</td>
-        <td>${lucroPrevHtml}</td>
-        <td style="text-align:center;">${pctLucroHtml}</td>
+        <td>${vlCompraHtml}</td>
+        <td>${custoHtml}</td>
+        <td>${lucroHtml}</td>
+        <td style="text-align:center;">${pctHtml}</td>
         <td>${statusHtml}</td>
-        <td style="font-size:10px;color:var(--muted);text-align:center;">${e.dataPagamento ? formatDate(e.dataPagamento) : '\u2014'}</td>
         <td>
           <div class="row-menu-wrap">
             <button class="row-menu-btn" onclick="toggleRowMenu(event,'empmenu-${e.id}')">⋯</button>
             <div class="row-menu hidden" id="empmenu-${e.id}">
               <button onclick="abrirEditEmpenho('${e.id}')">✏️ Editar</button>
               <button onclick="abrirSeletorItemCompra('${e.id}')">🛒 Nova Compra</button>
+              <button onclick="mudarStatusEmpenho('${e.id}','Paga')" style="color:#1f8a4c;">💳 Pagar</button>
               <button onclick="excluirEmpenho('${e.id}')" style="color:#b42318;">🗑️ Excluir</button>
             </div>
           </div>
@@ -6460,7 +6440,7 @@
       }, 'data_asc');
       body.innerHTML = sortedEmpAnd.length
         ? sortedEmpAnd.map(empRowHtml).join('')
-        : `<tr><td colspan="12"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
+        : `<tr><td colspan="11"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
     }
 
     // ── Empenhos encerrados (status === 'Paga') ──
@@ -6494,52 +6474,22 @@
       });
 
       // KPIs
-      const _finPend = pendentes.map(e => calcEmpFinanceiro(e));
-      const _totalValor  = pendentes.reduce((s,e) => s + Number(e.valor||0), 0);
-      const _totalCompra = _finPend.reduce((s,f) => s + f.vlCompraEmp, 0);
-      const _totalLucro  = _finPend.reduce((s,f) => s + f.lucroEmp,    0);
-      const _gadita = pendentes.filter(e=>e.empresa==='Gadita').reduce((s,e)=>s+Number(e.valor||0),0);
-      const _hamate = pendentes.filter(e=>e.empresa==='Hamate').reduce((s,e)=>s+Number(e.valor||0),0);
       if (qs('empPendStatTotal'))  qs('empPendStatTotal').textContent  = pendentes.length;
-      if (qs('empPendStatValor'))  qs('empPendStatValor').textContent  = formatCurrency(_totalValor);
-      if (qs('empPendStatCompra')) qs('empPendStatCompra').textContent = formatCurrency(_totalCompra);
-      if (qs('empPendStatLucro')) {
-        qs('empPendStatLucro').textContent = formatCurrency(_totalLucro);
-        qs('empPendStatLucro').style.color = _totalLucro >= 0 ? '#34d399' : '#f05252';
-      }
-      if (qs('empPendStatGadita')) qs('empPendStatGadita').textContent = formatCurrency(_gadita);
-      if (qs('empPendStatHamate')) qs('empPendStatHamate').textContent = formatCurrency(_hamate);
+      if (qs('empPendStatValor'))  qs('empPendStatValor').textContent  = formatCurrency(pendentes.reduce((s,e)=>s+Number(e.valor||0),0));
+      if (qs('empPendStatGadita')) qs('empPendStatGadita').textContent = formatCurrency(pendentes.filter(e=>e.empresa==='Gadita').reduce((s,e)=>s+Number(e.valor||0),0));
+      if (qs('empPendStatHamate')) qs('empPendStatHamate').textContent = formatCurrency(pendentes.filter(e=>e.empresa==='Hamate').reduce((s,e)=>s+Number(e.valor||0),0));
 
       if (qs('subtotalEmpPendQtde')) qs('subtotalEmpPendQtde').textContent = filtered.length;
       if (qs('subtotalEmpPendValor')) qs('subtotalEmpPendValor').textContent = formatCurrency(filtered.reduce((s,e)=>s+Number(e.valor||0),0));
 
       body.innerHTML = filtered.length === 0
-        ? '<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--muted);">Nenhum empenho pendente.</td></tr>'
+        ? '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">Nenhum empenho pendente.</td></tr>'
         : filtered.map(e => {
             const data = formatDateTime(e.data);
             const itensDesc = (e.itensEmpenhados || []).map(ie => {
               const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
               return `<div style="font-size:10px;line-height:1.4;">${ie.descricao || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
             }).join('');
-            const fin = calcEmpFinanceiro(e);
-            const { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal } = fin;
-            const hasFinPend = vlEmpTotal > 0 || vlCompraEmp > 0;
-            let vlCompraPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
-            let custoPrevHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
-            let lucroPrevHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
-            let pctLucroHtml     = '<span style="color:var(--muted);font-size:10px;">—</span>';
-            if (hasFinPend) {
-              const lucroColor   = lucroEmp > 0 ? '#34d399' : lucroEmp < 0 ? '#f05252' : 'var(--muted)';
-              const lucroWeight  = lucroEmp !== 0 ? '700' : '400';
-              const margem       = vlEmpTotal > 0 ? (lucroEmp / vlEmpTotal) * 100 : 0;
-              const margemColor  = margem > 0 ? '#34d399' : margem < 0 ? '#f05252' : 'var(--muted)';
-              const margemWeight = margem !== 0 ? '700' : '400';
-              vlCompraPrevHtml = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraEmp)}</span>`;
-              custoPrevHtml    = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(custoEmp)}</span>`;
-              lucroPrevHtml    = `<span style="font-size:10px;font-weight:${lucroWeight};color:${lucroColor};">${formatCurrency(lucroEmp)}</span>`;
-              pctLucroHtml     = `<span style="font-size:10px;font-weight:${margemWeight};color:${margemColor};">${margem.toFixed(1)}%</span>`;
-            }
-            const statusPendHtml = `<div class="status-wrap"><span class="status-badge status-pendente">Pendente</span></div>`;
             return `<tr>
               <td><div class="cell-data-hora"><span class="data-dia">${data.date}</span><span class="data-hora">${data.time||'—'}</span></div></td>
               <td style="font-weight:700;font-size:10px;">${e.numero||'—'}</td>
@@ -6550,11 +6500,6 @@
               <td>${companyBadge(e.empresa)}</td>
               <td class="cell-wrap">${itensDesc||'—'}</td>
               <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
-              <td>${vlCompraPrevHtml}</td>
-              <td>${custoPrevHtml}</td>
-              <td>${lucroPrevHtml}</td>
-              <td style="text-align:center;">${pctLucroHtml}</td>
-              <td>${statusPendHtml}</td>
               <td>
                 <div class="row-menu-wrap">
                   <button class="row-menu-btn" onclick="toggleRowMenu(event,'emppendmenu-${e.id}')">⋯</button>
