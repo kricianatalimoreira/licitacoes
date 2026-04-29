@@ -7388,7 +7388,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
     // ── Seletor de Item (pré-stepper Nova Compra) ─────────
     let _seletorEmpId   = null;
-    let _seletorItemIdx = null; // índice do item selecionado no array _cmpItens
+    let _seletorItemIdxs = new Set(); // índices dos itens selecionados no array itensEmpenhados
 
     function abrirSeletorItemCompra(empenhoId) {
       closeAllMenus();
@@ -7402,8 +7402,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         return;
       }
 
-      _seletorEmpId   = empenhoId;
-      _seletorItemIdx = null;
+      _seletorEmpId    = empenhoId;
+      _seletorItemIdxs = new Set();
 
       // Monta cards de itens
       const grid = qs('seletorItemGrid');
@@ -7416,8 +7416,9 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         return `
         <div class="seletor-item-card" id="sic_${i}" onclick="selecionarSicItem(${i})" style="
           border:2px solid var(--line);border-radius:13px;padding:15px 16px;cursor:pointer;
-          background:var(--card);transition:border-color .15s,box-shadow .15s;user-select:none;">
-          <div style="font-size:11px;font-weight:800;color:var(--text);line-height:1.35;margin-bottom:8px;">${ie.descricao || 'Item sem descrição'}</div>
+          background:var(--card);transition:border-color .15s,box-shadow .15s;user-select:none;position:relative;">
+          <div style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:5px;border:2px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;" id="sicChk_${i}"></div>
+          <div style="font-size:11px;font-weight:800;color:var(--text);line-height:1.35;margin-bottom:8px;padding-right:24px;">${ie.descricao || 'Item sem descrição'}</div>
           <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">${ie.qtdEmp} un · ${formatCurrency(vlUnit)}/un</div>
           <div style="font-size:10px;font-weight:700;color:${disponivel > 0 ? '#1f8a4c' : '#b42318'};">
             ${disponivel} un. disponíveis
@@ -7429,27 +7430,46 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     function selecionarSicItem(idx) {
-      _seletorItemIdx = idx;
+      // Toggle seleção
+      if (_seletorItemIdxs.has(idx)) {
+        _seletorItemIdxs.delete(idx);
+      } else {
+        _seletorItemIdxs.add(idx);
+      }
       // Atualiza visual dos cards
       const grid = qs('seletorItemGrid');
       if (!grid) return;
       grid.querySelectorAll('.seletor-item-card').forEach((card, i) => {
-        const sel = i === idx;
-        card.style.borderColor  = sel ? 'var(--primary)' : 'var(--line)';
-        card.style.boxShadow    = sel ? '0 0 0 3px var(--primary-soft)' : '';
-        card.style.background   = sel ? 'var(--primary-soft)' : '#fff';
+        const sel = _seletorItemIdxs.has(i);
+        card.style.borderColor = sel ? 'var(--primary)' : 'var(--line)';
+        card.style.boxShadow   = sel ? '0 0 0 3px var(--primary-soft)' : '';
+        card.style.background  = sel ? 'var(--primary-soft)' : 'var(--card)';
+        const chk = document.getElementById(`sicChk_${i}`);
+        if (chk) {
+          chk.style.background   = sel ? 'var(--primary)' : '#fff';
+          chk.style.borderColor  = sel ? 'var(--primary)' : 'var(--line)';
+          chk.innerHTML          = sel ? '✓' : '';
+          chk.style.color        = '#fff';
+          chk.style.fontWeight   = '800';
+        }
       });
+      // Atualiza texto do botão
+      const btn = qs('seletorItemSalvarBtn');
+      if (btn) {
+        const n = _seletorItemIdxs.size;
+        btn.textContent = n > 0 ? `Salvar Compra (${n})` : 'Salvar Compra';
+      }
     }
 
     function confirmarSeletorItem() {
-      if (_seletorItemIdx === null) { alert('Selecione um item para continuar.'); return; }
+      if (_seletorItemIdxs.size === 0) { alert('Selecione ao menos um item para continuar.'); return; }
       const emp = empenhos.find(e => e.id === _seletorEmpId);
       if (!emp) return;
       qs('seletorItemCompraWrap').classList.add('hidden');
-      // Abre o stepper apenas com o item selecionado
+      // Abre o stepper com todos os itens selecionados (na ordem original)
       _cmpEmpenhoId = _seletorEmpId;
       _cmpEditId    = null;
-      _cmpItens     = [emp.itensEmpenhados[_seletorItemIdx]];
+      _cmpItens     = [..._seletorItemIdxs].sort((a, b) => a - b).map(i => emp.itensEmpenhados[i]);
       _cmpStep      = 0;
       _cmpSkipped   = [];
 
