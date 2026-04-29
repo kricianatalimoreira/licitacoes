@@ -4095,6 +4095,17 @@
           const parsed = JSON.parse(saved);
           disputas           = (Array.isArray(parsed.disputas)           && parsed.disputas.length)           ? parsed.disputas           : structuredClone(disputaDefault);
           disputasEncerradas = (Array.isArray(parsed.disputasEncerradas) && parsed.disputasEncerradas.length) ? parsed.disputasEncerradas : structuredClone(encerradasDefault);
+          // ── Migração de status legados ──────────────────────────────
+          const statusLegados = ['Anulada', 'Fracassada'];
+          let migrated = false;
+          disputasEncerradas.forEach(item => {
+            if (statusLegados.includes(item.status)) {
+              item.status = 'Fracassado/Suspenso';
+              migrated = true;
+            }
+          });
+          if (migrated) persist();
+          // ────────────────────────────────────────────────────────────
           return;
         } catch (e) {}
       }
