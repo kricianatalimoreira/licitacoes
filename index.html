@@ -6221,54 +6221,57 @@
 
     // ── Helper compartilhado: gera HTML de uma linha de empenho ──
     /**
-     * Calcula Vl. Compra Prev., Custo Prev., Lucro Prev. e Vl. Empenho
-     * com base nos ITENS REAIS do empenho (qtdEmp × preços do item no contrato).
-     * Garante que os valores reflitam o empenho específico, não o contrato inteiro.
+     * Calcula Vl. Compra Real, Custo Real, Lucro Real e Vl. Empenho.
+     * Se há compras registradas para o empenho, usa os valores REAIS delas.
+     * Caso contrário, usa os valores previstos (contrato).
      */
     function calcEmpFinanceiro(e) {
       const contrato = contratosAtivos.find(c => c.id === e.contratoId)
                     || contratosEncerrados.find(c => c.id === e.contratoId);
-      const itensEmp = e.itensEmpenhados || [];
+      const itensEmp  = e.itensEmpenhados || [];
+      const vlEmpTotal = itensEmp.reduce((s, ie) => s + Number(ie.qtdEmp||0) * Number(ie.vlUnit||0), 0)
+                        || Number(e.valor || 0);
 
-      // Se não há itens detalhados nem contrato, retorna zeros
+      // ── Verifica se há compras reais vinculadas a este empenho ──
+      const comprasEmp = (typeof compras !== 'undefined' ? compras : []).filter(c => c.empenhoId === e.id);
+
+      if (comprasEmp.length > 0) {
+        // Usa dados REAIS das compras
+        const vlCompraEmp = comprasEmp.reduce((s, c) => s + Number(c.vlTotalCompra || 0), 0);
+        const custoEmp    = comprasEmp.reduce((s, c) => s + Number(c.impostoTotal  || 0) + Number(c.royaltTotal || 0), 0);
+        const lucroEmp    = comprasEmp.reduce((s, c) => s + Number(c.lucroTotal    || 0), 0);
+        return { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal, temCompraReal: true };
+      }
+
+      // ── Fallback: valores previstos (contrato) ──
       if (!itensEmp.length && !contrato) {
-        return { vlCompraEmp: 0, custoEmp: 0, lucroEmp: 0, vlEmpTotal: Number(e.valor || 0) };
+        return { vlCompraEmp: 0, custoEmp: 0, lucroEmp: 0, vlEmpTotal, temCompraReal: false };
       }
 
       const royaltiesPct = Number(contrato?.royaltiesPct ?? contrato?.royalties ?? 1);
       const impostoPct   = Number(contrato?.impostoPct   ?? contrato?.imposto   ?? 6);
 
-      let vlEmpTotal  = 0; // Vl. Empenho = soma(qtdEmp × vlUnit do item empenhado)
-      let vlCompraEmp = 0; // Compra Prev. = soma(qtdEmp × compraUnit do item no contrato)
-      let custoEmp    = 0; // Custo Prev. = royalties + imposto sobre vlEmpTotal
+      let vlCompraEmp = 0;
+      let custoEmp    = 0;
 
       itensEmp.forEach(ie => {
         const qtd    = Number(ie.qtdEmp || 0);
         const vlUnit = Number(ie.vlUnit  || 0);
-
-        // Tenta pegar compraUnit do item no contrato; fallback para o que foi salvo no empenho
         const itemContrato = (contrato?.itensLotes || []).find(it => it.id === ie.itemId);
         const compraUnit   = Number(itemContrato?.compraUnit ?? ie.compraUnit ?? 0);
-
-        vlEmpTotal  += qtd * vlUnit;
         vlCompraEmp += qtd * compraUnit;
         custoEmp    += qtd * vlUnit * (royaltiesPct / 100)
                      + qtd * vlUnit * (impostoPct   / 100);
       });
 
-      // Fallback: se não há itensLotes no contrato, usa o valor total do empenho
       if (!itensEmp.length && contrato) {
-        vlEmpTotal  = Number(e.valor || 0);
-        // Proporção do empenho em relação ao contrato para estimar compra/custo
-        const proporcao = Number(contrato.valor || 0) > 0
-          ? vlEmpTotal / Number(contrato.valor)
-          : 0;
+        const proporcao = Number(contrato.valor || 0) > 0 ? vlEmpTotal / Number(contrato.valor) : 0;
         vlCompraEmp = Number(contrato.compra || 0) * proporcao;
         custoEmp    = (Number(contrato.royalties || 0) + Number(contrato.imposto || 0)) * proporcao;
       }
 
       const lucroEmp = vlEmpTotal - vlCompraEmp - custoEmp;
-      return { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal };
+      return { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal, temCompraReal: false };
     }
 
     function empRowHtml(e) {
@@ -6298,22 +6301,26 @@
       }
       // Calcula Vl. Compra Prev. / Custo Prev. / Lucro Prev. / % Lucro
       // com base nos ITENS REAIS DO EMPENHO (não nos totais do contrato)
-      const { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal } = calcEmpFinanceiro(e);
+      const fin = calcEmpFinanceiro(e);
+      const { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal } = fin;
       const hasFinanceiro = vlEmpTotal > 0 || vlCompraEmp > 0;
       let vlCompraPrevHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let pctLucroHtml     = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let custoPrevHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let lucroPrevHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
       if (hasFinanceiro) {
-        const lucroColor  = lucroEmp > 0 ? '#34d399' : lucroEmp < 0 ? '#f05252' : 'var(--muted)';
-        vlCompraPrevHtml  = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraEmp)}</span>`;
-        custoPrevHtml     = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(custoEmp)}</span>`;
-        const lucroWeight = lucroEmp !== 0 ? '700' : '400';
-        lucroPrevHtml     = `<span style="font-size:10px;font-weight:${lucroWeight};color:${lucroColor};">${formatCurrency(lucroEmp)}</span>`;
-        const margem      = vlEmpTotal > 0 ? (lucroEmp / vlEmpTotal) * 100 : 0;
-        const margemColor = margem > 0 ? '#34d399' : margem < 0 ? '#f05252' : 'var(--muted)';
+        const lucroColor   = lucroEmp > 0 ? '#34d399' : lucroEmp < 0 ? '#f05252' : 'var(--muted)';
+        const lucroWeight  = lucroEmp !== 0 ? '700' : '400';
+        const margem       = vlEmpTotal > 0 ? (lucroEmp / vlEmpTotal) * 100 : 0;
+        const margemColor  = margem > 0 ? '#34d399' : margem < 0 ? '#f05252' : 'var(--muted)';
         const margemWeight = margem !== 0 ? '700' : '400';
-        pctLucroHtml      = `<span style="font-size:10px;font-weight:${margemWeight};color:${margemColor};">${margem.toFixed(1)}%</span>`;
+        const badgeReal    = fin.temCompraReal
+          ? `<span style="font-size:8px;font-weight:700;background:var(--primary);color:#fff;border-radius:4px;padding:1px 4px;margin-left:4px;vertical-align:middle;">Real</span>`
+          : '';
+        vlCompraPrevHtml = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraEmp)}${badgeReal}</span>`;
+        custoPrevHtml    = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(custoEmp)}</span>`;
+        lucroPrevHtml    = `<span style="font-size:10px;font-weight:${lucroWeight};color:${lucroColor};">${formatCurrency(lucroEmp)}</span>`;
+        pctLucroHtml     = `<span style="font-size:10px;font-weight:${margemWeight};color:${margemColor};">${margem.toFixed(1)}%</span>`;
       }
       return `<tr>
         <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendentesHtml}</div></td>
