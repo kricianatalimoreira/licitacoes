@@ -9512,15 +9512,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     // Pós-migração: _migracaoPendente será consumido dentro do syncFromCloud,
     // que vai SUBIR os dados locais (Lenovo = fonte da verdade) para o Supabase.
 
-    movePopoversToBody();
-    renderDisputas();
-    renderHistoricoDisputas();
-    atualizarListaOrgaos();
-    loadCompras();
-    carregarMetas();
-    renderEmpenhos();
-    renderCompras();
-    atualizarSino();
+    // Essas chamadas agora ficam no DOMContentLoaded / _reRenderAll
+    // (movidas para evitar erro antes do DOM estar pronto)
 
     // ══════════════════════════════════════════════════════════
     //  MODO CLARO / ESCURO
@@ -9944,6 +9937,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
     // ── Helpers: carrega módulos locais e re-renderiza ──
     function _loadLocalModules() {
+      if (typeof movePopoversToBody === 'function') movePopoversToBody();
       if (typeof loadData      === 'function') loadData();
       if (typeof loadContratos === 'function') loadContratos();
       const _reparouA = repararContratosZerados(contratosAtivos);
@@ -9951,6 +9945,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       if (_reparouA || _reparouE) { if (typeof persistAll === 'function') persistAll(); }
       if (typeof loadEmpenhos  === 'function') loadEmpenhos();
       if (typeof loadCompras   === 'function') loadCompras();
+      if (typeof carregarMetas === 'function') carregarMetas();
       if (typeof aplicarTema   === 'function') {
         const t = localStorage.getItem('km_tema_v1') || 'rosa';
         aplicarTema(t);
@@ -9961,6 +9956,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     function _reRenderAll() {
       if (typeof renderDisputas             === 'function') renderDisputas();
       if (typeof renderHistoricoDisputas    === 'function') renderHistoricoDisputas();
+      if (typeof atualizarListaOrgaos       === 'function') atualizarListaOrgaos();
       if (typeof renderContratosAtivos      === 'function') renderContratosAtivos();
       if (typeof renderContratosEncerrados  === 'function') renderContratosEncerrados();
       if (typeof renderEmpenhos             === 'function') renderEmpenhos();
