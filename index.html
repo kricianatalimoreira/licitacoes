@@ -2559,7 +2559,103 @@
 
     /* Linha mensal */
     .dash-line-wrap { width: 100%; overflow: hidden; }
-  </style>
+  
+    /* ── Dashboard Pro Cards ── */
+    .dash-pro-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .dash-pro-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .dash-pro-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .dash-pro-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .dash-pro-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .dash-pro-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+    .dash-pro-value {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .dash-pro-vs {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .dash-pro-vs .vs-up   { color: #1f8a4c; font-weight: 700; }
+    .dash-pro-vs .vs-down { color: #b42318; font-weight: 700; }
+    .dash-pro-vs .vs-eq   { color: var(--muted); font-weight: 700; }
+
+    /* ── Dashboard Empenhos Cards ── */
+    .dash-emp-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+    .dash-emp-card-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .dash-emp-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .dash-emp-metric {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .dash-emp-mlabel {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .dash-emp-mval {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    </style>
 
 </head>
 <body>
@@ -2676,9 +2772,8 @@
 <div class="topbar">
 <div>
 <h2>🏠 Dashboard</h2>
-<p id="dashSubtitle">Visão geral operacional</p>
 </div>
-<div class="actions" style="gap:14px;">
+<div class="actions" style="gap:10px;flex-wrap:wrap;">
 <div class="mode-toggle" title="Alternar claro/escuro">
 <span class="mode-icon">☀️</span>
 <label class="ios-switch">
@@ -2696,152 +2791,164 @@
 <div class="theme-swatch" data-theme="laranja" onclick="aplicarTema('laranja')" title="Laranja"></div>
 </div>
 </div>
-<button onclick="syncToCloud()" title="Salvar no Supabase agora" style="
-  display:flex;align-items:center;gap:5px;
-  background:var(--primary-soft);border:1px solid var(--primary-border);
-  color:var(--primary);border-radius:8px;padding:5px 10px;
-  font-size:10px;font-weight:700;font-family:inherit;
-  cursor:pointer;transition:opacity .15s;white-space:nowrap;
-" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
-  ☁️ Salvar
-</button>
-<button onclick="restaurarBackup()" title="Restaurar backup anterior do Supabase" style="
-  display:flex;align-items:center;gap:5px;
-  background:transparent;border:1px solid var(--line);
-  color:var(--muted);border-radius:8px;padding:5px 10px;
-  font-size:10px;font-weight:700;font-family:inherit;
-  cursor:pointer;transition:opacity .15s;white-space:nowrap;
-" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
-  🔄 Backup
-</button>
-<span id="dashDataHora" style="font-size:10px;color:var(--muted);"></span>
+<button onclick="syncToCloud()" style="display:flex;align-items:center;gap:5px;background:var(--primary-soft);border:1px solid var(--primary-border);color:var(--primary);border-radius:8px;padding:5px 10px;font-size:10px;font-weight:700;font-family:inherit;cursor:pointer;">☁️ Salvar</button>
+<button onclick="restaurarBackup()" style="display:flex;align-items:center;gap:5px;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:10px;font-weight:700;font-family:inherit;cursor:pointer;">🔄 Backup</button>
+<span id="dashDataHora" style="font-size:11px;color:var(--muted);font-weight:600;"></span>
 </div>
 </div>
-<!-- Linha 1: Botões rápidos -->
-<div class="dash-grid">
-<!-- Linha 2: Metas -->
-<div class="dash-metas-row">
-<!-- Meta Mensal -->
+
+<!-- ── SEÇÃO 1: METAS ── -->
+<div class="dash-metas-row" style="margin-bottom:16px;">
 <div class="meta-card">
-<div class="meta-header">
-<div>
-<div class="meta-title">🎯 Meta Mensal</div>
-<div class="meta-valor-realizado" id="dashMetaMensalRealizado" style="color:var(--primary);">R$ 0,00</div>
+<div class="meta-header"><div><div class="meta-title">🎯 Meta Mensal de Lucro</div><div class="meta-valor-realizado" id="dashMetaMensalRealizado" style="color:var(--primary);">R$ 0,00</div></div><div class="meta-semaforo" id="dashSemaforoMensal">🔴</div></div>
+<div class="meta-target"><span>Meta:</span><input id="dashMetaMensalInput" onfocus="this.select()" oninput="salvarMetas();renderDashboard()" placeholder="R$ 0,00" type="text"></div>
+<div class="meta-bar-bg"><div class="meta-bar-fill" id="dashMetaMensalBar" style="width:0%;"></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;"><span class="meta-pct" id="dashMetaMensalPct">0%</span><span id="dashMetaMensalFalta" style="font-size:11px;color:var(--muted);"></span></div>
 </div>
-<div class="meta-semaforo" id="dashSemaforoMensal">🔴</div>
-</div>
-<div class="meta-target">
-<span>Meta:</span>
-<input id="dashMetaMensalInput" onfocus="this.select()" oninput="salvarMetas();renderDashboard()" placeholder="R$ 0,00" type="text">
-</input></div>
-<div class="meta-bar-bg">
-<div class="meta-bar-fill" id="dashMetaMensalBar" style="width:0%;"></div>
-</div>
-<div style="display:flex;justify-content:space-between;align-items:center;">
-<span class="meta-pct" id="dashMetaMensalPct">0%</span>
-<span id="dashMetaMensalFalta" style="font-size:9px;color:var(--muted);"></span>
-</div>
-</div>
-<!-- Meta Anual -->
 <div class="meta-card">
-<div class="meta-header">
-<div>
-<div class="meta-title">📅 Meta Anual</div>
-<div class="meta-valor-realizado" id="dashMetaAnualRealizado" style="color:#2563eb;">R$ 0,00</div>
+<div class="meta-header"><div><div class="meta-title">📅 Meta Anual de Lucro</div><div class="meta-valor-realizado" id="dashMetaAnualRealizado" style="color:#2563eb;">R$ 0,00</div></div><div class="meta-semaforo" id="dashSemaforoAnual">🔴</div></div>
+<div class="meta-target"><span>Meta:</span><input id="dashMetaAnualInput" onfocus="this.select()" oninput="salvarMetas();renderDashboard()" placeholder="R$ 0,00" type="text"></div>
+<div class="meta-bar-bg"><div class="meta-bar-fill" id="dashMetaAnualBar" style="width:0%;"></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;"><span class="meta-pct" id="dashMetaAnualPct">0%</span><span id="dashMetaAnualFalta" style="font-size:11px;color:var(--muted);"></span></div>
 </div>
-<div class="meta-semaforo" id="dashSemaforoAnual">🔴</div>
-</div>
-<div class="meta-target">
-<span>Meta:</span>
-<input id="dashMetaAnualInput" onfocus="this.select()" oninput="salvarMetas();renderDashboard()" placeholder="R$ 0,00" type="text">
-</input></div>
-<div class="meta-bar-bg">
-<div class="meta-bar-fill" id="dashMetaAnualBar" style="width:0%;"></div>
-</div>
-<div style="display:flex;justify-content:space-between;align-items:center;">
-<span class="meta-pct" id="dashMetaAnualPct">0%</span>
-<span id="dashMetaAnualFalta" style="font-size:9px;color:var(--muted);"></span>
-</div>
-</div>
-<!-- Previsão de fechamento -->
 <div class="meta-card">
-<div class="meta-header">
-<div><div class="meta-title">🔮 Previsão de Fechamento</div></div>
-<span id="dashPrevMes" style="font-size:9px;color:var(--muted);"></span>
-</div>
+<div class="meta-header"><div><div class="meta-title">🔮 Previsão de Fechamento</div></div><span id="dashPrevMes" style="font-size:11px;color:var(--muted);"></span></div>
 <div class="prev-grid">
-<div class="prev-item">
-<label>Lucro Realizado</label>
-<div class="prev-val" id="dashPrevRealizado" style="color:#1f8a4c;">R$ 0,00</div>
-</div>
-<div class="prev-item">
-<label>Em andamento</label>
-<div class="prev-val" id="dashPrevAndamento" style="color:#2563eb;">R$ 0,00</div>
-</div>
-<div class="prev-item" style="grid-column:1/-1;">
-<label>Projeção total do mês</label>
-<div class="prev-val" id="dashPrevTotal" style="font-size:20px;color:var(--primary);">R$ 0,00</div>
+<div class="prev-item"><label>Lucro Realizado</label><div class="prev-val" id="dashPrevRealizado" style="color:#1f8a4c;">R$ 0,00</div></div>
+<div class="prev-item"><label>Em andamento</label><div class="prev-val" id="dashPrevAndamento" style="color:#2563eb;">R$ 0,00</div></div>
+<div class="prev-item" style="grid-column:1/-1;"><label>Projeção total do mês</label><div class="prev-val" id="dashPrevTotal" style="font-size:20px;color:var(--primary);">R$ 0,00</div></div>
 </div>
 </div>
 </div>
+
+<!-- ── SEÇÃO 2: DISPUTAS ── -->
+<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--primary-dark);margin-bottom:8px;padding-left:2px;">⚡ Disputas</div>
+<div class="dash-pro-grid" style="margin-bottom:16px;">
+<div class="dash-pro-card">
+<div class="dash-pro-header"><span class="dash-pro-icon" style="background:var(--primary-soft);">⚡</span><div><div class="dash-pro-title">Participadas no Mês</div><div class="dash-pro-sub" id="dashDisputaMesLabel"></div></div></div>
+<div class="dash-pro-value" id="dashDisputaMesQtd" style="color:var(--primary);">0</div>
+<div class="dash-pro-vs" id="dashDisputaMesVs"></div>
 </div>
-<!-- Linha 3: KPIs -->
-<div class="dash-kpi-row">
-<div class="dash-kpi-card" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">
-<div class="dash-kpi-label">⚡ Disputas Ativas</div>
-<div class="dash-kpi-value" id="dashKpiDisputasAtivas" style="color:var(--primary);">0</div>
-<div class="dash-kpi-sub" id="dashKpiDisputasSub"></div>
+<div class="dash-pro-card">
+<div class="dash-pro-header"><span class="dash-pro-icon" style="background:#dbeafe;">📅</span><div><div class="dash-pro-title">Participadas no Ano</div><div class="dash-pro-sub" id="dashDisputaAnoLabel"></div></div></div>
+<div class="dash-pro-value" id="dashDisputaAnoQtd" style="color:#2563eb;">0</div>
+<div class="dash-pro-vs" id="dashDisputaAnoVs"></div>
 </div>
-<div class="dash-kpi-card" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
-<div class="dash-kpi-label">📝 Contratos Vigentes</div>
-<div class="dash-kpi-value" id="dashKpiContratos" style="color:#2563eb;">0</div>
-<div class="dash-kpi-sub" id="dashKpiContratosSub"></div>
+<div class="dash-pro-card">
+<div class="dash-pro-header"><span class="dash-pro-icon" style="background:#d6f5e6;">🏆</span><div><div class="dash-pro-title">Taxa de Conversão no Ano</div><div class="dash-pro-sub">Vencidas ÷ (Vencidas + Perdidas)</div></div></div>
+<div class="dash-pro-value" id="dashTaxaConversaoAno" style="color:#1f8a4c;">—</div>
+<div class="dash-pro-vs" id="dashTaxaConversaoVs"></div>
 </div>
-<div class="dash-kpi-card" onclick="showSection('empenhos-andamento',document.querySelector('[data-section-target=empenhos-andamento]'))">
-<div class="dash-kpi-label">📄 Empenhos em andamento</div>
-<div class="dash-kpi-value" id="dashKpiEmpenhos" style="color:#7c3aed;">0</div>
-<div class="dash-kpi-sub" id="dashKpiEmpenhosSub"></div>
-</div>
-<div class="dash-kpi-card" onclick="showSection('compras-lista',document.querySelector('[data-section-target=compras-lista]'))">
-<div class="dash-kpi-label">🛒 Compras registradas</div>
-<div class="dash-kpi-value" id="dashKpiCompras" style="color:#1f8a4c;">0</div>
-<div class="dash-kpi-sub" id="dashKpiComprasSub"></div>
+<div class="dash-pro-card">
+<div class="dash-pro-header"><span class="dash-pro-icon" style="background:#fef9c3;">⚡</span><div><div class="dash-pro-title">Disputas Ativas</div><div class="dash-pro-sub" id="dashDisputasAtivasSub"></div></div></div>
+<div class="dash-pro-value" id="dashDisputasAtivasQtd" style="color:#d97706;">0</div>
+<div class="dash-pro-vs"></div>
 </div>
 </div>
-<!-- Linha 4: Disputas + Vencimentos -->
+
+<!-- ── SEÇÃO 3: CONTRATOS ── -->
+<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--primary-dark);margin-bottom:8px;padding-left:2px;">📝 Contratos</div>
+<div class="dash-pro-grid" style="margin-bottom:16px;">
+<div class="dash-pro-card">
+<div class="dash-pro-header"><span class="dash-pro-icon" style="background:var(--primary-soft);">📝</span><div><div class="dash-pro-title">Assinados no Mês</div><div class="dash-pro-sub" id="dashConMesLabel"></div></div></div>
+<div style="display:flex;align-items:baseline;gap:10px;">
+<div class="dash-pro-value" id="dashConMesQtd" style="color:var(--primary);">0</div>
+<div style="font-size:13px;font-weight:700;color:var(--muted);" id="dashConMesVal">R$ 0,00</div>
+</div>
+<div class="dash-pro-vs" id="dashConMesVs"></div>
+</div>
+<div class="dash-pro-card">
+<div class="dash-pro-header"><span class="dash-pro-icon" style="background:#dbeafe;">📅</span><div><div class="dash-pro-title">Assinados no Ano</div><div class="dash-pro-sub" id="dashConAnoLabel"></div></div></div>
+<div style="display:flex;align-items:baseline;gap:10px;">
+<div class="dash-pro-value" id="dashConAnoQtd" style="color:#2563eb;">0</div>
+<div style="font-size:13px;font-weight:700;color:var(--muted);" id="dashConAnoVal">R$ 0,00</div>
+</div>
+<div class="dash-pro-vs" id="dashConAnoVs"></div>
+</div>
+<div class="dash-pro-card">
+<div class="dash-pro-header"><span class="dash-pro-icon" style="background:#f5f3ff;">📂</span><div><div class="dash-pro-title">Contratos Vigentes</div><div class="dash-pro-sub" id="dashConVigentesSub"></div></div></div>
+<div class="dash-pro-value" id="dashConVigentesQtd" style="color:#7c3aed;">0</div>
+<div class="dash-pro-vs" id="dashConVigentesVs"></div>
+</div>
+<div class="dash-pro-card">
+<div class="dash-pro-header"><span class="dash-pro-icon" style="background:#fde8e8;">⚠️</span><div><div class="dash-pro-title">A Vencer em 60 dias</div><div class="dash-pro-sub">Contratos ativos próximos do fim</div></div></div>
+<div class="dash-pro-value" id="dashConVencer60" style="color:#b42318;">0</div>
+<div class="dash-venc-list" id="dashVencList" style="margin-top:6px;max-height:80px;overflow-y:auto;"></div>
+</div>
+</div>
+
+<!-- ── SEÇÃO 4: EMPENHOS ── -->
+<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--primary-dark);margin-bottom:8px;padding-left:2px;">📄 Empenhos</div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;">
+
+<!-- Pendentes -->
+<div class="dash-emp-card">
+<div class="dash-emp-card-title">🟡 Pendentes — Aguardando Compra</div>
+<div class="dash-emp-metrics" id="dashEmpPendentes">
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Quantidade</span><span class="dash-emp-mval" id="dEmpPendQtd" style="color:#d97706;">0</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Vl. Empenho</span><span class="dash-emp-mval" id="dEmpPendVlEmp" style="color:#2563eb;">R$ 0,00</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Vl. Compra Prev.</span><span class="dash-emp-mval" id="dEmpPendVlCompra">R$ 0,00</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Custo Prev.</span><span class="dash-emp-mval" id="dEmpPendCusto" style="color:#f59e0b;">R$ 0,00</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Lucro Prev.</span><span class="dash-emp-mval" id="dEmpPendLucro" style="color:#1f8a4c;">R$ 0,00</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">% Lucro</span><span class="dash-emp-mval" id="dEmpPendPct">—</span></div>
+</div>
+</div>
+
+<!-- Em Andamento -->
+<div class="dash-emp-card">
+<div class="dash-emp-card-title">🔵 Em Andamento — Valores a Receber</div>
+<div class="dash-emp-metrics" id="dashEmpAndamento">
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Quantidade</span><span class="dash-emp-mval" id="dEmpAndQtd" style="color:#7c3aed;">0</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Vl. Empenho</span><span class="dash-emp-mval" id="dEmpAndVlEmp" style="color:#2563eb;">R$ 0,00</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Vl. Compra</span><span class="dash-emp-mval" id="dEmpAndVlCompra">R$ 0,00</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Custo</span><span class="dash-emp-mval" id="dEmpAndCusto" style="color:#f59e0b;">R$ 0,00</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Lucro</span><span class="dash-emp-mval" id="dEmpAndLucro" style="color:#1f8a4c;">R$ 0,00</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">% Lucro</span><span class="dash-emp-mval" id="dEmpAndPct">—</span></div>
+</div>
+</div>
+
+<!-- Recebidos do Mês -->
+<div class="dash-emp-card">
+<div class="dash-emp-card-title" id="dashEmpPagoMesTitulo">✅ Recebidos do Mês</div>
+<div class="dash-emp-metrics">
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Quantidade</span><span class="dash-emp-mval" id="dEmpPagoMesQtd" style="color:#1f8a4c;">0</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Vl. Empenho</span><span class="dash-emp-mval" id="dEmpPagoMesVlEmp" style="color:#2563eb;">R$ 0,00</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Lucro</span><span class="dash-emp-mval" id="dEmpPagoMesLucro" style="color:#1f8a4c;">R$ 0,00</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">% Lucro</span><span class="dash-emp-mval" id="dEmpPagoMesPct">—</span></div>
+</div>
+<div class="dash-pro-vs" id="dEmpPagoMesVs" style="margin-top:8px;"></div>
+</div>
+
+<!-- Recebidos do Ano -->
+<div class="dash-emp-card">
+<div class="dash-emp-card-title" id="dashEmpPagoAnoTitulo">✅ Recebidos do Ano</div>
+<div class="dash-emp-metrics">
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Quantidade</span><span class="dash-emp-mval" id="dEmpPagoAnoQtd" style="color:#1f8a4c;">0</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Vl. Empenho</span><span class="dash-emp-mval" id="dEmpPagoAnoVlEmp" style="color:#2563eb;">R$ 0,00</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">Lucro</span><span class="dash-emp-mval" id="dEmpPagoAnoLucro" style="color:#1f8a4c;">R$ 0,00</span></div>
+<div class="dash-emp-metric"><span class="dash-emp-mlabel">% Lucro</span><span class="dash-emp-mval" id="dEmpPagoAnoPct">—</span></div>
+</div>
+<div class="dash-pro-vs" id="dEmpPagoAnoVs" style="margin-top:8px;"></div>
+</div>
+</div>
+
+<!-- ── SEÇÃO 5: GRÁFICOS ── -->
 <div class="dash-row-2">
-<!-- Donut disputas -->
 <div class="dash-card">
-<div class="dash-card-title">📊 Disputas</div>
+<div class="dash-card-title">📊 Disputas — Distribuição</div>
 <div class="dash-donut-wrap">
 <svg class="dash-donut-svg" height="110" id="dashDonutDisputas" viewbox="0 0 110 110" width="110"></svg>
 <div class="dash-donut-legend" id="dashDonutDisputasLegenda"></div>
 </div>
 </div>
-<!-- Contratos a vencer -->
 <div class="dash-card">
-<div class="dash-card-title">⚠️ Contratos a Vencer (60 dias)</div>
-<div class="dash-venc-list" id="dashVencList">
-<div style="color:var(--muted);font-size:10px;">Nenhum contrato a vencer em breve.</div>
-</div>
-</div>
-</div>
-<!-- Linha 5: Empenhos Gadita x Hamate + Compras mensal -->
-<div class="dash-row-2">
-<!-- Barras Gadita vs Hamate -->
-<div class="dash-card">
-<div class="dash-card-title">📄 Empenhos — Gadita vs Hamate</div>
-<div class="dash-bar-row" id="dashEmpBarras"></div>
-</div>
-<!-- Gráfico compras mensais -->
-<div class="dash-card">
-<div class="dash-card-title">📈 Compras — Evolução Mensal (lucro)</div>
+<div class="dash-card-title">📈 Lucro Mensal Recebido</div>
 <div class="dash-line-wrap">
 <svg height="130" id="dashLineCompras" preserveaspectratio="none" viewbox="0 0 400 130" width="100%"></svg>
 </div>
 <div style="display:flex;gap:14px;margin-top:8px;">
-<div style="display:flex;align-items:center;gap:5px;font-size:9px;"><div style="width:14px;height:3px;background:var(--primary);border-radius:2px;"></div>Lucro realizado</div>
-<div style="display:flex;align-items:center;gap:5px;font-size:9px;"><div style="width:14px;height:3px;background:#2563eb;border-radius:2px;border-style:dashed;"></div>Valor comprado</div>
+<div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:14px;height:3px;background:var(--primary);border-radius:2px;"></div>Lucro realizado</div>
+<div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:14px;height:3px;background:#2563eb;border-radius:2px;border-style:dashed;"></div>Valor comprado</div>
 </div>
 </div>
 </div>
@@ -8116,180 +8223,308 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
     function renderDashboard() {
       if (!document.getElementById('dashboard')) return;
-      const agora = new Date();
+      const agora    = new Date();
       const mesAtual = agora.getMonth();
       const anoAtual = agora.getFullYear();
+      const anoRef   = 2025; // ano de comparação
+
+      // helpers
+      const setEl    = (id, v)       => { const el = qs(id); if (el) el.textContent = v; };
+      const setStyle = (id, prop, v) => { const el = qs(id); if (el) el.style[prop] = v; };
+      const nomeMesAtual = agora.toLocaleDateString('pt-BR', { month: 'long' });
+      const nomesMeses   = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      const nomeMesAbrev = nomesMeses[mesAtual];
 
       // Data/hora
       const dh = qs('dashDataHora');
       if (dh) dh.textContent = agora.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
 
-      // ── Lucro realizado (compras do mês atual) ──
-      const comprasMes = compras.filter(c => {
-        if (!c.data) return false;
-        const d = new Date(c.data + 'T00:00:00');
-        return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
-      });
-      const lucroMes  = comprasMes.reduce((s,c) => s + (Number(c.lucroTotal)||0), 0);
+      // ── helper: comparador vs vs ──
+      function vsHtml(atual, ref, sufixo = '') {
+        if (ref === 0 && atual === 0) return `<span class="vs-eq">= 0</span> vs ${anoRef}`;
+        const diff = ref > 0 ? ((atual - ref) / ref * 100) : null;
+        if (diff === null) return `<span class="vs-up">Novo</span> vs ${anoRef}`;
+        const sinal = diff >= 0 ? '▲' : '▼';
+        const cls   = diff >= 0 ? 'vs-up' : 'vs-down';
+        return `<span class="${cls}">${sinal} ${Math.abs(diff).toFixed(1)}%</span> vs ${anoRef}${sufixo}`;
+      }
+      function vsHtmlAbs(atual, ref, formato = 'qtd') {
+        const diff = atual - ref;
+        if (diff === 0) return `<span class="vs-eq">= ${formato === 'qtd' ? ref : formatCurrency(ref)}</span> vs ${anoRef}`;
+        const sinal = diff > 0 ? '▲' : '▼';
+        const cls   = diff > 0 ? 'vs-up' : 'vs-down';
+        const val   = formato === 'qtd' ? Math.abs(diff) : formatCurrency(Math.abs(diff));
+        return `<span class="${cls}">${sinal} ${val}</span> vs ${anoRef}`;
+      }
 
-      // Lucro do ano
-      const comprasAno = compras.filter(c => {
-        if (!c.data) return false;
-        return new Date(c.data + 'T00:00:00').getFullYear() === anoAtual;
-      });
-      const lucroAno = comprasAno.reduce((s,c) => s + (Number(c.lucroTotal)||0), 0);
+      // ── TODOS OS DADOS ──
+      const todasDisputas  = [...disputas, ...disputasEncerradas];
+      const todosContratos = [...contratosAtivos, ...contratosEncerrados];
+      const empPendentes   = empenhos.filter(e => e.status === 'Pendente');
+      const empAndamento   = empenhos.filter(e => e.status === 'Compra Feita' || e.status === 'Ag. Liquidação');
+      const empPagos       = empenhos.filter(e => e.status === 'Paga');
 
       // ── METAS ──
+      const comprasAno = compras.filter(c => c.data && new Date(c.data+'T00:00:00').getFullYear() === anoAtual);
+      const lucroAno   = comprasAno.reduce((s,c) => s+(Number(c.lucroTotal)||0), 0);
+      const comprasMes = compras.filter(c => { if(!c.data) return false; const d=new Date(c.data+'T00:00:00'); return d.getMonth()===mesAtual && d.getFullYear()===anoAtual; });
+      const lucroMes   = comprasMes.reduce((s,c) => s+(Number(c.lucroTotal)||0), 0);
+
       const metaMensal = parseMeta(qs('dashMetaMensalInput')?.value);
       const metaAnual  = parseMeta(qs('dashMetaAnualInput')?.value);
-
-      const pctMensal = metaMensal > 0 ? Math.min(100, lucroMes / metaMensal * 100) : 0;
-      const pctAnual  = metaAnual  > 0 ? Math.min(100, lucroAno / metaAnual  * 100) : 0;
-      const smMensal  = semaforo(pctMensal);
-      const smAnual   = semaforo(pctAnual);
-
-      const setEl = (id, v) => { const el = qs(id); if (el) el.textContent = v; };
-      const setStyle = (id, prop, v) => { const el = qs(id); if (el) el.style[prop] = v; };
+      const pctMensal  = metaMensal > 0 ? Math.min(100, lucroMes/metaMensal*100) : 0;
+      const pctAnual   = metaAnual  > 0 ? Math.min(100, lucroAno/metaAnual*100)  : 0;
+      const smMensal   = semaforo(pctMensal);
+      const smAnual    = semaforo(pctAnual);
 
       setEl('dashMetaMensalRealizado', formatCurrency(lucroMes));
-      setEl('dashMetaMensalPct', pctMensal.toFixed(1) + '%');
+      setEl('dashMetaMensalPct', pctMensal.toFixed(1)+'%');
       setEl('dashSemaforoMensal', smMensal.emoji);
-      setEl('dashMetaMensalFalta', metaMensal > 0 ? `Faltam ${formatCurrency(Math.max(0, metaMensal - lucroMes))}` : '');
+      setEl('dashMetaMensalFalta', metaMensal>0 ? `Faltam ${formatCurrency(Math.max(0,metaMensal-lucroMes))}` : '');
       const barM = qs('dashMetaMensalBar');
-      if (barM) { barM.style.width = pctMensal.toFixed(1) + '%'; barM.className = `meta-bar-fill ${smMensal.cls}`; }
+      if (barM) { barM.style.width=pctMensal.toFixed(1)+'%'; barM.className=`meta-bar-fill ${smMensal.cls}`; }
 
       setEl('dashMetaAnualRealizado', formatCurrency(lucroAno));
-      setEl('dashMetaAnualPct', pctAnual.toFixed(1) + '%');
+      setEl('dashMetaAnualPct', pctAnual.toFixed(1)+'%');
       setEl('dashSemaforoAnual', smAnual.emoji);
-      setEl('dashMetaAnualFalta', metaAnual > 0 ? `Faltam ${formatCurrency(Math.max(0, metaAnual - lucroAno))}` : '');
+      setEl('dashMetaAnualFalta', metaAnual>0 ? `Faltam ${formatCurrency(Math.max(0,metaAnual-lucroAno))}` : '');
       const barA = qs('dashMetaAnualBar');
-      if (barA) { barA.style.width = pctAnual.toFixed(1) + '%'; barA.className = `meta-bar-fill ${smAnual.cls}`; }
+      if (barA) { barA.style.width=pctAnual.toFixed(1)+'%'; barA.className=`meta-bar-fill ${smAnual.cls}`; }
 
-      // ── PREVISÃO DE FECHAMENTO ──
-      const empAndamento = empenhos.filter(e => e.status !== 'Paga');
-      // Estimativa: lucro previsto dos empenhos com data no mês atual
-      const lucroEmpMes = empAndamento
-        .filter(e => {
-          if (!e.data) return false;
-          const d = new Date(e.data + 'T00:00:00');
-          return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
-        })
-        .reduce((s, e) => {
-          // Lucro previsto = valor empenho × margem média dos contratos
-          const c = contratosAtivos.find(ca => ca.id === e.contratoId);
-          const vlContrato = Number(c?.valor||0);
-          const lucroContrato = Number(c?.lucro||0) || (Number(c?.valor||0) - Number(c?.compra||0) - Number(c?.royalties||0) - Number(c?.imposto||0));
-          const margem = vlContrato > 0 ? lucroContrato / vlContrato : 0.1;
-          return s + (Number(e.valor||0) * margem);
-        }, 0);
-
-      const prevTotal = lucroMes + lucroEmpMes;
-      const nomeMes = agora.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-      setEl('dashPrevMes', nomeMes);
+      // ── PREVISÃO ──
+      const empAndMes = empAndamento.filter(e => { if(!e.data) return false; const d=new Date(e.data+'T00:00:00'); return d.getMonth()===mesAtual&&d.getFullYear()===anoAtual; });
+      const lucroEmpMes = empAndMes.reduce((s,e) => {
+        const c=contratosAtivos.find(ca=>ca.id===e.contratoId);
+        const vlC=Number(c?.valor||0); const lC=Number(c?.lucro||0)||(Number(c?.valor||0)-Number(c?.compra||0)-Number(c?.royalties||0)-Number(c?.imposto||0));
+        const margem=vlC>0?lC/vlC:0.1;
+        return s+(Number(e.valor||0)*margem);
+      }, 0);
+      const nomeMesLabel = agora.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+      setEl('dashPrevMes', nomeMesLabel);
       setEl('dashPrevRealizado', formatCurrency(lucroMes));
       setEl('dashPrevAndamento', formatCurrency(lucroEmpMes));
-      setEl('dashPrevTotal', formatCurrency(prevTotal));
+      setEl('dashPrevTotal', formatCurrency(lucroMes+lucroEmpMes));
 
-      // ── KPIs ──
-      const disputasAtivas = disputas.filter(d => d.status === 'Em andamento').length;
-      const disputasRecurso = disputas.filter(d => d.status === 'Em recurso').length;
-      setEl('dashKpiDisputasAtivas', disputas.length);
-      setEl('dashKpiDisputasSub', `${disputasAtivas} em andamento · ${disputasRecurso} em recurso`);
+      // ══════════════════════════════════════════
+      // DISPUTAS
+      // ══════════════════════════════════════════
+
+      // Participadas no mês (encerradas+ativas com data no mês)
+      function disputaMes(d, m, y) {
+        if (!d.data) return false;
+        const dt = new Date(d.data+'T00:00:00');
+        return dt.getMonth()===m && dt.getFullYear()===y;
+      }
+      const dispMesAtual  = todasDisputas.filter(d => disputaMes(d,mesAtual,anoAtual)).length;
+      const dispMes2025   = todasDisputas.filter(d => disputaMes(d,mesAtual,anoRef)).length;
+
+      // Participadas no ano (todas com data no ano)
+      const dispAnoAtual  = todasDisputas.filter(d => d.data && new Date(d.data+'T00:00:00').getFullYear()===anoAtual).length;
+      const dispAno2025   = todasDisputas.filter(d => d.data && new Date(d.data+'T00:00:00').getFullYear()===anoRef).length;
+
+      // Taxa de conversão no ano (Vencidas ÷ (Vencidas+Perdidas), sem fracassadas)
+      function taxaConv(ano) {
+        const venc = disputasEncerradas.filter(d => d.status==='Vencida' && d.data && new Date(d.data+'T00:00:00').getFullYear()===ano).length;
+        const perd = disputasEncerradas.filter(d => d.status==='Perdida' && d.data && new Date(d.data+'T00:00:00').getFullYear()===ano).length;
+        const total = venc+perd;
+        return total > 0 ? (venc/total*100) : null;
+      }
+      const taxaAno  = taxaConv(anoAtual);
+      const taxa2025 = taxaConv(anoRef);
+
+      // Disputas ativas
+      const dispAtivas  = disputas.length;
+      const dispAndamento = disputas.filter(d=>d.status==='Em andamento').length;
+      const dispRecurso   = disputas.filter(d=>d.status==='Em recurso').length;
+
+      setEl('dashDisputaMesLabel',  `${nomeMesAbrev} ${anoAtual}`);
+      setEl('dashDisputaMesQtd',    dispMesAtual);
+      const elDMV = qs('dashDisputaMesVs');
+      if (elDMV) elDMV.innerHTML = vsHtmlAbs(dispMesAtual, dispMes2025) + ` (${nomeMesAbrev} ${anoRef}: ${dispMes2025})`;
+
+      setEl('dashDisputaAnoLabel',  `Acumulado ${anoAtual}`);
+      setEl('dashDisputaAnoQtd',    dispAnoAtual);
+      const elDAV = qs('dashDisputaAnoVs');
+      if (elDAV) elDAV.innerHTML = vsHtmlAbs(dispAnoAtual, dispAno2025) + ` (${anoRef}: ${dispAno2025})`;
+
+      setEl('dashTaxaConversaoAno', taxaAno !== null ? taxaAno.toFixed(1)+'%' : '—');
+      const elTCV = qs('dashTaxaConversaoVs');
+      if (elTCV) {
+        if (taxaAno !== null && taxa2025 !== null) {
+          elTCV.innerHTML = vsHtml(taxaAno, taxa2025) + ` (${anoRef}: ${taxa2025.toFixed(1)}%)`;
+        } else {
+          elTCV.innerHTML = `Sem dados para ${taxa2025===null?anoRef:anoAtual}`;
+        }
+      }
+
+      setEl('dashDisputasAtivasQtd',  dispAtivas);
+      setEl('dashDisputasAtivasSub',  `${dispAndamento} em andamento · ${dispRecurso} em recurso`);
+
+      // ══════════════════════════════════════════
+      // CONTRATOS
+      // ══════════════════════════════════════════
+
+      function contratoMes(c, m, y) {
+        if (!c.data) return false;
+        const dt = new Date(c.data+'T00:00:00');
+        return dt.getMonth()===m && dt.getFullYear()===y;
+      }
+
+      const conMesAtual  = todosContratos.filter(c => contratoMes(c,mesAtual,anoAtual));
+      const conMes2025   = todosContratos.filter(c => contratoMes(c,mesAtual,anoRef));
+      const vlConMes     = conMesAtual.reduce((s,c)=>s+(Number(c.valor)||0),0);
+      const vlConMes2025 = conMes2025.reduce((s,c)=>s+(Number(c.valor)||0),0);
+
+      const conAnoAtual  = todosContratos.filter(c => c.data && new Date(c.data+'T00:00:00').getFullYear()===anoAtual);
+      const conAno2025   = todosContratos.filter(c => c.data && new Date(c.data+'T00:00:00').getFullYear()===anoRef);
+      const vlConAno     = conAnoAtual.reduce((s,c)=>s+(Number(c.valor)||0),0);
+      const vlConAno2025 = conAno2025.reduce((s,c)=>s+(Number(c.valor)||0),0);
 
       const conVencer = contratosAtivos.filter(c => {
         if (!c.dataFim) return false;
-        const dias = Math.ceil((new Date(c.dataFim+'T00:00:00') - new Date().setHours(0,0,0,0)) / 86400000);
-        return dias <= 60;
-      }).length;
-      setEl('dashKpiContratos', contratosAtivos.length);
-      setEl('dashKpiContratosSub', conVencer > 0 ? `⚠️ ${conVencer} vencendo em 60 dias` : 'Todos em dia');
+        const dias = Math.ceil((new Date(c.dataFim+'T00:00:00')-new Date().setHours(0,0,0,0))/86400000);
+        return dias<=60;
+      });
 
-      const empAnd = empenhos.filter(e => e.status !== 'Paga');
-      const vlEmpAnd = empAnd.reduce((s,e) => s+(Number(e.valor)||0), 0);
-      setEl('dashKpiEmpenhos', empAnd.length);
-      setEl('dashKpiEmpenhosSub', `Valor: ${formatCurrency(vlEmpAnd)}`);
+      setEl('dashConMesLabel',    `${nomeMesAbrev} ${anoAtual}`);
+      setEl('dashConMesQtd',      conMesAtual.length);
+      setEl('dashConMesVal',      formatCurrency(vlConMes));
+      const elCMV = qs('dashConMesVs');
+      if (elCMV) elCMV.innerHTML = vsHtmlAbs(conMesAtual.length, conMes2025.length) + ` · Valor: ` + vsHtmlAbs(vlConMes, vlConMes2025, 'val');
 
-      setEl('dashKpiCompras', compras.length);
-      setEl('dashKpiComprasSub', `Lucro total: ${formatCurrency(compras.reduce((s,c)=>s+(Number(c.lucroTotal)||0),0))}`);
+      setEl('dashConAnoLabel',    `Acumulado ${anoAtual}`);
+      setEl('dashConAnoQtd',      conAnoAtual.length);
+      setEl('dashConAnoVal',      formatCurrency(vlConAno));
+      const elCAV = qs('dashConAnoVs');
+      if (elCAV) elCAV.innerHTML = vsHtmlAbs(conAnoAtual.length, conAno2025.length) + ` · Valor: ` + vsHtmlAbs(vlConAno, vlConAno2025, 'val');
 
-      // ── DONUT DISPUTAS ──
-      const todos = [...disputas, ...disputasEncerradas];
-      const donutData = [
-        { label:'Em andamento', val: todos.filter(d=>d.status==='Em andamento').length, cor:getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() },
-        { label:'Em recurso',   val: todos.filter(d=>d.status==='Em recurso').length,   cor:'#f59e0b' },
-        { label:'Vencidas',     val: todos.filter(d=>d.status==='Vencida').length,      cor:'#1f8a4c' },
-        { label:'Perdidas',     val: todos.filter(d=>d.status==='Perdida').length,      cor:'#b42318' },
-        { label:'Frac./Susp.',  val: todos.filter(d=>d.status==='Fracassado/Suspenso').length, cor:'#6b7280' },
-      ].filter(d => d.val > 0);
-      renderDonut('dashDonutDisputas', 'dashDonutDisputasLegenda', donutData);
+      const vlTotalVigentes = contratosAtivos.reduce((s,c)=>s+(Number(c.valor)||0),0);
+      setEl('dashConVigentesQtd', contratosAtivos.length);
+      setEl('dashConVigentesSub', `Valor total: ${formatCurrency(vlTotalVigentes)}`);
+      const elCVV = qs('dashConVigentesVs');
+      if (elCVV) elCVV.innerHTML = `${contratosEncerrados.length} encerrado(s)`;
 
-      // ── VENCIMENTOS ──
-      const hoje2 = new Date(); hoje2.setHours(0,0,0,0);
-      const vencList = contratosAtivos
-        .map(c => {
-          if (!c.dataFim) return null;
-          const fim = new Date(c.dataFim+'T00:00:00');
-          const dias = Math.ceil((fim - hoje2) / 86400000);
-          return { c, dias };
-        })
-        .filter(x => x && x.dias <= 60)
-        .sort((a,b) => a.dias - b.dias);
+      setEl('dashConVencer60', conVencer.length);
 
+      // Vencimentos list
       const vl = qs('dashVencList');
       if (vl) {
-        if (!vencList.length) {
-          vl.innerHTML = '<div style="color:var(--muted);font-size:10px;padding:8px 0;">✅ Nenhum contrato a vencer nos próximos 60 dias.</div>';
+        const hoje2 = new Date(); hoje2.setHours(0,0,0,0);
+        const vencSorted = conVencer.map(c => {
+          const dias = Math.ceil((new Date(c.dataFim+'T00:00:00')-hoje2)/86400000);
+          return {c,dias};
+        }).sort((a,b)=>a.dias-b.dias);
+        if (!vencSorted.length) {
+          vl.innerHTML='<div style="color:var(--muted);font-size:11px;">✅ Nenhum vencendo em 60 dias.</div>';
         } else {
-          vl.innerHTML = vencList.map(({c,dias}) => {
-            const [dotCls, tagCls, tagTxt] = dias < 0
-              ? ['#b42318','background:#2a0a0a;color:#f05252', `Vencido há ${Math.abs(dias)}d`]
-              : dias <= 30
-                ? ['#b76a00','background:#2a1c08;color:#f0a938', `${dias}d`]
-                : ['#b59000','background:#252010;color:#e8c84d', `${dias}d`];
-            return `<div class="dash-venc-item">
-              <div class="dash-venc-dot" style="background:${dotCls};"></div>
-              <div class="dash-venc-orgao">${c.orgao || '—'}</div>
-              <div style="font-size:9px;color:var(--muted);white-space:nowrap;">${c.contrato||c.processo||''}</div>
-              <div class="dash-venc-dias" style="${tagCls}">${tagTxt}</div>
-            </div>`;
+          vl.innerHTML = vencSorted.map(({c,dias})=>{
+            const [dotCls,tagCls,tagTxt] = dias<0 ? ['#b42318','background:#2a0a0a;color:#f05252',`Vencido ${Math.abs(dias)}d`] : dias<=30 ? ['#b76a00','background:#2a1c08;color:#f0a938',`${dias}d`] : ['#b59000','background:#252010;color:#e8c84d',`${dias}d`];
+            return `<div class="dash-venc-item"><div class="dash-venc-dot" style="background:${dotCls};"></div><div class="dash-venc-orgao" style="font-size:11px;">${c.orgao||'—'}</div><div class="dash-venc-dias" style="${tagCls}">${tagTxt}</div></div>`;
           }).join('');
         }
       }
 
-      // ── BARRAS GADITA vs HAMATE ──
-      const empGadita = empenhos.filter(e=>e.empresa==='Gadita');
-      const empHamate = empenhos.filter(e=>e.empresa==='Hamate');
-      const vlG = empGadita.reduce((s,e)=>s+(Number(e.valor)||0),0);
-      const vlH = empHamate.reduce((s,e)=>s+(Number(e.valor)||0),0);
-      const maxVl = Math.max(vlG, vlH, 1);
-      const pctG = (vlG / maxVl * 100).toFixed(1);
-      const pctH = (vlH / maxVl * 100).toFixed(1);
-      const barrasEl = qs('dashEmpBarras');
-      if (barrasEl) {
-        barrasEl.innerHTML = `
-          <div class="dash-bar-item">
-            <label>Gadita — ${empGadita.length} empenhos</label>
-            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:${pctG}%;background:var(--primary);"></div></div>
-            <div class="dash-bar-info"><span>${formatCurrency(vlG)}</span><span>${pctG}%</span></div>
-          </div>
-          <div class="dash-bar-item">
-            <label>Hamate — ${empHamate.length} empenhos</label>
-            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:${pctH}%;background:#2563eb;"></div></div>
-            <div class="dash-bar-info"><span>${formatCurrency(vlH)}</span><span>${pctH}%</span></div>
-          </div>
-          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);">
-            <div style="display:flex;justify-content:space-between;font-size:10px;">
-              <span style="color:var(--muted);">Total empenhado</span>
-              <span style="font-weight:800;">${formatCurrency(vlG+vlH)}</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;">
-              <span style="color:var(--muted);">Empenhos pagos</span>
-              <span style="font-weight:800;color:#1f8a4c;">${empenhos.filter(e=>e.status==='Paga').length}</span>
-            </div>
-          </div>`;
-      }
+      // ══════════════════════════════════════════
+      // EMPENHOS
+      // ══════════════════════════════════════════
 
-      // ── GRÁFICO DE LINHA — Compras mensais (últimos 6 meses) ──
+      // Pendentes
+      let pVlEmp=0,pVlCompra=0,pCusto=0,pLucro=0;
+      empPendentes.forEach(e => {
+        const f = calcEmpFinanceiro(e);
+        pVlEmp   += f.vlEmpTotal;
+        pVlCompra += f.vlCompraEmp;
+        pCusto    += f.custoEmp;
+        pLucro    += f.lucroEmp;
+      });
+      const pPct = pVlEmp>0 ? (pLucro/pVlEmp*100) : null;
+      setEl('dEmpPendQtd',     empPendentes.length);
+      setEl('dEmpPendVlEmp',   formatCurrency(pVlEmp));
+      setEl('dEmpPendVlCompra',formatCurrency(pVlCompra));
+      setEl('dEmpPendCusto',   formatCurrency(pCusto));
+      setEl('dEmpPendLucro',   formatCurrency(pLucro));
+      setEl('dEmpPendPct',     pPct!==null ? pPct.toFixed(1)+'%' : '—');
+      const elPL = qs('dEmpPendLucro');
+      if (elPL) elPL.style.color = pLucro>=0 ? '#1f8a4c' : '#b42318';
+
+      // Em Andamento
+      let aVlEmp=0,aVlCompra=0,aCusto=0,aLucro=0;
+      empAndamento.forEach(e => {
+        const f = calcEmpFinanceiroRealizado(e);
+        aVlEmp   += Number(e.valor||0);
+        aVlCompra += f.vlCompraReal;
+        aCusto    += f.custoReal;
+        aLucro    += f.lucroReal;
+      });
+      const aPct = aVlEmp>0 ? (aLucro/aVlEmp*100) : null;
+      setEl('dEmpAndQtd',     empAndamento.length);
+      setEl('dEmpAndVlEmp',   formatCurrency(aVlEmp));
+      setEl('dEmpAndVlCompra',formatCurrency(aVlCompra));
+      setEl('dEmpAndCusto',   formatCurrency(aCusto));
+      setEl('dEmpAndLucro',   formatCurrency(aLucro));
+      setEl('dEmpAndPct',     aPct!==null ? aPct.toFixed(1)+'%' : '—');
+      const elAL = qs('dEmpAndLucro');
+      if (elAL) elAL.style.color = aLucro>=0 ? '#1f8a4c' : '#b42318';
+
+      // Pagos do Mês
+      function pagoMes(e, m, y) {
+        if (!e.dataPagamento) return false;
+        const dt = new Date(e.dataPagamento+'T00:00:00');
+        return dt.getMonth()===m && dt.getFullYear()===y;
+      }
+      const empPagoMesAtual = empPagos.filter(e=>pagoMes(e,mesAtual,anoAtual));
+      const empPagoMes2025  = empPagos.filter(e=>pagoMes(e,mesAtual,anoRef));
+
+      let pmVlEmp=0,pmLucro=0;
+      empPagoMesAtual.forEach(e=>{ pmVlEmp+=Number(e.valor||0); const f=calcEmpFinanceiroRealizado(e); pmLucro+=f.lucroReal; });
+      let pm2VlEmp=0,pm2Lucro=0;
+      empPagoMes2025.forEach(e=>{ pm2VlEmp+=Number(e.valor||0); const f=calcEmpFinanceiroRealizado(e); pm2Lucro+=f.lucroReal; });
+
+      const pmPct  = pmVlEmp>0  ? (pmLucro/pmVlEmp*100)   : null;
+      const pm2Pct = pm2VlEmp>0 ? (pm2Lucro/pm2VlEmp*100) : null;
+
+      setEl('dashEmpPagoMesTitulo', `✅ Recebidos — ${nomeMesAbrev} ${anoAtual}`);
+      setEl('dEmpPagoMesQtd',    empPagoMesAtual.length);
+      setEl('dEmpPagoMesVlEmp',  formatCurrency(pmVlEmp));
+      setEl('dEmpPagoMesLucro',  formatCurrency(pmLucro));
+      setEl('dEmpPagoMesPct',    pmPct!==null ? pmPct.toFixed(1)+'%' : '—');
+      const elPMV = qs('dEmpPagoMesVs');
+      if (elPMV) elPMV.innerHTML = vsHtmlAbs(empPagoMesAtual.length, empPagoMes2025.length) + ` · Lucro: ` + vsHtmlAbs(pmLucro, pm2Lucro,'val') + ` (${nomeMesAbrev} ${anoRef}: ${formatCurrency(pm2Lucro)})`;
+      const elPML = qs('dEmpPagoMesLucro');
+      if (elPML) elPML.style.color = pmLucro>=0?'#1f8a4c':'#b42318';
+
+      // Pagos do Ano
+      const empPagoAnoAtual = empPagos.filter(e=> e.dataPagamento && new Date(e.dataPagamento+'T00:00:00').getFullYear()===anoAtual);
+      const empPagoAno2025  = empPagos.filter(e=> e.dataPagamento && new Date(e.dataPagamento+'T00:00:00').getFullYear()===anoRef);
+
+      let paVlEmp=0,paLucro=0;
+      empPagoAnoAtual.forEach(e=>{ paVlEmp+=Number(e.valor||0); const f=calcEmpFinanceiroRealizado(e); paLucro+=f.lucroReal; });
+      let pa2VlEmp=0,pa2Lucro=0;
+      empPagoAno2025.forEach(e=>{ pa2VlEmp+=Number(e.valor||0); const f=calcEmpFinanceiroRealizado(e); pa2Lucro+=f.lucroReal; });
+
+      const paPct  = paVlEmp>0  ? (paLucro/paVlEmp*100)   : null;
+
+      setEl('dashEmpPagoAnoTitulo', `✅ Recebidos — Ano ${anoAtual}`);
+      setEl('dEmpPagoAnoQtd',    empPagoAnoAtual.length);
+      setEl('dEmpPagoAnoVlEmp',  formatCurrency(paVlEmp));
+      setEl('dEmpPagoAnoLucro',  formatCurrency(paLucro));
+      setEl('dEmpPagoAnoPct',    paPct!==null ? paPct.toFixed(1)+'%' : '—');
+      const elPAV = qs('dEmpPagoAnoVs');
+      if (elPAV) elPAV.innerHTML = vsHtmlAbs(empPagoAnoAtual.length, empPagoAno2025.length) + ` · Lucro: ` + vsHtmlAbs(paLucro, pa2Lucro,'val') + ` (${anoRef}: ${formatCurrency(pa2Lucro)})`;
+      const elPAL = qs('dEmpPagoAnoLucro');
+      if (elPAL) elPAL.style.color = paLucro>=0?'#1f8a4c':'#b42318';
+
+      // ══════════════════════════════════════════
+      // DONUT + GRÁFICO
+      // ══════════════════════════════════════════
+      const donutData = [
+        { label:'Em andamento', val: todasDisputas.filter(d=>d.status==='Em andamento').length,         cor:getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() },
+        { label:'Em recurso',   val: todasDisputas.filter(d=>d.status==='Em recurso').length,           cor:'#f59e0b' },
+        { label:'Vencidas',     val: todasDisputas.filter(d=>d.status==='Vencida').length,              cor:'#1f8a4c' },
+        { label:'Perdidas',     val: todasDisputas.filter(d=>d.status==='Perdida').length,              cor:'#b42318' },
+        { label:'Frac./Susp.',  val: todasDisputas.filter(d=>d.status==='Fracassado/Suspenso').length,  cor:'#6b7280' },
+      ].filter(d=>d.val>0);
+      renderDonut('dashDonutDisputas','dashDonutDisputasLegenda', donutData);
       renderLineCompras();
     }
 
