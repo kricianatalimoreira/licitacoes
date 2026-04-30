@@ -9818,12 +9818,16 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
       showSync('saving', '☁ carregando...');
       try {
+        const controller = new AbortController();
+        const _tout = setTimeout(() => controller.abort(), 8000);
         const res = await fetch(`${SUPA_URL}/rest/v1/app_data?id=eq.main&select=payload`, {
           headers: {
             'apikey': SUPA_KEY,
             'Authorization': `Bearer ${SUPA_KEY}`
-          }
+          },
+          signal: controller.signal
         });
+        clearTimeout(_tout);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         if (data && data[0] && data[0].payload && Object.keys(data[0].payload).length > 0) {
@@ -9869,8 +9873,13 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         showSync('ok', '✓ conectado');
         return false;
       } catch(e) {
-        console.error('Pull error:', e);
-        showSync('err', '✗ sem conexão — usando dados locais');
+        if (e && e.name === 'AbortError') {
+          console.warn('Pull timeout — usando dados locais');
+          showSync('err', '✗ timeout — usando dados locais');
+        } else {
+          console.error('Pull error:', e);
+          showSync('err', '✗ sem conexão — usando dados locais');
+        }
         return false;
       }
     }
@@ -9958,7 +9967,9 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     document.addEventListener('DOMContentLoaded', function() {
       if (sessionStorage.getItem(SESSION_KEY) === '1') {
         document.getElementById('loginScreen').classList.add('hidden');
-        initApp();
+        initApp().catch(e => {
+          console.error('initApp error:', e);
+        });
       } else {
         setTimeout(() => {
           document.getElementById('loginPassword') && document.getElementById('loginPassword').focus();
