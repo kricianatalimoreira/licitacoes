@@ -7213,15 +7213,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
       VENC_SECTIONS.forEach(sid => {
         const banner = document.getElementById(`vencBanner-${sid}`);
-        const textEl = document.getElementById(`vencBannerText-${sid}`);
         if (!banner) return;
-        // Exibe o banner apenas na seção de Contratos Ativos
-        if (txt && sid === 'contratos-ativos') {
-          if (textEl) textEl.textContent = txt;
-          banner.classList.remove('hidden');
-        } else {
-          banner.classList.add('hidden');
-        }
+        banner.classList.add('hidden');
       });
     }
 
