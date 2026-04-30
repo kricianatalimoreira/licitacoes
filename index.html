@@ -7215,7 +7215,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         const banner = document.getElementById(`vencBanner-${sid}`);
         const textEl = document.getElementById(`vencBannerText-${sid}`);
         if (!banner) return;
-        if (txt) {
+        // Exibe o banner apenas na seção de Contratos Ativos
+        if (txt && sid === 'contratos-ativos') {
           if (textEl) textEl.textContent = txt;
           banner.classList.remove('hidden');
         } else {
