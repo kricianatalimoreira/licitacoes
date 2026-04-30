@@ -851,14 +851,14 @@
 
     .cell-data-hora { display: flex; flex-direction: column; gap: 1px; }
     .data-dia { font-weight: 700; font-size: 14px; }
-    .data-hora { color: var(--muted); font-size: 9px; }
+    .data-hora { color: var(--muted); font-size: 13px; }
 
     .status {
       display: inline-flex;
       align-items: center;
       padding: 4px 8px;
       border-radius: 999px;
-      font-size: 10px;
+      font-size: 13px;
       font-weight: 700;
     }
     .status-orange { background: #2a1c0a; color: #b76a00; }
@@ -872,7 +872,7 @@
       align-items: center;
       padding: 3px 8px;
       border-radius: 999px;
-      font-size: 10px;
+      font-size: 13px;
       font-weight: 700;
     }
     .company-gadita { background:#0d1e3a; color:#5b9cf6; }
@@ -1866,7 +1866,7 @@
       min-width: 0;
     }
     .exec-label {
-      font-size: 9px;
+      font-size: 13px;
       color: var(--muted);
       white-space: nowrap;
     }
@@ -1892,7 +1892,7 @@
     /* Info secundária no órgão */
     .con-orgao-wrap { display: flex; flex-direction: column; gap: 2px; }
     .con-orgao-nome { font-weight: 600; line-height: 1.3; }
-    .con-orgao-info { font-size: 9px; color: var(--muted); line-height: 1.4; }
+    .con-orgao-info { font-size: 13px; color: var(--muted); line-height: 1.4; }
 
     /* Alert KPI card — vencendo em 60 dias */
     .stat-alert {
@@ -6429,15 +6429,15 @@
         const lucroColor  = lucroReal > 0 ? '#1f8a4c' : lucroReal < 0 ? '#b42318' : 'var(--muted)';
         const margem      = vlEmpTotal > 0 ? (lucroReal / vlEmpTotal) * 100 : 0;
         const margemColor = margem > 0 ? '#1f8a4c' : margem < 0 ? '#b42318' : 'var(--muted)';
-        vlCompraHtml = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraReal)}</span>`;
-        custoHtml    = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(custoReal)}</span>`;
-        lucroHtml    = `<span style="font-size:10px;font-weight:700;color:${lucroColor};">${formatCurrency(lucroReal)}</span>`;
-        pctHtml      = `<span style="font-size:10px;font-weight:700;color:${margemColor};">${margem.toFixed(1)}%</span>`;
+        vlCompraHtml = `<span style="font-size:13px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraReal)}</span>`;
+        custoHtml    = `<span style="font-size:13px;font-weight:400;color:var(--text);">${formatCurrency(custoReal)}</span>`;
+        lucroHtml    = `<span style="font-size:13px;font-weight:700;color:${lucroColor};">${formatCurrency(lucroReal)}</span>`;
+        pctHtml      = `<span style="font-size:13px;font-weight:700;color:${margemColor};">${margem.toFixed(1)}%</span>`;
       }
 
       return `<tr>
         <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${dataCompraBadge}</div></td>
-        <td style="font-weight:700;font-size:10px;">${e.numero || '—'}</td>
+        <td style="font-weight:700;font-size:13px;">${e.numero || '—'}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${e.orgao || '—'}</div>
           <div class="con-orgao-info">${e.contrato || ''}</div>
@@ -6637,13 +6637,13 @@
               const mc = mg > 0 ? '#34d399' : mg < 0 ? '#f05252' : 'var(--muted)';
               const mw = mg !== 0 ? '700' : '400';
               vlCompraHtml = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraEmp)}</span>`;
-              custoHtml    = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(custoEmp)}</span>`;
-              lucroHtml    = `<span style="font-size:10px;font-weight:${lw};color:${lc};">${formatCurrency(lucroEmp)}</span>`;
-              pctHtml      = `<span style="font-size:10px;font-weight:${mw};color:${mc};">${mg.toFixed(1)}%</span>`;
+              custoHtml    = `<span style="font-size:13px;font-weight:400;color:var(--text);">${formatCurrency(custoEmp)}</span>`;
+              lucroHtml    = `<span style="font-size:13px;font-weight:${lw};color:${lc};">${formatCurrency(lucroEmp)}</span>`;
+              pctHtml      = `<span style="font-size:13px;font-weight:${mw};color:${mc};">${mg.toFixed(1)}%</span>`;
             }
             return `<tr>
               <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendBadge}</div></td>
-              <td style="font-weight:700;font-size:10px;">${e.numero||'—'}</td>
+              <td style="font-weight:700;font-size:13px;">${e.numero||'—'}</td>
               <td class="cell-wrap">
                 <div class="con-orgao-nome">${e.orgao||'—'}</div>
                 <div class="con-orgao-info">${e.contrato||''}</div>
@@ -6655,7 +6655,7 @@
               <td>${custoHtml}</td>
               <td>${lucroHtml}</td>
               <td style="text-align:center;">${pctHtml}</td>
-              <td><div class="status-wrap"><span class="status-badge status-pendente">Pendente</span></div></td>
+              <td><div class="status-wrap"><span class="status-badge status-pendente" style="font-size:13px;">Pendente</span></div></td>
               <td>
                 <div class="row-menu-wrap">
                   <button class="row-menu-btn" onclick="toggleRowMenu(event,'emppendmenu-${e.id}')">⋯</button>
@@ -6698,15 +6698,15 @@
         const lucroColor  = lucroReal > 0 ? '#1f8a4c' : lucroReal < 0 ? '#b42318' : 'var(--muted)';
         const margem      = vlEmpTotal > 0 ? (lucroReal / vlEmpTotal) * 100 : 0;
         const margemColor = margem > 0 ? '#1f8a4c' : margem < 0 ? '#b42318' : 'var(--muted)';
-        vlCompraHtml = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraReal)}</span>`;
-        custoHtml    = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(custoReal)}</span>`;
-        lucroHtml    = `<span style="font-size:10px;font-weight:700;color:${lucroColor};">${formatCurrency(lucroReal)}</span>`;
-        pctHtml      = `<span style="font-size:10px;font-weight:700;color:${margemColor};">${margem.toFixed(1)}%</span>`;
+        vlCompraHtml = `<span style="font-size:13px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraReal)}</span>`;
+        custoHtml    = `<span style="font-size:13px;font-weight:400;color:var(--text);">${formatCurrency(custoReal)}</span>`;
+        lucroHtml    = `<span style="font-size:13px;font-weight:700;color:${lucroColor};">${formatCurrency(lucroReal)}</span>`;
+        pctHtml      = `<span style="font-size:13px;font-weight:700;color:${margemColor};">${margem.toFixed(1)}%</span>`;
       }
 
       return `<tr>
         <td><span class="data-dia">${formatDate(e.data)}</span></td>
-        <td style="font-weight:700;font-size:10px;">${e.numero || '—'}</td>
+        <td style="font-weight:700;font-size:13px;">${e.numero || '—'}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${e.orgao || '—'}</div>
           <div class="con-orgao-info">${e.contrato || ''}</div>
