@@ -2707,13 +2707,20 @@
 </div>
 <div class="actions" style="gap:14px;">
 <div class="mode-toggle" title="Alternar claro/escuro">
+<span class="mode-icon">☀️</span>
 <label class="ios-switch">
   <input type="checkbox" id="modeToggle" onchange="toggleModo(this.checked)"/>
   <span class="ios-slider"></span>
 </label>
+<span class="mode-icon">🌙</span>
 </div>
 <div class="theme-picker">
+<span class="theme-picker-label">🎨 Tema</span>
 <div class="theme-swatches">
+<div class="theme-swatch" data-theme="rosa" onclick="aplicarTema('rosa')" title="Rosa"></div>
+<div class="theme-swatch" data-theme="azul" onclick="aplicarTema('azul')" title="Azul"></div>
+<div class="theme-swatch" data-theme="verde" onclick="aplicarTema('verde')" title="Verde"></div>
+<div class="theme-swatch" data-theme="laranja" onclick="aplicarTema('laranja')" title="Laranja"></div>
 </div>
 </div>
 
