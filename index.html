@@ -6248,7 +6248,7 @@
         'Paga':                  'emp-status-paga',
         'Pendente':              'emp-status-pendente',
       };
-      return `<span class="status ${map[status] || 'status-gray'}" style="font-size:9px;padding:3px 7px;">${status || '—'}</span>`;
+      return `<span class="status ${map[status] || 'status-gray'}" style="font-size:13px;padding:3px 7px;">${status || '—'}</span>`;
     }
 
     let _pagandoEmpId = null;
@@ -6626,17 +6626,17 @@
             const fin = calcEmpFinanceiro(e);
             const { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal } = fin;
             const hasF = vlEmpTotal > 0 || vlCompraEmp > 0;
-            let vlCompraHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
-            let custoHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
-            let lucroHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
-            let pctHtml      = '<span style="color:var(--muted);font-size:10px;">—</span>';
+            let vlCompraHtml = '<span style="color:var(--muted);font-size:13px;">—</span>';
+            let custoHtml    = '<span style="color:var(--muted);font-size:13px;">—</span>';
+            let lucroHtml    = '<span style="color:var(--muted);font-size:13px;">—</span>';
+            let pctHtml      = '<span style="color:var(--muted);font-size:13px;">—</span>';
             if (hasF) {
               const lc = lucroEmp > 0 ? '#34d399' : lucroEmp < 0 ? '#f05252' : 'var(--muted)';
               const lw = lucroEmp !== 0 ? '700' : '400';
               const mg = vlEmpTotal > 0 ? (lucroEmp/vlEmpTotal)*100 : 0;
               const mc = mg > 0 ? '#34d399' : mg < 0 ? '#f05252' : 'var(--muted)';
               const mw = mg !== 0 ? '700' : '400';
-              vlCompraHtml = `<span style="font-size:10px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraEmp)}</span>`;
+              vlCompraHtml = `<span style="font-size:13px;font-weight:400;color:var(--text);">${formatCurrency(vlCompraEmp)}</span>`;
               custoHtml    = `<span style="font-size:13px;font-weight:400;color:var(--text);">${formatCurrency(custoEmp)}</span>`;
               lucroHtml    = `<span style="font-size:13px;font-weight:${lw};color:${lc};">${formatCurrency(lucroEmp)}</span>`;
               pctHtml      = `<span style="font-size:13px;font-weight:${mw};color:${mc};">${mg.toFixed(1)}%</span>`;
@@ -6719,7 +6719,7 @@
         <td>${lucroHtml}</td>
         <td style="text-align:center;">${pctHtml}</td>
         <td>${statusHtml}</td>
-        <td style="font-size:10px;color:var(--muted);text-align:center;">${e.dataPagamento ? formatDate(e.dataPagamento) : '—'}</td>
+        <td style="font-size:13px;color:var(--muted);text-align:center;">${e.dataPagamento ? formatDate(e.dataPagamento) : '—'}</td>
       </tr>`;
     }
 
@@ -8086,19 +8086,19 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         return `<tr>
           <td><span class="data-dia">${formatDate(c.data)}</span></td>
           <td class="cell-wrap">
-            <div style="font-size:10px;font-weight:700;">${c.descricao}</div>
-            <div style="font-size:9px;color:var(--muted);">Nº ${c.empenhoNumero}</div>
+            <div style="font-size:14px;font-weight:700;">${c.descricao}</div>
+            <div style="font-size:13px;color:var(--muted);">Nº ${c.empenhoNumero}</div>
           </td>
           <td>${companyBadge(c.empresa)}</td>
-          <td class="cell-wrap" style="font-size:10px;">
+          <td class="cell-wrap" style="font-size:14px;">
             ${c.fornecedor || '—'}
             ${c.linkCompra ? `<a href="${c.linkCompra}" target="_blank" rel="noopener" class="link-emoji-badge link-badge-sistema" style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;font-size:9px;font-weight:700;text-decoration:none;padding:2px 6px;border-radius:6px;width:auto;height:auto;">🔗 Ver compra</a>` : ''}
           </td>
-          <td style="font-size:10px;">${pagStr}</td>
+          <td style="font-size:14px;">${pagStr}</td>
           <td style="font-weight:700;color:#2563eb;">${formatCurrency(c.vlTotalCompra)}</td>
-          <td style="font-size:10px;color:#b76a00;">${formatCurrency(c.impostoTotal)}</td>
-          <td style="font-size:10px;color:var(--muted);">${formatCurrency(c.royaltTotal)}</td>
-          <td style="font-weight:700;color:${lucroColor};">${formatCurrency(c.lucroTotal)} <span style="font-size:9px;">(${c.pctLucro})</span></td>
+          <td style="font-size:13px;color:#b76a00;">${formatCurrency(c.impostoTotal)}</td>
+          <td style="font-size:13px;color:var(--muted);">${formatCurrency(c.royaltTotal)}</td>
+          <td style="font-weight:700;color:${lucroColor};">${formatCurrency(c.lucroTotal)} <span style="font-size:13px;">(${c.pctLucro})</span></td>
           <td>
             <div class="row-menu-wrap">
               <button class="row-menu-btn" onclick="toggleRowMenu(event,'cmpmenu-${c.id}')">⋯</button>
