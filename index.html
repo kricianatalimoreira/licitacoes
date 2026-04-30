@@ -6449,9 +6449,7 @@
 
       // KPIs (baseados em todos os em andamento, sem filtro)
       qs('empAndStatTotal').textContent     = andamento.length;
-      qs('empAndStatAberto').textContent    = andamento.filter(e => e.status === 'Compra Feita').length;
-      // empAndStatEntregue removido (Pendentes agora em seção própria)
-      qs('empAndStatLiquidacao').textContent= andamento.filter(e => e.status === 'Ag. Liquidação').length;
+      // empAndStatAberto e empAndStatLiquidacao removidos (KPIs mesclados)
       qs('empAndStatValor').textContent     = formatCurrency(andamento.reduce((s,e) => s+(Number(e.valor)||0), 0));
       // KPI valores financeiros — calculados com base nas COMPRAS REALIZADAS de cada empenho
       let _empAndCompraTotal = 0, _empAndCustoTotal = 0, _empAndLucroTotal = 0;
@@ -9908,7 +9906,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       if (typeof renderDashboard === 'function') renderDashboard();
       if (typeof atualizarSino === 'function') atualizarSino();
       if (typeof aplicarTema === 'function') {
-        const t = localStorage.getItem('km_tema_v1') || 'rosa';
+        const t = localStorage.getItem('km_tema_v1') || 'claro';
         aplicarTema(t);
       }
       // Patch localStorage to auto-sync on every save
