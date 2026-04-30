@@ -9922,8 +9922,16 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     async function initApp() {
-      // Try to get cloud data first
-      await syncFromCloud();
+      // Try to get cloud data first (com timeout de 8s para não travar)
+      try {
+        await Promise.race([
+          syncFromCloud(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
+        ]);
+      } catch(e) {
+        console.warn('[KM] syncFromCloud timeout/error, continuando sem cloud:', e);
+        showSync('err', '✗ sem conexão — usando dados locais');
+      }
       // Then load all modules
       if (typeof loadData === 'function') loadData();
       if (typeof loadContratos === 'function') loadContratos();
