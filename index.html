@@ -9814,12 +9814,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
     // ── Fim tema ──────────────────────────────────────────────
 
-    // Inicia no dashboard
-    const allSections = document.querySelectorAll('.page-section');
-    allSections.forEach(s => s.classList.add('hidden'));
-    const dashEl = document.getElementById('dashboard');
-    if (dashEl) dashEl.classList.remove('hidden');
-    renderDashboard();
+    // Inicia no dashboard (movido para dentro do initApp)
   
 
     // ── Sort helper ──────────────────────────────
@@ -10221,6 +10216,13 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       }
       // Patch localStorage to auto-sync on every save
       patchPersistFunctions();
+
+      // Mostra o dashboard após tudo carregado
+      const allSections = document.querySelectorAll('.page-section');
+      allSections.forEach(s => s.classList.add('hidden'));
+      const dashEl = document.getElementById('dashboard');
+      if (dashEl) dashEl.classList.remove('hidden');
+      if (typeof renderDashboard === 'function') renderDashboard();
     }
 
     // ── Startup ──
