@@ -9708,15 +9708,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     // Pós-migração: _migracaoPendente será consumido dentro do syncFromCloud,
     // que vai SUBIR os dados locais (Lenovo = fonte da verdade) para o Supabase.
 
-    movePopoversToBody();
-    renderDisputas();
-    renderHistoricoDisputas();
-    atualizarListaOrgaos();
-    loadCompras();
-    carregarMetas();
-    renderEmpenhos();
-    renderCompras();
-    atualizarSino();
+    // render calls moved to initApp
 
     // ══════════════════════════════════════════════════════════
     //  MODO CLARO / ESCURO
@@ -10170,55 +10162,61 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
 
-    async function initApp() {
-      // Try to get cloud data first (com timeout de 8s para não travar)
-      try {
-        await Promise.race([
-          syncFromCloud(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
-        ]);
-      } catch(e) {
-        console.warn('[KM] syncFromCloud timeout/error, continuando sem cloud:', e);
-        showSync('err', '✗ sem conexão — usando dados locais');
-      }
-      // Then load all modules
-      if (typeof loadData === 'function') loadData();
-      if (typeof loadContratos === 'function') loadContratos();
-      // Repara contratos com valor/compra zerados mas com itensLotes preenchidos
-      const _reparouA = repararContratosZerados(contratosAtivos);
-      const _reparouE = repararContratosZerados(contratosEncerrados);
-      if (_reparouA || _reparouE) { persistAll(); }
-      if (typeof loadEmpenhos === 'function') loadEmpenhos();
-      if (typeof loadCompras === 'function') loadCompras();
-      // Re-render all sections
-      if (typeof renderDisputas === 'function') renderDisputas();
-      if (typeof renderHistoricoDisputas === 'function') renderHistoricoDisputas();
-      if (typeof renderContratosAtivos === 'function') renderContratosAtivos();
-      if (typeof renderContratosEncerrados === 'function') renderContratosEncerrados();
-      if (typeof renderEmpenhos === 'function') renderEmpenhos();
-      if (typeof renderEmpAndamento === 'function') renderEmpAndamento();
-      if (typeof renderEmpEncerrados === 'function') renderEmpEncerrados();
-      if (typeof renderCompras === 'function') renderCompras();
-      if (typeof renderDashboard === 'function') renderDashboard();
-      if (typeof atualizarSino === 'function') atualizarSino();
-      if (typeof aplicarTema === 'function') {
-        const t = localStorage.getItem('km_tema_v1') || 'claro';
-        aplicarTema(t);
-      }
-      // Patch localStorage to auto-sync on every save
-      patchPersistFunctions();
-
-      // Mostra o dashboard após tudo carregado
-      const allSections = document.querySelectorAll('.page-section');
-      allSections.forEach(s => s.classList.add('hidden'));
-      const dashEl = document.getElementById('dashboard');
-      if (dashEl) dashEl.classList.remove('hidden');
-      if (typeof renderDashboard === 'function') renderDashboard();
-    }
+    // initApp substituído pelo DOMContentLoaded direto
 
     // ── Startup ──
     document.addEventListener('DOMContentLoaded', function() {
-      initApp();
+      // Mostra dashboard imediatamente (sem esperar sync)
+      document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
+      const dashEl = document.getElementById('dashboard');
+      if (dashEl) dashEl.classList.remove('hidden');
+      // Carrega dados locais primeiro para UI responder rápido
+      if (typeof loadData       === 'function') loadData();
+      if (typeof loadContratos  === 'function') loadContratos();
+      if (typeof loadEmpenhos   === 'function') loadEmpenhos();
+      if (typeof loadCompras    === 'function') loadCompras();
+      if (typeof carregarMetas  === 'function') carregarMetas();
+      if (typeof aplicarTema    === 'function') aplicarTema(localStorage.getItem('km_tema_v1') || 'claro');
+      if (typeof carregarModo   === 'function') carregarModo();
+      if (typeof renderDashboard === 'function') renderDashboard();
+      if (typeof renderDisputas === 'function') renderDisputas();
+      if (typeof renderHistoricoDisputas === 'function') renderHistoricoDisputas();
+      if (typeof renderContratosAtivos   === 'function') renderContratosAtivos();
+      if (typeof renderContratosEncerrados === 'function') renderContratosEncerrados();
+      if (typeof renderEmpenhos    === 'function') renderEmpenhos();
+      if (typeof renderEmpAndamento === 'function') renderEmpAndamento();
+      if (typeof renderEmpEncerrados === 'function') renderEmpEncerrados();
+      if (typeof renderCompras      === 'function') renderCompras();
+      if (typeof atualizarSino      === 'function') atualizarSino();
+      if (typeof movePopoversToBody  === 'function') movePopoversToBody();
+      if (typeof populateUFs === 'function') { populateUFs('conUF'); populateUFs('disputaUF'); populateUFs('encUF'); }
+      if (typeof atualizarListaOrgaos === 'function') atualizarListaOrgaos();
+      if (typeof patchPersistFunctions === 'function') patchPersistFunctions();
+      // Sync com cloud em background (sem bloquear UI)
+      if (typeof syncFromCloud === 'function') {
+        Promise.race([
+          syncFromCloud(),
+          new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 8000))
+        ]).then(synced => {
+          if (synced) {
+            // Recarrega dados após sync
+            if (typeof loadData === 'function') loadData();
+            if (typeof loadContratos === 'function') loadContratos();
+            if (typeof loadEmpenhos === 'function') loadEmpenhos();
+            if (typeof loadCompras === 'function') loadCompras();
+            if (typeof renderDashboard === 'function') renderDashboard();
+            if (typeof renderDisputas === 'function') renderDisputas();
+            if (typeof renderHistoricoDisputas === 'function') renderHistoricoDisputas();
+            if (typeof renderContratosAtivos === 'function') renderContratosAtivos();
+            if (typeof renderContratosEncerrados === 'function') renderContratosEncerrados();
+            if (typeof renderEmpenhos === 'function') renderEmpenhos();
+            if (typeof renderEmpAndamento === 'function') renderEmpAndamento();
+            if (typeof renderEmpEncerrados === 'function') renderEmpEncerrados();
+            if (typeof renderCompras === 'function') renderCompras();
+            if (typeof atualizarSino === 'function') atualizarSino();
+          }
+        }).catch(e => console.warn('[KM] sync background error:', e));
+      }
     });
 
   </script>
