@@ -3481,16 +3481,12 @@
 <button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
 <button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
 </div>
-<div class="disputa-stats" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:8px;">
-<div class="disputa-stat-card"><div class="disputa-stat-label">Em andamento</div><div class="disputa-stat-value" id="empAndStatTotal">0</div></div>
-<div class="disputa-stat-card stat-orange"><div class="disputa-stat-label">Compra Feita</div><div class="disputa-stat-value" id="empAndStatAberto">0</div></div>
-<div class="disputa-stat-card" style="background:#1a1530;border-color:#4a3a8a;"><div class="disputa-stat-label">Ag. Liquidação</div><div class="disputa-stat-value" id="empAndStatLiquidacao">0</div></div>
-</div>
 <div class="disputa-stats" style="grid-template-columns:repeat(4,minmax(0,1fr));">
 <div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Vl. Empenho</div><div class="disputa-stat-value" id="empAndStatValor" style="font-size:16px;color:#2563eb;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Vl. Compra</div><div class="disputa-stat-value" id="empAndStatCompra" style="font-size:16px;color:#a78bfa;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#1a0d08;border-color:#7a3a0a;"><div class="disputa-stat-label">Custo</div><div class="disputa-stat-value" id="empAndStatCusto" style="font-size:16px;color:#fb923c;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#0a2018;border-color:#1a6040;"><div class="disputa-stat-label">Lucro</div><div class="disputa-stat-value" id="empAndStatLucro" style="font-size:16px;color:#34d399;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#0a2018;border-color:#1a6040;"><div class="disputa-stat-label">% Lucro</div><div class="disputa-stat-value" id="empAndStat%Lucro" style="font-size:16px;color:#34d399;">0,00%</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
