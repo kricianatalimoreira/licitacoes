@@ -553,10 +553,11 @@
       align-items: center;
       gap: 12px;
       margin-bottom: 10px;
+      padding: 4px 0;
       flex-wrap: wrap;
     }
-    .topbar h2 { margin: 0; font-size: 17px; }
-    .topbar p { margin: 2px 0 0; color: var(--muted); font-size: 10px; }
+    .topbar h2 { margin: 0; font-size: 19px; }
+    .topbar p { display: none; }
 
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .btn {
@@ -2878,7 +2879,6 @@
 <div class="topbar">
 <div>
 <h2>⚡ Em andamento</h2>
-<p>Disputas ativas com acompanhamento em tempo real.</p>
 </div>
 <div class="actions">
 <button class="btn btn-light" onclick="abrirImportarExcel()" style="display:flex;align-items:center;gap:6px;">
@@ -3045,7 +3045,6 @@
 <div class="topbar">
 <div>
 <h2>📋 Encerradas</h2>
-<p>Histórico de disputas finalizadas.</p>
 </div>
 </div>
 <div class="venc-banner hidden" id="vencBanner-disputa-encerradas">
@@ -3205,7 +3204,6 @@
 <div class="topbar">
 <div>
 <h2>📝 Contratos Ativos</h2>
-<p>Contratos vigentes com acompanhamento de valores e prazos.</p>
 </div>
 <div class="actions">
 <button class="bell-btn" id="bellBtn" onclick="toggleBellDropdown(event)" title="Alertas de vencimento">
@@ -3297,7 +3295,6 @@
 <div class="topbar">
 <div>
 <h2>📋 Contratos Encerrados</h2>
-<p>Histórico de contratos finalizados.</p>
 </div>
 </div>
 <div class="venc-banner hidden" id="vencBanner-contratos-encerrados">
@@ -3381,7 +3378,6 @@
 <div class="topbar">
 <div>
 <h2>📋 Empenhos pendentes</h2>
-<p>Empenhos aguardando compra — status Pendente.</p>
 </div>
 <div class="actions">
 <button class="btn btn-primary" onclick="abrirSeletorContratoEmpenho()">+ Novo Empenho</button>
@@ -3475,7 +3471,6 @@
 <div class="topbar">
 <div>
 <h2>📄 Empenhos em andamento</h2>
-<p>Empenhos com compra registrada — Compra Feita e Ag. Liquidação.</p>
 </div>
 <div class="actions">
 <button class="btn btn-primary" onclick="abrirSeletorContratoEmpenho()">+ Novo Empenho</button>
@@ -3584,7 +3579,6 @@
 <div class="topbar">
 <div>
 <h2>✅ Empenhos pagos</h2>
-<p>Empenhos com status Paga — ciclo financeiro concluído.</p>
 </div>
 </div>
 <div class="venc-banner hidden" id="vencBanner-empenhos-encerrados">
@@ -3674,7 +3668,6 @@
 <div class="topbar">
 <div>
 <h2>🛒 Compras</h2>
-<p>Compras geradas a partir de empenhos.</p>
 </div>
 </div>
 <div class="disputa-stats" style="grid-template-columns:repeat(5,minmax(0,1fr));">
