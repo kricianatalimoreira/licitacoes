@@ -2707,41 +2707,15 @@
 </div>
 <div class="actions" style="gap:14px;">
 <div class="mode-toggle" title="Alternar claro/escuro">
-<span class="mode-icon">☀️</span>
 <label class="ios-switch">
   <input type="checkbox" id="modeToggle" onchange="toggleModo(this.checked)"/>
   <span class="ios-slider"></span>
 </label>
-<span class="mode-icon">🌙</span>
 </div>
-<div class="theme-picker">
-<span class="theme-picker-label">🎨 Tema</span>
-<div class="theme-swatches">
-<div class="theme-swatch" data-theme="rosa" onclick="aplicarTema('rosa')" title="Rosa"></div>
-<div class="theme-swatch" data-theme="azul" onclick="aplicarTema('azul')" title="Azul"></div>
-<div class="theme-swatch" data-theme="verde" onclick="aplicarTema('verde')" title="Verde"></div>
-<div class="theme-swatch" data-theme="laranja" onclick="aplicarTema('laranja')" title="Laranja"></div>
+
 </div>
-</div>
-<button onclick="syncToCloud()" title="Salvar no Supabase agora" style="
-  display:flex;align-items:center;gap:5px;
-  background:var(--primary-soft);border:1px solid var(--primary-border);
-  color:var(--primary);border-radius:8px;padding:5px 10px;
-  font-size:10px;font-weight:700;font-family:inherit;
-  cursor:pointer;transition:opacity .15s;white-space:nowrap;
-" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
-  ☁️ Salvar
-</button>
-<button onclick="restaurarBackup()" title="Restaurar backup anterior do Supabase" style="
-  display:flex;align-items:center;gap:5px;
-  background:transparent;border:1px solid var(--line);
-  color:var(--muted);border-radius:8px;padding:5px 10px;
-  font-size:10px;font-weight:700;font-family:inherit;
-  cursor:pointer;transition:opacity .15s;white-space:nowrap;
-" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
-  🔄 Backup
-</button>
-<span id="dashDataHora" style="font-size:10px;color:var(--muted);"></span>
+
+<span id="dashDataHora" style="font-size:12px;color:var(--muted);"></span>
 </div>
 </div>
 <!-- Linha 1: Botões rápidos -->
