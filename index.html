@@ -9650,7 +9650,10 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         sessionStorage.setItem(SESSION_KEY, '1');
         document.getElementById('loginScreen').classList.add('hidden');
         err.classList.remove('visible');
-        initApp();
+        // Carrega módulos locais imediatamente (sem esperar nuvem)
+        _loadLocalModules();
+        // Sync com nuvem em background, sem bloquear
+        syncFromCloud().then(() => _reRenderAll()).catch(e => console.warn('sync error:', e));
       } else {
         err.classList.add('visible');
         document.getElementById('loginPassword').value = '';
@@ -9933,43 +9936,50 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     async function initApp() {
-      // Try to get cloud data first
-      await syncFromCloud();
-      // Then load all modules
-      if (typeof loadData === 'function') loadData();
+      // Carrega local imediatamente, sync cloud em background
+      _loadLocalModules();
+      _reRenderAll();
+      syncFromCloud().then(() => _reRenderAll()).catch(e => console.warn('sync error:', e));
+    }
+
+    // ── Helpers: carrega módulos locais e re-renderiza ──
+    function _loadLocalModules() {
+      if (typeof loadData      === 'function') loadData();
       if (typeof loadContratos === 'function') loadContratos();
-      // Repara contratos com valor/compra zerados mas com itensLotes preenchidos
       const _reparouA = repararContratosZerados(contratosAtivos);
       const _reparouE = repararContratosZerados(contratosEncerrados);
-      if (_reparouA || _reparouE) { persistAll(); }
-      if (typeof loadEmpenhos === 'function') loadEmpenhos();
-      if (typeof loadCompras === 'function') loadCompras();
-      // Re-render all sections
-      if (typeof renderDisputas === 'function') renderDisputas();
-      if (typeof renderHistoricoDisputas === 'function') renderHistoricoDisputas();
-      if (typeof renderContratosAtivos === 'function') renderContratosAtivos();
-      if (typeof renderContratosEncerrados === 'function') renderContratosEncerrados();
-      if (typeof renderEmpenhos === 'function') renderEmpenhos();
-      if (typeof renderEmpAndamento === 'function') renderEmpAndamento();
-      if (typeof renderEmpEncerrados === 'function') renderEmpEncerrados();
-      if (typeof renderCompras === 'function') renderCompras();
-      if (typeof renderDashboard === 'function') renderDashboard();
-      if (typeof atualizarSino === 'function') atualizarSino();
-      if (typeof aplicarTema === 'function') {
+      if (_reparouA || _reparouE) { if (typeof persistAll === 'function') persistAll(); }
+      if (typeof loadEmpenhos  === 'function') loadEmpenhos();
+      if (typeof loadCompras   === 'function') loadCompras();
+      if (typeof aplicarTema   === 'function') {
         const t = localStorage.getItem('km_tema_v1') || 'rosa';
         aplicarTema(t);
       }
-      // Patch localStorage to auto-sync on every save
       patchPersistFunctions();
+    }
+
+    function _reRenderAll() {
+      if (typeof renderDisputas             === 'function') renderDisputas();
+      if (typeof renderHistoricoDisputas    === 'function') renderHistoricoDisputas();
+      if (typeof renderContratosAtivos      === 'function') renderContratosAtivos();
+      if (typeof renderContratosEncerrados  === 'function') renderContratosEncerrados();
+      if (typeof renderEmpenhos             === 'function') renderEmpenhos();
+      if (typeof renderEmpAndamento         === 'function') renderEmpAndamento();
+      if (typeof renderEmpEncerrados        === 'function') renderEmpEncerrados();
+      if (typeof renderCompras              === 'function') renderCompras();
+      if (typeof renderDashboard            === 'function') renderDashboard();
+      if (typeof atualizarSino              === 'function') atualizarSino();
     }
 
     // ── Startup ──
     document.addEventListener('DOMContentLoaded', function() {
       if (sessionStorage.getItem(SESSION_KEY) === '1') {
         document.getElementById('loginScreen').classList.add('hidden');
-        initApp().catch(e => {
-          console.error('initApp error:', e);
-        });
+        // Carrega localmente primeiro (imediato)
+        _loadLocalModules();
+        _reRenderAll();
+        // Sync cloud em background
+        syncFromCloud().then(() => _reRenderAll()).catch(e => console.warn('sync error:', e));
       } else {
         setTimeout(() => {
           document.getElementById('loginPassword') && document.getElementById('loginPassword').focus();
