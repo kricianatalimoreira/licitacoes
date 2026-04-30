@@ -3053,11 +3053,12 @@
 <button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
 <button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
 </div>
-<div class="disputa-stats" style="grid-template-columns: repeat(5,minmax(0,1fr));">
+<div class="disputa-stats" style="grid-template-columns: repeat(6,minmax(0,1fr));">
 <div class="disputa-stat-card"><div class="disputa-stat-label">Total encerradas</div><div class="disputa-stat-value" id="disputaStatEncTotal">0</div></div>
 <div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Vencidas</div><div class="disputa-stat-value" id="disputaStatVencidas">0</div></div>
 <div class="disputa-stat-card stat-red"><div class="disputa-stat-label">Perdidas</div><div class="disputa-stat-value" id="disputaStatPerdidas">0</div></div>
 <div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Fracassado/Suspenso</div><div class="disputa-stat-value" id="disputaStatFracassado">0</div></div>
+<div class="disputa-stat-card stat-green" style="border-color:#1a6040;"><div class="disputa-stat-label">Taxa de Conversão</div><div class="disputa-stat-value" id="disputaStatConversao" style="font-size:16px;color:#2dd47a;">—</div></div>
 <div class="disputa-stat-card" style="border-color:var(--primary-border); background:var(--primary-soft);"><div class="disputa-stat-label">Bruto total</div><div class="disputa-stat-value" id="disputaStatBrutoTotal" style="font-size:16px;color:var(--primary-dark);">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
@@ -4373,6 +4374,9 @@
       qs('disputaStatPerdidas').textContent    = perdidas.length;
       qs('disputaStatFracassado').textContent  = fracassadas.length;
       qs('disputaStatBrutoTotal').textContent  = formatCurrency(brutoTotal);
+      const disputasDecididas = vencidas.length + perdidas.length;
+      const taxaConversao = disputasDecididas > 0 ? (vencidas.length / disputasDecididas * 100) : null;
+      qs('disputaStatConversao').textContent = taxaConversao !== null ? taxaConversao.toFixed(1) + '%' : '—';
 
       // Subtotal filtrado
       const brutoFiltrado = filtradas.reduce((acc, i) => acc + (Number(i.bruto) || 0), 0);
