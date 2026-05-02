@@ -9635,14 +9635,352 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     // ══════════════════════════════════════════════
-    // SUPABASE CONFIG & SYNC
+    // SUPABASE CONFIG & SYNC — tabelas reais
     // ══════════════════════════════════════════════
-    const SUPA_URL = 'https://inaunswiwxfonhhdznkh.supabase.co';
-    const SUPA_KEY = 'sb_publishable_65qYNb-AKxd6UksFJRD5GQ_ZRLTsug2';
+    const SUPA_URL    = 'https://inaunswiwxfonhhdznkh.supabase.co';
+    const SUPA_KEY    = 'sb_publishable_65qYNb-AKxd6UksFJRD5GQ_ZRLTsug2';
     const APP_PASSWORD = 'Kchm@94131720';
-    const SESSION_KEY = 'km_session_v1';
+    const SESSION_KEY  = 'km_session_v1';
 
-    // ── Login ──
+    // ── Cabeçalhos padrão ──────────────────────────────────────
+    function supaHeaders(extras = {}) {
+      return {
+        'apikey':        SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Content-Type':  'application/json',
+        'Prefer':        'resolution=merge-duplicates',
+        ...extras
+      };
+    }
+
+    // ── Sync status UI ─────────────────────────────────────────
+    let syncTimer = null;
+    function showSync(state, msg) {
+      const el = document.getElementById('syncStatus');
+      if (!el) return;
+      el.className = 'show ' + state;
+      el.textContent = msg;
+      clearTimeout(syncTimer);
+      if (state === 'ok') syncTimer = setTimeout(() => el.className = '', 3000);
+    }
+
+    // ── Fetch de uma tabela inteira ────────────────────────────
+    async function sbFetch(tabela, params = '') {
+      const controller = new AbortController();
+      const tout = setTimeout(() => controller.abort(), 10000);
+      try {
+        const res = await fetch(`${SUPA_URL}/rest/v1/${tabela}?${params}`, {
+          headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` },
+          signal: controller.signal
+        });
+        clearTimeout(tout);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } catch(e) { clearTimeout(tout); throw e; }
+    }
+
+    // ── Upsert em lote (até 200 por vez) ──────────────────────
+    async function sbUpsert(tabela, registros) {
+      if (!registros || registros.length === 0) return;
+      const LOTE = 200;
+      for (let i = 0; i < registros.length; i += LOTE) {
+        const lote = registros.slice(i, i + LOTE);
+        const res = await fetch(`${SUPA_URL}/rest/v1/${tabela}`, {
+          method: 'POST',
+          headers: supaHeaders(),
+          body: JSON.stringify(lote)
+        });
+        if (!res.ok) {
+          const txt = await res.text();
+          console.error(`[KM] Erro upsert ${tabela}:`, res.status, txt);
+          throw new Error(`Upsert ${tabela}: ${res.status}`);
+        }
+      }
+    }
+
+    // ── Delete por id ──────────────────────────────────────────
+    async function sbDelete(tabela, id) {
+      const res = await fetch(`${SUPA_URL}/rest/v1/${tabela}?id=eq.${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: supaHeaders({ 'Prefer': 'return=minimal' })
+      });
+      if (!res.ok) throw new Error(`Delete ${tabela} ${id}: ${res.status}`);
+    }
+
+    // ── Mappers JS → banco ─────────────────────────────────────
+    function mapDisputa(d) {
+      return {
+        id: d.id, data: d.data||null, orgao: d.orgao||null,
+        uf: d.uf||null, sistema: d.sistema||null,
+        status: d.status||'Em andamento', empresa: d.empresa||null,
+        tipo: d.tipo||null, processo: d.processo||null,
+        sala: d.sala||null, drive: d.drive||null,
+        link_edital: d.linkEdital||null, retorno: d.retorno||null,
+        obs: d.obs||null, bruto: Number(d.bruto)||0,
+      };
+    }
+    function mapContratoAtivo(c) {
+      return {
+        id: c.id, data: c.data||null, data_fim: c.dataFim||null,
+        contrato: c.contrato||null, orgao: c.orgao||null,
+        uf: c.uf||null, empresa: c.empresa||null, sistema: c.sistema||null,
+        processo: c.processo||null, drive: c.drive||null, sala: c.sala||null,
+        obs: c.obs||null, status: c.status||'Vigente',
+        valor: Number(c.valor)||0, compra: Number(c.compra)||0,
+        royalties: Number(c.royalties)||0, royalties_pct: Number(c.royaltiesPct)||1,
+        imposto: Number(c.imposto)||0, imposto_pct: Number(c.impostoPct)||6,
+        custo: Number(c.custo)||0, lucro: Number(c.lucro)||0,
+        empenhado: Number(c.empenhado)||0, valor_empenhado: Number(c.valorEmpenhado)||0,
+        total_itens: Number(c.totalItens)||0, itens_lotes: c.itensLotes||[],
+        editado: c._editado||false,
+      };
+    }
+    function mapContratoEnc(c) {
+      return {
+        id: c.id, data: c.data||null, data_fim: c.dataFim||null,
+        contrato: c.contrato||null, orgao: c.orgao||null,
+        uf: c.uf||null, empresa: c.empresa||null, sistema: c.sistema||null,
+        processo: c.processo||null, drive: c.drive||null, sala: c.sala||null,
+        obs: c.obs||null, status: c.status||null,
+        valor: Number(c.valor)||0, compra: Number(c.compra)||0,
+        royalties: Number(c.royalties)||0, royalties_pct: Number(c.royaltiesPct)||1,
+        imposto: Number(c.imposto)||0, imposto_pct: Number(c.impostoPct)||6,
+        custo: Number(c.custo)||0, lucro: Number(c.lucro)||0,
+        itens_lotes: c.itensLotes||[],
+      };
+    }
+    function mapEmpenho(e) {
+      return {
+        id: e.id, contrato_id: e.contratoId||null, numero: e.numero||null,
+        data: e.data||null, data_pagamento: e.dataPagamento||null,
+        orgao: e.orgao||null, empresa: e.empresa||null, contrato: e.contrato||null,
+        sistema: e.sistema||null, valor: Number(e.valor)||0,
+        status: e.status||'Pendente', responsavel: e.responsavel||null,
+        responsavel_setor: e.responsavelSetor||null,
+        responsavel_contato: e.responsavelContato||null,
+        obs: e.obs||null, itens_empenhados: e.itensEmpenhados||[],
+      };
+    }
+    function mapCompra(c) {
+      return {
+        id: c.id, empenho_id: c.empenhoId||null, contrato_id: c.contratoId||null,
+        item_id: c.itemId||null, descricao: c.descricao||null,
+        qtd_compra: Number(c.qtdCompra)||1, data: c.data||null,
+        fornecedor: c.fornecedor||null, nf: c.nf||null,
+        vl_unit_compra: Number(c.vlUnitCompra)||0,
+        vl_total_compra: Number(c.vlTotalCompra)||0,
+        vl_unit_emp: Number(c.vlUnitEmp)||0, obs: c.obs||null,
+      };
+    }
+
+    // ── Mappers banco → JS ─────────────────────────────────────
+    function fromDbDisputa(r) {
+      return { id:r.id, data:r.data, orgao:r.orgao, uf:r.uf, sistema:r.sistema,
+        status:r.status, empresa:r.empresa, tipo:r.tipo, processo:r.processo,
+        sala:r.sala, drive:r.drive, linkEdital:r.link_edital, retorno:r.retorno,
+        obs:r.obs, bruto:Number(r.bruto)||0 };
+    }
+    function fromDbContrato(r) {
+      return { id:r.id, data:r.data, dataFim:r.data_fim, contrato:r.contrato,
+        orgao:r.orgao, uf:r.uf, empresa:r.empresa, sistema:r.sistema,
+        processo:r.processo, drive:r.drive, sala:r.sala, obs:r.obs, status:r.status,
+        valor:Number(r.valor)||0, compra:Number(r.compra)||0,
+        royalties:Number(r.royalties)||0, royaltiesPct:Number(r.royalties_pct)||1,
+        imposto:Number(r.imposto)||0, impostoPct:Number(r.imposto_pct)||6,
+        custo:Number(r.custo)||0, lucro:Number(r.lucro)||0,
+        empenhado:Number(r.empenhado)||0, valorEmpenhado:Number(r.valor_empenhado)||0,
+        totalItens:Number(r.total_itens)||0, itensLotes:r.itens_lotes||[],
+        _editado:r.editado||false };
+    }
+    function fromDbEmpenho(r) {
+      return { id:r.id, contratoId:r.contrato_id, numero:r.numero, data:r.data,
+        dataPagamento:r.data_pagamento, orgao:r.orgao, empresa:r.empresa,
+        contrato:r.contrato, sistema:r.sistema, valor:Number(r.valor)||0,
+        status:r.status, responsavel:r.responsavel,
+        responsavelSetor:r.responsavel_setor, responsavelContato:r.responsavel_contato,
+        obs:r.obs, itensEmpenhados:r.itens_empenhados||[] };
+    }
+    function fromDbCompra(r) {
+      return { id:r.id, empenhoId:r.empenho_id, contratoId:r.contrato_id,
+        itemId:r.item_id, descricao:r.descricao, qtdCompra:Number(r.qtd_compra)||1,
+        data:r.data, fornecedor:r.fornecedor, nf:r.nf,
+        vlUnitCompra:Number(r.vl_unit_compra)||0,
+        vlTotalCompra:Number(r.vl_total_compra)||0,
+        vlUnitEmp:Number(r.vl_unit_emp)||0, obs:r.obs };
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // PERSIST FUNCTIONS — localStorage como cache + Supabase
+    // ══════════════════════════════════════════════════════════
+    const _pendingSaves = {};
+    function debounceSave(key, fn, delay = 1500) {
+      clearTimeout(_pendingSaves[key]);
+      _pendingSaves[key] = setTimeout(fn, delay);
+    }
+
+    function persist() {
+      const obj = { disputas, disputasEncerradas, contratosAtivos, contratosEncerrados };
+      localStorage.setItem('km_disputas_v60_clean', JSON.stringify(obj));
+      debounceSave('disputas', async () => {
+        showSync('saving', '☁ salvando...');
+        try {
+          await sbUpsert('disputas',            disputas.map(mapDisputa));
+          await sbUpsert('disputas_encerradas', disputasEncerradas.map(mapDisputa));
+          showSync('ok', '✓ disputas salvas');
+        } catch(e) { console.error('[KM] persist:', e); showSync('err', '✗ erro ao salvar'); }
+      });
+    }
+
+    function persistAll() {
+      const obj = { disputas, disputasEncerradas, contratosAtivos, contratosEncerrados };
+      localStorage.setItem('km_disputas_v60_clean', JSON.stringify(obj));
+      debounceSave('contratos', async () => {
+        showSync('saving', '☁ salvando...');
+        try {
+          await sbUpsert('disputas',             disputas.map(mapDisputa));
+          await sbUpsert('disputas_encerradas',  disputasEncerradas.map(mapDisputa));
+          await sbUpsert('contratos_ativos',     contratosAtivos.map(mapContratoAtivo));
+          await sbUpsert('contratos_encerrados', contratosEncerrados.map(mapContratoEnc));
+          showSync('ok', '✓ contratos salvos');
+        } catch(e) { console.error('[KM] persistAll:', e); showSync('err', '✗ erro ao salvar'); }
+      });
+    }
+
+    function persistEmpenhos() {
+      localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(empenhos));
+      debounceSave('empenhos', async () => {
+        showSync('saving', '☁ salvando...');
+        try {
+          await sbUpsert('empenhos', empenhos.map(mapEmpenho));
+          showSync('ok', '✓ empenhos salvos');
+        } catch(e) { console.error('[KM] persistEmpenhos:', e); showSync('err', '✗ erro ao salvar'); }
+      });
+    }
+
+    function persistCompras() {
+      localStorage.setItem('km_compras_v60_clean', JSON.stringify(compras));
+      debounceSave('compras', async () => {
+        showSync('saving', '☁ salvando...');
+        try {
+          await sbUpsert('compras', compras.map(mapCompra));
+          showSync('ok', '✓ compras salvas');
+        } catch(e) { console.error('[KM] persistCompras:', e); showSync('err', '✗ erro ao salvar'); }
+      });
+    }
+
+    // ── Excluir do banco ───────────────────────────────────────
+    async function sbExcluirDisputa(id)       { try { await sbDelete('disputas', id); }            catch(e) { console.warn('[KM]', e); } }
+    async function sbExcluirDisputaEnc(id)    { try { await sbDelete('disputas_encerradas', id); } catch(e) { console.warn('[KM]', e); } }
+    async function sbExcluirContratoAtivo(id) { try { await sbDelete('contratos_ativos', id); }    catch(e) { console.warn('[KM]', e); } }
+    async function sbExcluirContratoEnc(id)   { try { await sbDelete('contratos_encerrados', id); }catch(e) { console.warn('[KM]', e); } }
+    async function sbExcluirEmpenho(id)       { try { await sbDelete('empenhos', id); }            catch(e) { console.warn('[KM]', e); } }
+    async function sbExcluirCompra(id)        { try { await sbDelete('compras', id); }             catch(e) { console.warn('[KM]', e); } }
+
+    // ══════════════════════════════════════════════════════════
+    // LOAD FUNCTIONS
+    // ══════════════════════════════════════════════════════════
+    function loadData() {
+      try {
+        const raw = JSON.parse(localStorage.getItem('km_disputas_v60_clean') || '{}');
+        disputas            = raw.disputas            || [];
+        disputasEncerradas  = raw.disputasEncerradas  || [];
+        contratosAtivos     = raw.contratosAtivos     || [];
+        contratosEncerrados = raw.contratosEncerrados || [];
+      } catch(e) { disputas=[]; disputasEncerradas=[]; contratosAtivos=[]; contratosEncerrados=[]; }
+    }
+
+    function loadContratos() { /* incluído no loadData */ }
+
+    function loadEmpenhos() {
+      try { const r=localStorage.getItem('km_empenhos_v60_clean'); empenhos=r?JSON.parse(r):[]; }
+      catch(e) { empenhos=[]; }
+    }
+
+    function loadCompras() {
+      try { const r=localStorage.getItem('km_compras_v60_clean'); compras=r?JSON.parse(r):[]; }
+      catch(e) { compras=[]; }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // SYNC FROM CLOUD (pull all tables)
+    // ══════════════════════════════════════════════════════════
+    async function syncFromCloud() {
+      showSync('saving', '☁ carregando...');
+      try {
+        const [rowsDisp, rowsDispEnc, rowsConA, rowsConE, rowsEmp, rowsComp, rowsMeta, rowsCfg] =
+          await Promise.all([
+            sbFetch('disputas',             'order=created_at.asc'),
+            sbFetch('disputas_encerradas',  'order=created_at.asc'),
+            sbFetch('contratos_ativos',     'order=created_at.asc'),
+            sbFetch('contratos_encerrados', 'order=created_at.asc'),
+            sbFetch('empenhos',             'order=created_at.asc'),
+            sbFetch('compras',              'order=created_at.asc'),
+            sbFetch('metas', 'id=eq.main').catch(() => []),
+            sbFetch('app_config', '').catch(() => []),
+          ]);
+
+        const cloudTotal = (rowsDisp?.length||0)+(rowsDispEnc?.length||0)+(rowsConA?.length||0);
+        if (cloudTotal === 0) {
+          // Banco vazio → sobe dados locais (primeira vez)
+          await _persistAllImmediate();
+          showSync('ok', '✓ dados enviados ao banco');
+          return true;
+        }
+
+        disputas            = (rowsDisp   ||[]).map(fromDbDisputa);
+        disputasEncerradas  = (rowsDispEnc||[]).map(fromDbDisputa);
+        contratosAtivos     = (rowsConA   ||[]).map(fromDbContrato);
+        contratosEncerrados = (rowsConE   ||[]).map(fromDbContrato);
+        empenhos            = (rowsEmp    ||[]).map(fromDbEmpenho);
+        compras             = (rowsComp   ||[]).map(fromDbCompra);
+
+        const dispObj = { disputas, disputasEncerradas, contratosAtivos, contratosEncerrados };
+        localStorage.setItem('km_disputas_v60_clean', JSON.stringify(dispObj));
+        localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(empenhos));
+        localStorage.setItem('km_compras_v60_clean',  JSON.stringify(compras));
+
+        if (rowsMeta&&rowsMeta[0]?.payload) {
+          localStorage.setItem('km_metas_v60_clean', JSON.stringify(rowsMeta[0].payload));
+          if (typeof carregarMetas==='function') carregarMetas();
+        }
+        const temaRow=(rowsCfg||[]).find(r=>r.id==='tema');
+        if (temaRow?.valor) {
+          localStorage.setItem('km_tema_v1', temaRow.valor);
+          if (typeof aplicarTema==='function') aplicarTema(temaRow.valor);
+        }
+        showSync('ok', '✓ dados atualizados');
+        return true;
+      } catch(e) {
+        if (e?.name==='AbortError') showSync('err', '✗ timeout — usando dados locais');
+        else { console.error('[KM] syncFromCloud:', e); showSync('err', '✗ sem conexão — usando dados locais'); }
+        return false;
+      }
+    }
+
+    async function _persistAllImmediate() {
+      await sbUpsert('disputas',             disputas.map(mapDisputa));
+      await sbUpsert('disputas_encerradas',  disputasEncerradas.map(mapDisputa));
+      await sbUpsert('contratos_ativos',     contratosAtivos.map(mapContratoAtivo));
+      await sbUpsert('contratos_encerrados', contratosEncerrados.map(mapContratoEnc));
+      await sbUpsert('empenhos',             empenhos.map(mapEmpenho));
+      await sbUpsert('compras',              compras.map(mapCompra));
+    }
+
+    // Alias para botão manual de "salvar na nuvem"
+    async function syncToCloud() {
+      showSync('saving', '☁ salvando...');
+      try { await _persistAllImmediate(); showSync('ok', '✓ salvo na nuvem'); }
+      catch(e) { showSync('err', '✗ erro ao salvar'); }
+    }
+
+    // ── Restaurar = recarregar do banco ────────────────────────
+    async function restaurarBackup() {
+      if (!confirm('⚠️ Recarregar todos os dados do banco?\nOs dados locais serão substituídos.')) return;
+      const ok = await syncFromCloud();
+      if (ok) { _reRenderAll(); showSync('ok', '✓ dados restaurados do banco'); }
+    }
+
+    // ── Login ──────────────────────────────────────────────────
     function doLogin() {
       const pwd = document.getElementById('loginPassword').value;
       const err = document.getElementById('loginError');
@@ -9650,9 +9988,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         sessionStorage.setItem(SESSION_KEY, '1');
         document.getElementById('loginScreen').classList.add('hidden');
         err.classList.remove('visible');
-        // Carrega módulos locais imediatamente (sem esperar nuvem)
         _loadLocalModules();
-        // Sync com nuvem em background, sem bloquear
+        _reRenderAll();
         syncFromCloud().then(() => _reRenderAll()).catch(e => console.warn('sync error:', e));
       } else {
         err.classList.add('visible');
@@ -9661,251 +9998,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       }
     }
 
-    // ── Sync status indicator ──
-    let syncTimer = null;
-    function showSync(state, msg) {
-      const el = document.getElementById('syncStatus');
-      el.className = 'show ' + state;
-      el.textContent = msg;
-      clearTimeout(syncTimer);
-      if (state === 'ok') {
-        syncTimer = setTimeout(() => el.className = '', 3000);
-      }
-    }
-
-    // ── Collect all local data ──
-    function collectAllData() {
-      const disputasRaw = JSON.parse(localStorage.getItem('km_disputas_v60_clean') || '{}');
-      return {
-        disputas:            disputasRaw,
-        contratosAtivos:     disputasRaw.contratosAtivos     || [],
-        contratosEncerrados: disputasRaw.contratosEncerrados || [],
-        empenhos:            JSON.parse(localStorage.getItem('km_empenhos_v60_clean') || '[]'),
-        compras:             JSON.parse(localStorage.getItem('km_compras_v60_clean')  || '[]'),
-        metas:               JSON.parse(localStorage.getItem('km_metas_v60_clean')    || '{}'),
-        tema:                localStorage.getItem('km_tema_v1') || 'rosa',
-      };
-    }
-
-    // ── Salva backup no Supabase (linha id=backup) antes de sobrescrever main ──
-    async function salvarBackupCloud(payloadAtual) {
-      try {
-        // Tenta atualizar linha de backup existente
-        const patch = await fetch(`${SUPA_URL}/rest/v1/app_data?id=eq.backup`, {
-          method: 'PATCH',
-          headers: {
-            'apikey': SUPA_KEY,
-            'Authorization': `Bearer ${SUPA_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({ payload: payloadAtual, updated_at: new Date().toISOString() })
-        });
-        // Se não existir ainda, insere
-        if (patch.status === 404 || patch.headers.get('content-range') === '*/0') {
-          await fetch(`${SUPA_URL}/rest/v1/app_data`, {
-            method: 'POST',
-            headers: {
-              'apikey': SUPA_KEY,
-              'Authorization': `Bearer ${SUPA_KEY}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify({ id: 'backup', payload: payloadAtual, updated_at: new Date().toISOString() })
-          });
-        }
-      } catch(e) {
-        console.warn('[KM] Falha ao salvar backup:', e);
-      }
-    }
-
-    // ── Push to Supabase ──
-    async function syncToCloud() {
-      showSync('saving', '☁ salvando...');
-      try {
-        const payload = collectAllData();
-
-        // 1. Lê o payload atual do Supabase e salva como backup ANTES de sobrescrever
-        try {
-          const resAtual = await fetch(`${SUPA_URL}/rest/v1/app_data?id=eq.main&select=payload`, {
-            headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
-          });
-          if (resAtual.ok) {
-            const dataAtual = await resAtual.json();
-            if (dataAtual && dataAtual[0] && dataAtual[0].payload) {
-              await salvarBackupCloud(dataAtual[0].payload);
-            }
-          }
-        } catch(e) { /* backup falhou, continua o save */ }
-
-        // 2. Salva o payload novo no main
-        const res = await fetch(`${SUPA_URL}/rest/v1/app_data?id=eq.main`, {
-          method: 'PATCH',
-          headers: {
-            'apikey': SUPA_KEY,
-            'Authorization': `Bearer ${SUPA_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({ payload, updated_at: new Date().toISOString() })
-        });
-        if (res.ok) {
-          showSync('ok', '✓ salvo na nuvem');
-        } else {
-          const txt = await res.text();
-          console.error('Supabase PATCH error:', res.status, txt);
-          showSync('err', '✗ erro ao salvar');
-        }
-      } catch(e) {
-        console.error('Sync error:', e);
-        showSync('err', '✗ sem conexão');
-      }
-    }
-
-    // ── Restaurar backup do Supabase ──
-    async function restaurarBackup() {
-      if (!confirm('⚠️ Restaurar o backup anterior? Os dados atuais serão substituídos.')) return;
-      showSync('saving', '☁ restaurando backup...');
-      try {
-        const res = await fetch(`${SUPA_URL}/rest/v1/app_data?id=eq.backup&select=payload,updated_at`, {
-          headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (!data || !data[0] || !data[0].payload) {
-          showSync('err', '✗ nenhum backup encontrado');
-          return;
-        }
-        const p = data[0].payload;
-        const dt = new Date(data[0].updated_at).toLocaleString('pt-BR');
-
-        // Aplica o backup no localStorage
-        if (p.disputas)  localStorage.setItem('km_disputas_v60_clean', JSON.stringify(p.disputas));
-        if (p.empenhos)  localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(p.empenhos));
-        if (p.compras)   localStorage.setItem('km_compras_v60_clean',  JSON.stringify(p.compras));
-        if (p.metas)     localStorage.setItem('km_metas_v60_clean',    JSON.stringify(p.metas));
-        if (p.tema)      localStorage.setItem('km_tema_v1',            p.tema);
-
-        // Recarrega todos os módulos
-        if (typeof loadData       === 'function') loadData();
-        if (typeof loadContratos  === 'function') loadContratos();
-        if (typeof loadEmpenhos   === 'function') loadEmpenhos();
-        if (typeof loadCompras    === 'function') loadCompras();
-        if (typeof renderDisputas === 'function') renderDisputas();
-        if (typeof renderHistoricoDisputas === 'function') renderHistoricoDisputas();
-        if (typeof renderContratosAtivos   === 'function') renderContratosAtivos();
-        if (typeof renderContratosEncerrados === 'function') renderContratosEncerrados();
-        if (typeof renderEmpenhos === 'function') renderEmpenhos();
-        if (typeof renderCompras  === 'function') renderCompras();
-        if (typeof renderDashboard === 'function') renderDashboard();
-
-        showSync('ok', `✓ backup de ${dt} restaurado`);
-      } catch(e) {
-        console.error('Restaurar backup error:', e);
-        showSync('err', '✗ erro ao restaurar backup');
-      }
-    }
-
-    // ── Pull from Supabase ──
-    async function syncFromCloud() {
-      // Migração pendente: dados locais (Lenovo) são a fonte da verdade.
-      // Pula o pull do cloud e sobe o local para o Supabase.
-      if (_migracaoPendente) {
-        _migracaoPendente = false;
-        _skipCloudPull    = false;
-        showSync('saving', '☁ sincronizando...');
-        await syncToCloud();
-        return false;
-      }
-      _skipCloudPull = false;
-
-      showSync('saving', '☁ carregando...');
-      try {
-        const controller = new AbortController();
-        const _tout = setTimeout(() => controller.abort(), 8000);
-        const res = await fetch(`${SUPA_URL}/rest/v1/app_data?id=eq.main&select=payload`, {
-          headers: {
-            'apikey': SUPA_KEY,
-            'Authorization': `Bearer ${SUPA_KEY}`
-          },
-          signal: controller.signal
-        });
-        clearTimeout(_tout);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (data && data[0] && data[0].payload && Object.keys(data[0].payload).length > 0) {
-          const p = data[0].payload;
-
-          // ── Mescla inteligente: só sobrescreve se cloud tiver MAIS dados ──
-          const localRaw  = localStorage.getItem('km_disputas_v60_clean');
-          const localData = localRaw ? (() => { try { return JSON.parse(localRaw); } catch(e) { return {}; } })() : {};
-          const localEnc  = (localData.disputasEncerradas || []).length;
-          const localDis  = (localData.disputas           || []).length;
-          const localCon  = (localData.contratosAtivos    || []).length;
-
-          // Contratos podem estar no payload raiz (novo formato) ou dentro de disputas (legado)
-          const cloudDisp = p.disputas || {};
-          const cloudEnc  = (cloudDisp.disputasEncerradas || []).length;
-          const cloudDis  = (cloudDisp.disputas           || []).length;
-          const cloudCon  = (p.contratosAtivos || cloudDisp.contratosAtivos || []).length;
-
-          const localTotal = localEnc + localDis + localCon;
-          const cloudTotal = cloudEnc + cloudDis + cloudCon;
-
-          if (cloudTotal >= localTotal) {
-            // Cloud tem mais ou igual → usa cloud
-            // Mescla contratos de volta para dentro do objeto disputas antes de salvar
-            if (p.disputas) {
-              const dispObj = p.disputas;
-              if (p.contratosAtivos)     dispObj.contratosAtivos     = p.contratosAtivos;
-              if (p.contratosEncerrados) dispObj.contratosEncerrados = p.contratosEncerrados;
-              localStorage.setItem('km_disputas_v60_clean', JSON.stringify(dispObj));
-            }
-            if (p.empenhos) localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(p.empenhos));
-            if (p.compras)  localStorage.setItem('km_compras_v60_clean',  JSON.stringify(p.compras));
-            if (p.metas)    localStorage.setItem('km_metas_v60_clean',    JSON.stringify(p.metas));
-            if (p.tema)     localStorage.setItem('km_tema_v1',            p.tema);
-            showSync('ok', '✓ dados atualizados');
-          } else {
-            // Local tem mais → mantém local e sobe para cloud
-            showSync('ok', '✓ dados locais preservados');
-            setTimeout(() => syncToCloud(), 3000);
-          }
-          return true;
-        }
-        showSync('ok', '✓ conectado');
-        return false;
-      } catch(e) {
-        if (e && e.name === 'AbortError') {
-          console.warn('Pull timeout — usando dados locais');
-          showSync('err', '✗ timeout — usando dados locais');
-        } else {
-          console.error('Pull error:', e);
-          showSync('err', '✗ sem conexão — usando dados locais');
-        }
-        return false;
-      }
-    }
-
-    // ── Debounced auto-save ──
-    let autoSaveTimer = null;
-    function scheduleSync() {
-      clearTimeout(autoSaveTimer);
-      autoSaveTimer = setTimeout(syncToCloud, 2000);
-    }
-
-    // ── Patch persist functions to also trigger cloud sync ──
-    function patchPersistFunctions() {
-      const origSetItem = localStorage.setItem.bind(localStorage);
-      localStorage.setItem = function(key, value) {
-        origSetItem(key, value);
-        const syncKeys = ['km_disputas_v60_clean','km_empenhos_v60_clean','km_compras_v60_clean','km_metas_v60_clean','km_tema_v1'];
-        if (syncKeys.includes(key)) scheduleSync();
-      };
-    }
-
-    // ── Init App (after login) ──
-    // ── Reparo de contratos com valor/compra zerados mas com itensLotes ──
+    // ── Reparo de contratos com valores zerados ────────────────
     function repararContratosZerados(lista) {
       let alterou = false;
       lista.forEach(c => {
@@ -9917,32 +10010,19 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         const compraT    = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.compraUnit||0)), 0);
         const royaltiesT = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0) * r / 100), 0);
         const impostoT   = itens.reduce((s,x) => s + (Number(x.qtd||1) * Number(x.vlUnit||0) * i / 100), 0);
-        // Corrige valor/compra se zerados
         if ((!c.valor || !c.compra) && vlTotal > 0) {
-          if (!c.valor)    { c.valor    = vlTotal;    alterou = true; }
-          if (!c.compra)   { c.compra   = compraT;    alterou = true; }
-          if (!c.royalties){ c.royalties = royaltiesT; alterou = true; }
-          if (!c.imposto)  { c.imposto   = impostoT;   alterou = true; }
+          if (!c.valor)     { c.valor     = vlTotal;     alterou = true; }
+          if (!c.compra)    { c.compra    = compraT;     alterou = true; }
+          if (!c.royalties) { c.royalties = royaltiesT;  alterou = true; }
+          if (!c.imposto)   { c.imposto   = impostoT;    alterou = true; }
         }
-        // Sempre corrige totalItens se divergir do número real de itens
-        if (Number(c.totalItens || 0) !== itens.length) {
-          c.totalItens = itens.length;
-          alterou = true;
-        }
-        // Marca como editado se tiver valor (sai do rascunho)
+        if (Number(c.totalItens||0) !== itens.length) { c.totalItens = itens.length; alterou = true; }
         if (vlTotal > 0 && !c._editado) { c._editado = true; alterou = true; }
       });
       return alterou;
     }
 
-    async function initApp() {
-      // Carrega local imediatamente, sync cloud em background
-      _loadLocalModules();
-      _reRenderAll();
-      syncFromCloud().then(() => _reRenderAll()).catch(e => console.warn('sync error:', e));
-    }
-
-    // ── Helpers: carrega módulos locais e re-renderiza ──
+    // ── Helpers ────────────────────────────────────────────────
     function _loadLocalModules() {
       if (typeof movePopoversToBody === 'function') movePopoversToBody();
       if (typeof loadData      === 'function') loadData();
@@ -9957,7 +10037,6 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         const t = localStorage.getItem('km_tema_v1') || 'rosa';
         aplicarTema(t);
       }
-      patchPersistFunctions();
     }
 
     function _reRenderAll() {
@@ -9974,14 +10053,12 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       if (typeof atualizarSino              === 'function') atualizarSino();
     }
 
-    // ── Startup ──
+    // ── Startup ────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', function() {
       if (sessionStorage.getItem(SESSION_KEY) === '1') {
         document.getElementById('loginScreen').classList.add('hidden');
-        // Carrega localmente primeiro (imediato)
         _loadLocalModules();
         _reRenderAll();
-        // Sync cloud em background
         syncFromCloud().then(() => _reRenderAll()).catch(e => console.warn('sync error:', e));
       } else {
         setTimeout(() => {
@@ -9989,6 +10066,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         }, 100);
       }
     });
+
+
 
   </script>
 <!-- ═══ MODAL CADASTRO EMPENHO ═══ -->
