@@ -85,6 +85,39 @@
     :root[data-mode="light"] #syncStatus.err    { background: #fde8e8; border-color: #f0b4b4; color: #c0392b; }
     :root[data-mode="light"] #syncStatus.saving { background: #fff0dd; border-color: #f5c87a; color: #a05a00; }
 
+    /* ── Toast notifications ── */
+    #toastContainer {
+      position: fixed; top: 18px; right: 18px;
+      z-index: 99998;
+      display: flex; flex-direction: column; gap: 8px;
+      pointer-events: none;
+    }
+    .km-toast {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 11px 14px; border-radius: 10px;
+      font-size: 12px; font-weight: 600; line-height: 1.4;
+      max-width: 320px; min-width: 200px;
+      border: 1px solid transparent;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      pointer-events: auto;
+      opacity: 0; transform: translateX(20px);
+      transition: opacity .22s ease, transform .22s ease;
+    }
+    .km-toast.show { opacity: 1; transform: translateX(0); }
+    .km-toast.hide { opacity: 0; transform: translateX(20px); }
+    .km-toast-icon { font-size: 15px; flex-shrink: 0; line-height: 1.3; }
+    .km-toast-body { flex: 1; color: inherit; white-space: pre-line; }
+    /* variants – dark mode */
+    .km-toast.success { background: #0d2e1d; border-color: #1a6644; color: #2dd47a; }
+    .km-toast.error   { background: #2b0e0e; border-color: #5a1010; color: #f05252; }
+    .km-toast.warning { background: #2a1d06; border-color: #7a4d0a; color: #f0a938; }
+    .km-toast.info    { background: #1a1d27; border-color: #2a2d3a; color: #8892a4; }
+    /* variants – light mode */
+    :root[data-mode="light"] .km-toast.success { background: #d6f5e6; border-color: #7dd4aa; color: #0b7a42; }
+    :root[data-mode="light"] .km-toast.error   { background: #fde8e8; border-color: #f0b4b4; color: #c0392b; }
+    :root[data-mode="light"] .km-toast.warning { background: #fff0dd; border-color: #f5c87a; color: #a05a00; }
+    :root[data-mode="light"] .km-toast.info    { background: #f0f2fa; border-color: #d0d5e8; color: #5a6278; }
+
     html {
       font-size: 12px;
     }
@@ -4057,18 +4090,40 @@
     }
 
     function loadData() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          disputas           = (Array.isArray(parsed.disputas)           && parsed.disputas.length)           ? parsed.disputas           : structuredClone(disputaDefault);
-          disputasEncerradas = (Array.isArray(parsed.disputasEncerradas) && parsed.disputasEncerradas.length) ? parsed.disputasEncerradas : structuredClone(encerradasDefault);
-          return;
-        } catch (e) {}
+      const raw = localStorage.getItem(STORAGE_KEY);
+
+      if (!raw) {
+        // Primeiro acesso — inicializa com defaults e persiste
+        disputas           = structuredClone(disputaDefault);
+        disputasEncerradas = structuredClone(encerradasDefault);
+        persist();
+        return;
       }
-      disputas = structuredClone(disputaDefault);
-      disputasEncerradas = structuredClone(encerradasDefault);
-      persist();
+
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (e) {
+        console.error('[KM] loadData: JSON inv\u00e1lido no localStorage \u2014 restaurando defaults.', e);
+        disputas           = structuredClone(disputaDefault);
+        disputasEncerradas = structuredClone(encerradasDefault);
+        persist();
+        return;
+      }
+
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        console.warn('[KM] loadData: payload inesperado \u2014 restaurando defaults.', parsed);
+        disputas           = structuredClone(disputaDefault);
+        disputasEncerradas = structuredClone(encerradasDefault);
+        persist();
+        return;
+      }
+
+      disputas           = Array.isArray(parsed.disputas)           ? parsed.disputas           : structuredClone(disputaDefault);
+      disputasEncerradas = Array.isArray(parsed.disputasEncerradas) ? parsed.disputasEncerradas : structuredClone(encerradasDefault);
+
+      if (!Array.isArray(parsed.disputas))           console.warn('[KM] loadData: campo "disputas" ausente ou inv\u00e1lido \u2014 usando [].');
+      if (!Array.isArray(parsed.disputasEncerradas)) console.warn('[KM] loadData: campo "disputasEncerradas" ausente ou inv\u00e1lido \u2014 usando [].');
     }
 
     function persist() {
@@ -4092,6 +4147,23 @@
       if (btn) btn.classList.add('active');
       closeAllMenus();
       closeAllPopovers();
+    }
+
+    /* ── XSS protection ── */
+    function escapeHTML(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+    // For href attributes: only allow http/https URLs
+    function safeUrl(url) {
+      if (!url) return '#';
+      const s = String(url).trim();
+      return /^https?:\/\//i.test(s) ? s : '#';
     }
 
     function formatDateTime(value) {
@@ -4180,8 +4252,8 @@
     // ── Links com emoji ───────────────────────────────
     function linksHtml(item, encerrada = false) {
       const parts = [];
-      if (item.sala)  parts.push(`<a class="link-emoji-badge link-badge-sistema" href="${item.sala}"  target="_blank" rel="noopener" title="Sistema">🖥️</a>`);
-      if (item.drive) parts.push(`<a class="link-emoji-badge link-badge-drive"   href="${item.drive}" target="_blank" rel="noopener" title="Drive">💾</a>`);
+      if (item.sala)  parts.push(`<a class="link-emoji-badge link-badge-sistema" href="${safeUrl(item.sala)}"  target="_blank" rel="noopener" title="Sistema">🖥️</a>`);
+      if (item.drive) parts.push(`<a class="link-emoji-badge link-badge-drive"   href="${safeUrl(item.drive)}" target="_blank" rel="noopener" title="Drive">💾</a>`);
       return parts.length ? `<div class="links-emoji-stack">${parts.join('')}</div>` : '—';
     }
 
@@ -4305,9 +4377,9 @@
         return `
           <tr>
             <td><div class="cell-data-hora"><span class="data-dia">${data.date}</span><span class="data-hora">${data.time || '—'}</span></div></td>
-            <td class="cell-wrap">${item.orgao || '—'}</td>
+            <td class="cell-wrap">${escapeHTML(item.orgao) || '—'}</td>
             <td><span class="uf-badge">${item.uf || '—'}</span></td>
-            <td><div class="cell-data-hora"><span class="data-dia">${item.tipo || ''}</span><span class="data-hora">${item.processo || '—'}</span></div></td>
+            <td><div class="cell-data-hora"><span class="data-dia">${item.tipo || ''}</span><span class="data-hora">${escapeHTML(item.processo) || '—'}</span></div></td>
             <td>${companyBadge(item.empresa)}</td>
             <td>${item.sistema || '—'}</td>
             <td>${statusBadgeClickable(item)}</td>
@@ -4318,49 +4390,59 @@
       }).join('');
     }
 
-    function renderHistoricoDisputas() {
-      const body = qs('historicoDisputasBody');
+    // ── Histórico: lê os valores dos filtros do DOM ──────────────────────────
+    function _filtrosEncerradas() {
+      return {
+        data:    qs('fEncData')?.value    || '',
+        orgao:   (qs('fEncOrgao')?.value   || '').trim().toLowerCase(),
+        uf:      (qs('fEncUF')?.value       || '').trim().toUpperCase(),
+        empresa: qs('fEncEmpresa')?.value   || '',
+        sistema: qs('fEncSistema')?.value   || '',
+        status:  qs('fEncStatus')?.value    || '',
+        tipo:    qs('fEncTipo')?.value      || '',
+        processo:(qs('fEncProcesso')?.value || '').trim().toLowerCase(),
+      };
+    }
 
-      // Filtros
-      const fData    = qs('fEncData')?.value    || '';
-      const fOrgao   = (qs('fEncOrgao')?.value   || '').trim().toLowerCase();
-      const fUF      = (qs('fEncUF')?.value       || '').trim().toUpperCase();
-      const fEmpresa = qs('fEncEmpresa')?.value   || '';
-      const fSistema = qs('fEncSistema')?.value   || '';
-      const fStatus  = qs('fEncStatus')?.value    || '';
-      const fTipo    = qs('fEncTipo')?.value      || '';
-      const fProcesso= (qs('fEncProcesso')?.value || '').trim().toLowerCase();
-
-      const filtradas = disputasEncerradas.filter(item => {
-        if (fData    && (item.data || '').slice(0,10) !== fData)                          return false;
-        if (fOrgao   && !String(item.orgao   || '').toLowerCase().includes(fOrgao))       return false;
-        if (fUF      && String(item.uf       || '').toUpperCase() !== fUF)                return false;
-        if (fEmpresa && item.empresa !== fEmpresa)                                         return false;
-        if (fSistema && item.sistema !== fSistema)                                         return false;
-        if (fStatus  && item.status  !== fStatus)                                          return false;
-        if (fTipo    && item.tipo    !== fTipo)                                             return false;
-        if (fProcesso && !String(item.processo || '').toLowerCase().includes(fProcesso))   return false;
+    // ── Histórico: aplica filtros sobre disputasEncerradas ────────────────────
+    function _filtrarEncerradas(f) {
+      return disputasEncerradas.filter(item => {
+        if (f.data    && (item.data || '').slice(0,10) !== f.data)                        return false;
+        if (f.orgao   && !String(item.orgao   || '').toLowerCase().includes(f.orgao))     return false;
+        if (f.uf      && String(item.uf       || '').toUpperCase() !== f.uf)              return false;
+        if (f.empresa && item.empresa !== f.empresa)                                       return false;
+        if (f.sistema && item.sistema !== f.sistema)                                       return false;
+        if (f.status  && item.status  !== f.status)                                        return false;
+        if (f.tipo    && item.tipo    !== f.tipo)                                           return false;
+        if (f.processo && !String(item.processo || '').toLowerCase().includes(f.processo)) return false;
         return true;
       });
+    }
 
-      // KPIs (sempre sobre o total, sem filtro)
-      const vencidas    = disputasEncerradas.filter(i => i.status === 'Vencida');
-      const perdidas    = disputasEncerradas.filter(i => i.status === 'Perdida');
-      const fracassadas = disputasEncerradas.filter(i => i.status === 'Fracassado/Suspenso');
-      const brutoTotal  = disputasEncerradas.reduce((acc, i) => acc + (Number(i.bruto) || 0), 0);
+    // ── Histórico: atualiza KPIs (total) e subtotal (filtrado) ───────────────
+    function _atualizarKpisEncerradas(filtradas) {
+      const total     = disputasEncerradas.length;
+      const vencidas  = disputasEncerradas.filter(i => i.status === 'Vencida').length;
+      const perdidas  = disputasEncerradas.filter(i => i.status === 'Perdida').length;
+      const fracass   = disputasEncerradas.filter(i => i.status === 'Fracassado/Suspenso').length;
+      const brutoTot  = disputasEncerradas.reduce((acc, i) => acc + (Number(i.bruto) || 0), 0);
 
-      qs('disputaStatEncTotal').textContent    = disputasEncerradas.length;
-      qs('disputaStatVencidas').textContent    = vencidas.length;
-      qs('disputaStatPerdidas').textContent    = perdidas.length;
-      qs('disputaStatFracassado').textContent  = fracassadas.length;
-      qs('disputaStatBrutoTotal').textContent  = formatCurrency(brutoTotal);
+      qs('disputaStatEncTotal').textContent   = total;
+      qs('disputaStatVencidas').textContent   = vencidas;
+      qs('disputaStatPerdidas').textContent   = perdidas;
+      qs('disputaStatFracassado').textContent = fracass;
+      qs('disputaStatBrutoTotal').textContent = formatCurrency(brutoTot);
 
-      // Subtotal filtrado
-      const brutoFiltrado = filtradas.reduce((acc, i) => acc + (Number(i.bruto) || 0), 0);
+      const brutoFilt = filtradas.reduce((acc, i) => acc + (Number(i.bruto) || 0), 0);
       qs('subtotalEncQtde').textContent  = filtradas.length;
-      qs('subtotalEncBruto').textContent = formatCurrency(brutoFiltrado);
+      qs('subtotalEncBruto').textContent = formatCurrency(brutoFilt);
+    }
 
-      const sortedEnc = applySortOrder(filtradas, 'sortEncerradas', {
+    // ── Histórico: renderiza as linhas da tabela ──────────────────────────────
+    function _renderLinhasEncerradas(filtradas) {
+      const body = qs('historicoDisputasBody');
+
+      const sorted = applySortOrder(filtradas, 'sortEncerradas', {
         data:     i => i.data || '',
         orgao:    i => i.orgao || '',
         processo: i => i.processo || '',
@@ -4370,19 +4452,19 @@
         valor:    i => Number(i.bruto) || 0,
       });
 
-      if (!sortedEnc.length) {
+      if (!sorted.length) {
         body.innerHTML = `<tr><td colspan="10"><div class="empty-state">Nenhuma disputa encerrada encontrada.</div></td></tr>`;
         return;
       }
 
-      body.innerHTML = sortedEnc.map(item => {
+      body.innerHTML = sorted.map(item => {
         const data = formatDateTime(item.data);
         return `
           <tr>
             <td><div class="cell-data-hora"><span class="data-dia">${data.date}</span><span class="data-hora">${data.time || '—'}</span></div></td>
-            <td class="cell-wrap">${item.orgao || '—'}</td>
+            <td class="cell-wrap">${escapeHTML(item.orgao) || '—'}</td>
             <td><span class="uf-badge">${item.uf || '—'}</span></td>
-            <td><div class="cell-data-hora"><span class="data-dia">${item.tipo || ''}</span><span class="data-hora">${item.processo || '—'}</span></div></td>
+            <td><div class="cell-data-hora"><span class="data-dia">${item.tipo || ''}</span><span class="data-hora">${escapeHTML(item.processo) || '—'}</span></div></td>
             <td>${companyBadge(item.empresa)}</td>
             <td>${item.sistema || '—'}</td>
             <td>${statusBadge(item.status)}</td>
@@ -4391,6 +4473,13 @@
             <td>${rowMenuEncerrada(item)}</td>
           </tr>`;
       }).join('');
+    }
+
+    // ── Orquestrador público ──────────────────────────────────────────────────
+    function renderHistoricoDisputas() {
+      const filtradas = _filtrarEncerradas(_filtrosEncerradas());
+      _atualizarKpisEncerradas(filtradas);
+      _renderLinhasEncerradas(filtradas);
     }
 
     function limparFiltrosEncerradas() {
@@ -4437,7 +4526,7 @@
       };
 
       if (!dados.data || !dados.orgao || !dados.status) {
-        alert('Preencha pelo menos data, órgão e status.');
+        showToast('Preencha pelo menos data, órgão e status.', 'error'); return;
         return;
       }
 
@@ -4769,7 +4858,7 @@
             tocarAlarme();
             mostrarToast(
               '⚡ Disputa agora!',
-              `${item.orgao || '—'} · ${item.processo || '—'}\n${item.sistema || ''}`
+              `${escapeHTML(item.orgao) || '—'} · ${escapeHTML(item.processo) || '—'}\n${item.sistema || ''}`
             );
           }
         }
@@ -4782,7 +4871,7 @@
             tocarAlarme();
             mostrarToast(
               '🔁 Hora do retorno!',
-              `${item.orgao || '—'} · ${item.processo || '—'}`
+              `${escapeHTML(item.orgao) || '—'} · ${escapeHTML(item.processo) || '—'}`
             );
           }
         }
@@ -4887,16 +4976,35 @@
     // ── Storage ──────────────────────────────────────
     function loadContratos() {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        try {
-          const parsed = JSON.parse(raw);
-          contratosAtivos     = (Array.isArray(parsed.contratosAtivos)     && parsed.contratosAtivos.length)     ? parsed.contratosAtivos     : structuredClone(contratosAtivoDefault);
-          contratosEncerrados = (Array.isArray(parsed.contratosEncerrados)  && parsed.contratosEncerrados.length)  ? parsed.contratosEncerrados : structuredClone(contratosEncerradoDefault);
-          return;
-        } catch(e) {}
+
+      if (!raw) {
+        contratosAtivos     = structuredClone(contratosAtivoDefault);
+        contratosEncerrados = structuredClone(contratosEncerradoDefault);
+        return;
       }
-      contratosAtivos     = structuredClone(contratosAtivoDefault);
-      contratosEncerrados = structuredClone(contratosEncerradoDefault);
+
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (e) {
+        console.error('[KM] loadContratos: JSON inválido — restaurando defaults.', e);
+        contratosAtivos     = structuredClone(contratosAtivoDefault);
+        contratosEncerrados = structuredClone(contratosEncerradoDefault);
+        return;
+      }
+
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        console.warn('[KM] loadContratos: payload inesperado — restaurando defaults.', parsed);
+        contratosAtivos     = structuredClone(contratosAtivoDefault);
+        contratosEncerrados = structuredClone(contratosEncerradoDefault);
+        return;
+      }
+
+      contratosAtivos     = Array.isArray(parsed.contratosAtivos)     ? parsed.contratosAtivos     : structuredClone(contratosAtivoDefault);
+      contratosEncerrados = Array.isArray(parsed.contratosEncerrados) ? parsed.contratosEncerrados : structuredClone(contratosEncerradoDefault);
+
+      if (!Array.isArray(parsed.contratosAtivos))     console.warn('[KM] loadContratos: "contratosAtivos" ausente ou inválido — usando [].');
+      if (!Array.isArray(parsed.contratosEncerrados)) console.warn('[KM] loadContratos: "contratosEncerrados" ausente ou inválido — usando [].');
     }
 
     function persistAll() {
@@ -4948,7 +5056,7 @@
     function orgaoInfoHtml(c) {
       const info = [c.contrato, c.processo, c.sistema].filter(Boolean).join(' · ');
       return `<div class="con-orgao-wrap">
-        <span class="con-orgao-nome">${c.orgao || '—'}</span>
+        <span class="con-orgao-nome">${escapeHTML(c.orgao) || '—'}</span>
         ${info ? `<span class="con-orgao-info">${info}</span>` : ''}
       </div>`;
     }
@@ -5266,11 +5374,11 @@
       tbody.innerHTML = _conItens.map(item => {
         const { vlTotal, royaltiesR, impostoR, lucroUnit, lucroTotal } = calcItem(item, r, i);
         return `<tr>
-          <td><input type="text" value="${item.descricao}" placeholder="Descrição do item"
+          <td><input type="text" value="${escapeHTML(item.descricao)}" placeholder="Descrição do item"
             oninput="_conItens.find(x=>x.id==='${item.id}').descricao=this.value"/></td>
-          <td><input type="text" value="${item.marca}" placeholder="Marca"
+          <td><input type="text" value="${escapeHTML(item.marca)}" placeholder="Marca"
             oninput="_conItens.find(x=>x.id==='${item.id}').marca=this.value"/></td>
-          <td><input type="text" value="${item.modelo}" placeholder="Modelo"
+          <td><input type="text" value="${escapeHTML(item.modelo)}" placeholder="Modelo"
             oninput="_conItens.find(x=>x.id==='${item.id}').modelo=this.value"/></td>
           <td><input type="number" value="${item.qtd}" min="1" step="1" style="text-align:center;"
             oninput="_conItens.find(x=>x.id==='${item.id}').qtd=Math.max(1,Number(this.value)||1);reRenderItens('${pfx}')"/></td>
@@ -5430,7 +5538,7 @@
     function stepperAvancar() {
       if (_stepperAtual === 1) {
         const orgao = qs('conOrgao')?.value?.trim();
-        if (!orgao) { alert('Preencha pelo menos o Órgão.'); return; }
+        if (!orgao) { showToast('Preencha pelo menos o Órgão.', 'error'); return; }
       }
       if (_stepperAtual === 3) {
         calcularTotaisItens('con');
@@ -5534,8 +5642,8 @@
 
     function salvarContrato() {
       const orgao = qs('conOrgao')?.value?.trim().toUpperCase() || '';
-      if (!orgao) { alert('Preencha pelo menos o Órgão.'); return; }
-      if (!_conItens.length) { alert('Adicione pelo menos 1 item para salvar o contrato.'); return; }
+      if (!orgao) { showToast('Preencha pelo menos o Órgão.', 'error'); return; }
+      if (!_conItens.length) { showToast('Adicione pelo menos 1 item para salvar o contrato.', 'error'); return; }
       calcularTotaisItens('con');
       const valor     = Number(qs('conValorRaw')?.value  || 0);
       const compra    = Number(qs('conCompraRaw')?.value || 0);
@@ -5788,7 +5896,7 @@
 
       // Link drive badge
       const driveBadge = c.drive && c.drive !== '#'
-        ? `<a href="${c.drive}" target="_blank" rel="noopener" class="link-emoji-badge link-badge-drive" style="font-size:13px;width:auto;padding:4px 10px;">💾 Drive</a>`
+        ? `<a href="${safeUrl(c.drive)}" target="_blank" rel="noopener" class="link-emoji-badge link-badge-drive" style="font-size:13px;width:auto;padding:4px 10px;">💾 Drive</a>`
         : '—';
 
       // Métricas linha 1
@@ -5834,7 +5942,7 @@
           const pct = it.qtd > 0 ? Math.min(100, (qtdEmp / it.qtd) * 100) : 0;
           const marcaModelo = [it.marca, it.modelo].filter(Boolean).join(' / ') || '—';
           return `<tr>
-            <td>${it.descricao || '—'}</td>
+            <td>${escapeHTML(it.descricao) || '—'}</td>
             <td>${marcaModelo}</td>
             <td style="text-align:center;font-weight:600;">${it.qtd}</td>
             <td>${formatCurrency(it.vlUnit)}</td>
@@ -5850,7 +5958,7 @@
         const pct = totalItens > 0 ? Math.min(100, (empenhados / totalItens) * 100) : 0;
         qs('conViewItensBody').innerHTML = totalItens > 0
           ? `<tr>
-              <td>${c.processo || 'Item do contrato'}</td><td>—</td>
+              <td>${escapeHTML(c.processo) || 'Item do contrato'}</td><td>—</td>
               <td style="text-align:center;">${totalItens}</td><td>—</td>
               <td style="text-align:center;font-weight:700;color:var(--primary-dark);">${empenhados}</td>
               <td>—</td>
@@ -5914,19 +6022,19 @@
             <tbody>
               ${empDoContrato.map(e => {
                 const itensDesc = (e.itensEmpenhados || []).map(ie =>
-                  `<div style="font-size:9px;line-height:1.5;color:var(--text);">${ie.descricao || '—'} <strong style="color:var(--primary-dark);">×${ie.qtdEmp}</strong></div>`
+                  `<div style="font-size:9px;line-height:1.5;color:var(--text);">${escapeHTML(ie.descricao) || '—'} <strong style="color:var(--primary-dark);">×${ie.qtdEmp}</strong></div>`
                 ).join('') || '—';
                 const resp = [e.responsavel, e.responsavelSetor, e.responsavelContato].filter(Boolean).join('<br>') || '—';
                 const sc = statusColorMap[e.status] || '#5c6670';
                 const sb = statusBgMap[e.status] || '#eef0f3';
                 return `<tr>
-                  <td style="font-weight:800;font-size:10px;white-space:nowrap;">${e.numero || '—'}</td>
+                  <td style="font-weight:800;font-size:10px;white-space:nowrap;">${escapeHTML(e.numero) || '—'}</td>
                   <td style="white-space:nowrap;">${formatDate(e.data)}</td>
                   <td style="min-width:160px;">${itensDesc}</td>
                   <td style="text-align:right;font-weight:800;color:#2563eb;white-space:nowrap;">${formatCurrency(e.valor)}</td>
                   <td style="font-size:9px;line-height:1.5;">${resp}</td>
                   <td><span style="display:inline-block;padding:3px 8px;border-radius:999px;font-size:9px;font-weight:700;background:${sb};color:${sc};">${e.status || '—'}</span></td>
-                  <td style="font-size:9px;color:var(--muted);max-width:120px;">${e.obs || '—'}</td>
+                  <td style="font-size:9px;color:var(--muted);max-width:120px;">${escapeHTML(e.obs) || '—'}</td>
                 </tr>`;
               }).join('')}
             </tbody>
@@ -5980,16 +6088,26 @@
     let _empContratoSelecionado = null; // contrato ativo em edição
 
     function loadEmpenhos() {
-      try {
-        const saved = localStorage.getItem(EMP_KEY);
-        if (saved) {
-          empenhos = JSON.parse(saved);
-          return;
-        }
-      } catch(e) {}
-      // Usa os empenhos simulados com IDs fixos
-      empenhos = structuredClone(empenhosDefault);
-      persistEmpenhos();
+      const raw = localStorage.getItem(EMP_KEY);
+      if (!raw) {
+        empenhos = structuredClone(empenhosDefault);
+        persistEmpenhos();
+        return;
+      }
+      let parsed;
+      try { parsed = JSON.parse(raw); } catch (e) {
+        console.error('[KM] loadEmpenhos: JSON inválido — restaurando defaults.', e);
+        empenhos = structuredClone(empenhosDefault);
+        persistEmpenhos();
+        return;
+      }
+      if (!Array.isArray(parsed)) {
+        console.warn('[KM] loadEmpenhos: valor não é array — restaurando defaults.', parsed);
+        empenhos = structuredClone(empenhosDefault);
+        persistEmpenhos();
+        return;
+      }
+      empenhos = parsed;
     }
 
     function persistEmpenhos() {
@@ -6048,8 +6166,8 @@
         if (c) {
           _empContratoSelecionado = c;
           qs('empContratoIdHidden').value = c.id;
-          qs('empContratoOrigemDisplay').textContent = `${c.orgao} • ${c.contrato || c.processo || ''} (${c.empresa})`;
-          qs('empContratoOrigemLabel').textContent = `${c.orgao} • ${c.empresa}`;
+          qs('empContratoOrigemDisplay').textContent = `${escapeHTML(c.orgao)} • ${c.contrato || c.processo || ''} (${c.empresa})`;
+          qs('empContratoOrigemLabel').textContent = `${escapeHTML(c.orgao)} • ${c.empresa}`;
           const totalEmpV = empenhos.filter(e => e.contratoId === c.id).reduce((s,e) => s + (Number(e.valor)||0), 0);
           const saldoV = (Number(c.valor)||0) - totalEmpV;
           qs('empSaldoContratoInfo').textContent = `Contrato: ${formatCurrency(c.valor)} | Empenhado: ${formatCurrency(totalEmpV)} | Saldo: ${formatCurrency(saldoV)}`;
@@ -6098,7 +6216,7 @@
             <input type="checkbox" class="emp-item-check" id="empChk-${it.id}"
               onchange="onEmpItemCheck('${it.id}',${it.qtd},this.dataset.desc,${it.vlUnit})" data-desc="${(it.descricao||'').replace(/"/g,'&quot;')}" />
             <div>
-              <div class="emp-item-desc">${it.descricao || '(sem descrição)'}</div>
+              <div class="emp-item-desc">${escapeHTML(it.descricao) || '(sem descrição)'}</div>
               <div class="emp-item-meta">Qtd. Contrato: <strong>${it.qtd}</strong> | Saldo disponível: <strong>${saldo}</strong> | Vl. Unit.: ${formatCurrency(it.vlUnit)}</div>
             </div>
 
@@ -6141,10 +6259,10 @@
 
     function salvarNovoEmpenho() {
       const c = _empContratoSelecionado;
-      if (!c) { alert('Selecione um contrato.'); return; }
+      if (!c) { showToast('Selecione um contrato.', 'error'); return; }
       const data  = qs('empData2').value;
       const numero = qs('empNumero').value.trim();
-      if (!data || !numero) { alert('Preencha data e número do empenho.'); return; }
+      if (!data || !numero) { showToast('Preencha data e número do empenho.', 'error'); return; }
 
       // Coleta itens selecionados
       const itensEmpenhados = [];
@@ -6156,11 +6274,11 @@
         const qtdEmp = Math.max(0, Number(inp.value)||0);
         if (!qtdEmp) return;
         const saldo = saldoQtdItem(c.id, it.id);
-        if (qtdEmp > saldo) { alert(`Quantidade do item "${it.descricao}" excede o saldo (${saldo}).`); throw new Error('saldo'); }
+        if (qtdEmp > saldo) { showToast(`Quantidade do item "${escapeHTML(it.descricao)}" excede o saldo (${saldo}).`, 'error'); throw new Error('saldo'); }
         itensEmpenhados.push({ itemId: it.id, descricao: it.descricao, qtdEmp, vlUnit: it.vlUnit });
         valorTotal += qtdEmp * (Number(it.vlUnit)||0);
       });
-      if (!itensEmpenhados.length) { alert('Selecione pelo menos 1 item para empenhar.'); return; }
+      if (!itensEmpenhados.length) { showToast('Selecione pelo menos 1 item para empenhar.', 'error'); return; }
 
       const emp = {
         id: crypto.randomUUID(),
@@ -6253,7 +6371,7 @@
 
     function confirmarPagamentoEmpenho() {
       const dataPag = document.getElementById('modalPagDataInput')?.value;
-      if (!dataPag) { alert('Informe a data de pagamento.'); return; }
+      if (!dataPag) { showToast('Informe a data de pagamento.', 'error'); return; }
       const emp = empenhos.find(e => e.id === _pagandoEmpId);
       if (emp) {
         emp.status = 'Paga';
@@ -6363,7 +6481,7 @@
     function empRowHtml(e) {
       const itensDesc = (e.itensEmpenhados || []).map(ie => {
         const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
-        return `<div style="font-size:10px;line-height:1.4;">${ie.descricao || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
+        return `<div style="font-size:10px;line-height:1.4;">${escapeHTML(ie.descricao) || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
       }).join('');
       const statusOpts = ['Pendente','Compra Feita','Ag. Liquidação','Paga']
         .map(s => `<button onclick="mudarStatusEmpenho('${e.id}','${s}')">${s}</button>`).join('');
@@ -6407,9 +6525,9 @@
 
       return `<tr>
         <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${dataCompraBadge}</div></td>
-        <td style="font-weight:700;font-size:10px;">${e.numero || '—'}</td>
+        <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}</td>
         <td class="cell-wrap">
-          <div class="con-orgao-nome">${e.orgao || '—'}</div>
+          <div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>
           <div class="con-orgao-info">${e.contrato || ''}</div>
         </td>
         <td>${companyBadge(e.empresa)}</td>
@@ -6590,7 +6708,7 @@
             }
             const itensDesc = (e.itensEmpenhados || []).map(ie => {
               const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
-              return `<div style="font-size:10px;line-height:1.4;">${ie.descricao || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
+              return `<div style="font-size:10px;line-height:1.4;">${escapeHTML(ie.descricao) || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
             }).join('');
             const prog = progressoCompra(e);
             const progBadge = prog.total > 0
@@ -6654,7 +6772,7 @@
     function empPagosRowHtml(e) {
       const itensDesc = (e.itensEmpenhados || []).map(ie => {
         const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
-        return `<div style="font-size:10px;line-height:1.4;">${ie.descricao || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
+        return `<div style="font-size:10px;line-height:1.4;">${escapeHTML(ie.descricao) || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
       }).join('');
       const statusOpts = ['Pendente','Compra Feita','Ag. Liquidação','Paga']
         .map(s => `<button onclick="mudarStatusEmpenho('${e.id}','${s}')">${s}</button>`).join('');
@@ -6682,9 +6800,9 @@
 
       return `<tr>
         <td><span class="data-dia">${formatDate(e.data)}</span></td>
-        <td style="font-weight:700;font-size:10px;">${e.numero || '—'}</td>
+        <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}</td>
         <td class="cell-wrap">
-          <div class="con-orgao-nome">${e.orgao || '—'}</div>
+          <div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>
           <div class="con-orgao-info">${e.contrato || ''}</div>
         </td>
         <td>${companyBadge(e.empresa)}</td>
@@ -6852,7 +6970,7 @@
       // Contexto do contrato já selecionado
       const c = _empContratoSelecionado;
       const ctx = c
-        ? `Contrato: ${c.contrato||c.processo||'—'}\nÓrgão: ${c.orgao}\nEmpresa: ${c.empresa}\nValor contrato: R$${c.valor}\nJá empenhado: R$${c.valorEmpenhado||0}`
+        ? `Contrato: ${c.contrato||c.processo||'—'}\nÓrgão: ${escapeHTML(c.orgao)}\nEmpresa: ${c.empresa}\nValor contrato: R$${c.valor}\nJá empenhado: R$${c.valorEmpenhado||0}`
         : '(nenhum contrato selecionado ainda)';
 
       const prompt = `Você é um assistente especializado em licitações e empenhos públicos brasileiros.
@@ -6998,8 +7116,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const linhas = [];
       if (c) {
         linhas.push(`Contrato Nº: ${c.contrato || '—'}`);
-        linhas.push(`Processo: ${c.processo || '—'}`);
-        linhas.push(`Órgão: ${c.orgao || '—'}`);
+        linhas.push(`Processo: ${escapeHTML(c.processo) || '—'}`);
+        linhas.push(`Órgão: ${escapeHTML(c.orgao) || '—'}`);
         linhas.push(`Empresa (fornecedora): ${c.empresa || '—'}`);
         linhas.push(`Sistema: ${c.sistema || '—'}`);
         linhas.push(`Valor total do contrato: R$ ${Number(c.valor||0).toFixed(2)}`);
@@ -7008,7 +7126,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         if (Array.isArray(c.itensLotes) && c.itensLotes.length) {
           linhas.push('\nItens cadastrados no contrato:');
           c.itensLotes.forEach((it, i) => {
-            linhas.push(`  ${i+1}. ${it.descricao || '(sem descrição)'} | Qtd: ${it.qtd} | Vl.Unit: R$ ${Number(it.vlUnit||0).toFixed(2)}`);
+            linhas.push(`  ${i+1}. ${escapeHTML(it.descricao) || '(sem descrição)'} | Qtd: ${it.qtd} | Vl.Unit: R$ ${Number(it.vlUnit||0).toFixed(2)}`);
           });
         }
       }
@@ -7026,8 +7144,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const e = empenhos.find(x => x.id === id);
       if (!e) return '(sem dados)';
       const linhas = [
-        `Nº Empenho: ${e.numero}`,
-        `Órgão: ${e.orgao}`,
+        `Nº Empenho: ${escapeHTML(e.numero)}`,
+        `Órgão: ${escapeHTML(e.orgao)}`,
         `Empresa: ${e.empresa}`,
         `Contrato: ${e.contrato}`,
         `Data: ${e.data}`,
@@ -7041,7 +7159,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     async function analisarPdfEmpenhoNovo() {
-      if (!_empPdfBase64) { alert('Selecione um PDF primeiro.'); return; }
+      if (!_empPdfBase64) { showToast('Selecione um PDF primeiro.', 'warning'); return; }
       const wrap = qs('empIaWrap');
       const content = qs('empIaContent');
       wrap.style.display = 'block';
@@ -7055,7 +7173,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     async function analisarPdfEmpenho() {
-      if (!_empEditPdfBase64) { alert('Selecione um PDF primeiro.'); return; }
+      if (!_empEditPdfBase64) { showToast('Selecione um PDF primeiro.', 'warning'); return; }
       const wrap = qs('empEditIaWrap');
       const content = qs('empEditIaContent');
       wrap.style.display = 'block';
@@ -7071,7 +7189,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     function abrirSeletorContratoEmpenho() {
       const saldo = contratosComSaldo();
       if (!saldo.length) {
-        alert('Nenhum contrato ativo com itens disponíveis para empenhar.\n\nCadastre um contrato com itens e saldo antes de gerar empenhos.');
+        showToast('Nenhum contrato ativo com itens disponíveis.\nCadastre um contrato com itens e saldo antes de gerar empenhos.', 'warning', 5000);
         return;
       }
       // Monta mini-modal de seleção
@@ -7102,7 +7220,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         return `<button onclick="qs('miniSeletorContratoWrap').classList.add('hidden');abrirCadastroEmpenho('${c.id}')"
           style="text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;font-family:inherit;transition:background .15s;"
           onmouseover="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--primary-hover')" onmouseout="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--card')">
-          <div style="font-size:11px;font-weight:700;color:var(--text);">${c.orgao}</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text);">${escapeHTML(c.orgao)}</div>
           <div style="font-size:9px;color:var(--muted);margin-top:2px;">${c.contrato||c.processo||'—'} · ${c.empresa} · Saldo: <strong style="color:${saldoV>=0?'#2563eb':'#b42318'}">${formatCurrency(saldoV)}</strong></div>
         </button>`;
       }).join('');
@@ -7170,7 +7288,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         return `<div class="bell-item" onclick="fecharBellDropdown();showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
           <span class="bell-item-dot ${dotCls}"></span>
           <div class="bell-item-body">
-            <div class="bell-item-orgao">${c.orgao || '—'}</div>
+            <div class="bell-item-orgao">${escapeHTML(c.orgao) || '—'}</div>
             <div class="bell-item-info">${num} · ${empresa}</div>
           </div>
           <span class="bell-item-tag ${tagCls}">${tagTxt}</span>
@@ -7241,11 +7359,20 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     let _cmpEditId    = null;   // id da compra em edição
 
     function loadCompras() {
-      try {
-        const s = localStorage.getItem(CMP_KEY);
-        if (s) { compras = JSON.parse(s); return; }
-      } catch(e) {}
-      compras = [];
+      const raw = localStorage.getItem(CMP_KEY);
+      if (!raw) { compras = []; return; }
+      let parsed;
+      try { parsed = JSON.parse(raw); } catch (e) {
+        console.error('[KM] loadCompras: JSON inválido — usando [].', e);
+        compras = [];
+        return;
+      }
+      if (!Array.isArray(parsed)) {
+        console.warn('[KM] loadCompras: valor não é array — usando [].', parsed);
+        compras = [];
+        return;
+      }
+      compras = parsed;
     }
     function persistCompras() {
       localStorage.setItem(CMP_KEY, JSON.stringify(compras));
@@ -7257,7 +7384,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       return `
       <div class="cmp-item-card" id="cmpCard_${idx}" data-item-id="${item.itemId}" data-item-idx="${idx}">
         <div class="cmp-item-title">
-          📦 ${item.descricao || '(sem descrição)'}
+          📦 ${escapeHTML(item.descricao) || '(sem descrição)'}
         </div>
         <!-- Readonly info -->
         <div class="cmp-readonly-grid">
@@ -7503,7 +7630,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           border:2px solid var(--line);border-radius:13px;padding:15px 16px;cursor:pointer;
           background:var(--card);transition:border-color .15s,box-shadow .15s;user-select:none;position:relative;">
           <div style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:5px;border:2px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;" id="sicChk_${i}"></div>
-          <div style="font-size:11px;font-weight:800;color:var(--text);line-height:1.35;margin-bottom:8px;padding-right:24px;">${ie.descricao || 'Item sem descrição'}</div>
+          <div style="font-size:11px;font-weight:800;color:var(--text);line-height:1.35;margin-bottom:8px;padding-right:24px;">${escapeHTML(ie.descricao) || 'Item sem descrição'}</div>
           <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">${ie.qtdEmp} un · ${formatCurrency(vlUnit)}/un</div>
           <div style="font-size:10px;font-weight:700;color:${disponivel > 0 ? '#1f8a4c' : '#b42318'};">
             ${disponivel} un. disponíveis
@@ -7549,7 +7676,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     function confirmarSeletorItem() {
-      if (_seletorItemIdxs.size === 0) { alert('Selecione ao menos um item para continuar.'); return; }
+      if (_seletorItemIdxs.size === 0) { showToast('Selecione ao menos um item para continuar.', 'error'); return; }
       const emp = empenhos.find(e => e.id === _seletorEmpId);
       if (!emp) return;
       qs('seletorItemCompraWrap').classList.add('hidden');
@@ -7561,7 +7688,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       _cmpSkipped   = [];
 
       const sub = qs('cmpModalSubtitle');
-      if (sub) sub.textContent = `${emp.orgao || '—'} · Empenho ${emp.numero || '—'} · ${emp.empresa || '—'}`;
+      if (sub) sub.textContent = `${escapeHTML(emp.orgao) || '—'} · Empenho ${escapeHTML(emp.numero) || '—'} · ${emp.empresa || '—'}`;
 
       const body = qs('cmpStepperBody');
       body.innerHTML = _cmpItens.map((ie, i) =>
@@ -7592,7 +7719,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
       // Preenche cabeçalho e vl. empenho
       const sub = qs('compraGeralSubtitle');
-      if (sub) sub.textContent = `${emp.orgao || '—'} · Empenho ${emp.numero || '—'} · ${emp.empresa || '—'}`;
+      if (sub) sub.textContent = `${escapeHTML(emp.orgao) || '—'} · Empenho ${escapeHTML(emp.numero) || '—'} · ${emp.empresa || '—'}`;
       const vlEmp = Number(emp.valor || 0);
       const cgVl = qs('cgVlEmpenho');
       if (cgVl) cgVl.textContent = formatCurrency(vlEmp);
@@ -7694,7 +7821,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       if (!emp) return;
       const vlTotalCompra = Number(qs('cg_vlTotalCompra')?.value || 0);
       const fornecedor    = qs('cg_fornecedor')?.value?.trim() || '';
-      if (!fornecedor && vlTotalCompra === 0) { alert('Preencha ao menos o fornecedor ou o valor da compra.'); return; }
+      if (!fornecedor && vlTotalCompra === 0) { showToast('Preencha ao menos o fornecedor ou o valor da compra.', 'error'); return; }
 
       const data       = qs('cg_data')?.value || '';
       const pagamento  = qs('cg_pagamento')?.value || 'Pix';
@@ -7742,7 +7869,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       renderCompras();
       renderEmpenhos();
       fecharCompraGeral();
-      mostrarToast('📋 Compra Geral registrada!', `Empenho ${emp.numero || ''} atualizado.`);
+      mostrarToast('📋 Compra Geral registrada!', `Empenho ${escapeHTML(emp.numero) || ''} atualizado.`);
     }
 
     // ── Abrir modal com stepper ────────────────────────────
@@ -7756,11 +7883,11 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       _cmpStep      = 0;
       _cmpSkipped   = [];
 
-      if (!_cmpItens.length) { alert('Este empenho não possui itens.'); return; }
+      if (!_cmpItens.length) { showToast('Este empenho não possui itens.', 'warning'); return; }
 
       // Subtítulo
       const sub = qs('cmpModalSubtitle');
-      if (sub) sub.textContent = `${emp.orgao || '—'} · Empenho ${emp.numero || '—'} · ${emp.empresa || '—'}`;
+      if (sub) sub.textContent = `${escapeHTML(emp.orgao) || '—'} · Empenho ${escapeHTML(emp.numero) || '—'} · ${emp.empresa || '—'}`;
 
       // Renderiza todos os painéis (hidden)
       const body = qs('cmpStepperBody');
@@ -7904,7 +8031,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         salvou++;
       });
 
-      if (!salvou) { alert('Preencha pelo menos um item antes de salvar.'); return; }
+      if (!salvou) { showToast('Preencha pelo menos um item antes de salvar.', 'error'); return; }
       persistCompras();
       if (emp.status === 'Pendente' && todosItensComprados(emp)) {
         emp.status = 'Compra Feita';
@@ -7940,7 +8067,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       body.innerHTML = `
         <div style="background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:11px 16px;margin-bottom:16px;">
           <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Empenho de origem</div>
-          <div style="font-size:13px;font-weight:800;">${c.orgao} <span style="font-size:10px;color:var(--muted);font-weight:400;">· ${c.empenhoNumero} · ${c.empresa}</span></div>
+          <div style="font-size:13px;font-weight:800;">${escapeHTML(c.orgao)} <span style="font-size:10px;color:var(--muted);font-weight:400;">· ${escapeHTML(c.empenhoNumero)} · ${c.empresa}</span></div>
         </div>
         ${cmpItemFormHtml(ie, 0, c.vlUnitEmp)}`;
 
@@ -8068,13 +8195,13 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         return `<tr>
           <td><span class="data-dia">${formatDate(c.data)}</span></td>
           <td class="cell-wrap">
-            <div style="font-size:10px;font-weight:700;">${c.descricao}</div>
-            <div style="font-size:9px;color:var(--muted);">Nº ${c.empenhoNumero}</div>
+            <div style="font-size:10px;font-weight:700;">${escapeHTML(c.descricao)}</div>
+            <div style="font-size:9px;color:var(--muted);">Nº ${escapeHTML(c.empenhoNumero)}</div>
           </td>
           <td>${companyBadge(c.empresa)}</td>
           <td class="cell-wrap" style="font-size:10px;">
-            ${c.fornecedor || '—'}
-            ${c.linkCompra ? `<a href="${c.linkCompra}" target="_blank" rel="noopener" class="link-emoji-badge link-badge-sistema" style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;font-size:9px;font-weight:700;text-decoration:none;padding:2px 6px;border-radius:6px;width:auto;height:auto;">🔗 Ver compra</a>` : ''}
+            ${escapeHTML(c.fornecedor) || '—'}
+            ${c.linkCompra ? `<a href="${safeUrl(c.linkCompra)}" target="_blank" rel="noopener" class="link-emoji-badge link-badge-sistema" style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;font-size:9px;font-weight:700;text-decoration:none;padding:2px 6px;border-radius:6px;width:auto;height:auto;">🔗 Ver compra</a>` : ''}
           </td>
           <td style="font-size:10px;">${pagStr}</td>
           <td style="font-weight:700;color:#2563eb;">${formatCurrency(c.vlTotalCompra)}</td>
@@ -8267,7 +8394,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
                 : ['#b59000','background:#252010;color:#e8c84d', `${dias}d`];
             return `<div class="dash-venc-item">
               <div class="dash-venc-dot" style="background:${dotCls};"></div>
-              <div class="dash-venc-orgao">${c.orgao || '—'}</div>
+              <div class="dash-venc-orgao">${escapeHTML(c.orgao) || '—'}</div>
               <div style="font-size:9px;color:var(--muted);white-space:nowrap;">${c.contrato||c.processo||''}</div>
               <div class="dash-venc-dias" style="${tagCls}">${tagTxt}</div>
             </div>`;
@@ -8402,7 +8529,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     // ── Nova Compra rápida — abre seletor de empenho ──────────
     function dashNovaCompra() {
       const empComItens = empenhos.filter(e => e.itensEmpenhados?.length > 0);
-      if (!empComItens.length) { alert('Nenhum empenho com itens disponível.'); return; }
+      if (!empComItens.length) { showToast('Nenhum empenho com itens disponível.', 'warning'); return; }
       showSection('empenhos-andamento', document.querySelector('[data-section-target="empenhos-andamento"]'));
       renderEmpAndamento();
     }
@@ -9859,26 +9986,86 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     // ══════════════════════════════════════════════════════════
     // LOAD FUNCTIONS
     // ══════════════════════════════════════════════════════════
-    function loadData() {
+    // ── Utilitário: lê e valida um array do localStorage ────────────────────────
+    function _loadArray(storageKey, fieldName, fallback = []) {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return fallback;
+      let parsed;
       try {
-        const raw = JSON.parse(localStorage.getItem('km_disputas_v60_clean') || '{}');
-        disputas            = raw.disputas            || [];
-        disputasEncerradas  = raw.disputasEncerradas  || [];
-        contratosAtivos     = raw.contratosAtivos     || [];
-        contratosEncerrados = raw.contratosEncerrados || [];
-      } catch(e) { disputas=[]; disputasEncerradas=[]; contratosAtivos=[]; contratosEncerrados=[]; }
+        parsed = JSON.parse(raw);
+      } catch (e) {
+        console.error(`[KM] ${fieldName}: JSON inválido no localStorage — usando [].`, e);
+        return fallback;
+      }
+      // Payload pode ser o array direto ou um objeto contendo o campo
+      const value = Array.isArray(parsed) ? parsed : (parsed?.[fieldName] ?? null);
+      if (!Array.isArray(value)) {
+        console.warn(`[KM] ${fieldName}: valor não é array — usando [].`, parsed);
+        return fallback;
+      }
+      return value;
+    }
+
+    // ── Utilitário: lê e valida um objeto do localStorage ───────────────────
+    function _loadObject(storageKey, fieldName, fallback = {}) {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return fallback;
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (e) {
+        console.error(`[KM] ${fieldName}: JSON inválido no localStorage — usando {}.`, e);
+        return fallback;
+      }
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        console.warn(`[KM] ${fieldName}: valor inesperado — usando {}.`, parsed);
+        return fallback;
+      }
+      return parsed;
+    }
+
+    function loadData() {
+      const KEY = 'km_disputas_v60_clean';
+      const raw = localStorage.getItem(KEY);
+
+      if (!raw) {
+        disputas = []; disputasEncerradas = []; contratosAtivos = []; contratosEncerrados = [];
+        return;
+      }
+
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (e) {
+        console.error('[KM] loadData: JSON inválido no localStorage — restaurando arrays vazios.', e);
+        disputas = []; disputasEncerradas = []; contratosAtivos = []; contratosEncerrados = [];
+        return;
+      }
+
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        console.warn('[KM] loadData: payload inesperado — restaurando arrays vazios.', parsed);
+        disputas = []; disputasEncerradas = []; contratosAtivos = []; contratosEncerrados = [];
+        return;
+      }
+
+      const fields = ['disputas','disputasEncerradas','contratosAtivos','contratosEncerrados'];
+      [disputas, disputasEncerradas, contratosAtivos, contratosEncerrados] = fields.map(f => {
+        if (!Array.isArray(parsed[f])) {
+          console.warn(`[KM] loadData: campo "${f}" ausente ou inválido — usando [].`);
+          return [];
+        }
+        return parsed[f];
+      });
     }
 
     function loadContratos() { /* incluído no loadData */ }
 
     function loadEmpenhos() {
-      try { const r=localStorage.getItem('km_empenhos_v60_clean'); empenhos=r?JSON.parse(r):[]; }
-      catch(e) { empenhos=[]; }
+      empenhos = _loadArray('km_empenhos_v60_clean', 'empenhos');
     }
 
     function loadCompras() {
-      try { const r=localStorage.getItem('km_compras_v60_clean'); compras=r?JSON.parse(r):[]; }
-      catch(e) { compras=[]; }
+      compras = _loadArray('km_compras_v60_clean', 'compras');
     }
 
     // ══════════════════════════════════════════════════════════
@@ -10762,10 +10949,26 @@ function confirmarImportacao() {
     // Notificação final
     const msg = `✅ ${importadas} disputa${importadas>1?'s':''} importada${importadas>1?'s':''}!` +
       (contratosCriados > 0 ? `\n🏆 ${contratosCriados} contrato${contratosCriados>1?'s':''} rascunho criado${contratosCriados>1?'s':''} em Contratos Ativos.` : '');
-    setTimeout(() => alert(msg), 200);
+    setTimeout(() => showToast(msg, 'success', 5000), 200);
   } else {
-    setTimeout(() => alert(`✅ ${importadas} disputa${importadas>1?'s':''} importada${importadas>1?'s':''}!`), 200);
+    setTimeout(() => showToast(`✅ ${importadas} disputa${importadas>1?'s':''} importada${importadas>1?'s':''}!`, 'success'), 200);
   }
+}
+
+/* ── Toast system ── */
+function showToast(msg, type = 'info', duration = 3500) {
+  const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `km-toast ${type}`;
+  el.innerHTML = `<span class="km-toast-icon">${icons[type] ?? 'ℹ️'}</span><span class="km-toast-body">${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+  const dismiss = () => {
+    el.classList.replace('show', 'hide');
+    el.addEventListener('transitionend', () => el.remove(), { once: true });
+  };
+  setTimeout(dismiss, duration);
+  el.addEventListener('click', dismiss);
 }
 </script>
 </main></div>
@@ -10791,6 +10994,8 @@ function confirmarImportacao() {
       </div>
     </div>
   </div>
+
+  <div id="toastContainer"></div>
 
 </body>
 </html>
