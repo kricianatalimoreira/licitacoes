@@ -5616,17 +5616,10 @@
       }
     }
 
-    // ── Gerar Empenho → redireciona ao módulo Empenhos ──
+    // ── Gerar Empenho → abre modal diretamente sem navegar ──
     function gerarEmpenho(id) {
       closeAllMenus();
-      // Navega para o módulo de empenhos e pré-seleciona o contrato
-      showSection('empenhos-andamento', document.querySelector('[data-section-target="empenhos-andamento"]'));
-      // Abre grupo do menu Empenhos
-      const grp = qs('menuGroupEmpenhos');
-      if (grp && !grp.classList.contains('is-open')) grp.classList.add('is-open');
-      renderEmpAndamento();
-      // Pequeno delay para garantir que o módulo renderizou
-      setTimeout(() => abrirCadastroEmpenho(id), 80);
+      abrirCadastroEmpenho(id);
     }
 
     // ── Cálculo saldo no modal de edição ──────────────
