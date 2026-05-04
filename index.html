@@ -6637,8 +6637,8 @@
       const pctLucroEl = qs('empAndStatPctLucro');
       if (pctLucroEl) {
         const _pctValues = andamento.map(e => {
-          const { vlCompraReal, lucroReal } = calcEmpFinanceiroRealizado(e);
-          return vlCompraReal > 0 ? (lucroReal / vlCompraReal) * 100 : 0;
+          const { vlEmpTotal, lucroReal } = calcEmpFinanceiroRealizado(e);
+          return vlEmpTotal > 0 ? (lucroReal / vlEmpTotal) * 100 : 0;
         });
         const _pct = _pctValues.length > 0 ? _pctValues.reduce((s, v) => s + v, 0) / _pctValues.length : 0;
         pctLucroEl.textContent = _pct.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
@@ -6890,8 +6890,8 @@
         _vlEmpTotal  += vlEmpTotal;
       });
       const _pctValues2 = pagos.map(e => {
-        const { vlCompraReal, lucroReal } = calcEmpFinanceiroRealizado(e);
-        return vlCompraReal > 0 ? (lucroReal / vlCompraReal) * 100 : 0;
+        const { vlEmpTotal, lucroReal } = calcEmpFinanceiroRealizado(e);
+        return vlEmpTotal > 0 ? (lucroReal / vlEmpTotal) * 100 : 0;
       });
       const _pctTotal = _pctValues2.length > 0 ? _pctValues2.reduce((s, v) => s + v, 0) / _pctValues2.length : 0;
       qs('empEncStatTotal').textContent  = pagos.length;
