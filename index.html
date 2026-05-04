@@ -2736,49 +2736,45 @@
 <div class="topbar">
 <div>
 <h2>🏠 Dashboard</h2>
-<p id="dashSubtitle">Visão geral operacional</p>
+<p id="dashSubtitle" style="font-size:10px;color:var(--muted);">Visão geral operacional</p>
 </div>
-<div class="actions" style="gap:14px;">
+<div class="actions" style="gap:10px;align-items:center;">
 <div class="mode-toggle" title="Alternar claro/escuro">
 <label class="ios-switch">
   <input type="checkbox" id="modeToggle" onchange="toggleModo(this.checked)"/>
   <span class="ios-slider"></span>
 </label>
 </div>
-<button onclick="syncToCloud()" title="Salvar no Supabase agora" style="
-  display:flex;align-items:center;gap:5px;
-  background:var(--primary-soft);border:1px solid var(--primary-border);
-  color:var(--primary);border-radius:8px;padding:5px 10px;
-  font-size:10px;font-weight:700;font-family:inherit;
-  cursor:pointer;transition:opacity .15s;white-space:nowrap;
-" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
-  ☁️ Salvar
-</button>
-<span id="dashDataHora" style="font-size:10px;color:var(--muted);"></span>
+<span style="font-size:10px;color:var(--muted);font-weight:600;">TEMA</span>
+<div style="display:flex;gap:5px;">
+  <button onclick="aplicarTema('rosa')" style="width:18px;height:18px;border-radius:50%;background:#e91e8c;border:2px solid transparent;cursor:pointer;" title="Rosa"></button>
+  <button onclick="aplicarTema('azul')" style="width:18px;height:18px;border-radius:50%;background:#2563eb;border:2px solid transparent;cursor:pointer;" title="Azul"></button>
+  <button onclick="aplicarTema('verde')" style="width:18px;height:18px;border-radius:50%;background:#16a34a;border:2px solid transparent;cursor:pointer;" title="Verde"></button>
+  <button onclick="aplicarTema('laranja')" style="width:18px;height:18px;border-radius:50%;background:#ea580c;border:2px solid transparent;cursor:pointer;" title="Laranja"></button>
+</div>
+<button onclick="syncToCloud()" style="display:flex;align-items:center;gap:5px;background:var(--primary-soft);border:1px solid var(--primary-border);color:var(--primary);border-radius:8px;padding:5px 10px;font-size:10px;font-weight:700;font-family:inherit;cursor:pointer;">☁️ Salvar</button>
+<button onclick="syncToCloud()" style="display:flex;align-items:center;gap:5px;background:#1e3a5f;border:1px solid #2563eb;color:#60a5fa;border-radius:8px;padding:5px 10px;font-size:10px;font-weight:700;font-family:inherit;cursor:pointer;">💾 Backup Nuvem</button>
+<button onclick="backupLocal()" style="display:flex;align-items:center;gap:5px;background:#1a2e1a;border:1px solid #16a34a;color:#4ade80;border-radius:8px;padding:5px 10px;font-size:10px;font-weight:700;font-family:inherit;cursor:pointer;">💾 Backup Local</button>
+<button onclick="restaurarBackup()" style="display:flex;align-items:center;gap:5px;background:#2a1810;border:1px solid #ea580c;color:#fb923c;border-radius:8px;padding:5px 10px;font-size:10px;font-weight:700;font-family:inherit;cursor:pointer;">🔄 Restaurar</button>
+<span id="dashDataHora" style="font-size:10px;color:var(--muted);white-space:nowrap;"></span>
 </div>
 </div>
-<!-- Linha 1: Botões rápidos -->
-<div class="dash-grid">
-<!-- Linha 2: Metas -->
-<div class="dash-metas-row">
+
+<!-- METAS -->
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
 <!-- Meta Mensal -->
 <div class="meta-card">
 <div class="meta-header">
 <div>
-<div class="meta-title">🎯 Meta Mensal</div>
-<div class="meta-valor-realizado" id="dashMetaMensalRealizado" style="color:var(--primary);">R$ 0,00</div>
+<div class="meta-title">🎯 META MENSAL DE LUCRO</div>
+<div class="meta-valor-realizado" id="dashMetaMensalRealizado" style="color:var(--primary);font-size:20px;font-weight:800;">R$ 0,00</div>
 </div>
-<div class="meta-semaforo" id="dashSemaforoMensal">🔴</div>
+<div class="meta-semaforo" id="dashSemaforoMensal" style="font-size:22px;">🔴</div>
 </div>
-<div class="meta-target">
-<span>Meta:</span>
-<input id="dashMetaMensalInput" onfocus="this.select()" oninput="salvarMetas();renderDashboard()" placeholder="R$ 0,00" type="text">
-</input></div>
-<div class="meta-bar-bg">
-<div class="meta-bar-fill" id="dashMetaMensalBar" style="width:0%;"></div>
-</div>
+<div class="meta-target"><span>Meta:</span><input id="dashMetaMensalInput" onfocus="this.select()" oninput="salvarMetas();renderDashboard()" placeholder="R$ 0,00" type="text"/></div>
+<div class="meta-bar-bg"><div class="meta-bar-fill" id="dashMetaMensalBar" style="width:0%;"></div></div>
 <div style="display:flex;justify-content:space-between;align-items:center;">
-<span class="meta-pct" id="dashMetaMensalPct">0%</span>
+<span class="meta-pct" id="dashMetaMensalPct">0.0%</span>
 <span id="dashMetaMensalFalta" style="font-size:9px;color:var(--muted);"></span>
 </div>
 </div>
@@ -2786,27 +2782,22 @@
 <div class="meta-card">
 <div class="meta-header">
 <div>
-<div class="meta-title">📅 Meta Anual</div>
-<div class="meta-valor-realizado" id="dashMetaAnualRealizado" style="color:#2563eb;">R$ 0,00</div>
+<div class="meta-title">📅 META ANUAL DE LUCRO</div>
+<div class="meta-valor-realizado" id="dashMetaAnualRealizado" style="color:#2563eb;font-size:20px;font-weight:800;">R$ 0,00</div>
 </div>
-<div class="meta-semaforo" id="dashSemaforoAnual">🔴</div>
+<div class="meta-semaforo" id="dashSemaforoAnual" style="font-size:22px;">🔴</div>
 </div>
-<div class="meta-target">
-<span>Meta:</span>
-<input id="dashMetaAnualInput" onfocus="this.select()" oninput="salvarMetas();renderDashboard()" placeholder="R$ 0,00" type="text">
-</input></div>
-<div class="meta-bar-bg">
-<div class="meta-bar-fill" id="dashMetaAnualBar" style="width:0%;"></div>
-</div>
+<div class="meta-target"><span>Meta:</span><input id="dashMetaAnualInput" onfocus="this.select()" oninput="salvarMetas();renderDashboard()" placeholder="R$ 0,00" type="text"/></div>
+<div class="meta-bar-bg"><div class="meta-bar-fill" id="dashMetaAnualBar" style="width:0%;"></div></div>
 <div style="display:flex;justify-content:space-between;align-items:center;">
-<span class="meta-pct" id="dashMetaAnualPct">0%</span>
+<span class="meta-pct" id="dashMetaAnualPct">0.0%</span>
 <span id="dashMetaAnualFalta" style="font-size:9px;color:var(--muted);"></span>
 </div>
 </div>
-<!-- Previsão de fechamento -->
+<!-- Previsão -->
 <div class="meta-card">
 <div class="meta-header">
-<div><div class="meta-title">🔮 Previsão de Fechamento</div></div>
+<div><div class="meta-title">🔮 PREVISÃO DE FECHAMENTO</div></div>
 <span id="dashPrevMes" style="font-size:9px;color:var(--muted);"></span>
 </div>
 <div class="prev-grid">
@@ -2825,67 +2816,143 @@
 </div>
 </div>
 </div>
-<!-- Linha 3: KPIs -->
-<div class="dash-kpi-row">
+
+<!-- DISPUTAS -->
+<div style="font-size:10px;font-weight:800;color:var(--primary);letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--primary-border);">⚡ DISPUTAS</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
 <div class="dash-kpi-card" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">
-<div class="dash-kpi-label">⚡ Disputas Ativas</div>
-<div class="dash-kpi-value" id="dashKpiDisputasAtivas" style="color:var(--primary);">0</div>
-<div class="dash-kpi-sub" id="dashKpiDisputasSub"></div>
+  <div class="dash-kpi-label">Participadas no Mês</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashDisputaMesLabel"></div>
+  <div class="dash-kpi-value" id="dashKpiDisputasMes" style="color:var(--primary);">0</div>
+  <div class="dash-kpi-sub" id="dashKpiDisputasMesSub"></div>
+</div>
+<div class="dash-kpi-card" onclick="showSection('disputa-encerradas',document.querySelector('[data-section-target=disputa-encerradas]'))">
+  <div class="dash-kpi-label">Participadas no Ano</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashDisputaAnoLabel"></div>
+  <div class="dash-kpi-value" id="dashKpiDisputasAno" style="color:#2563eb;">0</div>
+  <div class="dash-kpi-sub" id="dashKpiDisputasAnoSub"></div>
+</div>
+<div class="dash-kpi-card">
+  <div class="dash-kpi-label">Taxa de Conversão no Ano</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Vencidas ÷ (Vencidas + Perdidas)</div>
+  <div class="dash-kpi-value" id="dashKpiTaxaConversao" style="color:#1f8a4c;">0%</div>
+  <div class="dash-kpi-sub" id="dashKpiTaxaConversaoSub"></div>
+</div>
+<div class="dash-kpi-card" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">
+  <div class="dash-kpi-label">Disputas Ativas</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashDisputaAtivaLabel"></div>
+  <div class="dash-kpi-value" id="dashKpiDisputasAtivas" style="color:var(--primary);">0</div>
+  <div class="dash-kpi-sub" id="dashKpiDisputasSub"></div>
+</div>
+</div>
+
+<!-- CONTRATOS -->
+<div style="font-size:10px;font-weight:800;color:#2563eb;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #dbeafe;">📝 CONTRATOS</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+<div class="dash-kpi-card" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+  <div class="dash-kpi-label">Assinados no Mês</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashConMesLabel"></div>
+  <div class="dash-kpi-value" id="dashKpiConMes" style="color:var(--primary);">0</div>
+  <div class="dash-kpi-sub" id="dashKpiConMesSub"></div>
 </div>
 <div class="dash-kpi-card" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
-<div class="dash-kpi-label">📝 Contratos Vigentes</div>
-<div class="dash-kpi-value" id="dashKpiContratos" style="color:#2563eb;">0</div>
-<div class="dash-kpi-sub" id="dashKpiContratosSub"></div>
+  <div class="dash-kpi-label">Assinados no Ano</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashConAnoLabel"></div>
+  <div class="dash-kpi-value" id="dashKpiConAno" style="color:#2563eb;">0</div>
+  <div class="dash-kpi-sub" id="dashKpiConAnoSub"></div>
 </div>
-<div class="dash-kpi-card" onclick="showSection('empenhos-andamento',document.querySelector('[data-section-target=empenhos-andamento]'))">
-<div class="dash-kpi-label">📄 Empenhos em andamento</div>
-<div class="dash-kpi-value" id="dashKpiEmpenhos" style="color:#7c3aed;">0</div>
-<div class="dash-kpi-sub" id="dashKpiEmpenhosSub"></div>
+<div class="dash-kpi-card" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+  <div class="dash-kpi-label">Contratos Vigentes</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Valor total: <span id="dashKpiConVigenteValor">R$ 0,00</span></div>
+  <div class="dash-kpi-value" id="dashKpiContratos" style="color:#7c3aed;">0</div>
+  <div class="dash-kpi-sub" id="dashKpiContratosSub"></div>
 </div>
-<div class="dash-kpi-card" onclick="showSection('compras-lista',document.querySelector('[data-section-target=compras-lista]'))">
-<div class="dash-kpi-label">🛒 Compras registradas</div>
-<div class="dash-kpi-value" id="dashKpiCompras" style="color:#1f8a4c;">0</div>
-<div class="dash-kpi-sub" id="dashKpiComprasSub"></div>
+<div class="dash-kpi-card" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+  <div class="dash-kpi-label">A Vencer em 60 dias</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Contratos ativos próximos do fim</div>
+  <div class="dash-kpi-value" id="dashKpiConVencer" style="color:#b76a00;">0</div>
+  <div class="dash-kpi-sub" id="dashKpiConVencerSub"></div>
 </div>
 </div>
-<!-- Linha 4: Disputas + Vencimentos -->
-<div class="dash-row-2">
-<!-- Donut disputas -->
+
+<!-- EMPENHOS -->
+<div style="font-size:10px;font-weight:800;color:#7c3aed;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #ede9fe;">📄 EMPENHOS</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+<!-- Pendentes -->
+<div class="dash-card" style="padding:14px;">
+  <div style="font-size:10px;font-weight:800;color:#b76a00;margin-bottom:10px;">🟡 PENDENTES — AGUARDANDO COMPRA</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+    <div><div style="font-size:9px;color:var(--muted);">Quantidade</div><div style="font-size:16px;font-weight:800;color:#b76a00;" id="dashEmpPendQtd">0</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">Vl. Empenho</div><div style="font-size:13px;font-weight:700;color:var(--primary);" id="dashEmpPendVlEmp">R$ 0,00</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">Vl. Compra Prev.</div><div style="font-size:13px;font-weight:700;" id="dashEmpPendVlCompra">R$ 0,00</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">Custo Prev.</div><div style="font-size:13px;font-weight:700;color:#b76a00;" id="dashEmpPendCusto">R$ 0,00</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">Lucro Prev.</div><div style="font-size:13px;font-weight:700;color:#1f8a4c;" id="dashEmpPendLucro">R$ 0,00</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">% Lucro</div><div style="font-size:13px;font-weight:700;color:#a3e635;" id="dashEmpPendPct">—</div></div>
+  </div>
+</div>
+<!-- Em andamento -->
+<div class="dash-card" style="padding:14px;">
+  <div style="font-size:10px;font-weight:800;color:#2563eb;margin-bottom:10px;">🔵 EM ANDAMENTO — VALORES A RECEBER</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+    <div><div style="font-size:9px;color:var(--muted);">Quantidade</div><div style="font-size:16px;font-weight:800;color:#2563eb;" id="dashEmpAndQtd">0</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">Vl. Empenho</div><div style="font-size:13px;font-weight:700;color:var(--primary);" id="dashEmpAndVlEmp">R$ 0,00</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">Vl. Compra</div><div style="font-size:13px;font-weight:700;" id="dashEmpAndVlCompra">R$ 0,00</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">Custo</div><div style="font-size:13px;font-weight:700;color:#b76a00;" id="dashEmpAndCusto">R$ 0,00</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">Lucro</div><div style="font-size:13px;font-weight:700;color:#1f8a4c;" id="dashEmpAndLucro">R$ 0,00</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">% Lucro</div><div style="font-size:13px;font-weight:700;color:#a3e635;" id="dashEmpAndPct">—</div></div>
+  </div>
+</div>
+<!-- Recebidos mês -->
+<div class="dash-card" style="padding:14px;">
+  <div style="font-size:10px;font-weight:800;color:#1f8a4c;margin-bottom:10px;">✅ RECEBIDOS — <span id="dashEmpRecMesLabel"></span></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+    <div><div style="font-size:9px;color:var(--muted);">Quantidade</div><div style="font-size:16px;font-weight:800;color:#1f8a4c;" id="dashEmpRecMesQtd">0</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">Vl. Empenho</div><div style="font-size:13px;font-weight:700;color:var(--primary);" id="dashEmpRecMesVlEmp">R$ 0,00</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">Lucro</div><div style="font-size:13px;font-weight:700;color:#1f8a4c;" id="dashEmpRecMesLucro">R$ 0,00</div></div>
+  </div>
+  <div style="margin-top:8px;display:flex;gap:16px;">
+    <div><div style="font-size:9px;color:var(--muted);">% Lucro</div><div style="font-size:13px;font-weight:700;color:#a3e635;" id="dashEmpRecMesPct">—</div></div>
+  </div>
+  <div style="margin-top:8px;font-size:9px;color:var(--muted);" id="dashEmpRecMesComp"></div>
+</div>
+<!-- Recebidos ano -->
+<div class="dash-card" style="padding:14px;">
+  <div style="font-size:10px;font-weight:800;color:#1f8a4c;margin-bottom:10px;">✅ RECEBIDOS — <span id="dashEmpRecAnoLabel"></span></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+    <div><div style="font-size:9px;color:var(--muted);">Quantidade</div><div style="font-size:16px;font-weight:800;color:#1f8a4c;" id="dashEmpRecAnoQtd">0</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">Vl. Empenho</div><div style="font-size:13px;font-weight:700;color:var(--primary);" id="dashEmpRecAnoVlEmp">R$ 0,00</div></div>
+    <div><div style="font-size:9px;color:var(--muted);">Lucro</div><div style="font-size:13px;font-weight:700;color:#1f8a4c;" id="dashEmpRecAnoLucro">R$ 0,00</div></div>
+  </div>
+  <div style="margin-top:8px;display:flex;gap:16px;">
+    <div><div style="font-size:9px;color:var(--muted);">% Lucro</div><div style="font-size:13px;font-weight:700;color:#a3e635;" id="dashEmpRecAnoPct">—</div></div>
+  </div>
+  <div style="margin-top:8px;font-size:9px;color:var(--muted);" id="dashEmpRecAnoComp"></div>
+</div>
+</div>
+
+<!-- GRÁFICOS -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+<!-- Donut -->
 <div class="dash-card">
-<div class="dash-card-title">📊 Disputas</div>
-<div class="dash-donut-wrap">
-<svg class="dash-donut-svg" height="110" id="dashDonutDisputas" viewbox="0 0 110 110" width="110"></svg>
-<div class="dash-donut-legend" id="dashDonutDisputasLegenda"></div>
+  <div class="dash-card-title">📊 DISPUTAS — DISTRIBUIÇÃO</div>
+  <div class="dash-donut-wrap">
+    <svg class="dash-donut-svg" height="110" id="dashDonutDisputas" viewbox="0 0 110 110" width="110"></svg>
+    <div class="dash-donut-legend" id="dashDonutDisputasLegenda"></div>
+  </div>
 </div>
-</div>
-<!-- Contratos a vencer -->
+<!-- Gráfico linha -->
 <div class="dash-card">
-<div class="dash-card-title">⚠️ Contratos a Vencer (60 dias)</div>
-<div class="dash-venc-list" id="dashVencList">
-<div style="color:var(--muted);font-size:10px;">Nenhum contrato a vencer em breve.</div>
+  <div class="dash-card-title">📈 LUCRO MENSAL RECEBIDO</div>
+  <div class="dash-line-wrap">
+    <svg height="130" id="dashLineCompras" preserveaspectratio="none" viewbox="0 0 400 130" width="100%"></svg>
+  </div>
+  <div style="display:flex;gap:14px;margin-top:8px;">
+    <div style="display:flex;align-items:center;gap:5px;font-size:9px;"><div style="width:14px;height:3px;background:var(--primary);border-radius:2px;"></div>Lucro realizado</div>
+    <div style="display:flex;align-items:center;gap:5px;font-size:9px;"><div style="width:14px;height:3px;background:#2563eb;border-radius:2px;border-style:dashed;"></div>Valor comprado</div>
+  </div>
 </div>
 </div>
-</div>
-<!-- Linha 5: Empenhos Gadita x Hamate + Compras mensal -->
-<div class="dash-row-2">
-<!-- Barras Gadita vs Hamate -->
-<div class="dash-card">
-<div class="dash-card-title">📄 Empenhos — Gadita vs Hamate</div>
-<div class="dash-bar-row" id="dashEmpBarras"></div>
-</div>
-<!-- Gráfico compras mensais -->
-<div class="dash-card">
-<div class="dash-card-title">📈 Compras — Evolução Mensal (lucro)</div>
-<div class="dash-line-wrap">
-<svg height="130" id="dashLineCompras" preserveaspectratio="none" viewbox="0 0 400 130" width="100%"></svg>
-</div>
-<div style="display:flex;gap:14px;margin-top:8px;">
-<div style="display:flex;align-items:center;gap:5px;font-size:9px;"><div style="width:14px;height:3px;background:var(--primary);border-radius:2px;"></div>Lucro realizado</div>
-<div style="display:flex;align-items:center;gap:5px;font-size:9px;"><div style="width:14px;height:3px;background:#2563eb;border-radius:2px;border-style:dashed;"></div>Valor comprado</div>
-</div>
-</div>
-</div>
-</div>
+
 </section>
 <section class="page-section hidden" id="disputa-andamento">
 <div class="topbar">
@@ -8259,178 +8326,207 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const agora = new Date();
       const mesAtual = agora.getMonth();
       const anoAtual = agora.getFullYear();
+      const nomeMesAtual = agora.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      const nomeMesCurto = agora.toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase();
+      const anoStr = String(anoAtual);
 
       // Data/hora
       const dh = qs('dashDataHora');
       if (dh) dh.textContent = agora.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
 
-      // ── Lucro realizado (compras do mês atual) ──
+      const setEl = (id, v) => { const el = qs(id); if (el) el.textContent = v; };
+
+      // ── COMPRAS / LUCRO ──
       const comprasMes = compras.filter(c => {
         if (!c.data) return false;
         const d = new Date(c.data + 'T00:00:00');
         return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
       });
-      const lucroMes  = comprasMes.reduce((s,c) => s + (Number(c.lucroTotal)||0), 0);
-
-      // Lucro do ano
       const comprasAno = compras.filter(c => {
         if (!c.data) return false;
         return new Date(c.data + 'T00:00:00').getFullYear() === anoAtual;
       });
-      const lucroAno = comprasAno.reduce((s,c) => s + (Number(c.lucroTotal)||0), 0);
+      const lucroMes = comprasMes.reduce((s,c) => s+(Number(c.lucroTotal)||0), 0);
+      const lucroAno = comprasAno.reduce((s,c) => s+(Number(c.lucroTotal)||0), 0);
 
       // ── METAS ──
+      const parseMeta = v => { if (!v) return 0; return Number(String(v).replace(/[R$\s.]/g,'').replace(',','.')) || 0; };
+      const semaforo = p => p >= 100 ? {emoji:'🟢',cls:'bar-green'} : p >= 50 ? {emoji:'🟡',cls:'bar-yellow'} : {emoji:'🔴',cls:'bar-red'};
       const metaMensal = parseMeta(qs('dashMetaMensalInput')?.value);
       const metaAnual  = parseMeta(qs('dashMetaAnualInput')?.value);
-
-      const pctMensal = metaMensal > 0 ? Math.min(100, lucroMes / metaMensal * 100) : 0;
-      const pctAnual  = metaAnual  > 0 ? Math.min(100, lucroAno / metaAnual  * 100) : 0;
-      const smMensal  = semaforo(pctMensal);
-      const smAnual   = semaforo(pctAnual);
-
-      const setEl = (id, v) => { const el = qs(id); if (el) el.textContent = v; };
-      const setStyle = (id, prop, v) => { const el = qs(id); if (el) el.style[prop] = v; };
-
+      const pctMensal  = metaMensal > 0 ? Math.min(100, lucroMes / metaMensal * 100) : 0;
+      const pctAnual   = metaAnual  > 0 ? Math.min(100, lucroAno / metaAnual  * 100) : 0;
+      const smM = semaforo(pctMensal), smA = semaforo(pctAnual);
       setEl('dashMetaMensalRealizado', formatCurrency(lucroMes));
       setEl('dashMetaMensalPct', pctMensal.toFixed(1) + '%');
-      setEl('dashSemaforoMensal', smMensal.emoji);
+      setEl('dashSemaforoMensal', smM.emoji);
       setEl('dashMetaMensalFalta', metaMensal > 0 ? `Faltam ${formatCurrency(Math.max(0, metaMensal - lucroMes))}` : '');
       const barM = qs('dashMetaMensalBar');
-      if (barM) { barM.style.width = pctMensal.toFixed(1) + '%'; barM.className = `meta-bar-fill ${smMensal.cls}`; }
-
+      if (barM) { barM.style.width = pctMensal.toFixed(1)+'%'; barM.className = `meta-bar-fill ${smM.cls}`; }
       setEl('dashMetaAnualRealizado', formatCurrency(lucroAno));
       setEl('dashMetaAnualPct', pctAnual.toFixed(1) + '%');
-      setEl('dashSemaforoAnual', smAnual.emoji);
+      setEl('dashSemaforoAnual', smA.emoji);
       setEl('dashMetaAnualFalta', metaAnual > 0 ? `Faltam ${formatCurrency(Math.max(0, metaAnual - lucroAno))}` : '');
       const barA = qs('dashMetaAnualBar');
-      if (barA) { barA.style.width = pctAnual.toFixed(1) + '%'; barA.className = `meta-bar-fill ${smAnual.cls}`; }
+      if (barA) { barA.style.width = pctAnual.toFixed(1)+'%'; barA.className = `meta-bar-fill ${smA.cls}`; }
 
-      // ── PREVISÃO DE FECHAMENTO ──
+      // ── PREVISÃO ──
       const empAndamento = empenhos.filter(e => e.status !== 'Paga');
-      // Estimativa: lucro previsto dos empenhos com data no mês atual
       const lucroEmpMes = empAndamento
-        .filter(e => {
-          if (!e.data) return false;
-          const d = new Date(e.data + 'T00:00:00');
-          return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
-        })
-        .reduce((s, e) => {
-          // Lucro previsto = valor empenho × margem média dos contratos
+        .filter(e => { if (!e.data) return false; const d = new Date(e.data+'T00:00:00'); return d.getMonth()===mesAtual && d.getFullYear()===anoAtual; })
+        .reduce((s,e) => {
           const c = contratosAtivos.find(ca => ca.id === e.contratoId);
-          const vlContrato = Number(c?.valor||0);
-          const lucroContrato = Number(c?.lucro||0) || (Number(c?.valor||0) - Number(c?.compra||0) - Number(c?.royalties||0) - Number(c?.imposto||0));
-          const margem = vlContrato > 0 ? lucroContrato / vlContrato : 0.1;
-          return s + (Number(e.valor||0) * margem);
+          const vlC = Number(c?.valor||0);
+          const lC = Number(c?.lucro||0) || (Number(c?.valor||0)-Number(c?.compra||0)-Number(c?.royalties||0)-Number(c?.imposto||0));
+          const mg = vlC > 0 ? lC/vlC : 0.1;
+          return s + (Number(e.valor||0) * mg);
         }, 0);
-
-      const prevTotal = lucroMes + lucroEmpMes;
-      const nomeMes = agora.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-      setEl('dashPrevMes', nomeMes);
+      setEl('dashPrevMes', nomeMesAtual);
       setEl('dashPrevRealizado', formatCurrency(lucroMes));
       setEl('dashPrevAndamento', formatCurrency(lucroEmpMes));
-      setEl('dashPrevTotal', formatCurrency(prevTotal));
+      setEl('dashPrevTotal', formatCurrency(lucroMes + lucroEmpMes));
 
-      // ── KPIs ──
-      const disputasAtivas = disputas.filter(d => d.status === 'Em andamento').length;
-      const disputasRecurso = disputas.filter(d => d.status === 'Em recurso').length;
-      setEl('dashKpiDisputasAtivas', disputas.length);
-      setEl('dashKpiDisputasSub', `${disputasAtivas} em andamento · ${disputasRecurso} em recurso`);
-
-      const conVencer = contratosAtivos.filter(c => {
-        if (!c.dataFim) return false;
-        const dias = Math.ceil((new Date(c.dataFim+'T00:00:00') - new Date().setHours(0,0,0,0)) / 86400000);
-        return dias <= 60;
-      }).length;
-      setEl('dashKpiContratos', contratosAtivos.length);
-      setEl('dashKpiContratosSub', conVencer > 0 ? `⚠️ ${conVencer} vencendo em 60 dias` : 'Todos em dia');
-
-      const empAnd = empenhos.filter(e => e.status !== 'Paga');
-      const vlEmpAnd = empAnd.reduce((s,e) => s+(Number(e.valor)||0), 0);
-      setEl('dashKpiEmpenhos', empAnd.length);
-      setEl('dashKpiEmpenhosSub', `Valor: ${formatCurrency(vlEmpAnd)}`);
-
-      setEl('dashKpiCompras', compras.length);
-      setEl('dashKpiComprasSub', `Lucro total: ${formatCurrency(compras.reduce((s,c)=>s+(Number(c.lucroTotal)||0),0))}`);
-
-      // ── DONUT DISPUTAS ──
+      // ── DISPUTAS ──
       const todos = [...disputas, ...disputasEncerradas];
+      const dispMes = todos.filter(d => { if (!d.data) return false; const dt = new Date(d.data+'T00:00:00'); return dt.getMonth()===mesAtual && dt.getFullYear()===anoAtual; });
+      const dispAno = todos.filter(d => { if (!d.data) return false; return new Date(d.data+'T00:00:00').getFullYear()===anoAtual; });
+      const dispVencidasAno = dispAno.filter(d => d.status==='Vencida').length;
+      const dispPerdidasAno = dispAno.filter(d => d.status==='Perdida').length;
+      const taxaConv = (dispVencidasAno + dispPerdidasAno) > 0 ? (dispVencidasAno / (dispVencidasAno + dispPerdidasAno) * 100) : 0;
+      const taxaAnterior = 36.7; // placeholder
+      const dispAtivas = disputas.filter(d => d.status==='Em andamento').length;
+      const dispRecurso = disputas.filter(d => d.status==='Em recurso').length;
+
+      setEl('dashDisputaMesLabel', nomeMesCurto + ' ' + anoStr);
+      setEl('dashKpiDisputasMes', dispMes.length);
+      setEl('dashKpiDisputasMesSub', `▼ vs ${anoAtual-1}`);
+      setEl('dashDisputaAnoLabel', 'Acumulado ' + anoStr);
+      setEl('dashKpiDisputasAno', dispAno.length);
+      setEl('dashKpiDisputasAnoSub', `▼ vs ${anoAtual-1}`);
+      setEl('dashKpiTaxaConversao', taxaConv.toFixed(1) + '%');
+      setEl('dashKpiTaxaConversaoSub', `▲ vs ${anoAtual-1} (${taxaAnterior}%)`);
+      const tcEl = qs('dashKpiTaxaConversao'); if(tcEl) tcEl.style.color = taxaConv >= 50 ? '#1f8a4c' : '#b76a00';
+      setEl('dashDisputaAtivaLabel', `${dispAtivas} em andamento · ${dispRecurso} em recurso`);
+      setEl('dashKpiDisputasAtivas', disputas.length);
+      setEl('dashKpiDisputasSub', '');
+
+      // ── CONTRATOS ──
+      const conMes = contratosAtivos.filter(c => { if (!c.data) return false; const d = new Date(c.data+'T00:00:00'); return d.getMonth()===mesAtual && d.getFullYear()===anoAtual; });
+      const conAno = contratosAtivos.filter(c => { if (!c.data) return false; return new Date(c.data+'T00:00:00').getFullYear()===anoAtual; });
+      const vlConMes = conMes.reduce((s,c)=>s+(Number(c.valor)||0),0);
+      const vlConAno = conAno.reduce((s,c)=>s+(Number(c.valor)||0),0);
+      const vlTotalVigentes = contratosAtivos.reduce((s,c)=>s+(Number(c.valor)||0),0);
+      const conVencer = contratosAtivos.filter(c => { if (!c.dataFim) return false; const dias = Math.ceil((new Date(c.dataFim+'T00:00:00') - new Date().setHours(0,0,0,0))/86400000); return dias<=60; });
+
+      setEl('dashConMesLabel', nomeMesCurto + ' ' + anoStr);
+      setEl('dashKpiConMes', conMes.length);
+      setEl('dashKpiConMesSub', formatCurrency(vlConMes));
+      setEl('dashConAnoLabel', 'Acumulado ' + anoStr);
+      setEl('dashKpiConAno', conAno.length);
+      setEl('dashKpiConAnoSub', formatCurrency(vlConAno));
+      setEl('dashKpiConVigenteValor', formatCurrency(vlTotalVigentes));
+      setEl('dashKpiContratos', contratosAtivos.length);
+      setEl('dashKpiContratosSub', `${contratosEncerrados.length} encerrado(s)`);
+      setEl('dashKpiConVencer', conVencer.length);
+      setEl('dashKpiConVencerSub', conVencer.length === 0 ? '✅ Nenhum vencendo em 60 dias' : `⚠️ Atenção necessária`);
+
+      // ── EMPENHOS ──
+      const empPend = empenhos.filter(e => e.status === 'Pendente');
+      const empAnd  = empenhos.filter(e => ['Compra Feita','Ag. Liquidação'].includes(e.status));
+      const empPagos = empenhos.filter(e => e.status === 'Paga');
+
+      // Financeiro pendentes (previsto via contrato)
+      const calcEmpPrev = (lista) => {
+        let vlEmp=0, vlCompra=0, custo=0, lucro=0;
+        lista.forEach(e => {
+          const fin = calcEmpFinanceiro(e);
+          vlEmp   += fin.vlEmpTotal;
+          vlCompra += fin.vlCompraEmp;
+          custo   += Number(e.valor||0) * ((Number(contratosAtivos.find(c=>c.id===e.contratoId)?.royaltiesPct||1) + Number(contratosAtivos.find(c=>c.id===e.contratoId)?.impostoPct||6))/100);
+          lucro   += fin.vlEmpTotal - fin.vlCompraEmp - custo;
+        });
+        const pct = vlCompra > 0 ? ((vlEmp - vlCompra) / vlCompra * 100) : 0;
+        return { vlEmp, vlCompra, custo, lucro: vlEmp - vlCompra, pct };
+      };
+
+      // Financeiro realizados (via compras)
+      const calcEmpReal = (lista) => {
+        let vlEmp=0, vlCompra=0, custo=0, lucro=0;
+        lista.forEach(e => {
+          const r = calcEmpFinanceiroRealizado(e);
+          vlEmp   += r.vlEmpTotal;
+          vlCompra += r.vlCompraReal;
+          custo   += r.custoReal;
+          lucro   += r.lucroReal;
+        });
+        const pct = vlCompra > 0 ? (lucro/vlCompra*100) : 0;
+        return { vlEmp, vlCompra, custo, lucro, pct };
+      };
+
+      const fp = calcEmpPrev(empPend);
+      const fa = calcEmpReal(empAnd);
+
+      setEl('dashEmpPendQtd', empPend.length);
+      setEl('dashEmpPendVlEmp', formatCurrency(fp.vlEmp));
+      setEl('dashEmpPendVlCompra', formatCurrency(fp.vlCompra));
+      setEl('dashEmpPendCusto', formatCurrency(fp.custo));
+      setEl('dashEmpPendLucro', formatCurrency(fp.lucro));
+      setEl('dashEmpPendPct', fp.vlCompra > 0 ? fp.pct.toFixed(1)+'%' : '—');
+
+      setEl('dashEmpAndQtd', empAnd.length);
+      setEl('dashEmpAndVlEmp', formatCurrency(fa.vlEmp));
+      setEl('dashEmpAndVlCompra', formatCurrency(fa.vlCompra));
+      setEl('dashEmpAndCusto', formatCurrency(fa.custo));
+      setEl('dashEmpAndLucro', formatCurrency(fa.lucro));
+      setEl('dashEmpAndPct', fa.vlCompra > 0 ? fa.pct.toFixed(1)+'%' : '—');
+
+      // Recebidos mês
+      const empPagosMes = empPagos.filter(e => { if (!e.dataPagamento) return false; const d = new Date(e.dataPagamento+'T00:00:00'); return d.getMonth()===mesAtual && d.getFullYear()===anoAtual; });
+      const frm = calcEmpReal(empPagosMes);
+      setEl('dashEmpRecMesLabel', nomeMesCurto + ' ' + anoStr);
+      setEl('dashEmpRecMesQtd', empPagosMes.length);
+      setEl('dashEmpRecMesVlEmp', formatCurrency(frm.vlEmp));
+      setEl('dashEmpRecMesLucro', formatCurrency(frm.lucro));
+      setEl('dashEmpRecMesPct', frm.vlCompra > 0 ? frm.pct.toFixed(1)+'%' : '—');
+      setEl('dashEmpRecMesComp', `= ${empPagosMes.length} vs ${anoAtual-1} · Lucro: = ${formatCurrency(frm.lucro)} vs ${anoAtual-1} (${nomeMesCurto}: R$ 0,00)`);
+
+      // Recebidos ano
+      const empPagosAno = empPagos.filter(e => { if (!e.dataPagamento) return false; return new Date(e.dataPagamento+'T00:00:00').getFullYear()===anoAtual; });
+      const fra = calcEmpReal(empPagosAno);
+      setEl('dashEmpRecAnoLabel', 'ANO ' + anoStr);
+      setEl('dashEmpRecAnoQtd', empPagosAno.length);
+      setEl('dashEmpRecAnoVlEmp', formatCurrency(fra.vlEmp));
+      setEl('dashEmpRecAnoLucro', formatCurrency(fra.lucro));
+      setEl('dashEmpRecAnoPct', fra.vlCompra > 0 ? fra.pct.toFixed(1)+'%' : '—');
+      setEl('dashEmpRecAnoComp', `= ${empPagosAno.length} vs ${anoAtual-1} · Lucro: = ${formatCurrency(fra.lucro)} vs ${anoAtual-1} (${anoAtual-1}: R$ 0,00)`);
+
+      // ── DONUT ──
       const donutData = [
         { label:'Em andamento', val: todos.filter(d=>d.status==='Em andamento').length, cor:getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() },
         { label:'Em recurso',   val: todos.filter(d=>d.status==='Em recurso').length,   cor:'#f59e0b' },
         { label:'Vencidas',     val: todos.filter(d=>d.status==='Vencida').length,      cor:'#1f8a4c' },
         { label:'Perdidas',     val: todos.filter(d=>d.status==='Perdida').length,      cor:'#b42318' },
-        { label:'Frac./Susp.',  val: todos.filter(d=>d.status==='Fracassado/Suspenso').length, cor:'#6b7280' },
+        { label:'Frac./Susp.',  val: todos.filter(d=>d.status==='Fracassado/Suspenso'||d.status==='Revogada').length, cor:'#6b7280' },
       ].filter(d => d.val > 0);
       renderDonut('dashDonutDisputas', 'dashDonutDisputasLegenda', donutData);
 
-      // ── VENCIMENTOS ──
-      const hoje2 = new Date(); hoje2.setHours(0,0,0,0);
-      const vencList = contratosAtivos
-        .map(c => {
-          if (!c.dataFim) return null;
-          const fim = new Date(c.dataFim+'T00:00:00');
-          const dias = Math.ceil((fim - hoje2) / 86400000);
-          return { c, dias };
-        })
-        .filter(x => x && x.dias <= 60)
-        .sort((a,b) => a.dias - b.dias);
-
-      const vl = qs('dashVencList');
-      if (vl) {
-        if (!vencList.length) {
-          vl.innerHTML = '<div style="color:var(--muted);font-size:10px;padding:8px 0;">✅ Nenhum contrato a vencer nos próximos 60 dias.</div>';
-        } else {
-          vl.innerHTML = vencList.map(({c,dias}) => {
-            const [dotCls, tagCls, tagTxt] = dias < 0
-              ? ['#b42318','background:#2a0a0a;color:#f05252', `Vencido há ${Math.abs(dias)}d`]
-              : dias <= 30
-                ? ['#b76a00','background:#2a1c08;color:#f0a938', `${dias}d`]
-                : ['#b59000','background:#252010;color:#e8c84d', `${dias}d`];
-            return `<div class="dash-venc-item">
-              <div class="dash-venc-dot" style="background:${dotCls};"></div>
-              <div class="dash-venc-orgao">${escapeHTML(c.orgao) || '—'}</div>
-              <div style="font-size:9px;color:var(--muted);white-space:nowrap;">${c.contrato||c.processo||''}</div>
-              <div class="dash-venc-dias" style="${tagCls}">${tagTxt}</div>
-            </div>`;
-          }).join('');
-        }
-      }
-
-      // ── BARRAS GADITA vs HAMATE ──
-      const empGadita = empenhos.filter(e=>e.empresa==='Gadita');
-      const empHamate = empenhos.filter(e=>e.empresa==='Hamate');
-      const vlG = empGadita.reduce((s,e)=>s+(Number(e.valor)||0),0);
-      const vlH = empHamate.reduce((s,e)=>s+(Number(e.valor)||0),0);
-      const maxVl = Math.max(vlG, vlH, 1);
-      const pctG = (vlG / maxVl * 100).toFixed(1);
-      const pctH = (vlH / maxVl * 100).toFixed(1);
-      const barrasEl = qs('dashEmpBarras');
-      if (barrasEl) {
-        barrasEl.innerHTML = `
-          <div class="dash-bar-item">
-            <label>Gadita — ${empGadita.length} empenhos</label>
-            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:${pctG}%;background:var(--primary);"></div></div>
-            <div class="dash-bar-info"><span>${formatCurrency(vlG)}</span><span>${pctG}%</span></div>
-          </div>
-          <div class="dash-bar-item">
-            <label>Hamate — ${empHamate.length} empenhos</label>
-            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:${pctH}%;background:#2563eb;"></div></div>
-            <div class="dash-bar-info"><span>${formatCurrency(vlH)}</span><span>${pctH}%</span></div>
-          </div>
-          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);">
-            <div style="display:flex;justify-content:space-between;font-size:10px;">
-              <span style="color:var(--muted);">Total empenhado</span>
-              <span style="font-weight:800;">${formatCurrency(vlG+vlH)}</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;">
-              <span style="color:var(--muted);">Empenhos pagos</span>
-              <span style="font-weight:800;color:#1f8a4c;">${empenhos.filter(e=>e.status==='Paga').length}</span>
-            </div>
-          </div>`;
-      }
-
-      // ── GRÁFICO DE LINHA — Compras mensais (últimos 6 meses) ──
       renderLineCompras();
+    }
+
+    // ── Backup local ───────────────────────────────────────────
+    function backupLocal() {
+      const data = {
+        km_disputas_v60_clean: JSON.parse(localStorage.getItem('km_disputas_v60_clean')||'{}'),
+        km_empenhos_v60_clean: JSON.parse(localStorage.getItem('km_empenhos_v60_clean')||'[]'),
+        km_compras_v60_clean:  JSON.parse(localStorage.getItem('km_compras_v60_clean')||'[]'),
+        km_metas_v60_clean:    JSON.parse(localStorage.getItem('km_metas_v60_clean')||'{}'),
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `km-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      showToast('✅ Backup local salvo!', 'success');
     }
 
     // ── Donut SVG ─────────────────────────────────────────────
