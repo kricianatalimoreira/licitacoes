@@ -9878,6 +9878,9 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         vl_unit_compra: Number(c.vlUnitCompra)||0,
         vl_total_compra: Number(c.vlTotalCompra)||0,
         vl_unit_emp: Number(c.vlUnitEmp)||0, obs: c.obs||null,
+        imposto_total: Number(c.impostoTotal)||0,
+        royalt_total: Number(c.royaltTotal)||0,
+        lucro_total: Number(c.lucroTotal)||0,
       };
     }
 
@@ -9914,7 +9917,11 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         data:r.data, fornecedor:r.fornecedor, nf:r.nf,
         vlUnitCompra:Number(r.vl_unit_compra)||0,
         vlTotalCompra:Number(r.vl_total_compra)||0,
-        vlUnitEmp:Number(r.vl_unit_emp)||0, obs:r.obs };
+        vlUnitEmp:Number(r.vl_unit_emp)||0, obs:r.obs,
+        impostoTotal:Number(r.imposto_total)||0,
+        royaltTotal:Number(r.royalt_total)||0,
+        lucroTotal:Number(r.lucro_total)||0,
+      };
     }
 
     // ══════════════════════════════════════════════════════════
