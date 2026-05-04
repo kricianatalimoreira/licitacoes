@@ -6586,7 +6586,11 @@
       }
       const pctLucroEl = qs('empAndStatPctLucro');
       if (pctLucroEl) {
-        const _pct = _empAndCompraTotal > 0 ? (_empAndLucroTotal / _empAndCompraTotal) * 100 : 0;
+        const _pctValues = andamento.map(e => {
+          const { vlCompraReal, lucroReal } = calcEmpFinanceiroRealizado(e);
+          return vlCompraReal > 0 ? (lucroReal / vlCompraReal) * 100 : 0;
+        });
+        const _pct = _pctValues.length > 0 ? _pctValues.reduce((s, v) => s + v, 0) / _pctValues.length : 0;
         pctLucroEl.textContent = _pct.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
         pctLucroEl.style.color = _pct >= 0 ? '#a3e635' : '#f05252';
       }
@@ -6835,7 +6839,11 @@
         _lucroTotal  += lucroReal;
         _vlEmpTotal  += vlEmpTotal;
       });
-      const _pctTotal = _vlEmpTotal > 0 ? (_lucroTotal / _vlEmpTotal * 100) : 0;
+      const _pctValues2 = pagos.map(e => {
+        const { vlCompraReal, lucroReal } = calcEmpFinanceiroRealizado(e);
+        return vlCompraReal > 0 ? (lucroReal / vlCompraReal) * 100 : 0;
+      });
+      const _pctTotal = _pctValues2.length > 0 ? _pctValues2.reduce((s, v) => s + v, 0) / _pctValues2.length : 0;
       qs('empEncStatTotal').textContent  = pagos.length;
       qs('empEncStatValor').textContent  = formatCurrency(pagos.reduce((s,e) => s+(Number(e.valor)||0), 0));
       if (qs('empEncStatCompra')) qs('empEncStatCompra').textContent = formatCurrency(_compraTotal);
