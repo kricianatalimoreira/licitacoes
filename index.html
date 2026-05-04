@@ -6564,10 +6564,10 @@
       });
 
       // KPIs (baseados em todos os em andamento, sem filtro)
-      qs('empAndStatTotal').textContent     = andamento.length;
-      qs('empAndStatAberto').textContent    = andamento.filter(e => e.status === 'Compra Feita').length;
+      if (qs('empAndStatTotal'))     qs('empAndStatTotal').textContent     = andamento.length;
+      if (qs('empAndStatAberto'))    qs('empAndStatAberto').textContent    = andamento.filter(e => e.status === 'Compra Feita').length;
       // empAndStatEntregue removido (Pendentes agora em seção própria)
-      qs('empAndStatLiquidacao').textContent= andamento.filter(e => e.status === 'Ag. Liquidação').length;
+      if (qs('empAndStatLiquidacao')) qs('empAndStatLiquidacao').textContent = andamento.filter(e => e.status === 'Ag. Liquidação').length;
       qs('empAndStatValor').textContent     = formatCurrency(andamento.reduce((s,e) => s+(Number(e.valor)||0), 0));
       // KPI valores financeiros — calculados com base nas COMPRAS REALIZADAS de cada empenho
       let _empAndCompraTotal = 0, _empAndCustoTotal = 0, _empAndLucroTotal = 0;
