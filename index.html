@@ -874,7 +874,7 @@
       width: 18px; height: 18px;
       border-radius: 5px;
       border: 1px solid var(--line);
-      background: transparent;
+      background: var(--card);
       color: var(--muted);
       cursor: pointer;
       font-size: 11px;
@@ -887,7 +887,8 @@
     }
     .sort-col-btn:hover { background: var(--primary-soft); color: var(--primary); border-color: var(--primary-border); }
     .sort-col-btn.sort-active { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); }
-    :root[data-mode="light"] .sort-col-btn { border-color: #d0d5e8; color: #8892a4; }
+    :root[data-mode="light"] .sort-col-btn { background: #eef1fb; border-color: #c8cee8; color: var(--primary); }
+    :root[data-mode="light"] .sort-col-btn:hover { background: var(--primary-soft); }
     :root[data-mode="light"] .sort-col-btn.sort-active { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); }
     /* Popover de ordenação com mês/ano */
     .sort-month-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:4px; }
