@@ -7078,6 +7078,7 @@
         if (fMes     && (e.data||'').slice(5,7) !== fMes.padStart(2,'0'))    return false;
         if (fAno     && (e.data||'').slice(0,4) !== fAno)                    return false;
         return true;
+      });
       let _compraTotal = 0, _custoTotal = 0, _lucroTotal = 0, _vlEmpTotal = 0;
       pagos.forEach(e => {
         const { vlCompraReal, custoReal, lucroReal, vlEmpTotal } = calcEmpFinanceiroRealizado(e);
