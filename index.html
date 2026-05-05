@@ -2646,7 +2646,7 @@
 </div>
 <nav class="menu">
 <!-- Dashboard -->
-<button class="menu-parent is-active" id="menuDashboard" onclick="showSection('dashboard', this); document.querySelectorAll('.menu-parent').forEach(b=&gt;b.classList.remove('is-active')); this.classList.add('is-active'); renderDashboard();" style="margin-bottom:4px;">
+<button class="menu-parent is-active" id="menuDashboard" onclick="showSection('dashboard', this)" style="margin-bottom:4px;">
 <span class="menu-parent-main">
 <span class="menu-icon">🏠</span>
 <span class="menu-label">Dashboard</span>
@@ -2699,15 +2699,15 @@
 <span class="menu-parent-caret">⌃</span>
 </button>
 <div class="menu-children">
-<button class="menu-child" data-section-target="empenhos-pendentes" onclick="showSection('empenhos-pendentes', this);renderEmpPendentes()">
+<button class="menu-child" data-section-target="empenhos-pendentes" onclick="showSection('empenhos-pendentes', this)">
 <span class="menu-child-dot"></span>
 <span class="menu-label">Pendentes</span>
 </button>
-<button class="menu-child" data-section-target="empenhos-andamento" onclick="showSection('empenhos-andamento', this);renderEmpAndamento()">
+<button class="menu-child" data-section-target="empenhos-andamento" onclick="showSection('empenhos-andamento', this)">
 <span class="menu-child-dot"></span>
 <span class="menu-label">Em andamento</span>
 </button>
-<button class="menu-child" data-section-target="empenhos-encerrados" onclick="showSection('empenhos-encerrados', this);renderEmpEncerrados()">
+<button class="menu-child" data-section-target="empenhos-encerrados" onclick="showSection('empenhos-encerrados', this)">
 <span class="menu-child-dot"></span>
 <span class="menu-label">Pagos</span>
 </button>
@@ -2722,7 +2722,7 @@
 <span class="menu-parent-caret">⌃</span>
 </button>
 <div class="menu-children">
-<button class="menu-child" data-section-target="compras-lista" onclick="showSection('compras-lista', this);renderCompras()">
+<button class="menu-child" data-section-target="compras-lista" onclick="showSection('compras-lista', this)">
 <span class="menu-child-dot"></span>
 <span class="menu-label">Todas as Compras</span>
 </button>
@@ -4189,14 +4189,29 @@
       if (group) group.classList.toggle('is-open');
     }
 
+    // Render hooks por seção — evita lógica inline nos onclick
+    const _sectionRenders = {
+      'dashboard':           () => { if (typeof renderDashboard       === 'function') renderDashboard(); },
+      'empenhos-pendentes':  () => { if (typeof renderEmpPendentes    === 'function') renderEmpPendentes(); },
+      'empenhos-andamento':  () => { if (typeof renderEmpAndamento    === 'function') renderEmpAndamento(); },
+      'empenhos-encerrados': () => { if (typeof renderEmpEncerrados   === 'function') renderEmpEncerrados(); },
+      'compras-lista':       () => { if (typeof renderCompras         === 'function') renderCompras(); },
+    };
+
     function showSection(sectionId, btn) {
       document.querySelectorAll('.page-section').forEach(section => section.classList.add('hidden'));
       const target = qs(sectionId);
       if (target) target.classList.remove('hidden');
       document.querySelectorAll('.menu-child').forEach(item => item.classList.remove('active'));
       if (btn) btn.classList.add('active');
+      // Destaque no menu-parent do botão ativo
+      document.querySelectorAll('.menu-parent').forEach(b => b.classList.remove('is-active'));
+      const parent = btn?.closest?.('.menu-group')?.previousElementSibling;
+      if (parent?.classList?.contains('menu-parent')) parent.classList.add('is-active');
       closeAllMenus();
       closeAllPopovers();
+      // Executa render específico da seção, se houver
+      _sectionRenders[sectionId]?.();
     }
 
     /* ── XSS protection ── */
