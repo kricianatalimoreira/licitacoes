@@ -9950,16 +9950,46 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
     function mapCompra(c) {
       return {
-        id: c.id, empenho_id: c.empenhoId||null, contrato_id: c.contratoId||null,
-        item_id: c.itemId||null, descricao: c.descricao||null,
-        qtd_compra: Number(c.qtdCompra)||1, data: c.data||null,
-        fornecedor: c.fornecedor||null, nf: c.nf||null,
-        vl_unit_compra: Number(c.vlUnitCompra)||0,
-        vl_total_compra: Number(c.vlTotalCompra)||0,
-        vl_unit_emp: Number(c.vlUnitEmp)||0, obs: c.obs||null,
-        imposto_total: Number(c.impostoTotal)||0,
-        royalt_total: Number(c.royaltTotal)||0,
-        lucro_total: Number(c.lucroTotal)||0,
+        // Chaves / referências
+        id:              c.id,
+        empenho_id:      c.empenhoId      || null,
+        contrato_id:     c.contratoId     || null,
+        item_id:         c.itemId         || null,
+        tipo_compra:     c.tipoCompra     || null,   // 'geral' ou null
+
+        // Dados denormalizados do empenho (evita joins para exibição)
+        empenho_numero:  c.empenhoNumero  || null,
+        orgao:           c.orgao          || null,
+        empresa:         c.empresa        || null,
+
+        // Descrição e quantidades
+        descricao:       c.descricao      || null,
+        qtd_emp:         Number(c.qtdEmp)         || 0,
+        qtd_compra:      Number(c.qtdCompra)       || 1,
+
+        // Valores do empenho
+        vl_unit_emp:     Number(c.vlUnitEmp)       || 0,
+        vl_total_emp:    Number(c.vlTotalEmp)       || 0,
+
+        // Valores da compra
+        data:            c.data           || null,
+        fornecedor:      c.fornecedor     || null,
+        nf:              c.nf             || null,
+        obs:             c.obs            || null,
+        link_compra:     c.linkCompra     || null,
+        pagamento:       c.pagamento      || null,
+        parcelas:        c.parcelas       ? Number(c.parcelas) : null,
+        vl_unit_compra:  Number(c.vlUnitCompra)    || 0,
+        vl_total_compra: Number(c.vlTotalCompra)   || 0,
+
+        // Custos unitários e totais
+        imposto_unit:    Number(c.impostoUnit)      || 0,
+        imposto_total:   Number(c.impostoTotal)     || 0,
+        royalt_unit:     Number(c.royaltUnit)       || 0,
+        royalt_total:    Number(c.royaltTotal)      || 0,
+        lucro_unit:      Number(c.lucroUnit)        || 0,
+        lucro_total:     Number(c.lucroTotal)       || 0,
+        pct_lucro:       c.pctLucro       || null,
       };
     }
 
@@ -9991,15 +10021,47 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         obs:r.obs, itensEmpenhados:r.itens_empenhados||[] };
     }
     function fromDbCompra(r) {
-      return { id:r.id, empenhoId:r.empenho_id, contratoId:r.contrato_id,
-        itemId:r.item_id, descricao:r.descricao, qtdCompra:Number(r.qtd_compra)||1,
-        data:r.data, fornecedor:r.fornecedor, nf:r.nf,
-        vlUnitCompra:Number(r.vl_unit_compra)||0,
-        vlTotalCompra:Number(r.vl_total_compra)||0,
-        vlUnitEmp:Number(r.vl_unit_emp)||0, obs:r.obs,
-        impostoTotal:Number(r.imposto_total)||0,
-        royaltTotal:Number(r.royalt_total)||0,
-        lucroTotal:Number(r.lucro_total)||0,
+      return {
+        // Chaves / referências
+        id:             r.id,
+        empenhoId:      r.empenho_id,
+        contratoId:     r.contrato_id,
+        itemId:         r.item_id,
+        tipoCompra:     r.tipo_compra     || null,
+
+        // Dados denormalizados do empenho
+        empenhoNumero:  r.empenho_numero  || '—',
+        orgao:          r.orgao           || '—',
+        empresa:        r.empresa         || '—',
+
+        // Descrição e quantidades
+        descricao:      r.descricao,
+        qtdEmp:         Number(r.qtd_emp)          || 0,
+        qtdCompra:      Number(r.qtd_compra)        || 1,
+
+        // Valores do empenho
+        vlUnitEmp:      Number(r.vl_unit_emp)       || 0,
+        vlTotalEmp:     Number(r.vl_total_emp)      || 0,
+
+        // Valores da compra
+        data:           r.data,
+        fornecedor:     r.fornecedor,
+        nf:             r.nf,
+        obs:            r.obs,
+        linkCompra:     r.link_compra     || '',
+        pagamento:      r.pagamento       || null,
+        parcelas:       r.parcelas        ? Number(r.parcelas) : null,
+        vlUnitCompra:   Number(r.vl_unit_compra)   || 0,
+        vlTotalCompra:  Number(r.vl_total_compra)  || 0,
+
+        // Custos unitários e totais
+        impostoUnit:    Number(r.imposto_unit)      || 0,
+        impostoTotal:   Number(r.imposto_total)     || 0,
+        royaltUnit:     Number(r.royalt_unit)       || 0,
+        royaltTotal:    Number(r.royalt_total)      || 0,
+        lucroUnit:      Number(r.lucro_unit)        || 0,
+        lucroTotal:     Number(r.lucro_total)       || 0,
+        pctLucro:       r.pct_lucro       || '0%',
       };
     }
 
