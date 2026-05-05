@@ -8935,6 +8935,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     function persist() {
       const obj = { disputas, disputasEncerradas, contratosAtivos, contratosEncerrados };
       localStorage.setItem('km_disputas_v60_clean', JSON.stringify(obj));
+      _tocarLocalTs();
       debounceSave('disputas', async () => {
         showSync('saving', '☁ salvando...');
         try {
@@ -8948,6 +8949,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     function persistAll() {
       const obj = { disputas, disputasEncerradas, contratosAtivos, contratosEncerrados };
       localStorage.setItem('km_disputas_v60_clean', JSON.stringify(obj));
+      _tocarLocalTs();
       debounceSave('contratos', async () => {
         showSync('saving', '☁ salvando...');
         try {
@@ -8962,6 +8964,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
     function persistEmpenhos() {
       localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(empenhos));
+      _tocarLocalTs();
       debounceSave('empenhos', async () => {
         showSync('saving', '☁ salvando...');
         try {
@@ -8973,6 +8976,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
     function persistCompras() {
       localStorage.setItem('km_compras_v60_clean', JSON.stringify(compras));
+      _tocarLocalTs();
       debounceSave('compras', async () => {
         showSync('saving', '☁ salvando...');
         try {
@@ -9078,6 +9082,24 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     // ══════════════════════════════════════════════════════════
     // SYNC FROM CLOUD (pull all tables)
     // ══════════════════════════════════════════════════════════
+
+    // Chave que guarda o timestamp da última vez que o LOCAL foi modificado.
+    // Atualizada em toda persist/persistAll/persistEmpenhos/persistCompras.
+    const LOCAL_TS_KEY = 'km_local_updated_at';
+
+    function _tocarLocalTs() {
+      localStorage.setItem(LOCAL_TS_KEY, new Date().toISOString());
+    }
+
+    // Retorna o timestamp mais recente de updated_at entre todas as linhas do banco.
+    function _cloudTs(rows) {
+      let max = null;
+      (rows || []).forEach(r => {
+        if (r.updated_at && (!max || r.updated_at > max)) max = r.updated_at;
+      });
+      return max; // string ISO ou null
+    }
+
     async function syncFromCloud() {
       showSync('saving', '☁ carregando...');
       try {
@@ -9094,12 +9116,31 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           ]);
 
         const cloudTotal = (rowsDisp?.length||0)+(rowsDispEnc?.length||0)+(rowsConA?.length||0);
+
+        // ── Banco vazio → sobe dados locais (primeira vez) ────
         if (cloudTotal === 0) {
-          // Banco vazio → sobe dados locais (primeira vez)
           await _persistAllImmediate();
+          _tocarLocalTs();
           showSync('ok', '✓ dados enviados ao banco');
           return true;
         }
+
+        // ── Comparar timestamps: local vs cloud ───────────────
+        const localTs = localStorage.getItem(LOCAL_TS_KEY);
+        const allRows = [...(rowsDisp||[]), ...(rowsDispEnc||[]), ...(rowsConA||[]),
+                         ...(rowsConE||[]), ...(rowsEmp||[]), ...(rowsComp||[])];
+        const cloudTs = _cloudTs(allRows);
+
+        // Local mais recente que cloud → sobe o local, não sobrescreve
+        if (localTs && cloudTs && localTs > cloudTs) {
+          console.info('[KM] syncFromCloud: local mais recente que cloud — subindo dados locais.', { localTs, cloudTs });
+          await _persistAllImmediate();
+          showSync('ok', '✓ dados locais enviados ao banco');
+          return true;
+        }
+
+        // Cloud mais recente (ou sem timestamp local) → baixa do banco
+        console.info('[KM] syncFromCloud: baixando dados do banco.', { localTs, cloudTs });
 
         disputas            = (rowsDisp   ||[]).map(fromDbDisputa);
         disputasEncerradas  = (rowsDispEnc||[]).map(fromDbDisputa);
@@ -9112,6 +9153,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         localStorage.setItem('km_disputas_v60_clean', JSON.stringify(dispObj));
         localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(empenhos));
         localStorage.setItem('km_compras_v60_clean',  JSON.stringify(compras));
+        // Atualiza o timestamp local para refletir o que veio do banco
+        if (cloudTs) localStorage.setItem(LOCAL_TS_KEY, cloudTs);
 
         if (rowsMeta&&rowsMeta[0]?.payload) {
           localStorage.setItem('km_metas_v60_clean', JSON.stringify(rowsMeta[0].payload));
