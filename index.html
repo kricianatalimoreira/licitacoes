@@ -4143,12 +4143,10 @@
     })();
     // ─────────────────────────────────────────────────────────────
 
-    const STORAGE_KEY = 'km_disputas_v60_clean';
+
     const UFS = ['', 'AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
 
-    const disputaDefault = [];
 
-    const encerradasDefault = [];
 
     let disputas = [];
     let disputasEncerradas = [];
@@ -4160,47 +4158,6 @@
       const select = qs(selectId);
       if (!select) return;
       select.innerHTML = UFS.map(uf => uf ? `<option>${uf}</option>` : `<option value="">Selecione</option>`).join('');
-    }
-
-    function loadData() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-
-      if (!raw) {
-        // Primeiro acesso — inicializa com defaults e persiste
-        disputas           = structuredClone(disputaDefault);
-        disputasEncerradas = structuredClone(encerradasDefault);
-        persist();
-        return;
-      }
-
-      let parsed;
-      try {
-        parsed = JSON.parse(raw);
-      } catch (e) {
-        console.error('[KM] loadData: JSON inv\u00e1lido no localStorage \u2014 restaurando defaults.', e);
-        disputas           = structuredClone(disputaDefault);
-        disputasEncerradas = structuredClone(encerradasDefault);
-        persist();
-        return;
-      }
-
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        console.warn('[KM] loadData: payload inesperado \u2014 restaurando defaults.', parsed);
-        disputas           = structuredClone(disputaDefault);
-        disputasEncerradas = structuredClone(encerradasDefault);
-        persist();
-        return;
-      }
-
-      disputas           = Array.isArray(parsed.disputas)           ? parsed.disputas           : structuredClone(disputaDefault);
-      disputasEncerradas = Array.isArray(parsed.disputasEncerradas) ? parsed.disputasEncerradas : structuredClone(encerradasDefault);
-
-      if (!Array.isArray(parsed.disputas))           console.warn('[KM] loadData: campo "disputas" ausente ou inv\u00e1lido \u2014 usando [].');
-      if (!Array.isArray(parsed.disputasEncerradas)) console.warn('[KM] loadData: campo "disputasEncerradas" ausente ou inv\u00e1lido \u2014 usando [].');
-    }
-
-    function persist() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ disputas, disputasEncerradas }));
     }
 
     function toggleSidebar() {
@@ -4977,7 +4934,6 @@
     //  CONTRATOS — novo schema
     // ════════════════════════════════════════════════════
 
-    const contratosAtivoDefault = [];
 
     // IDs fixos para contratos encerrados e seus itens — garantem cruzamento estável com empenhos
     const CE_IDS = {
@@ -5017,10 +4973,8 @@
       i7e:'it7e-0000-0000-0000-000000000005',i7f:'it7f-0000-0000-0000-000000000006',
     };
 
-    const contratosEncerradoDefault = [];
 
     // Empenhos simulados com IDs fixos — cruzam com contratoId fixo acima
-    const empenhosDefault = [];
 
     let contratosAtivos = [];
     let contratosEncerrados = [];
@@ -5059,49 +5013,6 @@
     function lucroHtml(lucro) {
       const cls = lucro >= 0 ? 'lucro-pos' : 'lucro-neg';
       return `<span class="${cls}">${formatCurrency(lucro)}</span>`;
-    }
-
-    // ── Storage ──────────────────────────────────────
-    function loadContratos() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-
-      if (!raw) {
-        contratosAtivos     = structuredClone(contratosAtivoDefault);
-        contratosEncerrados = structuredClone(contratosEncerradoDefault);
-        return;
-      }
-
-      let parsed;
-      try {
-        parsed = JSON.parse(raw);
-      } catch (e) {
-        console.error('[KM] loadContratos: JSON inválido — restaurando defaults.', e);
-        contratosAtivos     = structuredClone(contratosAtivoDefault);
-        contratosEncerrados = structuredClone(contratosEncerradoDefault);
-        return;
-      }
-
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        console.warn('[KM] loadContratos: payload inesperado — restaurando defaults.', parsed);
-        contratosAtivos     = structuredClone(contratosAtivoDefault);
-        contratosEncerrados = structuredClone(contratosEncerradoDefault);
-        return;
-      }
-
-      contratosAtivos     = Array.isArray(parsed.contratosAtivos)     ? parsed.contratosAtivos     : structuredClone(contratosAtivoDefault);
-      contratosEncerrados = Array.isArray(parsed.contratosEncerrados) ? parsed.contratosEncerrados : structuredClone(contratosEncerradoDefault);
-
-      if (!Array.isArray(parsed.contratosAtivos))     console.warn('[KM] loadContratos: "contratosAtivos" ausente ou inválido — usando [].');
-      if (!Array.isArray(parsed.contratosEncerrados)) console.warn('[KM] loadContratos: "contratosEncerrados" ausente ou inválido — usando [].');
-    }
-
-    function persistAll() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      let base = {};
-      try { base = JSON.parse(raw) || {}; } catch(e) {}
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...base, contratosAtivos, contratosEncerrados }));
-      // Atualiza sino e banners sempre que contratos mudam
-      if (typeof atualizarSino === 'function') atualizarSino();
     }
 
     // ── Render Ativos ────────────────────────────────
@@ -6163,37 +6074,9 @@
     // ══════════════════════════════════════════════════════════
     //  MÓDULO EMPENHOS
     // ══════════════════════════════════════════════════════════
-    const EMP_KEY = 'km_empenhos_v60_clean';
     let empenhos = []; // { id, contratoId, data, numero, orgao, empresa, itensEmpenhados:[{itemId,desc,qtdEmp,vlUnit}], valor, responsavel, responsavelSetor, responsavelContato, status, obs }
     let editingEmpenhoId = null;
     let _empContratoSelecionado = null; // contrato ativo em edição
-
-    function loadEmpenhos() {
-      const raw = localStorage.getItem(EMP_KEY);
-      if (!raw) {
-        empenhos = structuredClone(empenhosDefault);
-        persistEmpenhos();
-        return;
-      }
-      let parsed;
-      try { parsed = JSON.parse(raw); } catch (e) {
-        console.error('[KM] loadEmpenhos: JSON inválido — restaurando defaults.', e);
-        empenhos = structuredClone(empenhosDefault);
-        persistEmpenhos();
-        return;
-      }
-      if (!Array.isArray(parsed)) {
-        console.warn('[KM] loadEmpenhos: valor não é array — restaurando defaults.', parsed);
-        empenhos = structuredClone(empenhosDefault);
-        persistEmpenhos();
-        return;
-      }
-      empenhos = parsed;
-    }
-
-    function persistEmpenhos() {
-      localStorage.setItem(EMP_KEY, JSON.stringify(empenhos));
-    }
 
     // Retorna só contratos ativos com saldo de qtd de itens a empenhar
     function contratosComSaldo() {
@@ -7440,27 +7323,12 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     // ══════════════════════════════════════════════════════════
     //  MÓDULO COMPRAS
     // ══════════════════════════════════════════════════════════
-    const CMP_KEY = 'km_compras_v60_clean';
+
     let compras = [];
     let _cmpEmpenhoId = null;   // empenho selecionado para nova compra
     let _cmpEditId    = null;   // id da compra em edição
 
-    function loadCompras() {
-      const raw = localStorage.getItem(CMP_KEY);
-      if (!raw) { compras = []; return; }
-      let parsed;
-      try { parsed = JSON.parse(raw); } catch (e) {
-        console.error('[KM] loadCompras: JSON inválido — usando [].', e);
-        compras = [];
-        return;
-      }
-      if (!Array.isArray(parsed)) {
-        console.warn('[KM] loadCompras: valor não é array — usando [].', parsed);
-        compras = [];
-        return;
-      }
-      compras = parsed;
-    }
+
     // ── Formata item do modal ──────────────────────────────
     function cmpItemFormHtml(item, idx, vlUnitEmp) {
       const id = `cmp_${idx}`;
