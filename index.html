@@ -85,6 +85,28 @@
     :root[data-mode="light"] #syncStatus.err    { background: #fde8e8; border-color: #f0b4b4; color: #c0392b; }
     :root[data-mode="light"] #syncStatus.saving { background: #fff0dd; border-color: #f5c87a; color: #a05a00; }
 
+    /* ── Botão de sync manual ── */
+    #syncCloudBtn {
+      position: fixed; bottom: 16px; right: 16px;
+      background: #1a1d27; border: 1px solid #2a2d3a;
+      border-radius: 8px; padding: 5px 12px;
+      font-size: 10px; font-weight: 700; color: #8892a4;
+      display: flex; align-items: center; gap: 5px;
+      z-index: 1000; cursor: pointer;
+      transition: background .2s, border-color .2s, color .2s;
+      font-family: inherit;
+    }
+    #syncCloudBtn:hover { background: #22263a; border-color: #4a5068; color: #c8d0e0; }
+    #syncCloudBtn:active { transform: scale(.97); }
+    #syncCloudBtn.syncing { color: #f0a938; border-color: #7a4d0a; pointer-events: none; }
+    #syncCloudBtn.ok  { color: #2dd47a; border-color: #1a6644; }
+    #syncCloudBtn.err { color: #f05252; border-color: #5a1010; }
+    :root[data-mode="light"] #syncCloudBtn { background: #fff; border-color: #d0d5e8; color: #5a6278; }
+    :root[data-mode="light"] #syncCloudBtn:hover { background: #f0f2fa; border-color: #a0a8c8; color: #2a3060; }
+    :root[data-mode="light"] #syncCloudBtn.syncing { background: #fff0dd; border-color: #f5c87a; color: #a05a00; }
+    :root[data-mode="light"] #syncCloudBtn.ok  { background: #d6f5e6; border-color: #7dd4aa; color: #0b7a42; }
+    :root[data-mode="light"] #syncCloudBtn.err { background: #fde8e8; border-color: #f0b4b4; color: #c0392b; }
+
     /* ── Toast notifications ── */
     #toastContainer {
       position: fixed; top: 18px; right: 18px;
@@ -2626,6 +2648,7 @@
   </div>
 </div>
 <div id="syncStatus"></div>
+<button id="syncCloudBtn" title="Salvar tudo na nuvem agora" onclick="syncManual()">☁ Salvar na nuvem</button>
 
 
 <div class="bell-dropdown hidden" id="bellDropdown" style="position:fixed;">
@@ -10323,6 +10346,36 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       try { await _persistAllImmediate(); showSync('ok', '✓ salvo na nuvem'); }
       catch(e) { showSync('err', '✗ erro ao salvar'); }
     }
+
+    // ── Exposição global para debug/console ───────────────────
+    window.syncToCloud   = syncToCloud;
+    window.syncFromCloud = syncFromCloud;
+    window._persistAllImmediate = _persistAllImmediate;
+
+    // ── Sync manual via botão da interface ────────────────────
+    async function syncManual() {
+      const btn = document.getElementById('syncCloudBtn');
+      if (!btn) return;
+      btn.className = 'syncing';
+      btn.textContent = '☁ Salvando...';
+      try {
+        await _persistAllImmediate();
+        btn.className = 'ok';
+        btn.textContent = '✓ Salvo na nuvem';
+        setTimeout(() => {
+          btn.className = '';
+          btn.textContent = '☁ Salvar na nuvem';
+        }, 3000);
+      } catch(e) {
+        btn.className = 'err';
+        btn.textContent = '✗ Erro ao salvar';
+        setTimeout(() => {
+          btn.className = '';
+          btn.textContent = '☁ Salvar na nuvem';
+        }, 4000);
+      }
+    }
+    window.syncManual = syncManual;
 
     // ── Restaurar = recarregar do banco ────────────────────────
     async function restaurarBackup() {
