@@ -5377,6 +5377,10 @@
         empresa: c => c.empresa || '',
         status:  c => c.status || '',
         valor:   c => Number(c.valor) || 0,
+        compra:  c => Number(c.compra) || 0,
+        custo:   c => calcCusto(c.royalties, c.imposto),
+        lucro:   c => calcLucro(c.valor, c.compra, calcCusto(c.royalties, c.imposto)),
+        exec:    c => { const {totalUnid, empenhUnid} = calcExecucaoContrato(c); return totalUnid > 0 ? empenhUnid / totalUnid : 0; },
       });
 
       if (!sortedConA.length) {
@@ -5503,7 +5507,7 @@
         empresa: c => c.empresa || '',
         status:  c => c.status || '',
         valor:   c => Number(c.valor) || 0,
-        exec:    c => { const r = calcExecucaoContrato(c); return r ? r.pct : 0; },
+        exec:    c => { const {totalUnid, empenhUnid} = calcExecucaoContrato(c); return totalUnid > 0 ? empenhUnid / totalUnid : 0; },
       });
 
       if (!sortedConE.length) {
@@ -6842,8 +6846,8 @@
         empresa: e => e.empresa || '',
         status:  e => e.status || '',
         valor:   e => Number(e.valor) || 0,
-        compra:  e => { const fin = calcEmpFinanceiro(e); return fin.vlCompraTotal || 0; },
-        custo:   e => { const fin = calcEmpFinanceiro(e); return fin.custoTotal || 0; },
+        compra:  e => { const fin = calcEmpFinanceiro(e); return fin.vlCompraEmp || 0; },
+        custo:   e => { const fin = calcEmpFinanceiro(e); return fin.custoEmp || 0; },
         lucro:   e => { const fin = calcEmpFinanceiro(e); return fin.lucroEmp || 0; },
         pct:     e => { const { lucroEmp, vlEmpTotal } = calcEmpFinanceiro(e); return vlEmpTotal > 0 ? (lucroEmp/vlEmpTotal)*100 : 0; },
       }, 'data_asc');
