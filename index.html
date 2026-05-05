@@ -3009,7 +3009,7 @@
 <div class="historico-inline-popover hidden" id="andPopover-uf">
 <div class="historico-popover-title">Filtrar UF</div>
 <label>Sigla</label>
-<select class="field-box" id="fAndUF" onchange="renderDisputas()">
+<select class="field-box" id="fAndUF" onchange="renderDisputas(); saveSortPrefs()">
 <option value="">Todos</option>
 <option>AC</option><option>AL</option><option>AM</option><option>AP</option>
 <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
@@ -3029,7 +3029,7 @@
 <div class="historico-inline-popover hidden" id="andPopover-processo">
 <div class="historico-popover-title">Filtrar Processo</div>
 <label>Tipo</label>
-<select class="field-box" id="fAndTipo" onchange="renderDisputas()">
+<select class="field-box" id="fAndTipo" onchange="renderDisputas(); saveSortPrefs()">
 <option value="">Todos</option>
 <option value="Pregão">Pregão</option>
 <option value="Dispensa">Dispensa</option>
@@ -3047,7 +3047,7 @@
 <div class="historico-inline-popover hidden" id="andPopover-empresa">
 <div class="historico-popover-title">Filtrar Empresa</div>
 <label>Empresa</label>
-<select class="field-box" id="fAndEmpresa" onchange="renderDisputas()">
+<select class="field-box" id="fAndEmpresa" onchange="renderDisputas(); saveSortPrefs()">
 <option value="">Todas</option>
 <option value="Gadita">GADITA</option>
 <option value="Hamate">HAMATE</option>
@@ -3062,7 +3062,7 @@
 <div class="historico-inline-popover hidden" id="andPopover-sistema">
 <div class="historico-popover-title">Filtrar Sistema</div>
 <label>Sistema</label>
-<select class="field-box" id="fAndSistema" onchange="renderDisputas()">
+<select class="field-box" id="fAndSistema" onchange="renderDisputas(); saveSortPrefs()">
 <option value="">Todos</option>
 <option>Licitanet</option>
 <option>Licitar Digital</option>
@@ -3078,7 +3078,7 @@
 <div class="historico-inline-popover hidden" id="andPopover-status">
 <div class="historico-popover-title">Filtrar Status</div>
 <label>Status</label>
-<select class="field-box" id="fAndStatus" onchange="renderDisputas()">
+<select class="field-box" id="fAndStatus" onchange="renderDisputas(); saveSortPrefs()">
 <option value="">Todos</option>
 <option value="Em andamento">Em andamento</option>
 <option value="Em recurso">Em recurso</option>
@@ -3098,7 +3098,7 @@
 <button class="subtotal-clear-btn" onclick="limparFiltrosAndamento()">✕ Limpar filtros</button>
 <div class="sort-select-wrap">
 <label>Ordenar</label>
-<select class="sort-select" id="sortAndamento" onchange="renderDisputas()">
+<select class="sort-select" id="sortAndamento" onchange="renderDisputas(); saveSortPrefs()">
 <option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="processo_asc">Processo A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="sistema_asc">Sistema A→Z</option><option value="status_asc">Status A→Z</option></select>
 </div>
 <div style="flex:1;"></div>
@@ -3163,7 +3163,7 @@
 <div class="historico-inline-popover hidden" id="encPopover-uf">
 <div class="historico-popover-title">Filtrar UF</div>
 <label>Sigla</label>
-<select class="field-box" id="fEncUF" onchange="renderHistoricoDisputas()">
+<select class="field-box" id="fEncUF" onchange="renderHistoricoDisputas(); saveSortPrefs()">
 <option value="">Todos</option>
 <option>AC</option><option>AL</option><option>AM</option><option>AP</option>
 <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
@@ -3183,7 +3183,7 @@
 <div class="historico-inline-popover hidden" id="encPopover-processo">
 <div class="historico-popover-title">Filtrar Processo</div>
 <label>Tipo</label>
-<select class="field-box" id="fEncTipo" onchange="renderHistoricoDisputas()">
+<select class="field-box" id="fEncTipo" onchange="renderHistoricoDisputas(); saveSortPrefs()">
 <option value="">Todos</option>
 <option value="Pregão">Pregão</option>
 <option value="Dispensa">Dispensa</option>
@@ -3201,7 +3201,7 @@
 <div class="historico-inline-popover hidden" id="encPopover-empresa">
 <div class="historico-popover-title">Filtrar Empresa</div>
 <label>Empresa</label>
-<select class="field-box" id="fEncEmpresa" onchange="renderHistoricoDisputas()">
+<select class="field-box" id="fEncEmpresa" onchange="renderHistoricoDisputas(); saveSortPrefs()">
 <option value="">Todas</option>
 <option value="Gadita">GADITA</option>
 <option value="Hamate">HAMATE</option>
@@ -3216,7 +3216,7 @@
 <div class="historico-inline-popover hidden" id="encPopover-sistema">
 <div class="historico-popover-title">Filtrar Sistema</div>
 <label>Sistema</label>
-<select class="field-box" id="fEncSistema" onchange="renderHistoricoDisputas()">
+<select class="field-box" id="fEncSistema" onchange="renderHistoricoDisputas(); saveSortPrefs()">
 <option value="">Todos</option>
 <option>Licitanet</option>
 <option>Licitar Digital</option>
@@ -3232,7 +3232,7 @@
 <div class="historico-inline-popover hidden" id="encPopover-status">
 <div class="historico-popover-title">Filtrar Status</div>
 <label>Status</label>
-<select class="field-box" id="fEncStatus" onchange="renderHistoricoDisputas()">
+<select class="field-box" id="fEncStatus" onchange="renderHistoricoDisputas(); saveSortPrefs()">
 <option value="">Todos</option>
 <option value="Vencida">Vencida</option>
 <option value="Perdida">Perdida</option>
@@ -3253,7 +3253,7 @@
 <button class="subtotal-clear-btn" onclick="limparFiltrosEncerradas()">✕ Limpar filtros</button>
 <div class="sort-select-wrap">
 <label>Ordenar</label>
-<select class="sort-select" id="sortEncerradas" onchange="renderHistoricoDisputas()">
+<select class="sort-select" id="sortEncerradas" onchange="renderHistoricoDisputas(); saveSortPrefs()">
 <option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="processo_asc">Processo A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="sistema_asc">Sistema A→Z</option><option value="status_asc">Status A→Z</option></select>
 </div>
 <div style="flex:1;"></div>
@@ -3325,7 +3325,7 @@
 <button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conAPopover-empresa')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
 <div class="historico-inline-popover hidden" id="conAPopover-empresa">
 <div class="historico-popover-title">Filtrar Empresa</div>
-<select class="field-box" id="fConAEmpresa" onchange="renderContratosAtivos()">
+<select class="field-box" id="fConAEmpresa" onchange="renderContratosAtivos(); saveSortPrefs()">
 <option value="">Todas</option><option value="Gadita">GADITA</option><option value="Hamate">HAMATE</option>
 </select>
 </div>
@@ -3348,7 +3348,7 @@
 
 <div class="sort-select-wrap">
 <label>Ordenar</label>
-<select class="sort-select" id="sortConAtivos" onchange="renderContratosAtivos()">
+<select class="sort-select" id="sortConAtivos" onchange="renderContratosAtivos(); saveSortPrefs()">
 <option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
 </div>
 <div style="flex:1;"></div>
@@ -3408,7 +3408,7 @@
 <button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conEPopover-empresa')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
 <div class="historico-inline-popover hidden" id="conEPopover-empresa">
 <div class="historico-popover-title">Filtrar Empresa</div>
-<select class="field-box" id="fConEEmpresa" onchange="renderContratosEncerrados()">
+<select class="field-box" id="fConEEmpresa" onchange="renderContratosEncerrados(); saveSortPrefs()">
 <option value="">Todas</option><option value="Gadita">GADITA</option><option value="Hamate">HAMATE</option>
 </select>
 </div>
@@ -3428,7 +3428,7 @@
 <button class="subtotal-clear-btn" onclick="limparFiltrosConEncerrados()">✕ Limpar filtros</button>
 <div class="sort-select-wrap">
 <label>Ordenar</label>
-<select class="sort-select" id="sortConEncerrados" onchange="renderContratosEncerrados()">
+<select class="sort-select" id="sortConEncerrados" onchange="renderContratosEncerrados(); saveSortPrefs()">
 <option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
 </div>
 <div style="flex:1;"></div>
@@ -3496,7 +3496,7 @@
 <div class="historico-inline-popover hidden" id="empPendPopover-empresa">
 <div class="historico-popover-title">Filtrar Empresa</div>
 <label>Empresa</label>
-<select class="field-box" id="fEmpPendEmpresa" onchange="renderEmpPendentes()">
+<select class="field-box" id="fEmpPendEmpresa" onchange="renderEmpPendentes(); saveSortPrefs()">
 <option value="">Todas</option>
 <option value="Gadita">Gadita</option>
 <option value="Hamate">Hamate</option>
@@ -3518,7 +3518,7 @@
 <div class="subtotal-bar" id="subtotalEmpPend">
 <div class="sort-select-wrap">
 <label>Ordenar</label>
-<select class="sort-select" id="sortEmpPend" onchange="renderEmpPendentes()">
+<select class="sort-select" id="sortEmpPend" onchange="renderEmpPendentes(); saveSortPrefs()">
 <option value="">Ordenar por...</option>
 <option value="data_asc" selected>Data ↑ (mais antiga)</option>
 <option value="data_desc">Data ↓ (mais recente)</option>
@@ -3594,7 +3594,7 @@
 <div class="historico-inline-popover hidden" id="empAndPopover-empresa">
 <div class="historico-popover-title">Filtrar Empresa</div>
 <label>Empresa</label>
-<select class="field-box" id="fEmpAndEmpresa" onchange="renderEmpAndamento()">
+<select class="field-box" id="fEmpAndEmpresa" onchange="renderEmpAndamento(); saveSortPrefs()">
 <option value="">Todas</option>
 <option value="Gadita">Gadita</option>
 <option value="Hamate">Hamate</option>
@@ -3615,7 +3615,7 @@
 <div class="historico-inline-popover hidden" id="empAndPopover-status">
 <div class="historico-popover-title">Filtrar Status</div>
 <label>Status</label>
-<select class="field-box" id="fEmpAndStatus" onchange="renderEmpAndamento()">
+<select class="field-box" id="fEmpAndStatus" onchange="renderEmpAndamento(); saveSortPrefs()">
 <option value="">Todos</option>
 <option>Compra Feita</option>
 <option>Ag. Liquidação</option>
@@ -3631,7 +3631,7 @@
 <div class="subtotal-bar" id="subtotalEmpAnd">
 <div class="sort-select-wrap">
 <label>Ordenar</label>
-<select class="sort-select" id="sortEmpAnd" onchange="renderEmpAndamento()">
+<select class="sort-select" id="sortEmpAnd" onchange="renderEmpAndamento(); saveSortPrefs()">
 <option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc" selected>Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option><option value="pct_desc">% Lucro ↓ (maior)</option><option value="pct_asc">% Lucro ↑ (menor)</option></select>
 </div>
 <div style="flex:1;"></div>
@@ -3698,7 +3698,7 @@
 <div class="historico-inline-popover hidden" id="empEncPopover-empresa">
 <div class="historico-popover-title">Filtrar Empresa</div>
 <label>Empresa</label>
-<select class="field-box" id="fEmpEncEmpresa" onchange="renderEmpEncerrados()">
+<select class="field-box" id="fEmpEncEmpresa" onchange="renderEmpEncerrados(); saveSortPrefs()">
 <option value="">Todas</option>
 <option value="Gadita">Gadita</option>
 <option value="Hamate">Hamate</option>
@@ -3720,7 +3720,7 @@
 <div class="subtotal-bar" id="subtotalEmpEnc">
 <div class="sort-select-wrap">
 <label>Ordenar</label>
-<select class="sort-select" id="sortEmpEnc" onchange="renderEmpEncerrados()">
+<select class="sort-select" id="sortEmpEnc" onchange="renderEmpEncerrados(); saveSortPrefs()">
 <option value="">Ordenar por...</option><option value="data_desc" selected>Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option><option value="pct_desc">% Lucro ↓ (maior)</option><option value="pct_asc">% Lucro ↑ (menor)</option></select>
 </div>
 <div style="flex:1;"></div>
@@ -3768,7 +3768,7 @@
 <div class="subtotal-bar" id="subtotalCompras">
 <div class="sort-select-wrap">
 <label>Ordenar</label>
-<select class="sort-select" id="sortCompras" onchange="renderCompras()">
+<select class="sort-select" id="sortCompras" onchange="renderCompras(); saveSortPrefs()">
 <option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
 </div>
 <div style="flex:1;"></div>
@@ -9817,6 +9817,32 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       });
     }
 
+    // ── Persistência de preferências de sort ─────────────────
+    const SORT_PREFS_KEY = 'km_sort_prefs_v1';
+    const SORT_IDS = [
+      'sortAndamento', 'sortEncerradas',
+      'sortConAtivos', 'sortConEncerrados',
+      'sortEmpPend', 'sortEmpAnd', 'sortEmpEnc',
+      'sortCompras',
+    ];
+    function saveSortPrefs() {
+      const prefs = {};
+      SORT_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.value) prefs[id] = el.value;
+      });
+      localStorage.setItem(SORT_PREFS_KEY, JSON.stringify(prefs));
+    }
+    function loadSortPrefs() {
+      try {
+        const prefs = JSON.parse(localStorage.getItem(SORT_PREFS_KEY) || '{}');
+        SORT_IDS.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && prefs[id]) el.value = prefs[id];
+        });
+      } catch(e) { /* ignora se corrompido */ }
+    }
+
     // ══════════════════════════════════════════════
     // SUPABASE CONFIG & SYNC — tabelas reais
     // ══════════════════════════════════════════════
@@ -10345,6 +10371,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       if (typeof loadEmpenhos  === 'function') loadEmpenhos();
       if (typeof loadCompras   === 'function') loadCompras();
       if (typeof carregarMetas === 'function') carregarMetas();
+      loadSortPrefs();
       if (typeof aplicarTema   === 'function') {
         const t = localStorage.getItem('km_tema_v1') || 'rosa';
         aplicarTema(t);
