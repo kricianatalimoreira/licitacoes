@@ -2774,13 +2774,15 @@
 </div>
 
 <!-- METAS -->
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
 <!-- Meta Mensal -->
 <div class="meta-card">
 <div class="meta-header">
 <div>
-<div class="meta-title">🎯 META MENSAL DE LUCRO</div>
+<div class="meta-title">🎯 META MENSAL — CONTRATOS GERADOS</div>
+<div style="font-size:9px;color:var(--muted);margin-bottom:2px;" id="dashMetaMensalLabel"></div>
 <div class="meta-valor-realizado" id="dashMetaMensalRealizado" style="color:var(--primary);font-size:20px;font-weight:800;">R$ 0,00</div>
+<div style="font-size:9px;color:var(--muted);margin-top:2px;" id="dashMetaMensalCount"></div>
 </div>
 <div class="meta-semaforo" id="dashSemaforoMensal" style="font-size:22px;">🔴</div>
 </div>
@@ -2795,8 +2797,10 @@
 <div class="meta-card">
 <div class="meta-header">
 <div>
-<div class="meta-title">📅 META ANUAL DE LUCRO</div>
+<div class="meta-title">📅 META ANUAL — CONTRATOS GERADOS</div>
+<div style="font-size:9px;color:var(--muted);margin-bottom:2px;" id="dashMetaAnualLabel"></div>
 <div class="meta-valor-realizado" id="dashMetaAnualRealizado" style="color:#2563eb;font-size:20px;font-weight:800;">R$ 0,00</div>
+<div style="font-size:9px;color:var(--muted);margin-top:2px;" id="dashMetaAnualCount"></div>
 </div>
 <div class="meta-semaforo" id="dashSemaforoAnual" style="font-size:22px;">🔴</div>
 </div>
@@ -2805,27 +2809,6 @@
 <div style="display:flex;justify-content:space-between;align-items:center;">
 <span class="meta-pct" id="dashMetaAnualPct">0.0%</span>
 <span id="dashMetaAnualFalta" style="font-size:9px;color:var(--muted);"></span>
-</div>
-</div>
-<!-- Previsão -->
-<div class="meta-card">
-<div class="meta-header">
-<div><div class="meta-title">🔮 PREVISÃO DE FECHAMENTO</div></div>
-<span id="dashPrevMes" style="font-size:9px;color:var(--muted);"></span>
-</div>
-<div class="prev-grid">
-<div class="prev-item">
-<label>Lucro Realizado</label>
-<div class="prev-val" id="dashPrevRealizado" style="color:#1f8a4c;">R$ 0,00</div>
-</div>
-<div class="prev-item">
-<label>Em andamento</label>
-<div class="prev-val" id="dashPrevAndamento" style="color:#2563eb;">R$ 0,00</div>
-</div>
-<div class="prev-item" style="grid-column:1/-1;">
-<label>Projeção total do mês</label>
-<div class="prev-val" id="dashPrevTotal" style="font-size:20px;color:var(--primary);">R$ 0,00</div>
-</div>
 </div>
 </div>
 </div>
@@ -8239,42 +8222,53 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const lucroMes = comprasMes.reduce((s,c) => s+(Number(c.lucroTotal)||0), 0);
       const lucroAno = comprasAno.reduce((s,c) => s+(Number(c.lucroTotal)||0), 0);
 
-      // ── METAS ──
+      // ── METAS — disputas vencidas que geraram contratos ──
+      // Considera disputas encerradas com status 'Vencida' que têm um contrato
+      // vinculado (contratoId) ou contrato com mesmo processo/órgão no mesmo mês/ano.
+      // Como a ligação direta é via contrato, usamos contratosAtivos + contratosEncerrados
+      // como fonte de valor, filtrando pelo mês/ano da data do contrato.
+
+      const todosContratos = [...contratosAtivos, ...contratosEncerrados];
+
+      const contratosMes = todosContratos.filter(c => {
+        if (!c.data) return false;
+        const d = new Date(c.data + 'T00:00:00');
+        return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+      });
+      const contratosAno = todosContratos.filter(c => {
+        if (!c.data) return false;
+        return new Date(c.data + 'T00:00:00').getFullYear() === anoAtual;
+      });
+
+      // Valor total dos contratos gerados (valor do contrato = bruto da disputa vencida)
+      const vlContratosMes = contratosMes.reduce((s,c) => s + (Number(c.valor)||0), 0);
+      const vlContratosAno = contratosAno.reduce((s,c) => s + (Number(c.valor)||0), 0);
+
       const parseMeta = v => { if (!v) return 0; return Number(String(v).replace(/[R$\s.]/g,'').replace(',','.')) || 0; };
-      const semaforo = p => p >= 100 ? {emoji:'🟢',cls:'bar-green'} : p >= 50 ? {emoji:'🟡',cls:'bar-yellow'} : {emoji:'🔴',cls:'bar-red'};
+      const semaforo  = p => p >= 100 ? {emoji:'🟢',cls:'bar-green'} : p >= 50 ? {emoji:'🟡',cls:'bar-yellow'} : {emoji:'🔴',cls:'bar-red'};
       const metaMensal = parseMeta(qs('dashMetaMensalInput')?.value);
       const metaAnual  = parseMeta(qs('dashMetaAnualInput')?.value);
-      const pctMensal  = metaMensal > 0 ? Math.min(100, lucroMes / metaMensal * 100) : 0;
-      const pctAnual   = metaAnual  > 0 ? Math.min(100, lucroAno / metaAnual  * 100) : 0;
+      const pctMensal  = metaMensal > 0 ? Math.min(100, vlContratosMes / metaMensal * 100) : 0;
+      const pctAnual   = metaAnual  > 0 ? Math.min(100, vlContratosAno / metaAnual  * 100) : 0;
       const smM = semaforo(pctMensal), smA = semaforo(pctAnual);
-      setEl('dashMetaMensalRealizado', formatCurrency(lucroMes));
+
+      setEl('dashMetaMensalLabel', nomeMesCurto + ' ' + anoStr);
+      setEl('dashMetaMensalRealizado', formatCurrency(vlContratosMes));
+      setEl('dashMetaMensalCount', `${contratosMes.length} contrato${contratosMes.length !== 1 ? 's' : ''} gerado${contratosMes.length !== 1 ? 's' : ''}`);
       setEl('dashMetaMensalPct', pctMensal.toFixed(1) + '%');
       setEl('dashSemaforoMensal', smM.emoji);
-      setEl('dashMetaMensalFalta', metaMensal > 0 ? `Faltam ${formatCurrency(Math.max(0, metaMensal - lucroMes))}` : '');
+      setEl('dashMetaMensalFalta', metaMensal > 0 ? `Faltam ${formatCurrency(Math.max(0, metaMensal - vlContratosMes))}` : '');
       const barM = qs('dashMetaMensalBar');
       if (barM) { barM.style.width = pctMensal.toFixed(1)+'%'; barM.className = `meta-bar-fill ${smM.cls}`; }
-      setEl('dashMetaAnualRealizado', formatCurrency(lucroAno));
+
+      setEl('dashMetaAnualLabel', anoStr);
+      setEl('dashMetaAnualRealizado', formatCurrency(vlContratosAno));
+      setEl('dashMetaAnualCount', `${contratosAno.length} contrato${contratosAno.length !== 1 ? 's' : ''} gerado${contratosAno.length !== 1 ? 's' : ''}`);
       setEl('dashMetaAnualPct', pctAnual.toFixed(1) + '%');
       setEl('dashSemaforoAnual', smA.emoji);
-      setEl('dashMetaAnualFalta', metaAnual > 0 ? `Faltam ${formatCurrency(Math.max(0, metaAnual - lucroAno))}` : '');
+      setEl('dashMetaAnualFalta', metaAnual > 0 ? `Faltam ${formatCurrency(Math.max(0, metaAnual - vlContratosAno))}` : '');
       const barA = qs('dashMetaAnualBar');
       if (barA) { barA.style.width = pctAnual.toFixed(1)+'%'; barA.className = `meta-bar-fill ${smA.cls}`; }
-
-      // ── PREVISÃO ──
-      const empAndamento = empenhos.filter(e => e.status !== 'Paga');
-      const lucroEmpMes = empAndamento
-        .filter(e => { if (!e.data) return false; const d = new Date(e.data+'T00:00:00'); return d.getMonth()===mesAtual && d.getFullYear()===anoAtual; })
-        .reduce((s,e) => {
-          const c = contratosAtivos.find(ca => ca.id === e.contratoId);
-          const vlC = Number(c?.valor||0);
-          const lC = Number(c?.lucro||0) || (Number(c?.valor||0)-Number(c?.compra||0)-Number(c?.royalties||0)-Number(c?.imposto||0));
-          const mg = vlC > 0 ? lC/vlC : 0.1;
-          return s + (Number(e.valor||0) * mg);
-        }, 0);
-      setEl('dashPrevMes', nomeMesAtual);
-      setEl('dashPrevRealizado', formatCurrency(lucroMes));
-      setEl('dashPrevAndamento', formatCurrency(lucroEmpMes));
-      setEl('dashPrevTotal', formatCurrency(lucroMes + lucroEmpMes));
 
       // ── DISPUTAS ──
       const todos = [...disputas, ...disputasEncerradas];
