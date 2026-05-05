@@ -7425,10 +7425,6 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       }
       compras = parsed;
     }
-    function persistCompras() {
-      localStorage.setItem(CMP_KEY, JSON.stringify(compras));
-    }
-
     // ── Formata item do modal ──────────────────────────────
     function cmpItemFormHtml(item, idx, vlUnitEmp) {
       const id = `cmp_${idx}`;
