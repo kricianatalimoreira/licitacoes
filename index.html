@@ -868,6 +868,29 @@
       justify-content: center;
       padding: 0;
     }
+    /* Botão de ordenação nas colunas numéricas */
+    .sort-col-btn {
+      flex: 0 0 auto;
+      width: 18px; height: 18px;
+      border-radius: 5px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 11px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .sort-col-btn:hover { background: var(--primary-soft); color: var(--primary); border-color: var(--primary-border); }
+    .sort-col-btn.sort-active { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); }
+    :root[data-mode="light"] .sort-col-btn { border-color: #d0d5e8; color: #8892a4; }
+    :root[data-mode="light"] .sort-col-btn.sort-active { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); }
+    /* Popover de ordenação com mês/ano */
+    .sort-month-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:4px; }
     .historico-inline-popover {
       position: fixed;
       width: 210px;
@@ -2989,6 +3012,24 @@
 <div>
 <label>Data exata</label>
 <input class="field-box" id="fAndData" oninput="renderDisputas()" type="date"/>
+<div class="sort-month-grid" style="margin-top:5px;">
+<div><label>Mês</label><select class="field-box" id="fAndMes" onchange="renderDisputas(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option>
+<option value="02">Fev</option>
+<option value="03">Mar</option>
+<option value="04">Abr</option>
+<option value="05">Mai</option>
+<option value="06">Jun</option>
+<option value="07">Jul</option>
+<option value="08">Ago</option>
+<option value="09">Set</option>
+<option value="10">Out</option>
+<option value="11">Nov</option>
+<option value="12">Dez</option></select></div>
+<div><label>Ano</label><select class="field-box" id="fAndAno" onchange="renderDisputas(); saveSortPrefs()"><option value="">Todos</option><option value="2024">2024</option>
+<option value="2025">2025</option>
+<option value="2026">2026</option>
+<option value="2027">2027</option></select></div>
+</div>
 </div>
 </div>
 <div class="historico-actions-row">
@@ -3105,7 +3146,7 @@
 <div class="sort-select-wrap">
 <label>Ordenar</label>
 <select class="sort-select" id="sortAndamento" onchange="renderDisputas(); saveSortPrefs()">
-<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="processo_asc">Processo A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="sistema_asc">Sistema A→Z</option><option value="status_asc">Status A→Z</option></select>
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="processo_asc">Processo A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="sistema_asc">Sistema A→Z</option><option value="status_asc">Status A→Z</option><option value="bruto_desc">Bruto ↓ (maior)</option><option value="bruto_asc">Bruto ↑ (menor)</option></select>
 </div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Subtotal filtrado</span>
@@ -3146,7 +3187,25 @@
 <button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'encPopover-data')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
 <div class="historico-inline-popover hidden" id="encPopover-data">
 <div class="historico-popover-title">Filtrar Data</div>
-<div><label>Data exata</label><input class="field-box" id="fEncData" oninput="renderHistoricoDisputas()" type="date"/></div>
+<div><label>Data exata</label><input class="field-box" id="fEncData" oninput="renderHistoricoDisputas()" type="date"/>
+<div class="sort-month-grid" style="margin-top:5px;">
+<div><label>Mês</label><select class="field-box" id="fEncMes" onchange="renderHistoricoDisputas(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option>
+<option value="02">Fev</option>
+<option value="03">Mar</option>
+<option value="04">Abr</option>
+<option value="05">Mai</option>
+<option value="06">Jun</option>
+<option value="07">Jul</option>
+<option value="08">Ago</option>
+<option value="09">Set</option>
+<option value="10">Out</option>
+<option value="11">Nov</option>
+<option value="12">Dez</option></select></div>
+<div><label>Ano</label><select class="field-box" id="fEncAno" onchange="renderHistoricoDisputas(); saveSortPrefs()"><option value="">Todos</option><option value="2024">2024</option>
+<option value="2025">2025</option>
+<option value="2026">2026</option>
+<option value="2027">2027</option></select></div>
+</div></div>
 <div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltrosEncerradas()" type="button">Limpar</button></div>
 </div>
 </div>
@@ -3260,7 +3319,7 @@
 <div class="sort-select-wrap">
 <label>Ordenar</label>
 <select class="sort-select" id="sortEncerradas" onchange="renderHistoricoDisputas(); saveSortPrefs()">
-<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="processo_asc">Processo A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="sistema_asc">Sistema A→Z</option><option value="status_asc">Status A→Z</option></select>
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="processo_asc">Processo A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="sistema_asc">Sistema A→Z</option><option value="status_asc">Status A→Z</option><option value="bruto_desc">Bruto ↓ (maior)</option><option value="bruto_asc">Bruto ↑ (menor)</option></select>
 </div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Subtotal filtrado</span>
@@ -3313,6 +3372,24 @@
 <div class="historico-inline-popover hidden" id="conAPopover-data">
 <div class="historico-popover-title">Filtrar Data</div>
 <label>Data exata</label><input class="field-box" id="fConAData" oninput="renderContratosAtivos()" type="date"/>
+<div class="sort-month-grid" style="margin-top:5px;">
+<div><label>Mês</label><select class="field-box" id="fConAMes" onchange="renderContratosAtivos(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option>
+<option value="02">Fev</option>
+<option value="03">Mar</option>
+<option value="04">Abr</option>
+<option value="05">Mai</option>
+<option value="06">Jun</option>
+<option value="07">Jul</option>
+<option value="08">Ago</option>
+<option value="09">Set</option>
+<option value="10">Out</option>
+<option value="11">Nov</option>
+<option value="12">Dez</option></select></div>
+<div><label>Ano</label><select class="field-box" id="fConAAno" onchange="renderContratosAtivos(); saveSortPrefs()"><option value="">Todos</option><option value="2024">2024</option>
+<option value="2025">2025</option>
+<option value="2026">2026</option>
+<option value="2027">2027</option></select></div>
+</div>
 <div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltrosConAtivos()" type="button">Limpar</button></div>
 </div>
 </div>
@@ -3337,11 +3414,36 @@
 </div>
 </div>
 </th>
-<th>Vl. Contrato</th>
-<th>Vl. Compra Prev.</th>
-<th>Custo Prev.</th>
-<th>Lucro Prev.</th>
-<th>Execução</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Vl. Contrato</span>
+<button class="sort-col-btn" data-sort-select="sortConAtivos" data-sort-asc="valor_asc" data-sort-desc="valor_desc" title="Ordenar" onclick="sortByCol('sortConAtivos','valor_asc','valor_desc',renderContratosAtivos)">↕</button>
+</div>
+</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Vl. Compra Prev.</span>
+<button class="sort-col-btn" data-sort-select="sortConAtivos" data-sort-asc="compra_asc" data-sort-desc="compra_desc" title="Ordenar" onclick="sortByCol('sortConAtivos','compra_asc','compra_desc',renderContratosAtivos)">↕</button>
+</div>
+</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Custo Prev.</span>
+<button class="sort-col-btn" data-sort-select="sortConAtivos" data-sort-asc="custo_asc" data-sort-desc="custo_desc" title="Ordenar" onclick="sortByCol('sortConAtivos','custo_asc','custo_desc',renderContratosAtivos)">↕</button>
+</div>
+</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Lucro Prev.</span>
+<button class="sort-col-btn" data-sort-select="sortConAtivos" data-sort-asc="lucro_asc" data-sort-desc="lucro_desc" title="Ordenar" onclick="sortByCol('sortConAtivos','lucro_asc','lucro_desc',renderContratosAtivos)">↕</button>
+</div>
+</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Execução</span>
+<button class="sort-col-btn" data-sort-select="sortConAtivos" data-sort-asc="exec_asc" data-sort-desc="exec_desc" title="Ordenar" onclick="sortByCol('sortConAtivos','exec_asc','exec_desc',renderContratosAtivos)">↕</button>
+</div>
+</th>
 <th>Links</th>
 <th>Ações</th>
 </tr>
@@ -3355,7 +3457,7 @@
 <div class="sort-select-wrap">
 <label>Ordenar</label>
 <select class="sort-select" id="sortConAtivos" onchange="renderContratosAtivos(); saveSortPrefs()">
-<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option><option value="valor_desc">Vl. Contrato ↓</option><option value="valor_asc">Vl. Contrato ↑</option><option value="compra_desc">Vl. Compra Prev. ↓</option><option value="compra_asc">Vl. Compra Prev. ↑</option><option value="custo_desc">Custo Prev. ↓</option><option value="custo_asc">Custo Prev. ↑</option><option value="lucro_desc">Lucro Prev. ↓</option><option value="lucro_asc">Lucro Prev. ↑</option><option value="exec_desc">Execução ↓</option><option value="exec_asc">Execução ↑</option></select>
 </div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Subtotal filtrado</span>
@@ -3396,6 +3498,24 @@
 <div class="historico-inline-popover hidden" id="conEPopover-data">
 <div class="historico-popover-title">Filtrar Data</div>
 <input class="field-box" id="fConEData" oninput="renderContratosEncerrados()" type="date"/>
+<div class="sort-month-grid" style="margin-top:5px;">
+<div><label>Mês</label><select class="field-box" id="fConEMes" onchange="renderContratosEncerrados(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option>
+<option value="02">Fev</option>
+<option value="03">Mar</option>
+<option value="04">Abr</option>
+<option value="05">Mai</option>
+<option value="06">Jun</option>
+<option value="07">Jul</option>
+<option value="08">Ago</option>
+<option value="09">Set</option>
+<option value="10">Out</option>
+<option value="11">Nov</option>
+<option value="12">Dez</option></select></div>
+<div><label>Ano</label><select class="field-box" id="fConEAno" onchange="renderContratosEncerrados(); saveSortPrefs()"><option value="">Todos</option><option value="2024">2024</option>
+<option value="2025">2025</option>
+<option value="2026">2026</option>
+<option value="2027">2027</option></select></div>
+</div>
 <div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltrosConEncerrados()" type="button">Limpar</button></div>
 </div>
 </div>
@@ -3420,10 +3540,20 @@
 </div>
 </div>
 </th>
-<th>Vl. Contrato</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Vl. Contrato</span>
+<button class="sort-col-btn" data-sort-select="sortConEncerrados" data-sort-asc="valor_asc" data-sort-desc="valor_desc" title="Ordenar" onclick="sortByCol('sortConEncerrados','valor_asc','valor_desc',renderContratosEncerrados)">↕</button>
+</div>
+</th>
 <th>Vl. Empenhado</th>
 <th>Lucro Empenhos</th>
-<th>Taxa de Execução</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Taxa de Execução</span>
+<button class="sort-col-btn" data-sort-select="sortConEncerrados" data-sort-asc="exec_asc" data-sort-desc="exec_desc" title="Ordenar" onclick="sortByCol('sortConEncerrados','exec_asc','exec_desc',renderContratosEncerrados)">↕</button>
+</div>
+</th>
 <th>Ações</th>
 </tr>
 </thead>
@@ -3435,7 +3565,7 @@
 <div class="sort-select-wrap">
 <label>Ordenar</label>
 <select class="sort-select" id="sortConEncerrados" onchange="renderContratosEncerrados(); saveSortPrefs()">
-<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option><option value="valor_desc">Vl. Contrato ↓</option><option value="valor_asc">Vl. Contrato ↑</option><option value="exec_desc">Execução ↓</option><option value="exec_asc">Execução ↑</option></select>
 </div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Subtotal filtrado</span>
@@ -3477,7 +3607,25 @@
 <div class="historico-inline-popover hidden" id="empPendPopover-data">
 <div class="historico-popover-title">Filtrar Data</div>
 <div class="historico-filter-grid">
-<div><label>Data exata</label><input class="field-box" id="fEmpPendData" oninput="renderEmpPendentes()" type="date"/></div>
+<div><label>Data exata</label><input class="field-box" id="fEmpPendData" oninput="renderEmpPendentes()" type="date"/>
+<div class="sort-month-grid" style="margin-top:5px;">
+<div><label>Mês</label><select class="field-box" id="fEmpPendMes" onchange="renderEmpPendentes(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option>
+<option value="02">Fev</option>
+<option value="03">Mar</option>
+<option value="04">Abr</option>
+<option value="05">Mai</option>
+<option value="06">Jun</option>
+<option value="07">Jul</option>
+<option value="08">Ago</option>
+<option value="09">Set</option>
+<option value="10">Out</option>
+<option value="11">Nov</option>
+<option value="12">Dez</option></select></div>
+<div><label>Ano</label><select class="field-box" id="fEmpPendAno" onchange="renderEmpPendentes(); saveSortPrefs()"><option value="">Todos</option><option value="2024">2024</option>
+<option value="2025">2025</option>
+<option value="2026">2026</option>
+<option value="2027">2027</option></select></div>
+</div></div>
 </div>
 <div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltrosEmpPendentes()" type="button">Limpar</button></div>
 </div>
@@ -3511,11 +3659,36 @@
 </div>
 </th>
 <th>Itens Empenhados</th>
-<th style="color:#2563eb;">Vl. Empenho</th>
-<th>Vl. Compra Prev.</th>
-<th>Custo Prev.</th>
-<th>Lucro Prev.</th>
-<th>% Lucro</th>
+<th class="historico-th" style="color:#2563eb;">
+<div class="historico-header-cell">
+<span>Vl. Empenho</span>
+<button class="sort-col-btn" data-sort-select="sortEmpPend" data-sort-asc="valor_asc" data-sort-desc="valor_desc" title="Ordenar" onclick="sortByCol('sortEmpPend','valor_asc','valor_desc',renderEmpPendentes)">↕</button>
+</div>
+</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Vl. Compra Prev.</span>
+<button class="sort-col-btn" data-sort-select="sortEmpPend" data-sort-asc="compra_asc" data-sort-desc="compra_desc" title="Ordenar" onclick="sortByCol('sortEmpPend','compra_asc','compra_desc',renderEmpPendentes)">↕</button>
+</div>
+</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Custo Prev.</span>
+<button class="sort-col-btn" data-sort-select="sortEmpPend" data-sort-asc="custo_asc" data-sort-desc="custo_desc" title="Ordenar" onclick="sortByCol('sortEmpPend','custo_asc','custo_desc',renderEmpPendentes)">↕</button>
+</div>
+</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Lucro Prev.</span>
+<button class="sort-col-btn" data-sort-select="sortEmpPend" data-sort-asc="lucro_asc" data-sort-desc="lucro_desc" title="Ordenar" onclick="sortByCol('sortEmpPend','lucro_asc','lucro_desc',renderEmpPendentes)">↕</button>
+</div>
+</th>
+<th class="historico-th" style="color:#a3e635;">
+<div class="historico-header-cell">
+<span>% Lucro</span>
+<button class="sort-col-btn" data-sort-select="sortEmpPend" data-sort-asc="pct_asc" data-sort-desc="pct_desc" title="Ordenar" onclick="sortByCol('sortEmpPend','pct_asc','pct_desc',renderEmpPendentes)">↕</button>
+</div>
+</th>
 <th>Status</th>
 <th>Ações</th></tr></thead>
 <tbody id="empPendTableBody"></tbody>
@@ -3532,7 +3705,7 @@
 <option value="empresa_asc">Empresa A→Z</option>
 <option value="valor_desc">Valor ↓</option>
 <option value="valor_asc">Valor ↑</option>
-</select>
+<option value="valor_desc">Vl. Empenho ↓</option><option value="valor_asc">Vl. Empenho ↑</option><option value="compra_desc">Vl. Compra Prev. ↓</option><option value="compra_asc">Vl. Compra Prev. ↑</option><option value="custo_desc">Custo Prev. ↓</option><option value="custo_asc">Custo Prev. ↑</option><option value="lucro_desc">Lucro Prev. ↓</option><option value="lucro_asc">Lucro Prev. ↑</option><option value="pct_desc">% Lucro ↓</option><option value="pct_asc">% Lucro ↑</option></select>
 </div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Filtrado</span>
@@ -3575,7 +3748,25 @@
 <div class="historico-inline-popover hidden" id="empAndPopover-data">
 <div class="historico-popover-title">Filtrar Data</div>
 <div class="historico-filter-grid">
-<div><label>Data exata</label><input class="field-box" id="fEmpAndData" oninput="renderEmpAndamento()" type="date"/></div>
+<div><label>Data exata</label><input class="field-box" id="fEmpAndData" oninput="renderEmpAndamento()" type="date"/>
+<div class="sort-month-grid" style="margin-top:5px;">
+<div><label>Mês</label><select class="field-box" id="fEmpAndMes" onchange="renderEmpAndamento(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option>
+<option value="02">Fev</option>
+<option value="03">Mar</option>
+<option value="04">Abr</option>
+<option value="05">Mai</option>
+<option value="06">Jun</option>
+<option value="07">Jul</option>
+<option value="08">Ago</option>
+<option value="09">Set</option>
+<option value="10">Out</option>
+<option value="11">Nov</option>
+<option value="12">Dez</option></select></div>
+<div><label>Ano</label><select class="field-box" id="fEmpAndAno" onchange="renderEmpAndamento(); saveSortPrefs()"><option value="">Todos</option><option value="2024">2024</option>
+<option value="2025">2025</option>
+<option value="2026">2026</option>
+<option value="2027">2027</option></select></div>
+</div></div>
 </div>
 <div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltrosEmpAndamento()" type="button">Limpar</button></div>
 </div>
@@ -3609,11 +3800,36 @@
 </div>
 </th>
 <th>Itens Empenhados</th>
-<th style="color:#2563eb;">Vl. Empenho</th>
-<th style="color:#60a5fa;">Vl. Compra</th>
-<th style="color:#fb923c;">Custo</th>
-<th style="color:#34d399;">Lucro</th>
-<th style="color:#a3e635;">% Lucro</th>
+<th class="historico-th" style="color:#2563eb;">
+<div class="historico-header-cell">
+<span>Vl. Empenho</span>
+<button class="sort-col-btn" data-sort-select="sortEmpAnd" data-sort-asc="valor_asc" data-sort-desc="valor_desc" title="Ordenar" onclick="sortByCol('sortEmpAnd','valor_asc','valor_desc',renderEmpAndamento)">↕</button>
+</div>
+</th>
+<th class="historico-th" style="color:#60a5fa;">
+<div class="historico-header-cell">
+<span>Vl. Compra</span>
+<button class="sort-col-btn" data-sort-select="sortEmpAnd" data-sort-asc="compra_asc" data-sort-desc="compra_desc" title="Ordenar" onclick="sortByCol('sortEmpAnd','compra_asc','compra_desc',renderEmpAndamento)">↕</button>
+</div>
+</th>
+<th class="historico-th" style="color:#fb923c;">
+<div class="historico-header-cell">
+<span>Custo</span>
+<button class="sort-col-btn" data-sort-select="sortEmpAnd" data-sort-asc="custo_asc" data-sort-desc="custo_desc" title="Ordenar" onclick="sortByCol('sortEmpAnd','custo_asc','custo_desc',renderEmpAndamento)">↕</button>
+</div>
+</th>
+<th class="historico-th" style="color:#34d399;">
+<div class="historico-header-cell">
+<span>Lucro</span>
+<button class="sort-col-btn" data-sort-select="sortEmpAnd" data-sort-asc="lucro_asc" data-sort-desc="lucro_desc" title="Ordenar" onclick="sortByCol('sortEmpAnd','lucro_asc','lucro_desc',renderEmpAndamento)">↕</button>
+</div>
+</th>
+<th class="historico-th" style="color:#a3e635;">
+<div class="historico-header-cell">
+<span>% Lucro</span>
+<button class="sort-col-btn" data-sort-select="sortEmpAnd" data-sort-asc="pct_asc" data-sort-desc="pct_desc" title="Ordenar" onclick="sortByCol('sortEmpAnd','pct_asc','pct_desc',renderEmpAndamento)">↕</button>
+</div>
+</th>
 <th class="historico-th">
 <div class="historico-header-cell">
 <span>Status</span>
@@ -3638,7 +3854,7 @@
 <div class="sort-select-wrap">
 <label>Ordenar</label>
 <select class="sort-select" id="sortEmpAnd" onchange="renderEmpAndamento(); saveSortPrefs()">
-<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc" selected>Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option><option value="pct_desc">% Lucro ↓ (maior)</option><option value="pct_asc">% Lucro ↑ (menor)</option></select>
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc" selected>Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option><option value="pct_desc">% Lucro ↓ (maior)</option><option value="pct_asc">% Lucro ↑ (menor)</option><option value="valor_desc">Vl. Empenho ↓</option><option value="valor_asc">Vl. Empenho ↑</option><option value="compra_desc">Vl. Compra ↓</option><option value="compra_asc">Vl. Compra ↑</option><option value="custo_desc">Custo ↓</option><option value="custo_asc">Custo ↑</option><option value="lucro_desc">Lucro ↓</option><option value="lucro_asc">Lucro ↑</option></select>
 </div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Filtrado</span>
@@ -3679,7 +3895,25 @@
 <div class="historico-inline-popover hidden" id="empEncPopover-data">
 <div class="historico-popover-title">Filtrar Data</div>
 <div class="historico-filter-grid">
-<div><label>Data exata</label><input class="field-box" id="fEmpEncData" oninput="renderEmpEncerrados()" type="date"/></div>
+<div><label>Data exata</label><input class="field-box" id="fEmpEncData" oninput="renderEmpEncerrados()" type="date"/>
+<div class="sort-month-grid" style="margin-top:5px;">
+<div><label>Mês</label><select class="field-box" id="fEmpEncMes" onchange="renderEmpEncerrados(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option>
+<option value="02">Fev</option>
+<option value="03">Mar</option>
+<option value="04">Abr</option>
+<option value="05">Mai</option>
+<option value="06">Jun</option>
+<option value="07">Jul</option>
+<option value="08">Ago</option>
+<option value="09">Set</option>
+<option value="10">Out</option>
+<option value="11">Nov</option>
+<option value="12">Dez</option></select></div>
+<div><label>Ano</label><select class="field-box" id="fEmpEncAno" onchange="renderEmpEncerrados(); saveSortPrefs()"><option value="">Todos</option><option value="2024">2024</option>
+<option value="2025">2025</option>
+<option value="2026">2026</option>
+<option value="2027">2027</option></select></div>
+</div></div>
 </div>
 <div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltrosEmpEncerrados()" type="button">Limpar</button></div>
 </div>
@@ -3713,11 +3947,36 @@
 </div>
 </th>
 <th>Itens Empenhados</th>
-<th style="color:#2563eb;">Vl. Empenho</th>
-<th>Vl. Compra</th>
-<th>Custo</th>
-<th style="color:#1f8a4c;">Lucro</th>
-<th style="color:#1f8a4c;">% Lucro</th>
+<th class="historico-th" style="color:#2563eb;">
+<div class="historico-header-cell">
+<span>Vl. Empenho</span>
+<button class="sort-col-btn" data-sort-select="sortEmpEnc" data-sort-asc="valor_asc" data-sort-desc="valor_desc" title="Ordenar" onclick="sortByCol('sortEmpEnc','valor_asc','valor_desc',renderEmpEncerrados)">↕</button>
+</div>
+</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Vl. Compra</span>
+<button class="sort-col-btn" data-sort-select="sortEmpEnc" data-sort-asc="compra_asc" data-sort-desc="compra_desc" title="Ordenar" onclick="sortByCol('sortEmpEnc','compra_asc','compra_desc',renderEmpEncerrados)">↕</button>
+</div>
+</th>
+<th class="historico-th">
+<div class="historico-header-cell">
+<span>Custo</span>
+<button class="sort-col-btn" data-sort-select="sortEmpEnc" data-sort-asc="custo_asc" data-sort-desc="custo_desc" title="Ordenar" onclick="sortByCol('sortEmpEnc','custo_asc','custo_desc',renderEmpEncerrados)">↕</button>
+</div>
+</th>
+<th class="historico-th" style="color:#1f8a4c;">
+<div class="historico-header-cell">
+<span>Lucro</span>
+<button class="sort-col-btn" data-sort-select="sortEmpEnc" data-sort-asc="lucro_asc" data-sort-desc="lucro_desc" title="Ordenar" onclick="sortByCol('sortEmpEnc','lucro_asc','lucro_desc',renderEmpEncerrados)">↕</button>
+</div>
+</th>
+<th class="historico-th" style="color:#1f8a4c;">
+<div class="historico-header-cell">
+<span>% Lucro</span>
+<button class="sort-col-btn" data-sort-select="sortEmpEnc" data-sort-asc="pct_asc" data-sort-desc="pct_desc" title="Ordenar" onclick="sortByCol('sortEmpEnc','pct_asc','pct_desc',renderEmpEncerrados)">↕</button>
+</div>
+</th>
 <th>Status</th>
 <th>Data Pagamento</th></tr></thead>
 <tbody id="empEncTableBody"></tbody>
@@ -3775,7 +4034,7 @@
 <div class="sort-select-wrap">
 <label>Ordenar</label>
 <select class="sort-select" id="sortCompras" onchange="renderCompras(); saveSortPrefs()">
-<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option></select>
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="status_asc">Status A→Z</option><option value="valor_desc">Valor ↓</option><option value="valor_asc">Valor ↑</option><option value="lucro_desc">Lucro ↓</option><option value="lucro_asc">Lucro ↑</option></select>
 </div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Filtrado</span>
@@ -4351,6 +4610,8 @@
     function getFiltrosAndamento() {
       return {
         data:     qs('fAndData')?.value    || '',
+        mes:      qs('fAndMes')?.value      || '',
+        ano:      qs('fAndAno')?.value      || '',
         orgao:    (qs('fAndOrgao')?.value  || '').trim().toLowerCase(),
         uf:       (qs('fAndUF')?.value     || '').trim().toUpperCase(),
         empresa:  qs('fAndEmpresa')?.value || '',
@@ -4367,6 +4628,8 @@
       const filtradas = disputas.filter(item => {
         const dateOnly = item.data ? item.data.slice(0, 10) : '';
         if (filtros.data     && dateOnly !== filtros.data) return false;
+        if (filtros.mes      && dateOnly.slice(5,7) !== filtros.mes.padStart(2,'0')) return false;
+        if (filtros.ano      && dateOnly.slice(0,4) !== filtros.ano) return false;
         if (filtros.orgao    && !String(item.orgao    || '').toLowerCase().includes(filtros.orgao))    return false;
         if (filtros.uf       && String(item.uf        || '').toUpperCase() !== filtros.uf)             return false;
         if (filtros.empresa  && item.empresa !== filtros.empresa)  return false;
@@ -4422,6 +4685,8 @@
     function _filtrosEncerradas() {
       return {
         data:    qs('fEncData')?.value    || '',
+        mes:     qs('fEncMes')?.value     || '',
+        ano:     qs('fEncAno')?.value     || '',
         orgao:   (qs('fEncOrgao')?.value   || '').trim().toLowerCase(),
         uf:      (qs('fEncUF')?.value       || '').trim().toUpperCase(),
         empresa: qs('fEncEmpresa')?.value   || '',
@@ -4436,6 +4701,8 @@
     function _filtrarEncerradas(f) {
       return disputasEncerradas.filter(item => {
         if (f.data    && (item.data || '').slice(0,10) !== f.data)                        return false;
+        if (f.mes     && (item.data || '').slice(5,7) !== f.mes.padStart(2,'0'))          return false;
+        if (f.ano     && (item.data || '').slice(0,4) !== f.ano)                          return false;
         if (f.orgao   && !String(item.orgao   || '').toLowerCase().includes(f.orgao))     return false;
         if (f.uf      && String(item.uf       || '').toUpperCase() !== f.uf)              return false;
         if (f.empresa && item.empresa !== f.empresa)                                       return false;
@@ -5065,11 +5332,15 @@
     function renderContratosAtivos() {
       const body = qs('conAtivosBody');
       const fData  = qs('fConAData')?.value   || '';
+      const fMes   = qs('fConAMes')?.value    || '';
+      const fAno   = qs('fConAAno')?.value    || '';
       const fOrgao = (qs('fConAOrgao')?.value || '').trim().toLowerCase();
       const fEmp   = qs('fConAEmpresa')?.value || '';
 
       const filtrados = contratosAtivos.filter(c => {
         if (fData  && (c.data || '') !== fData)                                      return false;
+        if (fMes   && (c.data || '').slice(5,7) !== fMes.padStart(2,'0'))               return false;
+        if (fAno   && (c.data || '').slice(0,4) !== fAno)                                return false;
         if (fOrgao && !String(c.orgao || '').toLowerCase().includes(fOrgao))          return false;
         if (fEmp   && c.empresa !== fEmp)                                             return false;
         if (_filtroRascunhoAtivo && !isRascunho(c))                                   return false;
@@ -5155,11 +5426,15 @@
     function renderContratosEncerrados() {
       const body = qs('conEncerradosBody');
       const fData  = qs('fConEData')?.value   || '';
+      const fMes   = qs('fConEMes')?.value    || '';
+      const fAno   = qs('fConEAno')?.value    || '';
       const fOrgao = (qs('fConEOrgao')?.value || '').trim().toLowerCase();
       const fEmp   = qs('fConEEmpresa')?.value || '';
 
       const filtrados = contratosEncerrados.filter(c => {
         if (fData  && (c.data || '') !== fData)                         return false;
+        if (fMes   && (c.data || '').slice(5,7) !== fMes.padStart(2,'0'))  return false;
+        if (fAno   && (c.data || '').slice(0,4) !== fAno)                   return false;
         if (fOrgao && !String(c.orgao || '').toLowerCase().includes(fOrgao)) return false;
         if (fEmp   && c.empresa !== fEmp)                               return false;
         return true;
@@ -5228,6 +5503,7 @@
         empresa: c => c.empresa || '',
         status:  c => c.status || '',
         valor:   c => Number(c.valor) || 0,
+        exec:    c => { const r = calcExecucaoContrato(c); return r ? r.pct : 0; },
       });
 
       if (!sortedConE.length) {
@@ -6508,12 +6784,16 @@
       const fEmpresa = qs('fEmpAndEmpresa')?.value || '';
       const fOrgao   = (qs('fEmpAndOrgao')?.value  || '').trim().toLowerCase();
       const fData    = qs('fEmpAndData')?.value    || '';
+      const fMes     = qs('fEmpAndMes')?.value     || '';
+      const fAno     = qs('fEmpAndAno')?.value     || '';
 
       const filtrados = andamento.filter(e => {
         if (fStatus  && e.status  !== fStatus)                                return false;
         if (fEmpresa && e.empresa !== fEmpresa)                               return false;
         if (fOrgao   && !String(e.orgao||'').toLowerCase().includes(fOrgao)) return false;
         if (fData    && e.data    !== fData)                                  return false;
+        if (fMes     && (e.data||'').slice(5,7) !== fMes.padStart(2,'0'))          return false;
+        if (fAno     && (e.data||'').slice(0,4) !== fAno)                           return false;
         return true;
       });
 
@@ -6562,6 +6842,9 @@
         empresa: e => e.empresa || '',
         status:  e => e.status || '',
         valor:   e => Number(e.valor) || 0,
+        compra:  e => { const fin = calcEmpFinanceiro(e); return fin.vlCompraTotal || 0; },
+        custo:   e => { const fin = calcEmpFinanceiro(e); return fin.custoTotal || 0; },
+        lucro:   e => { const fin = calcEmpFinanceiro(e); return fin.lucroEmp || 0; },
         pct:     e => { const { lucroEmp, vlEmpTotal } = calcEmpFinanceiro(e); return vlEmpTotal > 0 ? (lucroEmp/vlEmpTotal)*100 : 0; },
       }, 'data_asc');
       body.innerHTML = sortedEmpAnd.length
@@ -6602,11 +6885,15 @@
       const pendentes = empenhos.filter(e => e.status === 'Pendente');
 
       const fData    = (qs('fEmpPendData')?.value    || '').trim();
+      const fMes     = qs('fEmpPendMes')?.value     || '';
+      const fAno     = qs('fEmpPendAno')?.value     || '';
       const fOrgao   = (qs('fEmpPendOrgao')?.value   || '').trim().toLowerCase();
       const fEmpresa = (qs('fEmpPendEmpresa')?.value  || '').trim();
 
       let filtered = pendentes.filter(e => {
         if (fData    && (e.data||'').slice(0,10) !== fData) return false;
+        if (fMes     && (e.data||'').slice(5,7) !== fMes.padStart(2,'0')) return false;
+        if (fAno     && (e.data||'').slice(0,4) !== fAno)                 return false;
         if (fOrgao   && !(e.orgao||'').toLowerCase().includes(fOrgao)) return false;
         if (fEmpresa && e.empresa !== fEmpresa) return false;
         return true;
@@ -6620,6 +6907,10 @@
         if (sort === 'empresa_asc') return (a.empresa||'').localeCompare(b.empresa||'');
         if (sort === 'valor_desc') return Number(b.valor||0) - Number(a.valor||0);
         if (sort === 'valor_asc')  return Number(a.valor||0) - Number(b.valor||0);
+        if (sort.startsWith('compra_')) { const fa=calcEmpFinanceiro(a), fb=calcEmpFinanceiro(b); return sort==='compra_desc'?fb.vlCompraEmp-fa.vlCompraEmp:fa.vlCompraEmp-fb.vlCompraEmp; }
+        if (sort.startsWith('custo_'))  { const fa=calcEmpFinanceiro(a), fb=calcEmpFinanceiro(b); return sort==='custo_desc'?fb.custoEmp-fa.custoEmp:fa.custoEmp-fb.custoEmp; }
+        if (sort.startsWith('lucro_'))  { const fa=calcEmpFinanceiro(a), fb=calcEmpFinanceiro(b); return sort==='lucro_desc'?fb.lucroEmp-fa.lucroEmp:fa.lucroEmp-fb.lucroEmp; }
+        if (sort.startsWith('pct_'))    { const fa=calcEmpFinanceiro(a), fb=calcEmpFinanceiro(b); const pa=fa.vlEmpTotal>0?(fa.lucroEmp/fa.vlEmpTotal)*100:0, pb=fb.vlEmpTotal>0?(fb.lucroEmp/fb.vlEmpTotal)*100:0; return sort==='pct_desc'?pb-pa:pa-pb; }
         return 0;
       });
 
@@ -6777,15 +7068,16 @@
       const fEmpresa = qs('fEmpEncEmpresa')?.value || '';
       const fOrgao   = (qs('fEmpEncOrgao')?.value  || '').trim().toLowerCase();
       const fData    = qs('fEmpEncData')?.value    || '';
+      const fMes     = qs('fEmpEncMes')?.value     || '';
+      const fAno     = qs('fEmpEncAno')?.value     || '';
 
       const filtrados = pagos.filter(e => {
         if (fEmpresa && e.empresa !== fEmpresa)                               return false;
         if (fOrgao   && !String(e.orgao||'').toLowerCase().includes(fOrgao)) return false;
         if (fData    && e.data    !== fData)                                  return false;
+        if (fMes     && (e.data||'').slice(5,7) !== fMes.padStart(2,'0'))    return false;
+        if (fAno     && (e.data||'').slice(0,4) !== fAno)                    return false;
         return true;
-      });
-
-      // KPIs — valores realizados
       let _compraTotal = 0, _custoTotal = 0, _lucroTotal = 0, _vlEmpTotal = 0;
       pagos.forEach(e => {
         const { vlCompraReal, custoReal, lucroReal, vlEmpTotal } = calcEmpFinanceiroRealizado(e);
@@ -6814,6 +7106,9 @@
         empresa: e => e.empresa || '',
         status:  e => e.status || '',
         valor:   e => Number(e.valor) || 0,
+        compra:  e => { const f = calcEmpFinanceiroRealizado(e); return f.vlCompraReal || 0; },
+        custo:   e => { const f = calcEmpFinanceiroRealizado(e); return f.custoReal || 0; },
+        lucro:   e => { const f = calcEmpFinanceiroRealizado(e); return f.lucroReal || 0; },
         pct:     e => { const { lucroReal, vlEmpTotal } = calcEmpFinanceiroRealizado(e); return vlEmpTotal > 0 ? (lucroReal/vlEmpTotal)*100 : 0; },
       }, 'data_desc');
       body.innerHTML = sortedEmpEnc.length
@@ -8647,6 +8942,48 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       });
     }
 
+    // ── Ordenação por clique em coluna ────────────────────────
+    // sortByCol(selectId, fieldAsc, fieldDesc, renderFn)
+    // Alterna entre asc/desc, atualiza o sort select e re-renderiza.
+    function sortByCol(selectId, fieldAsc, fieldDesc, renderFn) {
+      const sel = qs(selectId);
+      if (!sel) return;
+      const cur = sel.value;
+      sel.value = (cur === fieldAsc) ? fieldDesc : fieldAsc;
+      saveSortPrefs();
+      if (typeof renderFn === 'function') renderFn();
+      // Atualizar ícones de sort ativo na tabela
+      _atualizarIconesSort();
+    }
+
+    // Atualiza visual dos botões de sort (destaca o ativo)
+    function _atualizarIconesSort() {
+      document.querySelectorAll('.sort-col-btn[data-sort-select]').forEach(btn => {
+        const sel = qs(btn.dataset.sortSelect);
+        if (!sel) return;
+        const cur = sel.value;
+        const isActive = (cur === btn.dataset.sortAsc || cur === btn.dataset.sortDesc);
+        btn.classList.toggle('sort-active', isActive);
+        if (isActive) btn.textContent = cur === btn.dataset.sortAsc ? '↑' : '↓';
+        else btn.textContent = '↕';
+      });
+    }
+
+    // Helper: monta um th com botão de sort para colunas numéricas
+    function _thSort(label, selectId, fieldBase, renderFn, style) {
+      return `<th class="historico-th" style="${style||''}">
+        <div class="historico-header-cell">
+          <span>${label}</span>
+          <button class="sort-col-btn"
+            data-sort-select="${selectId}"
+            data-sort-asc="${fieldBase}_asc"
+            data-sort-desc="${fieldBase}_desc"
+            title="Ordenar"
+            onclick="sortByCol('${selectId}','${fieldBase}_asc','${fieldBase}_desc',${renderFn})">↕</button>
+        </div>
+      </th>`;
+    }
+
     // ── Persistência de preferências de sort ─────────────────
     const SORT_PREFS_KEY = 'km_sort_prefs_v1';
     const SORT_IDS = [
@@ -8670,6 +9007,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           const el = document.getElementById(id);
           if (el && prefs[id]) el.value = prefs[id];
         });
+        _atualizarIconesSort();
       } catch(e) { /* ignora se corrompido */ }
     }
 
