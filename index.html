@@ -6651,11 +6651,12 @@
       }
       const pctLucroEl = qs('empAndStatPctLucro');
       if (pctLucroEl) {
-        const _pctValues = andamento.map(e => {
+        // Média ponderada: lucroTotal / vlEmpTotal agregado
+        const _andPctBase = andamento.reduce((s, e) => {
           const { vlEmpTotal, lucroReal } = calcEmpFinanceiroRealizado(e);
-          return vlEmpTotal > 0 ? (lucroReal / vlEmpTotal) * 100 : 0;
-        });
-        const _pct = _pctValues.length > 0 ? _pctValues.reduce((s, v) => s + v, 0) / _pctValues.length : 0;
+          s.lucro += lucroReal; s.emp += vlEmpTotal; return s;
+        }, { lucro: 0, emp: 0 });
+        const _pct = _andPctBase.emp > 0 ? (_andPctBase.lucro / _andPctBase.emp * 100) : 0;
         pctLucroEl.textContent = _pct.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
         pctLucroEl.style.color = _pct >= 0 ? '#a3e635' : '#f05252';
       }
@@ -6904,11 +6905,8 @@
         _lucroTotal  += lucroReal;
         _vlEmpTotal  += vlEmpTotal;
       });
-      const _pctValues2 = pagos.map(e => {
-        const { vlEmpTotal, lucroReal } = calcEmpFinanceiroRealizado(e);
-        return vlEmpTotal > 0 ? (lucroReal / vlEmpTotal) * 100 : 0;
-      });
-      const _pctTotal = _pctValues2.length > 0 ? _pctValues2.reduce((s, v) => s + v, 0) / _pctValues2.length : 0;
+      // Média ponderada: lucroTotal / vlEmpTotal agregado
+      const _pctTotal = _vlEmpTotal > 0 ? (_lucroTotal / _vlEmpTotal * 100) : 0;
       qs('empEncStatTotal').textContent  = pagos.length;
       qs('empEncStatValor').textContent  = formatCurrency(pagos.reduce((s,e) => s+(Number(e.valor)||0), 0));
       if (qs('empEncStatCompra')) qs('empEncStatCompra').textContent = formatCurrency(_compraTotal);
@@ -8446,7 +8444,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           custo   += Number(e.valor||0) * ((Number(contratosAtivos.find(c=>c.id===e.contratoId)?.royaltiesPct||1) + Number(contratosAtivos.find(c=>c.id===e.contratoId)?.impostoPct||6))/100);
           lucro   += fin.vlEmpTotal - fin.vlCompraEmp - custo;
         });
-        const pct = vlCompra > 0 ? ((vlEmp - vlCompra) / vlCompra * 100) : 0;
+        const pct = vlEmp > 0 ? ((vlEmp - vlCompra) / vlEmp * 100) : 0;
         return { vlEmp, vlCompra, custo, lucro: vlEmp - vlCompra, pct };
       };
 
@@ -8460,7 +8458,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           custo   += r.custoReal;
           lucro   += r.lucroReal;
         });
-        const pct = vlCompra > 0 ? (lucro/vlCompra*100) : 0;
+        const pct = vlEmp > 0 ? (lucro/vlEmp*100) : 0;
         return { vlEmp, vlCompra, custo, lucro, pct };
       };
 
@@ -8472,14 +8470,14 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       setEl('dashEmpPendVlCompra', formatCurrency(fp.vlCompra));
       setEl('dashEmpPendCusto', formatCurrency(fp.custo));
       setEl('dashEmpPendLucro', formatCurrency(fp.lucro));
-      setEl('dashEmpPendPct', fp.vlCompra > 0 ? fp.pct.toFixed(1)+'%' : '—');
+      setEl('dashEmpPendPct', fp.vlEmp > 0 ? fp.pct.toFixed(1)+'%' : '—');
 
       setEl('dashEmpAndQtd', empAnd.length);
       setEl('dashEmpAndVlEmp', formatCurrency(fa.vlEmp));
       setEl('dashEmpAndVlCompra', formatCurrency(fa.vlCompra));
       setEl('dashEmpAndCusto', formatCurrency(fa.custo));
       setEl('dashEmpAndLucro', formatCurrency(fa.lucro));
-      setEl('dashEmpAndPct', fa.vlCompra > 0 ? fa.pct.toFixed(1)+'%' : '—');
+      setEl('dashEmpAndPct', fa.vlEmp > 0 ? fa.pct.toFixed(1)+'%' : '—');
 
       // Recebidos mês
       const empPagosMes = empPagos.filter(e => { if (!e.dataPagamento) return false; const d = new Date(e.dataPagamento+'T00:00:00'); return d.getMonth()===mesAtual && d.getFullYear()===anoAtual; });
@@ -8488,7 +8486,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       setEl('dashEmpRecMesQtd', empPagosMes.length);
       setEl('dashEmpRecMesVlEmp', formatCurrency(frm.vlEmp));
       setEl('dashEmpRecMesLucro', formatCurrency(frm.lucro));
-      setEl('dashEmpRecMesPct', frm.vlCompra > 0 ? frm.pct.toFixed(1)+'%' : '—');
+      setEl('dashEmpRecMesPct', frm.vlEmp > 0 ? frm.pct.toFixed(1)+'%' : '—');
       setEl('dashEmpRecMesComp', `= ${empPagosMes.length} vs ${anoAtual-1} · Lucro: = ${formatCurrency(frm.lucro)} vs ${anoAtual-1} (${nomeMesCurto}: R$ 0,00)`);
 
       // Recebidos ano
@@ -8498,7 +8496,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       setEl('dashEmpRecAnoQtd', empPagosAno.length);
       setEl('dashEmpRecAnoVlEmp', formatCurrency(fra.vlEmp));
       setEl('dashEmpRecAnoLucro', formatCurrency(fra.lucro));
-      setEl('dashEmpRecAnoPct', fra.vlCompra > 0 ? fra.pct.toFixed(1)+'%' : '—');
+      setEl('dashEmpRecAnoPct', fra.vlEmp > 0 ? fra.pct.toFixed(1)+'%' : '—');
       setEl('dashEmpRecAnoComp', `= ${empPagosAno.length} vs ${anoAtual-1} · Lucro: = ${formatCurrency(fra.lucro)} vs ${anoAtual-1} (${anoAtual-1}: R$ 0,00)`);
 
       // ── DONUT ──
