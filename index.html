@@ -1968,6 +1968,8 @@
     }
     .con-venc-30  { background: #2a0a0a; color: #f05252; }
     .con-venc-60  { background: #2a1c0a; color: #b76a00; }
+    :root[data-mode="light"] .con-venc-30 { background: #fde8e8; color: #c0392b; }
+    :root[data-mode="light"] .con-venc-60 { background: #fff0dd; color: #a05a00; }
 
     /* Info secundária no órgão */
     .con-orgao-wrap { display: flex; flex-direction: column; gap: 2px; }
@@ -1981,6 +1983,8 @@
     }
     .stat-alert .disputa-stat-value { color: #b76a00; }
     .stat-alert PLACEHOLDER_LABEL { color: #b76a00; font-weight: 700; }
+    :root[data-mode="light"] .stat-alert { background: #fff8ee; border-color: #f5a623 !important; }
+    :root[data-mode="light"] .stat-alert .disputa-stat-value { color: #a05a00; }
     .stat-alert-blink {
       animation: alertBlink 1.4s ease-in-out infinite;
     }
@@ -2283,6 +2287,11 @@
       padding: 8px 14px;
       margin-bottom: 10px;
       font-size: 11px;
+      color: #f5c07a;
+    }
+    :root[data-mode="light"] .venc-banner {
+      background: #fff8ee;
+      border-color: #f5c07a;
       color: #7c4a00;
     }
     .venc-banner-icon { font-size: 15px; flex: 0 0 auto; }
