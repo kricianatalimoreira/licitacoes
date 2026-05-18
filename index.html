@@ -6087,7 +6087,7 @@
       if (btnSalvar) { btnSalvar.textContent = '✅ Salvar Contrato'; btnSalvar.onclick = salvarContrato; }
       qs('cadastroContratoTitulo').textContent = '📝 Novo Contrato';
       qs('cadastroContratoWrap').classList.add('hidden');
-      persistAll(); renderContratosAtivos(); renderEmpenhos();
+      persistAll(); persistEmpenhos(); renderContratosAtivos(); renderEmpenhos();
     }
 
     function fecharEditContratoAtivo() {
@@ -6153,7 +6153,7 @@
           e.empresa = _novaEmpresaEnc;
         }
       });
-      persistAll(); renderContratosEncerrados(); renderEmpenhos(); fecharEditContratoEnc();
+      persistAll(); persistEmpenhos(); renderContratosEncerrados(); renderEmpenhos(); fecharEditContratoEnc();
     }
 
     // ── Excluir ──────────────────────────────────────
