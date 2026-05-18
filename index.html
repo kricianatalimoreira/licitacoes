@@ -2050,19 +2050,28 @@
        MÓDULO EMPENHOS
     ══════════════════════════════════════ */
     /* Tabela empenhos */
-    .emp-table th:nth-child(1),  .emp-table td:nth-child(1)  { width: 7%; }   /* Data Empenho */
-    .emp-table th:nth-child(2),  .emp-table td:nth-child(2)  { width: 7%; }   /* Data Compra */
+    /* Thead: fonte uniforme e quebra de texto em todos os th */
+    .emp-table thead th {
+      font-size: 9px !important;
+      white-space: normal !important;
+      word-break: break-word;
+      line-height: 1.3;
+      vertical-align: bottom;
+      padding-bottom: 6px;
+    }
+    .emp-table th:nth-child(1),  .emp-table td:nth-child(1)  { width: 6%; }   /* Dt. Empenho */
+    .emp-table th:nth-child(2),  .emp-table td:nth-child(2)  { width: 6%; }   /* Dt. Compra */
     .emp-table th:nth-child(3),  .emp-table td:nth-child(3)  { width: 6%; }   /* Nº Empenho */
     .emp-table th:nth-child(4),  .emp-table td:nth-child(4)  { width: 17%; white-space:normal; } /* Órgão */
     .emp-table th:nth-child(5),  .emp-table td:nth-child(5)  { width: 6%; }   /* Empresa */
-    .emp-table th:nth-child(6),  .emp-table td:nth-child(6)  { width: 15%; white-space:normal; } /* Itens */
+    .emp-table th:nth-child(6),  .emp-table td:nth-child(6)  { width: 16%; white-space:normal; } /* Itens */
     .emp-table th:nth-child(7),  .emp-table td:nth-child(7)  { width: 8%; }   /* Vl. Empenho */
-    .emp-table th:nth-child(8),  .emp-table td:nth-child(8)  { width: 8%; }   /* Vl. Compra Prev. */
-    .emp-table th:nth-child(9),  .emp-table td:nth-child(9)  { width: 8%; }   /* Custo Prev. */
-    .emp-table th:nth-child(10), .emp-table td:nth-child(10) { width: 7%; }   /* Lucro Prev. */
+    .emp-table th:nth-child(8),  .emp-table td:nth-child(8)  { width: 8%; }   /* Vl. Compra */
+    .emp-table th:nth-child(9),  .emp-table td:nth-child(9)  { width: 7%; }   /* Custo */
+    .emp-table th:nth-child(10), .emp-table td:nth-child(10) { width: 7%; }   /* Lucro */
     .emp-table th:nth-child(11), .emp-table td:nth-child(11) { width: 5%; text-align:center; } /* % Lucro */
     .emp-table th:nth-child(12), .emp-table td:nth-child(12) { width: 7%; white-space:normal; } /* Status */
-    .emp-table th:nth-child(13), .emp-table td:nth-child(13) { width: 6%; text-align:center; } /* Ações / Data Pagamento */
+    .emp-table th:nth-child(13), .emp-table td:nth-child(13) { width: 5%; text-align:center; } /* Ações */
 
     /* Status empenho */
     .emp-status-compra    { background:#0f2a1e; color:#2dd47a; }
@@ -3643,7 +3652,7 @@
 </div>
 </div>
 </th>
-<th style="font-size:10px;">Dt. Compra</th>
+<th>Dt. Compra</th>
 <th>Nº Empenho</th>
 <th class="historico-th">
 <div class="historico-header-cell">
@@ -3785,7 +3794,7 @@
 </div>
 </div>
 </th>
-<th style="font-size:10px;">Dt. Compra</th>
+<th>Dt. Compra</th>
 <th>Nº Empenho</th>
 <th class="historico-th">
 <div class="historico-header-cell">
@@ -3933,7 +3942,7 @@
 </div>
 </div>
 </th>
-<th style="font-size:10px;">Dt. Compra</th>
+<th>Dt. Compra</th>
 <th>Nº Empenho</th>
 <th class="historico-th">
 <div class="historico-header-cell">
