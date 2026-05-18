@@ -6070,13 +6070,24 @@
         _editado:     true, // marca como editado manualmente — sai do filtro de rascunhos
       };
 
+      // Propagar novo órgão e empresa para todos os empenhos vinculados
+      const _novoOrgao   = contratosAtivos[idx].orgao;
+      const _novaEmpresa = contratosAtivos[idx].empresa;
+      const _cidAtivo    = contratosAtivos[idx].id;
+      empenhos.forEach(e => {
+        if (e.contratoId === _cidAtivo) {
+          e.orgao   = _novoOrgao;
+          e.empresa = _novaEmpresa;
+        }
+      });
+
       editingContratoAtivoId = null;
       // Restaura botão para modo "criar"
       const btnSalvar = qs('btnStepSave');
       if (btnSalvar) { btnSalvar.textContent = '✅ Salvar Contrato'; btnSalvar.onclick = salvarContrato; }
       qs('cadastroContratoTitulo').textContent = '📝 Novo Contrato';
       qs('cadastroContratoWrap').classList.add('hidden');
-      persistAll(); renderContratosAtivos();
+      persistAll(); renderContratosAtivos(); renderEmpenhos();
     }
 
     function fecharEditContratoAtivo() {
@@ -6132,7 +6143,17 @@
         sala: qs('eConESala').value.trim(), drive: qs('eConEDrive').value.trim(),
         obs: qs('eConEObs').value.trim()
       };
-      persistAll(); renderContratosEncerrados(); fecharEditContratoEnc();
+      // Propagar novo órgão e empresa para todos os empenhos vinculados
+      const _novoOrgaoEnc   = contratosEncerrados[idx].orgao;
+      const _novaEmpresaEnc = contratosEncerrados[idx].empresa;
+      const _cidEnc         = contratosEncerrados[idx].id;
+      empenhos.forEach(e => {
+        if (e.contratoId === _cidEnc) {
+          e.orgao   = _novoOrgaoEnc;
+          e.empresa = _novaEmpresaEnc;
+        }
+      });
+      persistAll(); renderContratosEncerrados(); renderEmpenhos(); fecharEditContratoEnc();
     }
 
     // ── Excluir ──────────────────────────────────────
