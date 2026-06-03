@@ -7265,6 +7265,7 @@
             set(`${pfx}_linkCompra`,     compraExistente.linkCompra || '');
             set(`${pfx}_pagamento`,      compraExistente.pagamento);
             set(`${pfx}_parcelas`,       compraExistente.parcelas || 1);
+            set(`${pfx}_vlUnitCompra`,   compraExistente.vlUnitCompra);  // ← obrigatório antes do recalcCmp
             set(`${pfx}_impostoUnit`,    compraExistente.impostoUnit);
             set(`${pfx}_impostoTotal`,   compraExistente.impostoTotal);
             set(`${pfx}_royaltiesUnit`,  compraExistente.royaltUnit);
@@ -8426,16 +8427,17 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       setTimeout(() => {
         const pfx = 'cmp_0';
         const set = (sid, v) => { const el = document.getElementById(sid); if (el) el.value = v; };
-        set(`${pfx}_qtdCompra`,     c.qtdCompra);
-        set(`${pfx}_data`,          c.data);
-        set(`${pfx}_fornecedor`,    c.fornecedor);
-        set(`${pfx}_linkCompra`,    c.linkCompra || '');
-        set(`${pfx}_pagamento`,     c.pagamento);
-        set(`${pfx}_parcelas`,      c.parcelas || 1);
-        set(`${pfx}_impostoUnit`,   c.impostoUnit);
-        set(`${pfx}_impostoTotal`,  c.impostoTotal);
-        set(`${pfx}_royaltiesUnit`, c.royaltUnit);
-        set(`${pfx}_royaltiesTotal`,c.royaltTotal);
+        set(`${pfx}_qtdCompra`,      c.qtdCompra);
+        set(`${pfx}_data`,           c.data);
+        set(`${pfx}_fornecedor`,     c.fornecedor);
+        set(`${pfx}_linkCompra`,     c.linkCompra || '');
+        set(`${pfx}_pagamento`,      c.pagamento);
+        set(`${pfx}_parcelas`,       c.parcelas || 1);
+        set(`${pfx}_vlUnitCompra`,   c.vlUnitCompra);   // ← obrigatório antes do recalcCmp
+        set(`${pfx}_impostoUnit`,    c.impostoUnit);
+        set(`${pfx}_impostoTotal`,   c.impostoTotal);
+        set(`${pfx}_royaltiesUnit`,  c.royaltUnit);
+        set(`${pfx}_royaltiesTotal`, c.royaltTotal);
         _cmpEmpenhoId = c.empenhoId;
         recalcCmp(0);
         toggleParcelas(0);
