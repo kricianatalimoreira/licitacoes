@@ -7194,6 +7194,14 @@
     function abrirEditEmpenho(id) {
       const e = empenhos.find(x => x.id === id);
       if (!e) return;
+      closeAllMenus();
+
+      // Se empenho está Em andamento (Compra Feita / Ag. Liquidação), abre modal de edição de compra
+      if (e.status === 'Compra Feita' || e.status === 'Ag. Liquidação') {
+        abrirEditCompraDoEmpenho(id);
+        return;
+      }
+
       editingEmpenhoId = id;
       // Abre modal no modo edição simples (só status, responsável, obs)
       qs('empEditId').value         = id;
@@ -7210,7 +7218,68 @@
       const itens = (e.itensEmpenhados||[]).map(ie => `${ie.descricao||'—'} ×${ie.qtdEmp}`).join(', ');
       qs('empEditItens').textContent = itens || '—';
       qs('editEmpenhoWrap').classList.remove('hidden');
-      closeAllMenus();
+    }
+
+    // Abre modal de compras em modo edição para empenhos Em andamento
+    function abrirEditCompraDoEmpenho(empenhoId) {
+      const emp = empenhos.find(e => e.id === empenhoId);
+      if (!emp) return;
+
+      const comprasDoEmp = (typeof compras !== 'undefined' ? compras : []).filter(c => c.empenhoId === empenhoId);
+
+      // Se só há 1 compra, abre o modal de edição individual diretamente
+      if (comprasDoEmp.length === 1) {
+        abrirEditCompra(comprasDoEmp[0].id);
+        return;
+      }
+
+      // Se há múltiplas compras, abre o stepper preenchido com os dados existentes
+      _cmpEmpenhoId = empenhoId;
+      _cmpEditId    = null;
+      _cmpItens     = emp.itensEmpenhados || [];
+      _cmpStep      = 0;
+      _cmpSkipped   = [];
+
+      if (!_cmpItens.length) { showToast('Este empenho não possui itens.', 'warning'); return; }
+
+      const sub = qs('cmpModalSubtitle');
+      if (sub) sub.textContent = `${escapeHTML(emp.orgao) || '—'} · Empenho ${escapeHTML(emp.numero) || '—'} · ${emp.empresa || '—'}`;
+
+      const body = qs('cmpStepperBody');
+      body.innerHTML = _cmpItens.map((ie, i) =>
+        `<div class="cmp-step-panel" id="cmpPanel_${i}" data-idx="${i}">
+          ${cmpItemFormHtml(ie, i, Number(ie.vlUnit||0))}
+        </div>`
+      ).join('');
+
+      // Preenche com dados das compras existentes
+      setTimeout(() => {
+        _cmpItens.forEach((ie, i) => {
+          const compraExistente = comprasDoEmp.find(c => c.itemId === ie.itemId);
+          if (compraExistente) {
+            const pfx = `cmp_${i}`;
+            const set = (sid, v) => { const el = document.getElementById(sid); if (el) el.value = v; };
+            set(`${pfx}_qtdCompra`,      compraExistente.qtdCompra);
+            set(`${pfx}_data`,           compraExistente.data);
+            set(`${pfx}_fornecedor`,     compraExistente.fornecedor);
+            set(`${pfx}_linkCompra`,     compraExistente.linkCompra || '');
+            set(`${pfx}_pagamento`,      compraExistente.pagamento);
+            set(`${pfx}_parcelas`,       compraExistente.parcelas || 1);
+            set(`${pfx}_impostoUnit`,    compraExistente.impostoUnit);
+            set(`${pfx}_impostoTotal`,   compraExistente.impostoTotal);
+            set(`${pfx}_royaltiesUnit`,  compraExistente.royaltUnit);
+            set(`${pfx}_royaltiesTotal`, compraExistente.royaltTotal);
+            recalcCmp(i);
+            toggleParcelas(i);
+          } else {
+            initCmpDefaults(i, Number(ie.vlUnit||0));
+          }
+        });
+        cmpRenderPills();
+        cmpIrPara(0);
+      }, 10);
+
+      qs('modalComprasWrap').classList.remove('hidden');
     }
 
     function salvarEditEmpenho() {
