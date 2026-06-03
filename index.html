@@ -7734,7 +7734,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     function cmpItemFormHtml(item, idx, vlUnitEmp) {
       const id = `cmp_${idx}`;
       return `
-      <div class="cmp-item-card" id="cmpCard_${idx}" data-item-id="${item.itemId}" data-item-idx="${idx}">
+      <div class="cmp-item-card" id="cmpCard_${idx}" data-item-id="${item.itemId}" data-item-idx="${idx}" data-vl-unit-emp="${vlUnitEmp}">
         <div class="cmp-item-title">
           📦 ${escapeHTML(item.descricao) || '(sem descrição)'}
         </div>
@@ -7863,7 +7863,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const emp = empenhos.find(e => e.id === empId);
       const itemId = card.dataset.itemId;
       const ieData = emp ? (emp.itensEmpenhados||[]).find(ie => ie.itemId === itemId) : null;
-      const vlUnitEmp = ieData ? Number(ieData.vlUnit||0) : 0;
+      const vlUnitEmp = ieData ? Number(ieData.vlUnit||0) : Number(card.dataset.vlUnitEmp||0);
 
       const impostoUnitEl   = document.getElementById(`${id}_impostoUnit`);
       const royaltiesUnitEl = document.getElementById(`${id}_royaltiesUnit`);
@@ -7880,7 +7880,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const emp = empenhos.find(e => e.id === _cmpEmpenhoId || e.id === _cmpEditId);
       const itemId = card.dataset.itemId;
       const ieData = emp ? (emp.itensEmpenhados||[]).find(ie => ie.itemId === itemId) : null;
-      const vlUnitEmp = ieData ? Number(ieData.vlUnit||0) : 0;
+      // Fallback: usa data-vl-unit-emp gravado no card (cobre Compra Geral e itens sem itemId)
+      const vlUnitEmp = ieData ? Number(ieData.vlUnit||0) : Number(card.dataset.vlUnitEmp||0);
 
       const qtd           = Math.max(0, Number(document.getElementById(`${id}_qtdCompra`)?.value||0));
       const vlUnitCompra  = Math.max(0, Number(document.getElementById(`${id}_vlUnitCompra`)?.value||0));
