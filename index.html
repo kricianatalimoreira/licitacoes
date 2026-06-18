@@ -8692,8 +8692,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
       // ── DISPUTAS ──
       const todos = [...disputas, ...disputasEncerradas];
-      const dispMes = todos.filter(d => { if (!d.data) return false; const dt = new Date(d.data+'T00:00:00'); return dt.getMonth()===mesAtual && dt.getFullYear()===anoAtual; });
-      const dispAno = todos.filter(d => { if (!d.data) return false; return new Date(d.data+'T00:00:00').getFullYear()===anoAtual; });
+      const dispMes = todos.filter(d => { if (!d.data) return false; const dt = new Date(d.data.slice(0,10)+'T00:00:00'); return dt.getMonth()===mesAtual && dt.getFullYear()===anoAtual; });
+      const dispAno = todos.filter(d => { if (!d.data) return false; return new Date(d.data.slice(0,10)+'T00:00:00').getFullYear()===anoAtual; });
       const dispVencidasAno = dispAno.filter(d => d.status==='Vencida').length;
       const dispPerdidasAno = dispAno.filter(d => d.status==='Perdida').length;
       const taxaConv = (dispVencidasAno + dispPerdidasAno) > 0 ? (dispVencidasAno / (dispVencidasAno + dispPerdidasAno) * 100) : 0;
