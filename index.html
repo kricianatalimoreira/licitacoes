@@ -2695,6 +2695,35 @@
     .dash-venc-orgao { flex: 1; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .dash-venc-dias { font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 6px; flex: 0 0 auto; }
 
+    /* Lista de disputas em andamento (dashboard) */
+    .dash-disputa-row {
+      display: grid;
+      grid-template-columns: 90px 1.4fr 1.1fr 50px;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+      font-size: 11px;
+    }
+    .dash-disputa-row-head {
+      font-size: 9px; font-weight: 800; text-transform: uppercase;
+      color: var(--muted); letter-spacing: .04em;
+      border-bottom: 1px solid var(--line); padding-bottom: 6px;
+    }
+    .dash-disputas-list { display: flex; flex-direction: column; max-height: 260px; overflow-y: auto; }
+    .dash-disputas-list .dash-disputa-row { border-bottom: 1px solid var(--line); }
+    .dash-disputas-list .dash-disputa-row:last-child { border-bottom: none; }
+    .dash-disputa-data { font-weight: 700; }
+    .dash-disputa-orgao { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dash-disputa-processo { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dash-disputa-link-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 7px; margin: 0 auto;
+      background: var(--primary-hover); color: var(--primary-dark);
+      text-decoration: none; font-size: 13px; border: 1px solid var(--primary-border);
+    }
+    .dash-disputa-link-btn:hover { opacity: .75; }
+    .dash-disputa-empty { padding: 18px 10px; text-align: center; font-size: 11px; color: var(--muted); }
+
     /* Donut chart */
     .dash-donut-wrap { display: flex; align-items: center; gap: 18px; }
     .dash-donut-svg  { flex: 0 0 auto; }
@@ -2877,42 +2906,28 @@
 <button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
 </div>
 
-<!-- METAS -->
+<!-- CONTRATOS GERADOS -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-<!-- Meta Mensal -->
-<div class="meta-card">
+<!-- Contratos Gerados no Mês -->
+<div class="meta-card" style="cursor:pointer;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
 <div class="meta-header">
 <div>
-<div class="meta-title">🎯 META MENSAL — CONTRATOS GERADOS</div>
+<div class="meta-title">🎯 CONTRATOS GERADOS NO MÊS</div>
 <div style="font-size:9px;color:var(--muted);margin-bottom:2px;" id="dashMetaMensalLabel"></div>
-<div class="meta-valor-realizado" id="dashMetaMensalRealizado" style="color:var(--primary);font-size:20px;font-weight:800;">R$ 0,00</div>
-<div style="font-size:9px;color:var(--muted);margin-top:2px;" id="dashMetaMensalCount"></div>
-</div>
-<div class="meta-semaforo" id="dashSemaforoMensal" style="font-size:22px;">🔴</div>
-</div>
-<div class="meta-target"><span>Meta:</span><input id="dashMetaMensalInput" onfocus="this.select()" oninput="salvarMetas();renderDashboard()" placeholder="R$ 0,00" type="text"/></div>
-<div class="meta-bar-bg"><div class="meta-bar-fill" id="dashMetaMensalBar" style="width:0%;"></div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;">
-<span class="meta-pct" id="dashMetaMensalPct">0.0%</span>
-<span id="dashMetaMensalFalta" style="font-size:9px;color:var(--muted);"></span>
+<div class="meta-valor-realizado" id="dashMetaMensalCountBig" style="color:var(--primary);font-size:30px;">0</div>
+<div style="font-size:11px;color:var(--muted);margin-top:2px;" id="dashMetaMensalRealizado"></div>
 </div>
 </div>
-<!-- Meta Anual -->
-<div class="meta-card">
+</div>
+<!-- Contratos Gerados no Ano -->
+<div class="meta-card" style="cursor:pointer;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
 <div class="meta-header">
 <div>
-<div class="meta-title">📅 META ANUAL — CONTRATOS GERADOS</div>
+<div class="meta-title">📅 CONTRATOS GERADOS NO ANO</div>
 <div style="font-size:9px;color:var(--muted);margin-bottom:2px;" id="dashMetaAnualLabel"></div>
-<div class="meta-valor-realizado" id="dashMetaAnualRealizado" style="color:#2563eb;font-size:20px;font-weight:800;">R$ 0,00</div>
-<div style="font-size:9px;color:var(--muted);margin-top:2px;" id="dashMetaAnualCount"></div>
+<div class="meta-valor-realizado" id="dashMetaAnualCountBig" style="color:#2563eb;font-size:30px;">0</div>
+<div style="font-size:11px;color:var(--muted);margin-top:2px;" id="dashMetaAnualRealizado"></div>
 </div>
-<div class="meta-semaforo" id="dashSemaforoAnual" style="font-size:22px;">🔴</div>
-</div>
-<div class="meta-target"><span>Meta:</span><input id="dashMetaAnualInput" onfocus="this.select()" oninput="salvarMetas();renderDashboard()" placeholder="R$ 0,00" type="text"/></div>
-<div class="meta-bar-bg"><div class="meta-bar-fill" id="dashMetaAnualBar" style="width:0%;"></div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;">
-<span class="meta-pct" id="dashMetaAnualPct">0.0%</span>
-<span id="dashMetaAnualFalta" style="font-size:9px;color:var(--muted);"></span>
 </div>
 </div>
 </div>
@@ -2944,6 +2959,21 @@
   <div class="dash-kpi-value" id="dashKpiDisputasAtivas" style="color:var(--primary);">0</div>
   <div class="dash-kpi-sub" id="dashKpiDisputasSub"></div>
 </div>
+</div>
+
+<!-- DISPUTAS EM ANDAMENTO (lista) -->
+<div class="meta-card" style="margin-bottom:14px;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+<div style="font-size:10px;font-weight:800;color:var(--primary);letter-spacing:.08em;">📋 DISPUTAS EM ANDAMENTO</div>
+<button class="venc-banner-link" style="font-size:10px;background:none;border:none;cursor:pointer;" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">Ver todas →</button>
+</div>
+<div class="dash-disputa-row dash-disputa-row-head">
+<div>Data</div>
+<div>Órgão</div>
+<div>Nº e Tipo do Processo</div>
+<div style="text-align:center;">Link</div>
+</div>
+<div class="dash-disputas-list" id="dashDisputasAndamentoList"></div>
 </div>
 
 <!-- CONTRATOS -->
@@ -8724,31 +8754,13 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const vlContratosMes = contratosMes.reduce((s,c) => s + (Number(c.valor)||0), 0);
       const vlContratosAno = contratosAno.reduce((s,c) => s + (Number(c.valor)||0), 0);
 
-      const parseMeta = v => { if (!v) return 0; return Number(String(v).replace(/[R$\s.]/g,'').replace(',','.')) || 0; };
-      const semaforo  = p => p >= 100 ? {emoji:'🟢',cls:'bar-green'} : p >= 50 ? {emoji:'🟡',cls:'bar-yellow'} : {emoji:'🔴',cls:'bar-red'};
-      const metaMensal = parseMeta(qs('dashMetaMensalInput')?.value);
-      const metaAnual  = parseMeta(qs('dashMetaAnualInput')?.value);
-      const pctMensal  = metaMensal > 0 ? Math.min(100, vlContratosMes / metaMensal * 100) : 0;
-      const pctAnual   = metaAnual  > 0 ? Math.min(100, vlContratosAno / metaAnual  * 100) : 0;
-      const smM = semaforo(pctMensal), smA = semaforo(pctAnual);
-
       setEl('dashMetaMensalLabel', nomeMesCurto + ' ' + anoStr);
-      setEl('dashMetaMensalRealizado', formatCurrency(vlContratosMes));
-      setEl('dashMetaMensalCount', `${contratosMes.length} contrato${contratosMes.length !== 1 ? 's' : ''} gerado${contratosMes.length !== 1 ? 's' : ''}`);
-      setEl('dashMetaMensalPct', pctMensal.toFixed(1) + '%');
-      setEl('dashSemaforoMensal', smM.emoji);
-      setEl('dashMetaMensalFalta', metaMensal > 0 ? `Faltam ${formatCurrency(Math.max(0, metaMensal - vlContratosMes))}` : '');
-      const barM = qs('dashMetaMensalBar');
-      if (barM) { barM.style.width = pctMensal.toFixed(1)+'%'; barM.className = `meta-bar-fill ${smM.cls}`; }
+      setEl('dashMetaMensalCountBig', contratosMes.length);
+      setEl('dashMetaMensalRealizado', `${formatCurrency(vlContratosMes)} gerados`);
 
       setEl('dashMetaAnualLabel', anoStr);
-      setEl('dashMetaAnualRealizado', formatCurrency(vlContratosAno));
-      setEl('dashMetaAnualCount', `${contratosAno.length} contrato${contratosAno.length !== 1 ? 's' : ''} gerado${contratosAno.length !== 1 ? 's' : ''}`);
-      setEl('dashMetaAnualPct', pctAnual.toFixed(1) + '%');
-      setEl('dashSemaforoAnual', smA.emoji);
-      setEl('dashMetaAnualFalta', metaAnual > 0 ? `Faltam ${formatCurrency(Math.max(0, metaAnual - vlContratosAno))}` : '');
-      const barA = qs('dashMetaAnualBar');
-      if (barA) { barA.style.width = pctAnual.toFixed(1)+'%'; barA.className = `meta-bar-fill ${smA.cls}`; }
+      setEl('dashMetaAnualCountBig', contratosAno.length);
+      setEl('dashMetaAnualRealizado', `${formatCurrency(vlContratosAno)} gerados`);
 
       // ── DISPUTAS ──
       const todos = [...disputas, ...disputasEncerradas];
@@ -8758,6 +8770,29 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const dispPerdidasAno = dispAno.filter(d => d.status==='Perdida').length;
       const taxaConv = (dispVencidasAno + dispPerdidasAno) > 0 ? (dispVencidasAno / (dispVencidasAno + dispPerdidasAno) * 100) : 0;
       const taxaAnterior = 36.7; // placeholder
+
+      // ── Lista: Disputas em andamento ──
+      const listaDispAndamento = qs('dashDisputasAndamentoList');
+      if (listaDispAndamento) {
+        const ativas = [...disputas].sort((a,b) => (a.data||'').localeCompare(b.data||''));
+        if (ativas.length === 0) {
+          listaDispAndamento.innerHTML = '<div class="dash-disputa-empty">Nenhuma disputa em andamento.</div>';
+        } else {
+          listaDispAndamento.innerHTML = ativas.map(d => {
+            const dataFmt = d.data ? formatDate(d.data) : '—';
+            const tipoProc = [d.tipo, d.processo].filter(Boolean).join(' ') || '—';
+            const linkBtn = d.sala
+              ? `<a class="dash-disputa-link-btn" href="${escapeHTML(d.sala)}" target="_blank" rel="noopener" title="Abrir link do sistema">🔗</a>`
+              : `<span style="color:var(--muted);font-size:10px;text-align:center;display:block;">—</span>`;
+            return `<div class="dash-disputa-row">
+              <div class="dash-disputa-data">${dataFmt}</div>
+              <div class="dash-disputa-orgao">${escapeHTML(d.orgao) || '—'}</div>
+              <div class="dash-disputa-processo">${escapeHTML(tipoProc)}</div>
+              <div>${linkBtn}</div>
+            </div>`;
+          }).join('');
+        }
+      }
       const dispAtivas = disputas.filter(d => d.status==='Em andamento').length;
       const dispRecurso = disputas.filter(d => d.status==='Em recurso').length;
 
