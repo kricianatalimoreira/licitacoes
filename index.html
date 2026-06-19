@@ -5838,6 +5838,7 @@
 
     function showCadastroContrato() {
       _conItens = [];
+      _disputaParaEncerrar = null;
       // Limpa campos
       ['conData','conDataFim','conContrato','conOrgao','conUF','conEmpresa','conSistema',
        'conProcesso','conDrive','conValor','conCompra','conCustoDisplay','conLucroDisplay','conEmpenhado'].forEach(id => {
@@ -5999,6 +6000,7 @@
       const imposto   = Number(qs('conImposto')?.value   || 0);
       const item = {
         id:              crypto.randomUUID(),
+        disputaId:       _disputaParaEncerrar?.id || null,
         data:            qs('conData')?.value || '',
         dataFim:         qs('conDataFim')?.value || '',
         orgao,
@@ -6022,6 +6024,7 @@
       persistAll();
       fecharCadastroContrato();
       renderContratosAtivos();
+      _disputaParaEncerrar = null;
     }
 
     // ── Encerrar / Reativar ──────────────────────────
@@ -6104,6 +6107,27 @@
       closeAllMenus();
     }
 
+    // Localiza a disputa que originou um contrato (por vínculo direto ou por
+    // correspondência de conteúdo: mesmo órgão antigo + mesmo processo) e
+    // atualiza o nome do órgão nela também.
+    function _propagarOrgaoParaDisputaVinculada(contrato, oldOrgao, oldProcesso, novoOrgao) {
+      if (!novoOrgao || novoOrgao === oldOrgao) return;
+      let alvo = null;
+      if (contrato.disputaId) {
+        alvo = disputasEncerradas.find(d => d.id === contrato.disputaId)
+            || disputas.find(d => d.id === contrato.disputaId);
+      }
+      if (!alvo) {
+        const oldOrgaoNorm    = (oldOrgao    || '').trim().toUpperCase();
+        const oldProcessoNorm = (oldProcesso || '').trim().toLowerCase();
+        if (!oldOrgaoNorm) return;
+        const bate = d => (d.orgao || '').trim().toUpperCase() === oldOrgaoNorm
+          && (!oldProcessoNorm || (d.processo || '').trim().toLowerCase() === oldProcessoNorm);
+        alvo = disputasEncerradas.find(bate) || disputas.find(bate);
+      }
+      if (alvo) alvo.orgao = novoOrgao;
+    }
+
     function salvarEdicaoViaModal() {
       const idx = contratosAtivos.findIndex(c => c.id === editingContratoAtivoId);
       if (idx < 0) { salvarContrato(); return; } // fallback para novo contrato
@@ -6120,6 +6144,10 @@
       // Lê royalties e imposto já calculados pelos campos hidden
       const royalties = Number(qs('conRoyalties')?.value || 0);
       const imposto   = Number(qs('conImposto')?.value   || 0);
+
+      // Valores antigos (antes da edição) — usados para localizar a disputa vinculada
+      const _oldOrgaoAtivo    = contratosAtivos[idx].orgao;
+      const _oldProcessoAtivo = contratosAtivos[idx].processo;
 
       contratosAtivos[idx] = { ...contratosAtivos[idx],
         data:         qs('conData')?.value     || contratosAtivos[idx].data,
@@ -6152,6 +6180,9 @@
         }
       });
 
+      // Propagar novo órgão para a disputa de origem deste contrato (se houver)
+      _propagarOrgaoParaDisputaVinculada(contratosAtivos[idx], _oldOrgaoAtivo, _oldProcessoAtivo, _novoOrgao);
+
       editingContratoAtivoId = null;
       // Restaura botão para modo "criar"
       const btnSalvar = qs('btnStepSave');
@@ -6159,6 +6190,8 @@
       qs('cadastroContratoTitulo').textContent = '📝 Novo Contrato';
       qs('cadastroContratoWrap').classList.add('hidden');
       persistAll(); persistEmpenhos(); renderContratosAtivos(); renderEmpenhos();
+      if (typeof renderDisputas === 'function') renderDisputas();
+      if (typeof renderHistoricoDisputas === 'function') renderHistoricoDisputas();
     }
 
     function fecharEditContratoAtivo() {
@@ -6207,6 +6240,8 @@
       const compra    = Number(qs('eConECompra')?.value    || 0);
       const royalties = Number(qs('eConERoyalties')?.value || 0);
       const imposto   = Number(qs('eConEImposto')?.value   || 0);
+      const _oldOrgaoEnc    = contratosEncerrados[idx].orgao;
+      const _oldProcessoEnc = contratosEncerrados[idx].processo;
       contratosEncerrados[idx] = { ...contratosEncerrados[idx],
         data: qs('eConEData').value, orgao: qs('eConEOrgao').value.trim().toUpperCase(),
         empresa: qs('eConEEmpresa').value, status: qs('eConEStatus').value.trim(),
@@ -6226,7 +6261,12 @@
           e.contrato = _novoContratoEnc;
         }
       });
+      // Propagar novo órgão para a disputa de origem deste contrato (se houver)
+      _propagarOrgaoParaDisputaVinculada(contratosEncerrados[idx], _oldOrgaoEnc, _oldProcessoEnc, _novoOrgaoEnc);
+
       persistAll(); persistEmpenhos(); renderContratosEncerrados(); renderEmpenhos(); fecharEditContratoEnc();
+      if (typeof renderDisputas === 'function') renderDisputas();
+      if (typeof renderHistoricoDisputas === 'function') renderHistoricoDisputas();
     }
 
     // ── Excluir ──────────────────────────────────────
