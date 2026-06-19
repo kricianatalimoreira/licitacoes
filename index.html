@@ -2109,6 +2109,19 @@
     .emp-table-and th:nth-child(11), .emp-table-and td:nth-child(11) { width: 7%; white-space:normal; } /* Status */
     .emp-table-and th:nth-child(12), .emp-table-and td:nth-child(12) { width: 5%; text-align:center; } /* Ações */
 
+    /* Pagos: mesmas larguras da Pendentes, sem coluna de Ações (11 colunas) */
+    .emp-table-pagos th:nth-child(1),  .emp-table-pagos td:nth-child(1)  { width: 8%; }   /* DATAS */
+    .emp-table-pagos th:nth-child(2),  .emp-table-pagos td:nth-child(2)  { width: 6%; }   /* Nº Empenho */
+    .emp-table-pagos th:nth-child(3),  .emp-table-pagos td:nth-child(3)  { width: 17%; white-space:normal; } /* Órgão */
+    .emp-table-pagos th:nth-child(4),  .emp-table-pagos td:nth-child(4)  { width: 6%; }   /* Empresa */
+    .emp-table-pagos th:nth-child(5),  .emp-table-pagos td:nth-child(5)  { width: 16%; white-space:normal; } /* Itens */
+    .emp-table-pagos th:nth-child(6),  .emp-table-pagos td:nth-child(6)  { width: 8%; }   /* Vl. Empenho */
+    .emp-table-pagos th:nth-child(7),  .emp-table-pagos td:nth-child(7)  { width: 8%; }   /* Vl. Compra */
+    .emp-table-pagos th:nth-child(8),  .emp-table-pagos td:nth-child(8)  { width: 7%; }   /* Custo */
+    .emp-table-pagos th:nth-child(9),  .emp-table-pagos td:nth-child(9)  { width: 7%; }   /* Lucro */
+    .emp-table-pagos th:nth-child(10), .emp-table-pagos td:nth-child(10) { width: 5%; text-align:center; } /* % Lucro */
+    .emp-table-pagos th:nth-child(11), .emp-table-pagos td:nth-child(11) { width: 7%; white-space:normal; } /* Status */
+
     /* Status empenho */
     .emp-status-compra    { background:#0f2a1e; color:#2dd47a; }
     .emp-status-transito  { background:#2a1e08; color:#f0a938; }
@@ -3943,11 +3956,11 @@
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
-<table class="emp-table">
+<table class="emp-table emp-table-pagos">
 <thead><tr>
 <th class="historico-th">
 <div class="historico-header-cell">
-<span>Dt. Empenho</span>
+<span>DATAS</span>
 <button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'empEncPopover-data')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
 <div class="historico-inline-popover hidden" id="empEncPopover-data">
 <div class="historico-popover-title">Filtrar Data Empenho</div>
@@ -3976,7 +3989,6 @@
 </div>
 </div>
 </th>
-<th>Dt. Compra</th>
 <th>Nº Empenho</th>
 <th class="historico-th">
 <div class="historico-header-cell">
@@ -4035,8 +4047,7 @@
 <button class="sort-col-btn" data-sort-select="sortEmpEnc" data-sort-asc="pct_asc" data-sort-desc="pct_desc" title="Ordenar" onclick="sortByCol('sortEmpEnc','pct_asc','pct_desc','renderEmpEncerrados')">↕</button>
 </div>
 </th>
-<th>Status</th>
-<th>Data Pagamento</th></tr></thead>
+<th>Status</th></tr></thead>
 <tbody id="empEncTableBody"></tbody>
 </table>
 </div>
@@ -7105,7 +7116,7 @@
       </div>`;
 
       // Valores realizados
-      const { vlCompraReal, custoReal, lucroReal, vlEmpTotal, temCompra } = calcEmpFinanceiroRealizado(e);
+      const { vlCompraReal, custoReal, lucroReal, vlEmpTotal, dataCompra, temCompra } = calcEmpFinanceiroRealizado(e);
       const hasR = temCompra;
       let vlCompraHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let custoHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
@@ -7122,8 +7133,13 @@
       }
 
       return `<tr>
-        <td><span class="data-dia">${formatDate(e.data)}</span></td>
-        <td><span class="data-dia" style="color:${e.dataPagamento ? 'var(--text)' : 'var(--muted)'};">${e.dataPagamento ? formatDate(e.dataPagamento) : '—'}</span></td>
+        <td>
+          <div style="display:flex;flex-direction:column;gap:1px;">
+            <span class="data-dia">${formatDate(e.data)}</span>
+            ${dataCompra ? `<span style="font-size:9px;color:var(--muted);">Compra ${formatDate(dataCompra)}</span>` : ''}
+            ${e.dataPagamento ? `<span style="font-size:9px;color:var(--muted);">Pago ${formatDate(e.dataPagamento)}</span>` : ''}
+          </div>
+        </td>
         <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>
@@ -7137,7 +7153,6 @@
         <td>${lucroHtml}</td>
         <td style="text-align:center;">${pctHtml}</td>
         <td>${statusHtml}</td>
-        <td style="font-size:10px;color:var(--muted);text-align:center;">${e.dataPagamento ? formatDate(e.dataPagamento) : '—'}</td>
       </tr>`;
     }
 
@@ -7195,7 +7210,7 @@
       }, 'data_desc');
       body.innerHTML = sortedEmpEnc.length
         ? sortedEmpEnc.map(empPagosRowHtml).join('')
-        : `<tr><td colspan="13"><div class="empty-state">Nenhum empenho pago encontrado.</div></td></tr>`;
+        : `<tr><td colspan="11"><div class="empty-state">Nenhum empenho pago encontrado.</div></td></tr>`;
     }
 
     // Mantida para compatibilidade com chamadas internas (persistEmpenhos, etc.)
