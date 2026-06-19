@@ -2906,35 +2906,31 @@
 <button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
 </div>
 
-<!-- CONTRATOS GERADOS -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-<!-- Contratos Gerados no Mês -->
-<div class="meta-card" style="cursor:pointer;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
-<div class="meta-header">
-<div>
-<div class="meta-title">🎯 CONTRATOS GERADOS NO MÊS</div>
-<div style="font-size:9px;color:var(--muted);margin-bottom:2px;" id="dashMetaMensalLabel"></div>
-<div class="meta-valor-realizado" id="dashMetaMensalCountBig" style="color:var(--primary);font-size:30px;">0</div>
-<div style="font-size:11px;color:var(--muted);margin-top:2px;" id="dashMetaMensalRealizado"></div>
+<!-- LAYOUT 2 COLUNAS -->
+<div style="display:flex;gap:16px;align-items:stretch;margin-bottom:14px;">
+
+<!-- ══ COLUNA ESQUERDA: Disputas em Andamento + KPI'S Disputas ══ -->
+<div style="flex:1.15;display:flex;flex-direction:column;gap:14px;min-width:0;">
+
+<!-- DISPUTAS EM ANDAMENTO (lista, destaque) -->
+<div class="meta-card" style="flex:1;display:flex;flex-direction:column;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+<div style="font-size:11px;font-weight:800;color:var(--primary);letter-spacing:.08em;">📋 DISPUTAS EM ANDAMENTO</div>
+<button class="venc-banner-link" style="font-size:10px;background:none;border:none;cursor:pointer;" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">Ver todas →</button>
 </div>
+<div class="dash-disputa-row dash-disputa-row-head">
+<div>Data</div>
+<div>Órgão</div>
+<div>Nº e Tipo do Processo</div>
+<div style="text-align:center;">Link</div>
 </div>
-</div>
-<!-- Contratos Gerados no Ano -->
-<div class="meta-card" style="cursor:pointer;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
-<div class="meta-header">
-<div>
-<div class="meta-title">📅 CONTRATOS GERADOS NO ANO</div>
-<div style="font-size:9px;color:var(--muted);margin-bottom:2px;" id="dashMetaAnualLabel"></div>
-<div class="meta-valor-realizado" id="dashMetaAnualCountBig" style="color:#2563eb;font-size:30px;">0</div>
-<div style="font-size:11px;color:var(--muted);margin-top:2px;" id="dashMetaAnualRealizado"></div>
-</div>
-</div>
-</div>
+<div class="dash-disputas-list" id="dashDisputasAndamentoList" style="flex:1;max-height:420px;"></div>
 </div>
 
-<!-- DISPUTAS -->
-<div style="font-size:10px;font-weight:800;color:var(--primary);letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--primary-border);">⚡ DISPUTAS</div>
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+<!-- KPI'S DISPUTAS -->
+<div>
+<div style="font-size:10px;font-weight:800;color:var(--primary);letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--primary-border);">⚡ KPI'S DISPUTAS</div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
 <div class="dash-kpi-card" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">
   <div class="dash-kpi-label">Participadas no Mês</div>
   <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashDisputaMesLabel"></div>
@@ -2960,25 +2956,42 @@
   <div class="dash-kpi-sub" id="dashKpiDisputasSub"></div>
 </div>
 </div>
-
-<!-- DISPUTAS EM ANDAMENTO (lista) -->
-<div class="meta-card" style="margin-bottom:14px;">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-<div style="font-size:10px;font-weight:800;color:var(--primary);letter-spacing:.08em;">📋 DISPUTAS EM ANDAMENTO</div>
-<button class="venc-banner-link" style="font-size:10px;background:none;border:none;cursor:pointer;" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">Ver todas →</button>
-</div>
-<div class="dash-disputa-row dash-disputa-row-head">
-<div>Data</div>
-<div>Órgão</div>
-<div>Nº e Tipo do Processo</div>
-<div style="text-align:center;">Link</div>
-</div>
-<div class="dash-disputas-list" id="dashDisputasAndamentoList"></div>
 </div>
 
-<!-- CONTRATOS -->
-<div style="font-size:10px;font-weight:800;color:#2563eb;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #dbeafe;">📝 CONTRATOS</div>
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+</div>
+<!-- ══ FIM COLUNA ESQUERDA ══ -->
+
+<!-- ══ COLUNA DIREITA: Contratos Gerados + KPI'S Contratos + KPI'S Empenhos ══ -->
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;min-width:0;">
+
+<!-- CONTRATOS GERADOS (mês / ano) -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+<div class="meta-card" style="cursor:pointer;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+<div class="meta-header">
+<div>
+<div class="meta-title">🎯 CONTRATOS GERADOS NO MÊS</div>
+<div style="font-size:9px;color:var(--muted);margin-bottom:2px;" id="dashMetaMensalLabel"></div>
+<div class="meta-valor-realizado" id="dashMetaMensalCountBig" style="color:var(--primary);font-size:30px;">0</div>
+<div style="font-size:11px;color:var(--muted);margin-top:2px;" id="dashMetaMensalRealizado"></div>
+</div>
+</div>
+</div>
+<div class="meta-card" style="cursor:pointer;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+<div class="meta-header">
+<div>
+<div class="meta-title">📅 CONTRATOS GERADOS NO ANO</div>
+<div style="font-size:9px;color:var(--muted);margin-bottom:2px;" id="dashMetaAnualLabel"></div>
+<div class="meta-valor-realizado" id="dashMetaAnualCountBig" style="color:#2563eb;font-size:30px;">0</div>
+<div style="font-size:11px;color:var(--muted);margin-top:2px;" id="dashMetaAnualRealizado"></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- KPI'S CONTRATOS -->
+<div>
+<div style="font-size:10px;font-weight:800;color:#2563eb;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #dbeafe;">📝 KPI'S CONTRATOS</div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
 <div class="dash-kpi-card" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
   <div class="dash-kpi-label">Assinados no Mês</div>
   <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashConMesLabel"></div>
@@ -3004,10 +3017,12 @@
   <div class="dash-kpi-sub" id="dashKpiConVencerSub"></div>
 </div>
 </div>
+</div>
 
-<!-- EMPENHOS -->
-<div style="font-size:10px;font-weight:800;color:#7c3aed;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #ede9fe;">📄 EMPENHOS</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+<!-- KPI'S EMPENHOS -->
+<div>
+<div style="font-size:10px;font-weight:800;color:#7c3aed;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #ede9fe;">📄 KPI'S EMPENHOS</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
 <!-- Pendentes -->
 <div class="dash-card" style="padding:14px;">
   <div style="font-size:10px;font-weight:800;color:#b76a00;margin-bottom:10px;">🟡 PENDENTES — AGUARDANDO COMPRA</div>
@@ -3059,6 +3074,13 @@
   <div style="margin-top:8px;font-size:9px;color:var(--muted);" id="dashEmpRecAnoComp"></div>
 </div>
 </div>
+</div>
+
+</div>
+<!-- ══ FIM COLUNA DIREITA ══ -->
+
+</div>
+<!-- ══ FIM LAYOUT 2 COLUNAS ══ -->
 
 <!-- GRÁFICOS -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
