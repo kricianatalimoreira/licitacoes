@@ -2887,6 +2887,12 @@
 </button>
 </div>
 </div>
+<button class="menu-parent" onclick="abrirLimpezaDuplicados()" style="margin-top:8px;border-top:1px solid var(--line);padding-top:14px;">
+<span class="menu-parent-main">
+<span class="menu-icon">🧹</span>
+<span class="menu-label">Limpar Duplicados</span>
+</span>
+</button>
 </nav>
 </aside>
 <main class="content">
@@ -9529,6 +9535,133 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       });
     }
 
+    // ══════════════════════════════════════════════════════════
+    // LIMPEZA DE DUPLICATAS LÓGICAS (mesma data/órgão/processo, IDs diferentes)
+    // ══════════════════════════════════════════════════════════
+    let _duplicatasEncontradas = null;
+
+    function abrirLimpezaDuplicados() {
+      _duplicatasEncontradas = null;
+      const res = qs('limpezaResultados');
+      const foot = qs('limpezaFooter');
+      const btn  = qs('btnEscanearDup');
+      if (res)  { res.style.display = 'none'; res.innerHTML = ''; }
+      if (foot) foot.style.display = 'none';
+      if (btn)  btn.style.display = 'inline-flex';
+      qs('modalLimpezaWrap')?.classList.remove('hidden');
+    }
+    function fecharLimpezaDuplicados() {
+      qs('modalLimpezaWrap')?.classList.add('hidden');
+    }
+
+    function _agruparDuplicatasLogicas(arr, keyFn) {
+      const grupos = {};
+      (arr || []).forEach(item => {
+        if (!item) return;
+        const k = keyFn(item);
+        if (!k || k.replace(/\|/g, '').trim() === '') return;
+        (grupos[k] = grupos[k] || []).push(item);
+      });
+      const duplicatas = [];
+      Object.values(grupos).forEach(g => {
+        if (g.length > 1) for (let i = 1; i < g.length; i++) duplicatas.push(g[i]);
+      });
+      return duplicatas;
+    }
+
+    function escanearDuplicatasLogicas() {
+      const kDisputa  = d => `${d.data||''}|${(d.orgao||'').trim().toLowerCase()}|${(d.processo||'').trim().toLowerCase()}`;
+      const kContrato = c => `${c.data||''}|${(c.orgao||'').trim().toLowerCase()}|${(c.contrato||c.processo||'').trim().toLowerCase()}`;
+      const kEmpenho  = e => `${e.contratoId||''}|${(e.numero||'').trim().toLowerCase()}|${e.data||''}`;
+      const kCompra   = c => `${c.empenhoId||''}|${c.itemId||''}|${c.data||''}|${c.qtdCompra||''}`;
+
+      _duplicatasEncontradas = {
+        disputas:            _agruparDuplicatasLogicas(disputas, kDisputa),
+        disputasEncerradas:  _agruparDuplicatasLogicas(disputasEncerradas, kDisputa),
+        contratosAtivos:     _agruparDuplicatasLogicas(contratosAtivos, kContrato),
+        contratosEncerrados: _agruparDuplicatasLogicas(contratosEncerrados, kContrato),
+        empenhos:            _agruparDuplicatasLogicas(empenhos, kEmpenho),
+        compras:             _agruparDuplicatasLogicas(compras, kCompra),
+      };
+
+      const labels = {
+        disputas: '📋 Disputas (Em andamento)', disputasEncerradas: '📋 Disputas (Encerradas)',
+        contratosAtivos: '📄 Contratos Ativos', contratosEncerrados: '📄 Contratos Encerrados',
+        empenhos: '💰 Empenhos', compras: '🛒 Compras'
+      };
+      const describe = {
+        disputas:            d => `${formatDate(d.data)} — ${d.orgao||'—'} — ${d.processo||'—'}`,
+        disputasEncerradas:  d => `${formatDate(d.data)} — ${d.orgao||'—'} — ${d.processo||'—'}`,
+        contratosAtivos:     c => `${formatDate(c.data)} — ${c.orgao||'—'} — ${c.contrato||c.processo||'—'}`,
+        contratosEncerrados: c => `${formatDate(c.data)} — ${c.orgao||'—'} — ${c.contrato||c.processo||'—'}`,
+        empenhos:            e => `${formatDate(e.data)} — Nº ${e.numero||'—'} — ${e.orgao||'—'}`,
+        compras:             c => `${formatDate(c.data)} — ${c.descricao||'item'} — Empenho ${c.empenhoNumero||c.empenhoId||'—'}`,
+      };
+
+      const totalDup = Object.values(_duplicatasEncontradas).reduce((s, arr) => s + arr.length, 0);
+      const res  = qs('limpezaResultados');
+      const foot = qs('limpezaFooter');
+      const btn  = qs('btnEscanearDup');
+      if (btn) btn.style.display = 'none';
+
+      if (totalDup === 0) {
+        res.innerHTML = `<div style="text-align:center;padding:28px;color:#1f8a4c;font-weight:700;font-size:13px;">✅ Nenhuma duplicata encontrada. Seu banco de dados está limpo!</div>`;
+        res.style.display = 'flex';
+        if (foot) foot.style.display = 'none';
+        return;
+      }
+
+      let html = `<div style="font-size:12px;font-weight:800;color:#b42318;">⚠️ ${totalDup} registro(s) duplicado(s) encontrado(s):</div>`;
+      Object.entries(_duplicatasEncontradas).forEach(([key, arr]) => {
+        if (arr.length === 0) return;
+        html += `<div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;">
+          <div style="font-size:11px;font-weight:800;margin-bottom:6px;">${labels[key]} — ${arr.length} duplicata(s)</div>
+          <div style="display:flex;flex-direction:column;gap:3px;max-height:140px;overflow-y:auto;">
+            ${arr.map(item => `<div style="font-size:10px;color:var(--muted);padding:3px 0;border-bottom:1px dashed var(--line);">${escapeHTML(describe[key](item))}</div>`).join('')}
+          </div>
+        </div>`;
+      });
+      res.innerHTML = html;
+      res.style.display = 'flex';
+      if (foot) foot.style.display = 'flex';
+      if (qs('btnConfirmarLimpeza')) qs('btnConfirmarLimpeza').textContent = `🗑️ Excluir ${totalDup} duplicata(s)`;
+    }
+
+    function confirmarLimpezaDuplicados() {
+      if (!_duplicatasEncontradas) return;
+      const idsRemover = {
+        disputas:            new Set(_duplicatasEncontradas.disputas.map(d => d.id)),
+        disputasEncerradas:  new Set(_duplicatasEncontradas.disputasEncerradas.map(d => d.id)),
+        contratosAtivos:     new Set(_duplicatasEncontradas.contratosAtivos.map(d => d.id)),
+        contratosEncerrados: new Set(_duplicatasEncontradas.contratosEncerrados.map(d => d.id)),
+        empenhos:            new Set(_duplicatasEncontradas.empenhos.map(d => d.id)),
+        compras:             new Set(_duplicatasEncontradas.compras.map(d => d.id)),
+      };
+
+      disputas            = disputas.filter(d => !idsRemover.disputas.has(d.id));
+      disputasEncerradas  = disputasEncerradas.filter(d => !idsRemover.disputasEncerradas.has(d.id));
+      contratosAtivos     = contratosAtivos.filter(c => !idsRemover.contratosAtivos.has(c.id));
+      contratosEncerrados = contratosEncerrados.filter(c => !idsRemover.contratosEncerrados.has(c.id));
+      empenhos            = empenhos.filter(e => !idsRemover.empenhos.has(e.id));
+      compras             = compras.filter(c => !idsRemover.compras.has(c.id));
+
+      persistAll();
+      persistEmpenhos();
+      persistCompras();
+
+      if (typeof renderDisputas === 'function') renderDisputas();
+      if (typeof renderHistoricoDisputas === 'function') renderHistoricoDisputas();
+      if (typeof renderContratosAtivos === 'function') renderContratosAtivos();
+      if (typeof renderContratosEncerrados === 'function') renderContratosEncerrados();
+      if (typeof renderEmpenhos === 'function') renderEmpenhos();
+      if (typeof renderCompras === 'function') renderCompras();
+      if (typeof renderDashboard === 'function') renderDashboard();
+
+      _duplicatasEncontradas = null;
+      fecharLimpezaDuplicados();
+      showSync('ok', '✓ duplicatas removidas');
+    }
+
     function persistAll() {
       disputas             = dedupeById(disputas);
       disputasEncerradas   = dedupeById(disputasEncerradas);
@@ -10284,6 +10417,27 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 </div>
 </div>
 <!-- ═══ MODAL IMPORTAR DO EXCEL ═══ -->
+<!-- MODAL: LIMPAR DUPLICADOS -->
+<div class="modal-overlay hidden" id="modalLimpezaWrap" style="z-index:10000;">
+<div class="modal-card" style="max-width:760px;width:95vw;max-height:88vh;display:flex;flex-direction:column;">
+<div class="modal-header">
+  <h3>🧹 Limpar Dados Duplicados</h3>
+  <button class="modal-close" onclick="fecharLimpezaDuplicados()">×</button>
+</div>
+<div class="modal-body" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;">
+  <div style="background:#fef3c7;border:1px solid #f0c14b;border-radius:10px;padding:12px 14px;font-size:11px;color:#7a5200;line-height:1.6;">
+    ⚠️ Esta ferramenta procura registros <strong>logicamente duplicados</strong> (mesma data, órgão, processo/número — mesmo com IDs diferentes) em Disputas, Contratos, Empenhos e Compras. Nada é apagado automaticamente: revise a lista abaixo e confirme antes de excluir. Em cada grupo de duplicatas, o registro <strong>mais antigo é mantido</strong> e os demais são removidos.
+  </div>
+  <button class="btn btn-primary" onclick="escanearDuplicatasLogicas()" id="btnEscanearDup" style="align-self:flex-start;">🔍 Escanear banco de dados</button>
+  <div id="limpezaResultados" style="display:none;flex-direction:column;gap:12px;"></div>
+</div>
+<div class="modal-footer" id="limpezaFooter" style="display:none;">
+  <button class="btn btn-light" onclick="fecharLimpezaDuplicados()">Cancelar</button>
+  <button class="btn btn-primary" id="btnConfirmarLimpeza" style="background:#b42318;" onclick="confirmarLimpezaDuplicados()">🗑️ Excluir duplicatas encontradas</button>
+</div>
+</div>
+</div>
+
 <div class="modal-overlay hidden" id="importarExcelWrap" style="z-index:10000;">
 <div class="modal-card" style="max-width:820px;width:95vw;max-height:90vh;display:flex;flex-direction:column;">
 <div class="modal-header">
