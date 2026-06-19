@@ -2899,12 +2899,6 @@
 <span id="dashDataHora" style="font-size:10px;color:var(--muted);white-space:nowrap;"></span>
 </div>
 </div>
-<div class="venc-banner hidden" id="vencBanner-dashboard">
-<span class="venc-banner-icon">⚠️</span>
-<span class="venc-banner-text" id="vencBannerText-dashboard"></span>
-<button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
-<button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
-</div>
 
 <!-- LAYOUT 2 COLUNAS -->
 <div style="display:flex;gap:16px;align-items:stretch;margin-bottom:14px;">
@@ -2924,7 +2918,7 @@
 <div>Nº e Tipo do Processo</div>
 <div style="text-align:center;">Link</div>
 </div>
-<div class="dash-disputas-list" id="dashDisputasAndamentoList" style="flex:1;max-height:420px;"></div>
+<div class="dash-disputas-list" id="dashDisputasAndamentoList" style="height:198px;max-height:198px;flex:none;overflow-y:auto;"></div>
 </div>
 
 <!-- KPI'S DISPUTAS -->
@@ -7719,7 +7713,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     //  SINO DE ALERTAS DE VENCIMENTO DE CONTRATOS
     // ══════════════════════════════════════════════════════════
 
-    const VENC_SECTIONS = ['dashboard'];
+    const VENC_SECTIONS = [];
 
     function calcularAlertasVencimento() {
       const hoje = new Date(); hoje.setHours(0,0,0,0);
