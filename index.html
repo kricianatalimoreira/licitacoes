@@ -798,6 +798,14 @@
       word-break: break-word;
     }
     tbody tr:hover td { background: var(--primary-hover); }
+    .itens-emp-wrap { display: flex; flex-direction: column; }
+    .itens-emp-extra.hidden { display: none; }
+    .itens-emp-toggle {
+      background: none; border: none; cursor: pointer; padding: 2px 0 0 0;
+      font-size: 9px; font-weight: 700; color: var(--primary-dark, #2563eb);
+      text-align: left; text-decoration: underline; width: fit-content;
+    }
+    .itens-emp-toggle:hover { opacity: 0.75; }
     .con-table tbody tr { cursor: pointer; }
     .con-table tbody tr:hover td { background: var(--primary-th1); }
 
@@ -6751,10 +6759,7 @@
     }
 
     function empRowHtml(e) {
-      const itensDesc = (e.itensEmpenhados || []).map(ie => {
-        const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
-        return `<div style="font-size:10px;line-height:1.4;">${escapeHTML(ie.descricao) || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
-      }).join('');
+      const itensDesc = itensEmpCompactHtml(e);
       const statusOpts = ['Pendente','Compra Feita','Ag. Liquidação','Paga']
         .map(s => `<button onclick="mudarStatusEmpenho('${e.id}','${s}')">${s}</button>`).join('');
       const statusHtml = `<div class="status-wrap">
@@ -6999,10 +7004,7 @@
                 diasPendBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:${bg};border-radius:5px;padding:1px 5px;">${diff}d pendentes</span>`;
               }
             }
-            const itensDesc = (e.itensEmpenhados || []).map(ie => {
-              const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
-              return `<div style="font-size:10px;line-height:1.4;">${escapeHTML(ie.descricao) || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
-            }).join('');
+            const itensDesc = itensEmpCompactHtml(e);
             const prog = progressoCompra(e);
             const progBadge = prog.total > 0
               ? `<span style="display:inline-block;margin-top:4px;font-size:9px;font-weight:700;
@@ -7064,10 +7066,7 @@
     }
 
     function empPagosRowHtml(e) {
-      const itensDesc = (e.itensEmpenhados || []).map(ie => {
-        const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
-        return `<div style="font-size:10px;line-height:1.4;">${escapeHTML(ie.descricao) || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
-      }).join('');
+      const itensDesc = itensEmpCompactHtml(e);
       const statusOpts = ['Pendente','Compra Feita','Ag. Liquidação','Paga']
         .map(s => `<button onclick="mudarStatusEmpenho('${e.id}','${s}')">${s}</button>`).join('');
       const statusHtml = `<div class="status-wrap">
@@ -7174,6 +7173,36 @@
       renderEmpPendentes();
       renderEmpAndamento();
       renderEmpEncerrados();
+    }
+
+    // Monta a coluna "Itens Empenhados" mostrando apenas o 1º item, com
+    // botão "+ ver mais (N)" para expandir o restante. Mantém altura de linha fixa.
+    function itensEmpCompactHtml(e) {
+      const itens = e.itensEmpenhados || [];
+      if (!itens.length) return '—';
+      const itemHtml = (ie) => {
+        const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
+        return `<div style="font-size:10px;line-height:1.4;">${escapeHTML(ie.descricao) || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
+      };
+      const first = itemHtml(itens[0]);
+      if (itens.length === 1) return first;
+      const rest = itens.slice(1).map(itemHtml).join('');
+      const moreLabel = `+ ver mais (${itens.length - 1})`;
+      return `<div class="itens-emp-wrap">
+        ${first}
+        <div class="itens-emp-extra hidden" id="itensExtra-${e.id}">${rest}</div>
+        <button type="button" class="itens-emp-toggle" data-more-label="${moreLabel}" onclick="toggleItensExpand(event,'${e.id}')">${moreLabel}</button>
+      </div>`;
+    }
+
+    function toggleItensExpand(ev, id) {
+      ev.stopPropagation();
+      const extra = document.getElementById('itensExtra-' + id);
+      if (!extra) return;
+      const btn = ev.currentTarget;
+      const wasHidden = extra.classList.contains('hidden');
+      extra.classList.toggle('hidden');
+      btn.textContent = wasHidden ? '− ver menos' : (btn.dataset.moreLabel || '+ ver mais');
     }
 
     function limparFiltrosEmpAndamento() {
