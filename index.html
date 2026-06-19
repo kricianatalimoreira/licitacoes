@@ -2715,6 +2715,7 @@
     .dash-disputas-list { display: flex; flex-direction: column; overflow-y: auto; }
     .dash-disputas-list .dash-disputa-row { border-bottom: 1px solid var(--line); }
     .dash-disputas-list .dash-disputa-row:last-child { border-bottom: none; }
+    .dash-disputa-row:hover { background: var(--primary-hover); }
     .dash-disputa-data { font-weight: 700; }
     .dash-disputa-orgao { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .dash-disputa-processo { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -2725,6 +2726,11 @@
       text-decoration: none; font-size: 13px; border: 1px solid var(--primary-border);
     }
     .dash-disputa-link-btn:hover { opacity: .75; }
+    .dash-disputa-link-btn-empty {
+      background: transparent; border: 1px dashed var(--line); color: var(--muted);
+      font-size: 11px; cursor: default;
+    }
+    .dash-disputa-link-btn-empty:hover { opacity: 1; }
     .dash-disputa-empty { padding: 18px 10px; text-align: center; font-size: 11px; color: var(--muted); height: 35px; box-sizing: border-box; display:flex; align-items:center; justify-content:center; }
 
     /* Donut chart */
@@ -8797,16 +8803,17 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         if (ativas.length === 0) {
           listaDispAndamento.innerHTML = '<div class="dash-disputa-empty">Nenhuma disputa em andamento.</div>';
         } else {
-          listaDispAndamento.innerHTML = ativas.map(d => {
+          listaDispAndamento.innerHTML = ativas.map((d, idx) => {
             const dataFmt = d.data ? formatDate(d.data) : '—';
             const tipoProc = [d.tipo, d.processo].filter(Boolean).join(' ') || '—';
             const linkBtn = d.sala
-              ? `<a class="dash-disputa-link-btn" href="${escapeHTML(d.sala)}" target="_blank" rel="noopener" title="Abrir link do sistema">🔗</a>`
-              : `<span style="color:var(--muted);font-size:10px;text-align:center;display:block;">—</span>`;
-            return `<div class="dash-disputa-row">
+              ? `<a class="dash-disputa-link-btn" href="${escapeHTML(d.sala)}" target="_blank" rel="noopener" title="Abrir link do sistema">🖥️</a>`
+              : `<span class="dash-disputa-link-btn dash-disputa-link-btn-empty" title="Sem link cadastrado">—</span>`;
+            const zebra = idx % 2 === 1 ? ' style="background:var(--row-zebra,rgba(0,0,0,.018));"' : '';
+            return `<div class="dash-disputa-row"${zebra}>
               <div class="dash-disputa-data">${dataFmt}</div>
-              <div class="dash-disputa-orgao">${escapeHTML(d.orgao) || '—'}</div>
-              <div class="dash-disputa-processo">${escapeHTML(tipoProc)}</div>
+              <div class="dash-disputa-orgao" title="${escapeHTML(d.orgao) || ''}">${escapeHTML(d.orgao) || '—'}</div>
+              <div class="dash-disputa-processo" title="${escapeHTML(tipoProc)}">${escapeHTML(tipoProc)}</div>
               <div>${linkBtn}</div>
             </div>`;
           }).join('');
