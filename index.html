@@ -2969,25 +2969,17 @@
 
 <!-- CONTRATOS GERADOS (mês / ano) -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-<div class="meta-card" style="cursor:pointer;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
-<div class="meta-header">
-<div>
-<div class="meta-title">🎯 CONTRATOS GERADOS NO MÊS</div>
-<div style="font-size:9px;color:var(--muted);margin-bottom:2px;" id="dashMetaMensalLabel"></div>
-<div class="meta-valor-realizado" id="dashMetaMensalCountBig" style="color:var(--primary);font-size:30px;">0</div>
-<div style="font-size:11px;color:var(--muted);margin-top:2px;" id="dashMetaMensalRealizado"></div>
+<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+  <div class="dash-kpi-label">🎯 Contratos Gerados no Mês</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashMetaMensalLabel"></div>
+  <div class="dash-kpi-value" id="dashMetaMensalValorBig" style="color:var(--primary);">R$ 0,00</div>
+  <div class="dash-kpi-sub" id="dashMetaMensalCountSub"></div>
 </div>
-</div>
-</div>
-<div class="meta-card" style="cursor:pointer;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
-<div class="meta-header">
-<div>
-<div class="meta-title">📅 CONTRATOS GERADOS NO ANO</div>
-<div style="font-size:9px;color:var(--muted);margin-bottom:2px;" id="dashMetaAnualLabel"></div>
-<div class="meta-valor-realizado" id="dashMetaAnualCountBig" style="color:#2563eb;font-size:30px;">0</div>
-<div style="font-size:11px;color:var(--muted);margin-top:2px;" id="dashMetaAnualRealizado"></div>
-</div>
-</div>
+<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+  <div class="dash-kpi-label">📅 Contratos Gerados no Ano</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashMetaAnualLabel"></div>
+  <div class="dash-kpi-value" id="dashMetaAnualValorBig" style="color:#2563eb;">R$ 0,00</div>
+  <div class="dash-kpi-sub" id="dashMetaAnualCountSub"></div>
 </div>
 </div>
 
@@ -2995,25 +2987,25 @@
 <div>
 <div style="font-size:10px;font-weight:800;color:#2563eb;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #dbeafe;">📝 KPI'S CONTRATOS</div>
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
-<div class="dash-kpi-card" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
   <div class="dash-kpi-label">Assinados no Mês</div>
   <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashConMesLabel"></div>
-  <div class="dash-kpi-value" id="dashKpiConMes" style="color:var(--primary);">0</div>
+  <div class="dash-kpi-value" id="dashKpiConMesValor" style="color:var(--primary);">R$ 0,00</div>
   <div class="dash-kpi-sub" id="dashKpiConMesSub"></div>
 </div>
-<div class="dash-kpi-card" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
   <div class="dash-kpi-label">Assinados no Ano</div>
   <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashConAnoLabel"></div>
-  <div class="dash-kpi-value" id="dashKpiConAno" style="color:#2563eb;">0</div>
+  <div class="dash-kpi-value" id="dashKpiConAnoValor" style="color:#2563eb;">R$ 0,00</div>
   <div class="dash-kpi-sub" id="dashKpiConAnoSub"></div>
 </div>
-<div class="dash-kpi-card" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
   <div class="dash-kpi-label">Contratos Vigentes</div>
-  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Valor total: <span id="dashKpiConVigenteValor">R$ 0,00</span></div>
-  <div class="dash-kpi-value" id="dashKpiContratos" style="color:#7c3aed;">0</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Quantidade: <span id="dashKpiContratos">0</span></div>
+  <div class="dash-kpi-value" id="dashKpiConVigenteValor" style="color:#7c3aed;">R$ 0,00</div>
   <div class="dash-kpi-sub" id="dashKpiContratosSub"></div>
 </div>
-<div class="dash-kpi-card" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
   <div class="dash-kpi-label">A Vencer em 60 dias</div>
   <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Contratos ativos próximos do fim</div>
   <div class="dash-kpi-value" id="dashKpiConVencer" style="color:#b76a00;">0</div>
@@ -8780,12 +8772,12 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const vlContratosAno = contratosAno.reduce((s,c) => s + (Number(c.valor)||0), 0);
 
       setEl('dashMetaMensalLabel', nomeMesCurto + ' ' + anoStr);
-      setEl('dashMetaMensalCountBig', contratosMes.length);
-      setEl('dashMetaMensalRealizado', `${formatCurrency(vlContratosMes)} gerados`);
+      setEl('dashMetaMensalValorBig', formatCurrency(vlContratosMes));
+      setEl('dashMetaMensalCountSub', `${contratosMes.length} contrato${contratosMes.length !== 1 ? 's' : ''} gerado${contratosMes.length !== 1 ? 's' : ''}`);
 
       setEl('dashMetaAnualLabel', anoStr);
-      setEl('dashMetaAnualCountBig', contratosAno.length);
-      setEl('dashMetaAnualRealizado', `${formatCurrency(vlContratosAno)} gerados`);
+      setEl('dashMetaAnualValorBig', formatCurrency(vlContratosAno));
+      setEl('dashMetaAnualCountSub', `${contratosAno.length} contrato${contratosAno.length !== 1 ? 's' : ''} gerado${contratosAno.length !== 1 ? 's' : ''}`);
 
       // ── DISPUTAS ──
       const todos = [...disputas, ...disputasEncerradas];
@@ -8844,11 +8836,11 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const conVencer = contratosAtivos.filter(c => { if (!c.dataFim) return false; const dias = Math.ceil((new Date(c.dataFim+'T00:00:00') - new Date().setHours(0,0,0,0))/86400000); return dias<=60; });
 
       setEl('dashConMesLabel', nomeMesCurto + ' ' + anoStr);
-      setEl('dashKpiConMes', conMes.length);
-      setEl('dashKpiConMesSub', formatCurrency(vlConMes));
+      setEl('dashKpiConMesValor', formatCurrency(vlConMes));
+      setEl('dashKpiConMesSub', `${conMes.length} contrato${conMes.length !== 1 ? 's' : ''}`);
       setEl('dashConAnoLabel', 'Acumulado ' + anoStr);
-      setEl('dashKpiConAno', conAno.length);
-      setEl('dashKpiConAnoSub', formatCurrency(vlConAno));
+      setEl('dashKpiConAnoValor', formatCurrency(vlConAno));
+      setEl('dashKpiConAnoSub', `${conAno.length} contrato${conAno.length !== 1 ? 's' : ''}`);
       setEl('dashKpiConVigenteValor', formatCurrency(vlTotalVigentes));
       setEl('dashKpiContratos', contratosAtivos.length);
       setEl('dashKpiContratosSub', `${contratosEncerrados.length} encerrado(s)`);
