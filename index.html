@@ -2701,15 +2701,18 @@
       grid-template-columns: 90px 1.4fr 1.1fr 50px;
       gap: 10px;
       align-items: center;
-      padding: 8px 10px;
+      padding: 0 10px;
       font-size: 11px;
+      height: 35px;
+      box-sizing: border-box;
     }
     .dash-disputa-row-head {
       font-size: 9px; font-weight: 800; text-transform: uppercase;
       color: var(--muted); letter-spacing: .04em;
       border-bottom: 1px solid var(--line); padding-bottom: 6px;
+      height: auto;
     }
-    .dash-disputas-list { display: flex; flex-direction: column; max-height: 260px; overflow-y: auto; }
+    .dash-disputas-list { display: flex; flex-direction: column; overflow-y: auto; }
     .dash-disputas-list .dash-disputa-row { border-bottom: 1px solid var(--line); }
     .dash-disputas-list .dash-disputa-row:last-child { border-bottom: none; }
     .dash-disputa-data { font-weight: 700; }
@@ -2722,7 +2725,7 @@
       text-decoration: none; font-size: 13px; border: 1px solid var(--primary-border);
     }
     .dash-disputa-link-btn:hover { opacity: .75; }
-    .dash-disputa-empty { padding: 18px 10px; text-align: center; font-size: 11px; color: var(--muted); }
+    .dash-disputa-empty { padding: 18px 10px; text-align: center; font-size: 11px; color: var(--muted); height: 35px; box-sizing: border-box; display:flex; align-items:center; justify-content:center; }
 
     /* Donut chart */
     .dash-donut-wrap { display: flex; align-items: center; gap: 18px; }
@@ -2918,7 +2921,7 @@
 <div>Nº e Tipo do Processo</div>
 <div style="text-align:center;">Link</div>
 </div>
-<div class="dash-disputas-list" id="dashDisputasAndamentoList" style="height:264px;max-height:264px;flex:none;overflow-y:auto;"></div>
+<div class="dash-disputas-list" id="dashDisputasAndamentoList" style="height:280px;max-height:280px;flex:none;overflow-y:auto;"></div>
 </div>
 
 <!-- KPI'S DISPUTAS -->
