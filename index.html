@@ -2865,6 +2865,12 @@
 <span id="dashDataHora" style="font-size:10px;color:var(--muted);white-space:nowrap;"></span>
 </div>
 </div>
+<div class="venc-banner hidden" id="vencBanner-dashboard">
+<span class="venc-banner-icon">⚠️</span>
+<span class="venc-banner-text" id="vencBannerText-dashboard"></span>
+<button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
+<button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
+</div>
 
 <!-- METAS -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
@@ -3056,12 +3062,6 @@
 <button class="btn btn-primary" onclick="showCadastroDisputa()">+ Nova Disputa</button>
 </div>
 </div>
-<div class="venc-banner hidden" id="vencBanner-disputa-andamento">
-<span class="venc-banner-icon">⚠️</span>
-<span class="venc-banner-text" id="vencBannerText-disputa-andamento"></span>
-<button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
-<button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
-</div>
 <div class="disputa-stats" style="grid-template-columns: repeat(3,minmax(0,1fr));">
 <div class="disputa-stat-card"><div class="disputa-stat-label">Total de disputas</div><div class="disputa-stat-value" id="disputaStatTotal">0</div></div>
 <div class="disputa-stat-card stat-gray"><div class="disputa-stat-label">Em andamento</div><div class="disputa-stat-value" id="disputaStatAndamento">0</div></div>
@@ -3232,12 +3232,6 @@
 <div>
 <h2>📋 Encerradas</h2>
 </div>
-</div>
-<div class="venc-banner hidden" id="vencBanner-disputa-encerradas">
-<span class="venc-banner-icon">⚠️</span>
-<span class="venc-banner-text" id="vencBannerText-disputa-encerradas"></span>
-<button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
-<button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
 </div>
 <div class="disputa-stats" style="grid-template-columns: repeat(5,minmax(0,1fr));">
 <div class="disputa-stat-card"><div class="disputa-stat-label">Total encerradas</div><div class="disputa-stat-value" id="disputaStatEncTotal">0</div></div>
@@ -3416,12 +3410,6 @@
 <button class="btn btn-primary" onclick="showCadastroContrato()">+ Novo Contrato</button>
 </div>
 </div>
-<div class="venc-banner hidden" id="vencBanner-contratos-ativos">
-<span class="venc-banner-icon">⚠️</span>
-<span class="venc-banner-text" id="vencBannerText-contratos-ativos"></span>
-<button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
-<button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
-</div>
 <div class="disputa-stats" style="grid-template-columns:repeat(7,minmax(0,1fr));">
 <div class="disputa-stat-card"><div class="disputa-stat-label">Total ativos</div><div class="disputa-stat-value" id="conStatTotal">0</div></div>
 <div class="disputa-stat-card stat-alert" id="conStatAlertCard"><div class="disputa-stat-label">⚠️ A vencer em 60 dias</div><div class="disputa-stat-value" id="conStatAlert">0</div></div>
@@ -3543,12 +3531,6 @@
 <div>
 <h2>📋 Contratos Encerrados</h2>
 </div>
-</div>
-<div class="venc-banner hidden" id="vencBanner-contratos-encerrados">
-<span class="venc-banner-icon">⚠️</span>
-<span class="venc-banner-text" id="vencBannerText-contratos-encerrados"></span>
-<button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
-<button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
 </div>
 <div class="disputa-stats" style="grid-template-columns:repeat(5,minmax(0,1fr));">
 <div class="disputa-stat-card"><div class="disputa-stat-label">Total encerrados</div><div class="disputa-stat-value" id="conEncStatTotal">0</div></div>
@@ -3794,12 +3776,6 @@
 <button class="btn btn-primary" onclick="abrirSeletorContratoEmpenho()">+ Novo Empenho</button>
 </div>
 </div>
-<div class="venc-banner hidden" id="vencBanner-empenhos-andamento">
-<span class="venc-banner-icon">⚠️</span>
-<span class="venc-banner-text" id="vencBannerText-empenhos-andamento"></span>
-<button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
-<button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
-</div>
 <div class="disputa-stats" style="grid-template-columns:repeat(5,minmax(0,1fr));">
 <div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Vl. Empenho</div><div class="disputa-stat-value" id="empAndStatValor" style="font-size:16px;color:#2563eb;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Vl. Compra</div><div class="disputa-stat-value" id="empAndStatCompra" style="font-size:16px;color:#a78bfa;">R$ 0,00</div></div>
@@ -3939,12 +3915,6 @@
 <div>
 <h2>✅ Empenhos pagos</h2>
 </div>
-</div>
-<div class="venc-banner hidden" id="vencBanner-empenhos-encerrados">
-<span class="venc-banner-icon">⚠️</span>
-<span class="venc-banner-text" id="vencBannerText-empenhos-encerrados"></span>
-<button class="venc-banner-link" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">Ver contratos →</button>
-<button class="venc-banner-close" onclick="this.closest('.venc-banner').classList.add('hidden')">✕</button>
 </div>
 <div class="disputa-stats" style="grid-template-columns:repeat(6,minmax(0,1fr));">
 <div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Empenhos</div><div class="disputa-stat-value" id="empEncStatTotal">0</div></div>
@@ -6115,14 +6085,16 @@
         _editado:     true, // marca como editado manualmente — sai do filtro de rascunhos
       };
 
-      // Propagar novo órgão e empresa para todos os empenhos vinculados
+      // Propagar novo órgão, empresa e nº de contrato/processo para todos os empenhos vinculados
       const _novoOrgao   = contratosAtivos[idx].orgao;
       const _novaEmpresa = contratosAtivos[idx].empresa;
+      const _novoContrato = contratosAtivos[idx].contrato || contratosAtivos[idx].processo || '';
       const _cidAtivo    = contratosAtivos[idx].id;
       empenhos.forEach(e => {
         if (e.contratoId === _cidAtivo) {
-          e.orgao   = _novoOrgao;
-          e.empresa = _novaEmpresa;
+          e.orgao    = _novoOrgao;
+          e.empresa  = _novaEmpresa;
+          e.contrato = _novoContrato;
         }
       });
 
@@ -6188,14 +6160,16 @@
         sala: qs('eConESala').value.trim(), drive: qs('eConEDrive').value.trim(),
         obs: qs('eConEObs').value.trim()
       };
-      // Propagar novo órgão e empresa para todos os empenhos vinculados
+      // Propagar novo órgão, empresa e nº de contrato/processo para todos os empenhos vinculados
       const _novoOrgaoEnc   = contratosEncerrados[idx].orgao;
       const _novaEmpresaEnc = contratosEncerrados[idx].empresa;
+      const _novoContratoEnc = contratosEncerrados[idx].contrato || contratosEncerrados[idx].processo || '';
       const _cidEnc         = contratosEncerrados[idx].id;
       empenhos.forEach(e => {
         if (e.contratoId === _cidEnc) {
-          e.orgao   = _novoOrgaoEnc;
-          e.empresa = _novaEmpresaEnc;
+          e.orgao    = _novoOrgaoEnc;
+          e.empresa  = _novaEmpresaEnc;
+          e.contrato = _novoContratoEnc;
         }
       });
       persistAll(); persistEmpenhos(); renderContratosEncerrados(); renderEmpenhos(); fecharEditContratoEnc();
@@ -7677,11 +7651,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     //  SINO DE ALERTAS DE VENCIMENTO DE CONTRATOS
     // ══════════════════════════════════════════════════════════
 
-    const VENC_SECTIONS = [
-      'disputa-andamento', 'disputa-encerradas',
-      'contratos-ativos', 'contratos-encerrados',
-      'empenhos-andamento', 'empenhos-encerrados'
-    ];
+    const VENC_SECTIONS = ['dashboard'];
 
     function calcularAlertasVencimento() {
       const hoje = new Date(); hoje.setHours(0,0,0,0);
