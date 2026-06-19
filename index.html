@@ -3636,17 +3636,14 @@
 <div>
 <h2>📋 Empenhos pendentes</h2>
 </div>
-<div class="actions">
-<button class="btn btn-primary" onclick="abrirSeletorContratoEmpenho()">+ Novo Empenho</button>
-</div>
 </div>
 <div class="disputa-stats" style="grid-template-columns:repeat(6,minmax(0,1fr));margin-bottom:8px;">
-<div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Pendentes</div><div class="disputa-stat-value" id="empPendStatTotal">0</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">Valor Empenho</div><div class="disputa-stat-value" id="empPendStatValor" style="font-size:16px;color:#2563eb;">R$ 0,00</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">Compra Prevista</div><div class="disputa-stat-value" id="empPendStatCompra" style="font-size:16px;color:var(--text);">R$ 0,00</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">Lucro Previsto</div><div class="disputa-stat-value" id="empPendStatLucro" style="font-size:16px;color:#34d399;">R$ 0,00</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">Gadita</div><div class="disputa-stat-value" id="empPendStatGadita" style="font-size:16px;color:var(--primary-dark);">R$ 0,00</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">Hamate</div><div class="disputa-stat-value" id="empPendStatHamate" style="font-size:16px;color:var(--primary-dark);">R$ 0,00</div></div>
+<div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Empenhos</div><div class="disputa-stat-value" id="empPendStatTotal">0</div></div>
+<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Valor Empenho</div><div class="disputa-stat-value" id="empPendStatValor" style="font-size:16px;color:#2563eb;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Valor da Compra</div><div class="disputa-stat-value" id="empPendStatCompra" style="font-size:16px;color:#a78bfa;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#1a0d08;border-color:#7a3a0a;"><div class="disputa-stat-label">Valor do Custo</div><div class="disputa-stat-value" id="empPendStatCusto" style="font-size:16px;color:#fb923c;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#0a2018;border-color:#1a6040;"><div class="disputa-stat-label">Lucro</div><div class="disputa-stat-value" id="empPendStatLucro" style="font-size:16px;color:#34d399;">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">% Lucro</div><div class="disputa-stat-value" id="empPendStatPct" style="font-size:16px;">—</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -3772,14 +3769,12 @@
 <div>
 <h2>📄 Empenhos em andamento</h2>
 </div>
-<div class="actions">
-<button class="btn btn-primary" onclick="abrirSeletorContratoEmpenho()">+ Novo Empenho</button>
 </div>
-</div>
-<div class="disputa-stats" style="grid-template-columns:repeat(5,minmax(0,1fr));">
-<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Vl. Empenho</div><div class="disputa-stat-value" id="empAndStatValor" style="font-size:16px;color:#2563eb;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Vl. Compra</div><div class="disputa-stat-value" id="empAndStatCompra" style="font-size:16px;color:#a78bfa;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#1a0d08;border-color:#7a3a0a;"><div class="disputa-stat-label">Custo</div><div class="disputa-stat-value" id="empAndStatCusto" style="font-size:16px;color:#fb923c;">R$ 0,00</div></div>
+<div class="disputa-stats" style="grid-template-columns:repeat(6,minmax(0,1fr));">
+<div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Empenhos</div><div class="disputa-stat-value" id="empAndStatTotal">0</div></div>
+<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Valor Empenho</div><div class="disputa-stat-value" id="empAndStatValor" style="font-size:16px;color:#2563eb;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Valor da Compra</div><div class="disputa-stat-value" id="empAndStatCompra" style="font-size:16px;color:#a78bfa;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#1a0d08;border-color:#7a3a0a;"><div class="disputa-stat-label">Valor do Custo</div><div class="disputa-stat-value" id="empAndStatCusto" style="font-size:16px;color:#fb923c;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#0a2018;border-color:#1a6040;"><div class="disputa-stat-label">Lucro</div><div class="disputa-stat-value" id="empAndStatLucro" style="font-size:16px;color:#34d399;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#0f1a0a;border-color:#3a6020;"><div class="disputa-stat-label">% Lucro</div><div class="disputa-stat-value" id="empAndStatPctLucro" style="font-size:16px;color:#a3e635;">0,00%</div></div>
 </div>
@@ -3918,9 +3913,9 @@
 </div>
 <div class="disputa-stats" style="grid-template-columns:repeat(6,minmax(0,1fr));">
 <div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Empenhos</div><div class="disputa-stat-value" id="empEncStatTotal">0</div></div>
-<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Vl. Total Pago</div><div class="disputa-stat-value" id="empEncStatValor" style="font-size:16px;color:#2563eb;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Vl. Compra</div><div class="disputa-stat-value" id="empEncStatCompra" style="font-size:16px;color:#a78bfa;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#1a0d08;border-color:#7a3a0a;"><div class="disputa-stat-label">Custo</div><div class="disputa-stat-value" id="empEncStatCusto" style="font-size:16px;color:#fb923c;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Valor Empenho</div><div class="disputa-stat-value" id="empEncStatValor" style="font-size:16px;color:#2563eb;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Valor da Compra</div><div class="disputa-stat-value" id="empEncStatCompra" style="font-size:16px;color:#a78bfa;">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="background:#1a0d08;border-color:#7a3a0a;"><div class="disputa-stat-label">Valor do Custo</div><div class="disputa-stat-value" id="empEncStatCusto" style="font-size:16px;color:#fb923c;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#0a2018;border-color:#1a6040;"><div class="disputa-stat-label">Lucro</div><div class="disputa-stat-value" id="empEncStatLucro" style="font-size:16px;color:#34d399;">R$ 0,00</div></div>
 <div class="disputa-stat-card"><div class="disputa-stat-label">% Lucro</div><div class="disputa-stat-value" id="empEncStatPct" style="font-size:16px;">—</div></div>
 </div>
@@ -6989,16 +6984,21 @@
       const _finPend     = pendentes.map(e => calcEmpFinanceiro(e));
       const _totalValor  = pendentes.reduce((s,e) => s + Number(e.valor||0), 0);
       const _totalCompra = _finPend.reduce((s,f) => s + f.vlCompraEmp, 0);
+      const _totalCusto  = _finPend.reduce((s,f) => s + f.custoEmp, 0);
       const _totalLucro  = _finPend.reduce((s,f) => s + f.lucroEmp, 0);
+      const _pctLucro    = _totalValor > 0 ? (_totalLucro / _totalValor) * 100 : 0;
       if (qs('empPendStatTotal'))  qs('empPendStatTotal').textContent  = pendentes.length;
       if (qs('empPendStatValor'))  qs('empPendStatValor').textContent  = formatCurrency(_totalValor);
       if (qs('empPendStatCompra')) qs('empPendStatCompra').textContent = formatCurrency(_totalCompra);
+      if (qs('empPendStatCusto'))  qs('empPendStatCusto').textContent  = formatCurrency(_totalCusto);
       if (qs('empPendStatLucro')) {
         qs('empPendStatLucro').textContent = formatCurrency(_totalLucro);
         qs('empPendStatLucro').style.color = _totalLucro >= 0 ? '#34d399' : '#f05252';
       }
-      if (qs('empPendStatGadita')) qs('empPendStatGadita').textContent = formatCurrency(pendentes.filter(e=>e.empresa==='Gadita').reduce((s,e)=>s+Number(e.valor||0),0));
-      if (qs('empPendStatHamate')) qs('empPendStatHamate').textContent = formatCurrency(pendentes.filter(e=>e.empresa==='Hamate').reduce((s,e)=>s+Number(e.valor||0),0));
+      if (qs('empPendStatPct')) {
+        qs('empPendStatPct').textContent = _pctLucro.toFixed(1) + '%';
+        qs('empPendStatPct').style.color = _pctLucro >= 0 ? '#34d399' : '#f05252';
+      }
       if (qs('subtotalEmpPendQtde'))  qs('subtotalEmpPendQtde').textContent  = filtered.length;
       if (qs('subtotalEmpPendValor')) qs('subtotalEmpPendValor').textContent = formatCurrency(filtered.reduce((s,e)=>s+Number(e.valor||0),0));
 
