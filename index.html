@@ -5175,6 +5175,28 @@
       });
     }
 
+    // ══════════════════════════════════════════════════════════
+    // TEXTO SEMPRE EM MAIÚSCULO — aplica automaticamente a todos os
+    // campos de texto (input[type=text/search] e textarea) do sistema.
+    // Exceções: campos marcados com data-no-uppercase="true" (ex: área de
+    // colar dados do Excel) e tipos não-textuais (url, email, password,
+    // date, number, etc.), que continuam como o usuário digitou.
+    // ══════════════════════════════════════════════════════════
+    document.addEventListener('input', (e) => {
+      const el = e.target;
+      if (!el) return;
+      const isTextInput = el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'search');
+      const isTextarea  = el.tagName === 'TEXTAREA';
+      if (!isTextInput && !isTextarea) return;
+      if (el.dataset.noUppercase === 'true') return;
+      const upper = el.value.toUpperCase();
+      if (upper !== el.value) {
+        const start = el.selectionStart, end = el.selectionEnd;
+        el.value = upper;
+        try { el.setSelectionRange(start, end); } catch(_) {}
+      }
+    }, true);
+
     document.addEventListener('click', (e) => {
       // Não fecha se o clique foi dentro de qualquer overlay flutuante
       if (e.target.closest('.historico-inline-popover') ||
@@ -6177,6 +6199,11 @@
           e.orgao    = _novoOrgao;
           e.empresa  = _novaEmpresa;
           e.contrato = _novoContrato;
+          // Sincroniza a descrição dos itens empenhados com a descrição atual do item no contrato
+          (e.itensEmpenhados || []).forEach(ie => {
+            const itemContrato = contratosAtivos[idx].itensLotes.find(it => it.id === ie.itemId);
+            if (itemContrato && itemContrato.descricao) ie.descricao = itemContrato.descricao;
+          });
         }
       });
 
@@ -10497,7 +10524,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       </ol>
     </div>
     <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px;">Cole os dados aqui:</label>
-    <textarea id="importPasteArea" placeholder="Cole aqui os dados copiados do Excel..." 
+    <textarea id="importPasteArea" data-no-uppercase="true" placeholder="Cole aqui os dados copiados do Excel..." 
       style="width:100%;min-height:140px;background:var(--card);border:2px dashed var(--primary-border);border-radius:10px;padding:12px;font-size:12px;font-family:inherit;color:var(--text);resize:vertical;outline:none;transition:border-color .2s;box-sizing:border-box;"
       onfocus="this.style.borderColor='var(--primary)'" 
       onblur="this.style.borderColor='var(--primary-border)'"
