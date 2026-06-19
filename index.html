@@ -6074,8 +6074,16 @@
         const oldOrgaoNorm    = (oldOrgao    || '').trim().toUpperCase();
         const oldProcessoNorm = (oldProcesso || '').trim().toLowerCase();
         if (!oldOrgaoNorm) return;
-        const bate = d => (d.orgao || '').trim().toUpperCase() === oldOrgaoNorm
-          && (!oldProcessoNorm || (d.processo || '').trim().toLowerCase() === oldProcessoNorm);
+        // O processo do contrato é salvo como "Tipo Nº" (ex: "Pregão 27/2025"),
+        // enquanto na disputa o número fica sozinho (ex: "27/2025") — por isso
+        // a comparação verifica se um contém o outro, nos dois sentidos.
+        const bate = d => {
+          if ((d.orgao || '').trim().toUpperCase() !== oldOrgaoNorm) return false;
+          if (!oldProcessoNorm) return true;
+          const dProcessoNorm = (d.processo || '').trim().toLowerCase();
+          if (!dProcessoNorm) return true;
+          return oldProcessoNorm.includes(dProcessoNorm) || dProcessoNorm.includes(oldProcessoNorm);
+        };
         alvo = disputasEncerradas.find(bate) || disputas.find(bate);
       }
       if (alvo) alvo.orgao = novoOrgao;
