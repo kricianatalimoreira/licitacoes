@@ -799,6 +799,9 @@
       word-break: break-word;
     }
     tbody tr:hover td { background: var(--primary-hover); }
+    /* Empenhos (Pendentes/Andamento/Pagos): todas as células alinhadas ao topo,
+       evitando o efeito "zigue-zague" quando linhas têm alturas variáveis. */
+    .emp-table tbody td { vertical-align: top; padding-top: 12px; }
     .itens-emp-wrap { display: flex; flex-direction: column; }
     .itens-emp-extra.hidden { display: none; }
     .itens-emp-toggle {
