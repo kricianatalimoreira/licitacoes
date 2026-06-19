@@ -9434,7 +9434,19 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       _pendingSaves[key] = setTimeout(fn, delay);
     }
 
+    // Remove registros com id duplicado (mantém o último — geralmente o mais
+    // recente/editado). Evita erro 21000 do Postgres em upserts ("ON CONFLICT
+    // DO UPDATE command cannot affect row a second time").
+    function dedupeById(arr) {
+      if (!Array.isArray(arr) || arr.length === 0) return arr;
+      const map = new Map();
+      arr.forEach(item => { if (item && item.id) map.set(item.id, item); });
+      return Array.from(map.values());
+    }
+
     function persist() {
+      disputas           = dedupeById(disputas);
+      disputasEncerradas = dedupeById(disputasEncerradas);
       const obj = { disputas, disputasEncerradas, contratosAtivos, contratosEncerrados };
       localStorage.setItem('km_disputas_v60_clean', JSON.stringify(obj));
       _tocarLocalTs();
@@ -9449,6 +9461,10 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     function persistAll() {
+      disputas             = dedupeById(disputas);
+      disputasEncerradas   = dedupeById(disputasEncerradas);
+      contratosAtivos      = dedupeById(contratosAtivos);
+      contratosEncerrados  = dedupeById(contratosEncerrados);
       const obj = { disputas, disputasEncerradas, contratosAtivos, contratosEncerrados };
       localStorage.setItem('km_disputas_v60_clean', JSON.stringify(obj));
       _tocarLocalTs();
@@ -9465,6 +9481,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     function persistEmpenhos() {
+      empenhos = dedupeById(empenhos);
       localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(empenhos));
       _tocarLocalTs();
       debounceSave('empenhos', async () => {
@@ -9477,6 +9494,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     function persistCompras() {
+      compras = dedupeById(compras);
       localStorage.setItem('km_compras_v60_clean', JSON.stringify(compras));
       _tocarLocalTs();
       debounceSave('compras', async () => {
@@ -9567,18 +9585,18 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           console.warn(`[KM] loadData: campo "${f}" ausente ou inválido — usando [].`);
           return [];
         }
-        return parsed[f];
+        return dedupeById(parsed[f]);
       });
     }
 
     function loadContratos() { /* incluído no loadData */ }
 
     function loadEmpenhos() {
-      empenhos = _loadArray('km_empenhos_v60_clean', 'empenhos');
+      empenhos = dedupeById(_loadArray('km_empenhos_v60_clean', 'empenhos'));
     }
 
     function loadCompras() {
-      compras = _loadArray('km_compras_v60_clean', 'compras');
+      compras = dedupeById(_loadArray('km_compras_v60_clean', 'compras'));
     }
 
     // ══════════════════════════════════════════════════════════
@@ -9644,12 +9662,12 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         // Cloud mais recente (ou sem timestamp local) → baixa do banco
         console.info('[KM] syncFromCloud: baixando dados do banco.', { localTs, cloudTs });
 
-        disputas            = (rowsDisp   ||[]).map(fromDbDisputa);
-        disputasEncerradas  = (rowsDispEnc||[]).map(fromDbDisputa);
-        contratosAtivos     = (rowsConA   ||[]).map(fromDbContrato);
-        contratosEncerrados = (rowsConE   ||[]).map(fromDbContrato);
-        empenhos            = (rowsEmp    ||[]).map(fromDbEmpenho);
-        compras             = (rowsComp   ||[]).map(fromDbCompra);
+        disputas            = dedupeById((rowsDisp   ||[]).map(fromDbDisputa));
+        disputasEncerradas  = dedupeById((rowsDispEnc||[]).map(fromDbDisputa));
+        contratosAtivos     = dedupeById((rowsConA   ||[]).map(fromDbContrato));
+        contratosEncerrados = dedupeById((rowsConE   ||[]).map(fromDbContrato));
+        empenhos            = dedupeById((rowsEmp    ||[]).map(fromDbEmpenho));
+        compras             = dedupeById((rowsComp   ||[]).map(fromDbCompra));
 
         const dispObj = { disputas, disputasEncerradas, contratosAtivos, contratosEncerrados };
         localStorage.setItem('km_disputas_v60_clean', JSON.stringify(dispObj));
@@ -9677,6 +9695,12 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     async function _persistAllImmediate() {
+      disputas             = dedupeById(disputas);
+      disputasEncerradas   = dedupeById(disputasEncerradas);
+      contratosAtivos      = dedupeById(contratosAtivos);
+      contratosEncerrados  = dedupeById(contratosEncerrados);
+      empenhos             = dedupeById(empenhos);
+      compras              = dedupeById(compras);
       await sbUpsert('disputas',             disputas.map(mapDisputa));
       await sbUpsert('disputas_encerradas',  disputasEncerradas.map(mapDisputa));
       await sbUpsert('contratos_ativos',     contratosAtivos.map(mapContratoAtivo));
