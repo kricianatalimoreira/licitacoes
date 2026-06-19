@@ -2121,6 +2121,7 @@
     .emp-table-pagos th:nth-child(9),  .emp-table-pagos td:nth-child(9)  { width: 7%; }   /* Lucro */
     .emp-table-pagos th:nth-child(10), .emp-table-pagos td:nth-child(10) { width: 5%; text-align:center; } /* % Lucro */
     .emp-table-pagos th:nth-child(11), .emp-table-pagos td:nth-child(11) { width: 7%; white-space:normal; } /* Status */
+    .emp-table-pagos th:nth-child(12), .emp-table-pagos td:nth-child(12) { width: 5%; text-align:center; } /* Ações */
 
     /* Status empenho */
     .emp-status-compra    { background:#0f2a1e; color:#2dd47a; }
@@ -4012,7 +4013,8 @@
 <button class="sort-col-btn" data-sort-select="sortEmpEnc" data-sort-asc="pct_asc" data-sort-desc="pct_desc" title="Ordenar" onclick="sortByCol('sortEmpEnc','pct_asc','pct_desc','renderEmpEncerrados')">↕</button>
 </div>
 </th>
-<th>Status</th></tr></thead>
+<th>Status</th>
+<th>Ações</th></tr></thead>
 <tbody id="empEncTableBody"></tbody>
 </table>
 </div>
@@ -7127,6 +7129,16 @@
         <td>${lucroHtml}</td>
         <td style="text-align:center;">${pctHtml}</td>
         <td>${statusHtml}</td>
+        <td>
+          <div class="row-menu-wrap">
+            <button class="row-menu-btn" onclick="toggleRowMenu(event,'emppagomenu-${e.id}')">⋯</button>
+            <div class="row-menu hidden" id="emppagomenu-${e.id}">
+              <button onclick="abrirEditEmpenho('${e.id}')">✏️ Editar</button>
+              <button onclick="toggleStatusDropdown(event,'empsdrop-enc-${e.id}')">🔄 Mudar Status</button>
+              <button onclick="excluirEmpenho('${e.id}')" style="color:#b42318;">🗑️ Excluir</button>
+            </div>
+          </div>
+        </td>
       </tr>`;
     }
 
@@ -7184,7 +7196,7 @@
       }, 'data_desc');
       body.innerHTML = sortedEmpEnc.length
         ? sortedEmpEnc.map(empPagosRowHtml).join('')
-        : `<tr><td colspan="11"><div class="empty-state">Nenhum empenho pago encontrado.</div></td></tr>`;
+        : `<tr><td colspan="12"><div class="empty-state">Nenhum empenho pago encontrado.</div></td></tr>`;
     }
 
     // Mantida para compatibilidade com chamadas internas (persistEmpenhos, etc.)
