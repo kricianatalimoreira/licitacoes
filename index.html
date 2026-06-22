@@ -4488,7 +4488,8 @@
 
     function formatDate(val) {
       if (!val) return '—';
-      const [y, m, d] = String(val).split('-');
+      const datePart = String(val).slice(0, 10); // suporta YYYY-MM-DD e YYYY-MM-DDTHH:MM
+      const [y, m, d] = datePart.split('-');
       if (!y || !m || !d) return val;
       return `${d}/${m}/${y}`;
     }
