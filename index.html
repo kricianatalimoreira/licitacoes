@@ -2698,13 +2698,24 @@
     /* Lista de disputas em andamento (dashboard) */
     .dash-disputa-row {
       display: grid;
-      grid-template-columns: 78px 2.1fr 0.9fr 42px;
+      grid-template-columns: 78px 1.6fr 0.9fr 90px 42px;
       gap: 10px;
       align-items: center;
       padding: 0 10px;
       font-size: 11px;
       height: 35px;
       box-sizing: border-box;
+    }
+    @keyframes dash-retorno-blink {
+      0%,100% { opacity:1; background:#fff3cd; }
+      50%      { opacity:.35; background:#ffe082; }
+    }
+    .dash-retorno-alerta {
+      animation: dash-retorno-blink 1s ease-in-out infinite;
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-weight: 800;
+      color: #7c4a00 !important;
     }
     .dash-disputa-row-head {
       font-size: 9px; font-weight: 800; text-transform: uppercase;
@@ -2916,6 +2927,7 @@
 <div>Data</div>
 <div>Órgão</div>
 <div>Nº e Tipo do Processo</div>
+<div>Retorno</div>
 <div style="text-align:center;">Link</div>
 </div>
 <div class="dash-disputas-list" id="dashDisputasAndamentoList" style="height:280px;max-height:280px;flex:none;overflow-y:auto;"></div>
@@ -2957,22 +2969,6 @@
 
 <!-- ══ COLUNA DIREITA: Contratos Gerados + KPI'S Contratos + KPI'S Empenhos ══ -->
 <div style="flex:1;display:flex;flex-direction:column;gap:14px;min-width:0;">
-
-<!-- CONTRATOS GERADOS (mês / ano) -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
-  <div class="dash-kpi-label">🎯 Contratos Gerados no Mês</div>
-  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashMetaMensalLabel"></div>
-  <div class="dash-kpi-value" id="dashMetaMensalValorBig" style="color:var(--primary);">R$ 0,00</div>
-  <div class="dash-kpi-sub" id="dashMetaMensalCountSub"></div>
-</div>
-<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
-  <div class="dash-kpi-label">📅 Contratos Gerados no Ano</div>
-  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashMetaAnualLabel"></div>
-  <div class="dash-kpi-value" id="dashMetaAnualValorBig" style="color:#2563eb;">R$ 0,00</div>
-  <div class="dash-kpi-sub" id="dashMetaAnualCountSub"></div>
-</div>
-</div>
 
 <!-- KPI'S CONTRATOS -->
 <div>
@@ -8808,6 +8804,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         if (ativas.length === 0) {
           listaDispAndamento.innerHTML = '<div class="dash-disputa-empty">Nenhuma disputa em andamento.</div>';
         } else {
+          const agora2 = new Date();
           listaDispAndamento.innerHTML = ativas.map((d, idx) => {
             const dataFmt = d.data ? formatDate(d.data) : '—';
             const tipoProc = [d.tipo, d.processo].filter(Boolean).join(' ') || '—';
@@ -8815,13 +8812,33 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
               ? `<a class="dash-disputa-link-btn" href="${escapeHTML(d.sala)}" target="_blank" rel="noopener" title="Abrir link do sistema">🖥️</a>`
               : `<span class="dash-disputa-link-btn dash-disputa-link-btn-empty" title="Sem link cadastrado">—</span>`;
             const zebra = idx % 2 === 1 ? ' style="background:var(--row-zebra,rgba(0,0,0,.018));"' : '';
+
+            // Coluna retorno
+            let retornoHtml = '<span style="color:var(--muted);">—</span>';
+            if (d.retorno) {
+              const retDt = new Date(d.retorno);
+              const diffMin = (retDt - agora2) / 60000;
+              const retFmt = retDt.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+              if (diffMin > 0 && diffMin <= 10) {
+                retornoHtml = `<span class="dash-retorno-alerta" title="⚠️ Retorno em ${Math.ceil(diffMin)} min!">⏰ ${retFmt}</span>`;
+              } else {
+                retornoHtml = `<span title="${retFmt}">${retFmt}</span>`;
+              }
+            }
+
             return `<div class="dash-disputa-row"${zebra}>
               <div class="dash-disputa-data">${dataFmt}</div>
               <div class="dash-disputa-orgao" title="${escapeHTML(d.orgao) || ''}">${escapeHTML(d.orgao) || '—'}</div>
               <div class="dash-disputa-processo" title="${escapeHTML(tipoProc)}">${escapeHTML(tipoProc)}</div>
+              <div style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${retornoHtml}</div>
               <div>${linkBtn}</div>
             </div>`;
           }).join('');
+        }
+
+        // Re-renderiza a cada 30s para manter o alerta atualizado
+        if (!window._dashRetornoInterval) {
+          window._dashRetornoInterval = setInterval(() => { if (typeof renderDashboard === 'function') renderDashboard(); }, 30000);
         }
       }
       const dispAtivas = disputas.filter(d => d.status==='Em andamento').length;
