@@ -2933,9 +2933,47 @@
 <div class="dash-disputas-list" id="dashDisputasAndamentoList" style="height:280px;max-height:280px;flex:none;overflow-y:auto;"></div>
 </div>
 
-<!-- KPI'S DISPUTAS -->
+
+</div>
+<!-- ══ FIM COLUNA ESQUERDA ══ -->
+
+<!-- ══ COLUNA DIREITA: Contratos + Disputas ══ -->
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;min-width:0;">
+
+<!-- CONTRATOS -->
 <div>
-<div style="font-size:10px;font-weight:800;color:var(--primary);letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--primary-border);">⚡ KPI'S DISPUTAS</div>
+<div style="font-size:10px;font-weight:800;color:#2563eb;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #dbeafe;">📝 CONTRATOS</div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+  <div class="dash-kpi-label">Gerados no Mês</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashConMesLabel"></div>
+  <div class="dash-kpi-value" id="dashKpiConMesValor" style="color:var(--primary);">R$ 0,00</div>
+  <div class="dash-kpi-sub" id="dashKpiConMesSub"></div>
+</div>
+<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+  <div class="dash-kpi-label">Gerados no Ano</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashConAnoLabel"></div>
+  <div class="dash-kpi-value" id="dashKpiConAnoValor" style="color:#2563eb;">R$ 0,00</div>
+  <div class="dash-kpi-sub" id="dashKpiConAnoSub"></div>
+</div>
+<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+  <div class="dash-kpi-label">Contratos Vigentes</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Quantidade: <span id="dashKpiContratos">0</span></div>
+  <div class="dash-kpi-value" id="dashKpiConVigenteValor" style="color:#7c3aed;">R$ 0,00</div>
+  <div class="dash-kpi-sub" id="dashKpiContratosSub"></div>
+</div>
+<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
+  <div class="dash-kpi-label">A Vencer em 60 dias</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Contratos ativos próximos do fim</div>
+  <div class="dash-kpi-value" id="dashKpiConVencer" style="color:#b76a00;">0</div>
+  <div class="dash-kpi-sub" id="dashKpiConVencerSub"></div>
+</div>
+</div>
+</div>
+
+<!-- DISPUTAS -->
+<div>
+<div style="font-size:10px;font-weight:800;color:var(--primary);letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--primary-border);">⚡ DISPUTAS</div>
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
 <div class="dash-kpi-card" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">
   <div class="dash-kpi-label">Participadas no Mês</div>
@@ -2960,100 +2998,6 @@
   <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashDisputaAtivaLabel"></div>
   <div class="dash-kpi-value" id="dashKpiDisputasAtivas" style="color:var(--primary);">0</div>
   <div class="dash-kpi-sub" id="dashKpiDisputasSub"></div>
-</div>
-</div>
-</div>
-
-</div>
-<!-- ══ FIM COLUNA ESQUERDA ══ -->
-
-<!-- ══ COLUNA DIREITA: Contratos Gerados + KPI'S Contratos + KPI'S Empenhos ══ -->
-<div style="flex:1;display:flex;flex-direction:column;gap:14px;min-width:0;">
-
-<!-- KPI'S CONTRATOS -->
-<div>
-<div style="font-size:10px;font-weight:800;color:#2563eb;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #dbeafe;">📝 KPI'S CONTRATOS</div>
-<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
-<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
-  <div class="dash-kpi-label">Assinados no Mês</div>
-  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashConMesLabel"></div>
-  <div class="dash-kpi-value" id="dashKpiConMesValor" style="color:var(--primary);">R$ 0,00</div>
-  <div class="dash-kpi-sub" id="dashKpiConMesSub"></div>
-</div>
-<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
-  <div class="dash-kpi-label">Assinados no Ano</div>
-  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashConAnoLabel"></div>
-  <div class="dash-kpi-value" id="dashKpiConAnoValor" style="color:#2563eb;">R$ 0,00</div>
-  <div class="dash-kpi-sub" id="dashKpiConAnoSub"></div>
-</div>
-<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
-  <div class="dash-kpi-label">Contratos Vigentes</div>
-  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Quantidade: <span id="dashKpiContratos">0</span></div>
-  <div class="dash-kpi-value" id="dashKpiConVigenteValor" style="color:#7c3aed;">R$ 0,00</div>
-  <div class="dash-kpi-sub" id="dashKpiContratosSub"></div>
-</div>
-<div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
-  <div class="dash-kpi-label">A Vencer em 60 dias</div>
-  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Contratos ativos próximos do fim</div>
-  <div class="dash-kpi-value" id="dashKpiConVencer" style="color:#b76a00;">0</div>
-  <div class="dash-kpi-sub" id="dashKpiConVencerSub"></div>
-</div>
-</div>
-</div>
-
-<!-- KPI'S EMPENHOS -->
-<div>
-<div style="font-size:10px;font-weight:800;color:#7c3aed;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #ede9fe;">📄 KPI'S EMPENHOS</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-<!-- Pendentes -->
-<div class="dash-card" style="padding:14px;">
-  <div style="font-size:10px;font-weight:800;color:#b76a00;margin-bottom:10px;">🟡 PENDENTES — AGUARDANDO COMPRA</div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-    <div><div style="font-size:9px;color:var(--muted);">Quantidade</div><div style="font-size:16px;font-weight:800;color:#b76a00;" id="dashEmpPendQtd">0</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">Vl. Empenho</div><div style="font-size:13px;font-weight:700;color:var(--primary);" id="dashEmpPendVlEmp">R$ 0,00</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">Vl. Compra Prev.</div><div style="font-size:13px;font-weight:700;" id="dashEmpPendVlCompra">R$ 0,00</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">Custo Prev.</div><div style="font-size:13px;font-weight:700;color:#b76a00;" id="dashEmpPendCusto">R$ 0,00</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">Lucro Prev.</div><div style="font-size:13px;font-weight:700;color:#1f8a4c;" id="dashEmpPendLucro">R$ 0,00</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">% Lucro</div><div style="font-size:13px;font-weight:700;color:#a3e635;" id="dashEmpPendPct">—</div></div>
-  </div>
-</div>
-<!-- Em andamento -->
-<div class="dash-card" style="padding:14px;">
-  <div style="font-size:10px;font-weight:800;color:#2563eb;margin-bottom:10px;">🔵 EM ANDAMENTO — VALORES A RECEBER</div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-    <div><div style="font-size:9px;color:var(--muted);">Quantidade</div><div style="font-size:16px;font-weight:800;color:#2563eb;" id="dashEmpAndQtd">0</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">Vl. Empenho</div><div style="font-size:13px;font-weight:700;color:var(--primary);" id="dashEmpAndVlEmp">R$ 0,00</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">Vl. Compra</div><div style="font-size:13px;font-weight:700;" id="dashEmpAndVlCompra">R$ 0,00</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">Custo</div><div style="font-size:13px;font-weight:700;color:#b76a00;" id="dashEmpAndCusto">R$ 0,00</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">Lucro</div><div style="font-size:13px;font-weight:700;color:#1f8a4c;" id="dashEmpAndLucro">R$ 0,00</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">% Lucro</div><div style="font-size:13px;font-weight:700;color:#a3e635;" id="dashEmpAndPct">—</div></div>
-  </div>
-</div>
-<!-- Recebidos mês -->
-<div class="dash-card" style="padding:14px;">
-  <div style="font-size:10px;font-weight:800;color:#1f8a4c;margin-bottom:10px;">✅ RECEBIDOS — <span id="dashEmpRecMesLabel"></span></div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-    <div><div style="font-size:9px;color:var(--muted);">Quantidade</div><div style="font-size:16px;font-weight:800;color:#1f8a4c;" id="dashEmpRecMesQtd">0</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">Vl. Empenho</div><div style="font-size:13px;font-weight:700;color:var(--primary);" id="dashEmpRecMesVlEmp">R$ 0,00</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">Lucro</div><div style="font-size:13px;font-weight:700;color:#1f8a4c;" id="dashEmpRecMesLucro">R$ 0,00</div></div>
-  </div>
-  <div style="margin-top:8px;display:flex;gap:16px;">
-    <div><div style="font-size:9px;color:var(--muted);">% Lucro</div><div style="font-size:13px;font-weight:700;color:#a3e635;" id="dashEmpRecMesPct">—</div></div>
-  </div>
-  <div style="margin-top:8px;font-size:9px;color:var(--muted);" id="dashEmpRecMesComp"></div>
-</div>
-<!-- Recebidos ano -->
-<div class="dash-card" style="padding:14px;">
-  <div style="font-size:10px;font-weight:800;color:#1f8a4c;margin-bottom:10px;">✅ RECEBIDOS — <span id="dashEmpRecAnoLabel"></span></div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-    <div><div style="font-size:9px;color:var(--muted);">Quantidade</div><div style="font-size:16px;font-weight:800;color:#1f8a4c;" id="dashEmpRecAnoQtd">0</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">Vl. Empenho</div><div style="font-size:13px;font-weight:700;color:var(--primary);" id="dashEmpRecAnoVlEmp">R$ 0,00</div></div>
-    <div><div style="font-size:9px;color:var(--muted);">Lucro</div><div style="font-size:13px;font-weight:700;color:#1f8a4c;" id="dashEmpRecAnoLucro">R$ 0,00</div></div>
-  </div>
-  <div style="margin-top:8px;display:flex;gap:16px;">
-    <div><div style="font-size:9px;color:var(--muted);">% Lucro</div><div style="font-size:13px;font-weight:700;color:#a3e635;" id="dashEmpRecAnoPct">—</div></div>
-  </div>
-  <div style="margin-top:8px;font-size:9px;color:var(--muted);" id="dashEmpRecAnoComp"></div>
 </div>
 </div>
 </div>
@@ -8858,8 +8802,9 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       setEl('dashKpiDisputasSub', '');
 
       // ── CONTRATOS ──
-      const conMes = contratosAtivos.filter(c => { if (!c.data) return false; const d = new Date(c.data+'T00:00:00'); return d.getMonth()===mesAtual && d.getFullYear()===anoAtual; });
-      const conAno = contratosAtivos.filter(c => { if (!c.data) return false; return new Date(c.data+'T00:00:00').getFullYear()===anoAtual; });
+      const todosContratos = [...contratosAtivos, ...contratosEncerrados];
+      const conMes = todosContratos.filter(c => { if (!c.data) return false; const d = new Date(c.data+'T00:00:00'); return d.getMonth()===mesAtual && d.getFullYear()===anoAtual; });
+      const conAno = todosContratos.filter(c => { if (!c.data) return false; return new Date(c.data+'T00:00:00').getFullYear()===anoAtual; });
       const vlConMes = conMes.reduce((s,c)=>s+(Number(c.valor)||0),0);
       const vlConAno = conAno.reduce((s,c)=>s+(Number(c.valor)||0),0);
       const vlTotalVigentes = contratosAtivos.reduce((s,c)=>s+(Number(c.valor)||0),0);
