@@ -8754,9 +8754,9 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       setEl('dashKpiDisputasSub', '');
 
       // ── CONTRATOS ──
-      const todosContratos = [...contratosAtivos, ...contratosEncerrados];
-      const conMes = todosContratos.filter(c => { if (!c.data) return false; const d = new Date(c.data+'T00:00:00'); return d.getMonth()===mesAtual && d.getFullYear()===anoAtual; });
-      const conAno = todosContratos.filter(c => { if (!c.data) return false; return new Date(c.data+'T00:00:00').getFullYear()===anoAtual; });
+      const todosContratosKpi = [...contratosAtivos, ...contratosEncerrados];
+      const conMes = todosContratosKpi.filter(c => { if (!c.data) return false; const d = new Date(c.data+'T00:00:00'); return d.getMonth()===mesAtual && d.getFullYear()===anoAtual; });
+      const conAno = todosContratosKpi.filter(c => { if (!c.data) return false; return new Date(c.data+'T00:00:00').getFullYear()===anoAtual; });
       const vlConMes = conMes.reduce((s,c)=>s+(Number(c.valor)||0),0);
       const vlConAno = conAno.reduce((s,c)=>s+(Number(c.valor)||0),0);
       const vlTotalVigentes = contratosAtivos.reduce((s,c)=>s+(Number(c.valor)||0),0);
@@ -10379,3 +10379,4 @@ function showToast(msg, type = 'info', duration = 3500) {
 
 </body>
 </html>
+    
