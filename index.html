@@ -2960,28 +2960,7 @@
 </div>
 <!-- ══ FIM LAYOUT 2 COLUNAS ══ -->
 
-<!-- GRÁFICOS -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-<!-- Donut -->
-<div class="dash-card">
-  <div class="dash-card-title">📊 DISPUTAS — DISTRIBUIÇÃO</div>
-  <div class="dash-donut-wrap">
-    <svg class="dash-donut-svg" height="110" id="dashDonutDisputas" viewbox="0 0 110 110" width="110"></svg>
-    <div class="dash-donut-legend" id="dashDonutDisputasLegenda"></div>
-  </div>
-</div>
-<!-- Gráfico linha -->
-<div class="dash-card">
-  <div class="dash-card-title">📈 LUCRO MENSAL RECEBIDO</div>
-  <div class="dash-line-wrap">
-    <svg height="130" id="dashLineCompras" preserveaspectratio="none" viewbox="0 0 400 130" width="100%"></svg>
-  </div>
-  <div style="display:flex;gap:14px;margin-top:8px;">
-    <div style="display:flex;align-items:center;gap:5px;font-size:9px;"><div style="width:14px;height:3px;background:var(--primary);border-radius:2px;"></div>Lucro realizado</div>
-    <div style="display:flex;align-items:center;gap:5px;font-size:9px;"><div style="width:14px;height:3px;background:#2563eb;border-radius:2px;border-style:dashed;"></div>Valor comprado</div>
-  </div>
-</div>
-</div>
+
 
 </section>
 <section class="page-section hidden" id="disputa-andamento">
@@ -8852,10 +8831,6 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         { label:'Perdidas',     val: todos.filter(d=>d.status==='Perdida').length,      cor:'#b42318' },
         { label:'Frac./Susp.',  val: todos.filter(d=>d.status==='Fracassado/Suspenso'||d.status==='Revogada').length, cor:'#6b7280' },
       ].filter(d => d.val > 0);
-      renderDonut('dashDonutDisputas', 'dashDonutDisputasLegenda', donutData);
-
-      renderLineCompras();
-
       // ── Iguala altura da coluna esquerda com a direita ──
       requestAnimationFrame(() => {
         const colDir = document.getElementById('dashColunaDireita');
