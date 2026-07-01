@@ -9752,22 +9752,13 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           return true;
         }
 
-        // ── Comparar timestamps: local vs cloud ───────────────
-        const localTs = localStorage.getItem(LOCAL_TS_KEY);
-        const allRows = [...(rowsDisp||[]), ...(rowsDispEnc||[]), ...(rowsConA||[]),
-                         ...(rowsConE||[]), ...(rowsEmp||[]), ...(rowsComp||[])];
-        const cloudTs = _cloudTs(allRows);
-
-        // Local mais recente que cloud → sobe o local, não sobrescreve
-        if (localTs && cloudTs && localTs > cloudTs) {
-          console.info('[KM] syncFromCloud: local mais recente que cloud — subindo dados locais.', { localTs, cloudTs });
-          await _persistAllImmediate();
-          showSync('ok', '✓ dados locais enviados ao banco');
-          return true;
-        }
-
-        // Cloud mais recente (ou sem timestamp local) → baixa do banco
-        console.info('[KM] syncFromCloud: baixando dados do banco.', { localTs, cloudTs });
+        // ── NUVEM SEMPRE VENCE ──────────────────────────────────
+        // O banco é a única fonte de verdade. Não comparamos mais
+        // timestamps locais vs. nuvem — isso é o que causava um
+        // computador sobrescrever o outro com dados desatualizados.
+        // Ao abrir o sistema (ou ao chamar restaurarBackup), os dados
+        // locais são sempre substituídos pelo que está no Supabase.
+        console.info('[KM] syncFromCloud: baixando dados do banco (nuvem é fonte de verdade).');
 
         disputas            = dedupeById((rowsDisp   ||[]).map(fromDbDisputa));
         disputasEncerradas  = dedupeById((rowsDispEnc||[]).map(fromDbDisputa));
@@ -9780,8 +9771,6 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         localStorage.setItem('km_disputas_v60_clean', JSON.stringify(dispObj));
         localStorage.setItem('km_empenhos_v60_clean', JSON.stringify(empenhos));
         localStorage.setItem('km_compras_v60_clean',  JSON.stringify(compras));
-        // Atualiza o timestamp local para refletir o que veio do banco
-        if (cloudTs) localStorage.setItem(LOCAL_TS_KEY, cloudTs);
 
         if (rowsMeta&&rowsMeta[0]?.payload) {
           localStorage.setItem('km_metas_v60_clean', JSON.stringify(rowsMeta[0].payload));
