@@ -1704,6 +1704,44 @@
     }
     .subtotal-clear-btn:hover { background: var(--primary-soft); }
 
+    /* ── Barra de seleção em massa (apagar vários) ── */
+    .bulk-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: #fde8e8;
+      border-top: 1px solid #f0b4b4;
+    }
+    :root[data-mode="light"] .bulk-bar { background: #fde8e8; border-top-color: #f0b4b4; }
+    .bulk-bar.hidden { display: none; }
+    .bulk-bar-count { font-size: 11px; font-weight: 700; color: #b42318; }
+    .bulk-bar-del-btn {
+      border: none;
+      background: #b42318;
+      color: #fff;
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s;
+    }
+    .bulk-bar-del-btn:hover { background: #8f1b13; }
+    .bulk-bar-cancel-btn {
+      border: 1px solid #f0b4b4;
+      background: transparent;
+      color: #b42318;
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .bulk-bar-cancel-btn:hover { background: #fbd5d5; }
+
     /* Layout fluido — ocupa 100% da janela do browser */
 
     /* Contratos table column widths */
@@ -2982,6 +3020,7 @@
 <table class="and-table">
 <thead>
 <tr>
+<th style="width:28px;text-align:center;"><input type="checkbox" id="selAll_and" onchange="bulkToggleAll('and', this.checked)" title="Selecionar todos"/></th>
 <th class="historico-th">
 <div class="historico-header-cell">
 <span>Data</span>
@@ -3121,6 +3160,7 @@
 <tbody id="disputaTableBody"></tbody>
 </table>
 </div>
+<div class="bulk-bar hidden" id="bulkBar_and"><span class="bulk-bar-count"><span id="bulkCount_and">0</span> selecionado(s)</span><button class="bulk-bar-del-btn" onclick="bulkExcluir('and')">🗑️ Excluir selecionados</button><button class="bulk-bar-cancel-btn" onclick="bulkClear('and')">✕ Cancelar seleção</button></div>
 <div class="subtotal-bar" id="subtotalAndamento">
 <button class="subtotal-clear-btn" onclick="limparFiltrosAndamento()">✕ Limpar filtros</button>
 <div class="sort-select-wrap">
@@ -3155,6 +3195,7 @@
 <table class="enc-table">
 <thead>
 <tr>
+<th style="width:28px;text-align:center;"><input type="checkbox" id="selAll_encDisp" onchange="bulkToggleAll('encDisp', this.checked)" title="Selecionar todos"/></th>
 <th class="historico-th">
 <div class="historico-header-cell">
 <span>Data</span>
@@ -3288,6 +3329,7 @@
 <tbody id="historicoDisputasBody"></tbody>
 </table>
 </div>
+<div class="bulk-bar hidden" id="bulkBar_encDisp"><span class="bulk-bar-count"><span id="bulkCount_encDisp">0</span> selecionado(s)</span><button class="bulk-bar-del-btn" onclick="bulkExcluir('encDisp')">🗑️ Excluir selecionados</button><button class="bulk-bar-cancel-btn" onclick="bulkClear('encDisp')">✕ Cancelar seleção</button></div>
 <div class="subtotal-bar" id="subtotalEncerradas">
 <button class="subtotal-clear-btn" onclick="limparFiltrosEncerradas()">✕ Limpar filtros</button>
 <div class="sort-select-wrap">
@@ -3334,6 +3376,7 @@
 <table class="con-table">
 <thead>
 <tr>
+<th style="width:28px;text-align:center;"><input type="checkbox" id="selAll_conAt" onchange="bulkToggleAll('conAt', this.checked)" title="Selecionar todos"/></th>
 <th class="historico-th">
 <div class="historico-header-cell"><span>Data</span>
 <button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conAPopover-data')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
@@ -3419,6 +3462,7 @@
 <tbody id="conAtivosBody"></tbody>
 </table>
 </div>
+<div class="bulk-bar hidden" id="bulkBar_conAt"><span class="bulk-bar-count"><span id="bulkCount_conAt">0</span> selecionado(s)</span><button class="bulk-bar-del-btn" onclick="bulkExcluir('conAt')">🗑️ Excluir selecionados</button><button class="bulk-bar-cancel-btn" onclick="bulkClear('conAt')">✕ Cancelar seleção</button></div>
 <div class="subtotal-bar" id="subtotalConAtivos">
 <button class="subtotal-clear-btn" onclick="limparFiltrosConAtivos()">✕ Limpar filtros</button>
 
@@ -3454,6 +3498,7 @@
 <table class="con-enc-table">
 <thead>
 <tr>
+<th style="width:28px;text-align:center;"><input type="checkbox" id="selAll_conEnc" onchange="bulkToggleAll('conEnc', this.checked)" title="Selecionar todos"/></th>
 <th class="historico-th">
 <div class="historico-header-cell"><span>Data</span>
 <button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conEPopover-data')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
@@ -3522,6 +3567,7 @@
 <tbody id="conEncerradosBody"></tbody>
 </table>
 </div>
+<div class="bulk-bar hidden" id="bulkBar_conEnc"><span class="bulk-bar-count"><span id="bulkCount_conEnc">0</span> selecionado(s)</span><button class="bulk-bar-del-btn" onclick="bulkExcluir('conEnc')">🗑️ Excluir selecionados</button><button class="bulk-bar-cancel-btn" onclick="bulkClear('conEnc')">✕ Cancelar seleção</button></div>
 <div class="subtotal-bar" id="subtotalConEncerrados">
 <button class="subtotal-clear-btn" onclick="limparFiltrosConEncerrados()">✕ Limpar filtros</button>
 <div class="sort-select-wrap">
@@ -3559,6 +3605,7 @@
 <div class="table-wrap">
 <table class="emp-table emp-table-pend">
 <thead><tr>
+<th style="width:28px;text-align:center;"><input type="checkbox" id="selAll_empPend" onchange="bulkToggleAll('empPend', this.checked)" title="Selecionar todos"/></th>
 <th class="historico-th">
 <div class="historico-header-cell">
 <span>Dt. Empenho</span>
@@ -3653,6 +3700,7 @@
 <tbody id="empPendTableBody"></tbody>
 </table>
 </div>
+<div class="bulk-bar hidden" id="bulkBar_empPend"><span class="bulk-bar-count"><span id="bulkCount_empPend">0</span> selecionado(s)</span><button class="bulk-bar-del-btn" onclick="bulkExcluir('empPend')">🗑️ Excluir selecionados</button><button class="bulk-bar-cancel-btn" onclick="bulkClear('empPend')">✕ Cancelar seleção</button></div>
 <div class="subtotal-bar" id="subtotalEmpPend">
 <div class="sort-select-wrap">
 <label>Ordenar</label>
@@ -3692,6 +3740,7 @@
 <div class="table-wrap">
 <table class="emp-table emp-table-and">
 <thead><tr>
+<th style="width:28px;text-align:center;"><input type="checkbox" id="selAll_empAnd" onchange="bulkToggleAll('empAnd', this.checked)" title="Selecionar todos"/></th>
 <th class="historico-th">
 <div class="historico-header-cell">
 <span>DATAS</span>
@@ -3801,6 +3850,7 @@
 <tbody id="empAndTableBody"></tbody>
 </table>
 </div>
+<div class="bulk-bar hidden" id="bulkBar_empAnd"><span class="bulk-bar-count"><span id="bulkCount_empAnd">0</span> selecionado(s)</span><button class="bulk-bar-del-btn" onclick="bulkExcluir('empAnd')">🗑️ Excluir selecionados</button><button class="bulk-bar-cancel-btn" onclick="bulkClear('empAnd')">✕ Cancelar seleção</button></div>
 <div class="subtotal-bar" id="subtotalEmpAnd">
 <div class="sort-select-wrap">
 <label>Ordenar</label>
@@ -3833,6 +3883,7 @@
 <div class="table-wrap">
 <table class="emp-table emp-table-pagos">
 <thead><tr>
+<th style="width:28px;text-align:center;"><input type="checkbox" id="selAll_empEnc" onchange="bulkToggleAll('empEnc', this.checked)" title="Selecionar todos"/></th>
 <th class="historico-th">
 <div class="historico-header-cell">
 <span>DATAS</span>
@@ -3927,6 +3978,7 @@
 <tbody id="empEncTableBody"></tbody>
 </table>
 </div>
+<div class="bulk-bar hidden" id="bulkBar_empEnc"><span class="bulk-bar-count"><span id="bulkCount_empEnc">0</span> selecionado(s)</span><button class="bulk-bar-del-btn" onclick="bulkExcluir('empEnc')">🗑️ Excluir selecionados</button><button class="bulk-bar-cancel-btn" onclick="bulkClear('empEnc')">✕ Cancelar seleção</button></div>
 <div class="subtotal-bar" id="subtotalEmpEnc">
 <div class="sort-select-wrap">
 <label>Ordenar</label>
@@ -4499,6 +4551,7 @@
       if (!confirm('Deseja excluir esta disputa?')) return;
       disputas = disputas.filter(d => d.id !== id);
       persist();
+      sbExcluirDisputa(id);
       renderDisputas();
       closeAllMenus();
     }
@@ -4554,7 +4607,7 @@
       });
 
       if (!sortedAnd.length) {
-        body.innerHTML = `<tr><td colspan="10"><div class="empty-state">Nenhuma disputa encontrada em andamento.</div></td></tr>`;
+        body.innerHTML = `<tr><td colspan="11"><div class="empty-state">Nenhuma disputa encontrada em andamento.</div></td></tr>`;
         return;
       }
 
@@ -4563,6 +4616,7 @@
         const retorno = formatDateTime(item.retorno);
         return `
           <tr>
+            ${bulkCheckboxTd('and', item.id)}
             <td><div class="cell-data-hora"><span class="data-dia">${data.date}</span><span class="data-hora">${data.time || '—'}</span></div></td>
             <td class="cell-wrap">${escapeHTML(item.orgao) || '—'}</td>
             <td><span class="uf-badge">${item.uf || '—'}</span></td>
@@ -4644,7 +4698,7 @@
       });
 
       if (!sorted.length) {
-        body.innerHTML = `<tr><td colspan="10"><div class="empty-state">Nenhuma disputa encerrada encontrada.</div></td></tr>`;
+        body.innerHTML = `<tr><td colspan="11"><div class="empty-state">Nenhuma disputa encerrada encontrada.</div></td></tr>`;
         return;
       }
 
@@ -4652,6 +4706,7 @@
         const data = formatDateTime(item.data);
         return `
           <tr>
+            ${bulkCheckboxTd('encDisp', item.id)}
             <td><div class="cell-data-hora"><span class="data-dia">${data.date}</span><span class="data-hora">${data.time || '—'}</span></div></td>
             <td class="cell-wrap">${escapeHTML(item.orgao) || '—'}</td>
             <td><span class="uf-badge">${item.uf || '—'}</span></td>
@@ -4877,6 +4932,7 @@
       if (!confirm('Deseja excluir esta disputa encerrada?')) return;
       disputasEncerradas = disputasEncerradas.filter(item => item.id !== id);
       persist();
+      sbExcluirDisputaEnc(id);
       renderHistoricoDisputas();
       closeAllMenus();
     }
@@ -5302,7 +5358,7 @@
       });
 
       if (!sortedConA.length) {
-        body.innerHTML = `<tr><td colspan="9"><div class="empty-state">Nenhum contrato ativo encontrado.</div></td></tr>`;
+        body.innerHTML = `<tr><td colspan="11"><div class="empty-state">Nenhum contrato ativo encontrado.</div></td></tr>`;
         return;
       }
 
@@ -5314,6 +5370,7 @@
         const rascunhoBadge = '';
         return `
           <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','ativo')" title="Clique para ver detalhes" style="">
+            ${bulkCheckboxTd('conAt', c.id)}
             <td>
               <div class="cell-data-hora">
                 <span class="data-dia">${formatDate(c.data)}</span>
@@ -5451,6 +5508,7 @@
 
         return `
           <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','enc')" title="Clique para ver detalhes" style="cursor:pointer;">
+            ${bulkCheckboxTd('conEnc', c.id)}
             <td><span class="data-dia">${formatDate(c.data)}</span></td>
             <td>${orgaoInfoHtml(c)}</td>
             <td>${companyBadge(c.empresa)}</td>
@@ -6318,12 +6376,12 @@
     function excluirContratoAtivo(id) {
       if (!confirm('Deseja excluir este contrato ativo?')) return;
       contratosAtivos = contratosAtivos.filter(c => c.id !== id);
-      persistAll(); renderContratosAtivos(); closeAllMenus();
+      persistAll(); sbExcluirContratoAtivo(id); renderContratosAtivos(); closeAllMenus();
     }
     function excluirContratoEnc(id) {
       if (!confirm('Deseja excluir este contrato encerrado?')) return;
       contratosEncerrados = contratosEncerrados.filter(c => c.id !== id);
-      persistAll(); renderContratosEncerrados(); closeAllMenus();
+      persistAll(); sbExcluirContratoEnc(id); renderContratosEncerrados(); closeAllMenus();
     }
 
 
@@ -6628,6 +6686,7 @@
         empenhos = empenhos.filter(e => e.id !== id);
         persistEmpenhos();
         persistAll();
+        sbExcluirEmpenho(id);
         renderEmpenhos();
         renderContratosAtivos();
       }
@@ -6744,6 +6803,7 @@
       }
 
       return `<tr>
+        ${bulkCheckboxTd('empAnd', e.id)}
         <td>
           <div style="display:flex;flex-direction:column;gap:1px;">
             <span class="data-dia">${formatDate(e.data)}</span>
@@ -6852,7 +6912,7 @@
       }, 'data_asc');
       body.innerHTML = sortedEmpAnd.length
         ? sortedEmpAnd.map(empRowHtml).join('')
-        : `<tr><td colspan="12"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
+        : `<tr><td colspan="13"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
     }
 
     // ── Empenhos encerrados (status === 'Paga') ──
@@ -6940,7 +7000,7 @@
       if (qs('subtotalEmpPendValor')) qs('subtotalEmpPendValor').textContent = formatCurrency(filtered.reduce((s,e)=>s+Number(e.valor||0),0));
 
       body.innerHTML = filtered.length === 0
-        ? '<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--muted);">Nenhum empenho pendente.</td></tr>'
+        ? '<tr><td colspan="13" style="text-align:center;padding:32px;color:var(--muted);">Nenhum empenho pendente.</td></tr>'
         : filtered.map(e => {
             // Badge dias pendentes
             let diasPendBadge = '';
@@ -6984,6 +7044,7 @@
               pctHtml      = `<span style="font-size:10px;font-weight:${mw};color:${mc};">${mg.toFixed(1)}%</span>`;
             }
             return `<tr>
+              ${bulkCheckboxTd('empPend', e.id)}
               <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendBadge}</div></td>
               <td style="font-weight:700;font-size:10px;">${e.numero||'—'}</td>
               <td class="cell-wrap">
@@ -7044,6 +7105,7 @@
       }
 
       return `<tr>
+        ${bulkCheckboxTd('empEnc', e.id)}
         <td>
           <div style="display:flex;flex-direction:column;gap:1px;">
             <span class="data-dia">${formatDate(e.data)}</span>
@@ -7131,7 +7193,7 @@
       }, 'data_desc');
       body.innerHTML = sortedEmpEnc.length
         ? sortedEmpEnc.map(empPagosRowHtml).join('')
-        : `<tr><td colspan="12"><div class="empty-state">Nenhum empenho pago encontrado.</div></td></tr>`;
+        : `<tr><td colspan="13"><div class="empty-state">Nenhum empenho pago encontrado.</div></td></tr>`;
     }
 
     // Mantida para compatibilidade com chamadas internas (persistEmpenhos, etc.)
@@ -8480,6 +8542,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       if (!confirm('Deseja excluir esta compra?')) return;
       compras = compras.filter(c => c.id !== id);
       persistCompras();
+      sbExcluirCompra(id);
       renderCompras();
       closeAllMenus();
     }
@@ -9620,6 +9683,122 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     async function sbExcluirContratoEnc(id)   { try { await sbDelete('contratos_encerrados', id); }catch(e) { console.warn('[KM]', e); } }
     async function sbExcluirEmpenho(id)       { try { await sbDelete('empenhos', id); }            catch(e) { console.warn('[KM]', e); } }
     async function sbExcluirCompra(id)        { try { await sbDelete('compras', id); }             catch(e) { console.warn('[KM]', e); } }
+
+    // ══════════════════════════════════════════════════════════
+    // SELEÇÃO MÚLTIPLA — apagar vários registros de uma vez
+    // ══════════════════════════════════════════════════════════
+    const BULK = {
+      and:     { body: 'disputaTableBody',     sel: new Set() },
+      encDisp: { body: 'historicoDisputasBody', sel: new Set() },
+      conAt:   { body: 'conAtivosBody',        sel: new Set() },
+      conEnc:  { body: 'conEncerradosBody',    sel: new Set() },
+      empPend: { body: 'empPendTableBody',     sel: new Set() },
+      empAnd:  { body: 'empAndTableBody',      sel: new Set() },
+      empEnc:  { body: 'empEncTableBody',      sel: new Set() },
+    };
+
+    // Gera o <td> com checkbox de uma linha, mantendo o estado marcado entre re-renders
+    function bulkCheckboxTd(scope, id) {
+      const cfg = BULK[scope];
+      const checked = cfg && cfg.sel.has(id) ? 'checked' : '';
+      return `<td style="text-align:center;" onclick="event.stopPropagation()"><input type="checkbox" class="bulkChk-${scope}" data-id="${id}" onchange="bulkToggle('${scope}','${id}', this.checked)" ${checked}/></td>`;
+    }
+
+    function bulkToggle(scope, id, checked) {
+      const cfg = BULK[scope];
+      if (!cfg) return;
+      if (checked) cfg.sel.add(id); else cfg.sel.delete(id);
+      bulkUpdateBar(scope);
+    }
+
+    function bulkToggleAll(scope, checked) {
+      const cfg = BULK[scope];
+      if (!cfg) return;
+      const body = document.getElementById(cfg.body);
+      if (!body) return;
+      body.querySelectorAll('input.bulkChk-' + scope).forEach(cb => {
+        cb.checked = checked;
+        if (checked) cfg.sel.add(cb.dataset.id); else cfg.sel.delete(cb.dataset.id);
+      });
+      bulkUpdateBar(scope);
+    }
+
+    function bulkClear(scope) {
+      const cfg = BULK[scope];
+      if (!cfg) return;
+      cfg.sel.clear();
+      const selAll = document.getElementById('selAll_' + scope);
+      if (selAll) selAll.checked = false;
+      bulkUpdateBar(scope);
+    }
+
+    function bulkUpdateBar(scope) {
+      const bar = document.getElementById('bulkBar_' + scope);
+      const n = BULK[scope] ? BULK[scope].sel.size : 0;
+      if (!bar) return;
+      if (n > 0) {
+        bar.classList.remove('hidden');
+        const countEl = document.getElementById('bulkCount_' + scope);
+        if (countEl) countEl.textContent = n;
+      } else {
+        bar.classList.add('hidden');
+      }
+    }
+
+    // Config por escopo: como pegar/gravar o array, excluir no banco, salvar e re-renderizar
+    const BULK_DELETE_CONFIG = {
+      and:     { getArr: () => disputas,           setArr: v => { disputas = v; },           sbDel: sbExcluirDisputa,       persist: () => persist(),          render: () => renderDisputas(),          label: 'disputa(s)' },
+      encDisp: { getArr: () => disputasEncerradas,  setArr: v => { disputasEncerradas = v; }, sbDel: sbExcluirDisputaEnc,    persist: () => persist(),          render: () => renderHistoricoDisputas(), label: 'disputa(s) encerrada(s)' },
+      conAt:   { getArr: () => contratosAtivos,     setArr: v => { contratosAtivos = v; },    sbDel: sbExcluirContratoAtivo, persist: () => persistAll(),       render: () => renderContratosAtivos(),   label: 'contrato(s) ativo(s)' },
+      conEnc:  { getArr: () => contratosEncerrados, setArr: v => { contratosEncerrados = v; },sbDel: sbExcluirContratoEnc,   persist: () => persistAll(),       render: () => renderContratosEncerrados(), label: 'contrato(s) encerrado(s)' },
+      empPend: { getArr: () => empenhos,            setArr: v => { empenhos = v; },           sbDel: sbExcluirEmpenho,       persist: () => persistEmpenhos(),  render: () => renderEmpenhos(),          label: 'empenho(s) pendente(s)' },
+      empAnd:  { getArr: () => empenhos,            setArr: v => { empenhos = v; },           sbDel: sbExcluirEmpenho,       persist: () => persistEmpenhos(),  render: () => renderEmpenhos(),          label: 'empenho(s) em andamento' },
+      empEnc:  { getArr: () => empenhos,            setArr: v => { empenhos = v; },           sbDel: sbExcluirEmpenho,       persist: () => persistEmpenhos(),  render: () => renderEmpenhos(),          label: 'empenho(s) pago(s)' },
+    };
+
+    async function bulkExcluir(scope) {
+      const cfg = BULK_DELETE_CONFIG[scope];
+      if (!cfg) return;
+      const ids = Array.from(BULK[scope].sel);
+      if (!ids.length) return;
+      const plural = ids.length > 1 ? 's' : '';
+      if (!confirm(`Deseja excluir ${ids.length} ${cfg.label} selecionado${plural}? Esta ação não pode ser desfeita.`)) return;
+
+      const idSet = new Set(ids);
+
+      // Empenhos: reverte valorEmpenhado no contrato antes de remover (mesma lógica de excluirEmpenho)
+      if (scope === 'empPend' || scope === 'empAnd' || scope === 'empEnc') {
+        ids.forEach(id => {
+          const emp = empenhos.find(e => e.id === id);
+          if (emp) {
+            const idx = contratosAtivos.findIndex(c => c.id === emp.contratoId);
+            if (idx >= 0) {
+              contratosAtivos[idx].valorEmpenhado = Math.max(0, (Number(contratosAtivos[idx].valorEmpenhado)||0) - (Number(emp.valor)||0));
+            }
+          }
+        });
+      }
+
+      const arr = cfg.getArr();
+      cfg.setArr(arr.filter(item => !idSet.has(item.id)));
+
+      cfg.persist();
+      if (scope === 'empPend' || scope === 'empAnd' || scope === 'empEnc') persistAll();
+
+      await Promise.all(ids.map(id => cfg.sbDel(id)));
+
+      bulkClear(scope);
+      cfg.render();
+      if (scope === 'empPend' || scope === 'empAnd' || scope === 'empEnc') renderContratosAtivos();
+      closeAllMenus();
+      if (typeof mostrarToast === 'function') mostrarToast('✅ Excluído(s)!', `${ids.length} registro${plural} removido${plural}.`);
+    }
+
+    window.bulkToggle     = bulkToggle;
+    window.bulkToggleAll  = bulkToggleAll;
+    window.bulkExcluir    = bulkExcluir;
+    window.bulkClear      = bulkClear;
+
 
     // ══════════════════════════════════════════════════════════
     // LOAD FUNCTIONS
