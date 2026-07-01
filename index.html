@@ -9737,6 +9737,10 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       cfg.sel.clear();
       const selAll = document.getElementById('selAll_' + scope);
       if (selAll) selAll.checked = false;
+      const body = document.getElementById(cfg.body);
+      if (body) {
+        body.querySelectorAll('input.bulkChk-' + scope).forEach(cb => { cb.checked = false; });
+      }
       bulkUpdateBar(scope);
     }
 
