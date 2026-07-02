@@ -2727,6 +2727,17 @@
       font-weight: 800;
       color: #7c4a00 !important;
     }
+    /* Alerta 🔔 de notificação recebida no empenho */
+    @keyframes notif-bell-blink {
+      0%,100% { opacity:1; }
+      50%      { opacity:.25; }
+    }
+    .notif-bell {
+      display: inline-block;
+      font-size: 11px;
+      animation: notif-bell-blink 1.2s ease-in-out infinite;
+      cursor: default;
+    }
     .dash-disputa-row-head {
       font-size: 9px; font-weight: 800; text-transform: uppercase;
       color: var(--muted); letter-spacing: .04em;
@@ -6768,6 +6779,21 @@
       return { vlCompraReal, custoReal, lucroReal, vlEmpTotal, dataCompra, temCompra: cmpDoEmp.length > 0 };
     }
 
+    // ── Alerta de notificação recebida (🔔) ──
+    function notifBellHtml(e) {
+      if (!e.notificado) return '';
+      return ` <span class="notif-bell" title="Notificação recebida">🔔</span>`;
+    }
+
+    function toggleNotificadoEmpenho(id) {
+      const idx = empenhos.findIndex(x => x.id === id);
+      if (idx < 0) return;
+      closeAllMenus();
+      empenhos[idx].notificado = !empenhos[idx].notificado;
+      persistEmpenhos();
+      renderEmpenhos();
+    }
+
     function empRowHtml(e) {
       const itensDesc = itensEmpCompactHtml(e);
       const statusOpts = ['Pendente','Compra Feita','Ag. Liquidação','Paga']
@@ -6819,7 +6845,7 @@
             ${dataCompraBadge}
           </div>
         </td>
-        <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}</td>
+        <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}${notifBellHtml(e)}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>
           <div class="con-orgao-info">${e.contrato || ''}</div>
@@ -6837,6 +6863,7 @@
             <button class="row-menu-btn" onclick="toggleRowMenu(event,'empmenu-${e.id}')">⋯</button>
             <div class="row-menu hidden" id="empmenu-${e.id}">
               <button onclick="abrirEditEmpenho('${e.id}')">✏️ Editar</button>
+              <button onclick="toggleNotificadoEmpenho('${e.id}')">${e.notificado ? '🔕 Desmarcar notificação' : '🔔 Notificação recebida'}</button>
               <button onclick="mudarStatusEmpenho('${e.id}','Paga')" style="color:#1f8a4c;">💰 Pagar</button>
               <button onclick="excluirEmpenho('${e.id}')" style="color:#b42318;">🗑️ Excluir</button>
             </div>
@@ -7054,7 +7081,7 @@
             return `<tr>
               ${bulkCheckboxTd('empPend', e.id)}
               <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendBadge}</div></td>
-              <td style="font-weight:700;font-size:10px;">${e.numero||'—'}</td>
+              <td style="font-weight:700;font-size:10px;">${e.numero||'—'}${notifBellHtml(e)}</td>
               <td class="cell-wrap">
                 <div class="con-orgao-nome">${e.orgao||'—'}</div>
                 <div class="con-orgao-info">${e.contrato||''}</div>
@@ -7072,6 +7099,7 @@
                   <button class="row-menu-btn" onclick="toggleRowMenu(event,'emppendmenu-${e.id}')">⋯</button>
                   <div class="row-menu hidden" id="emppendmenu-${e.id}">
                     <button onclick="abrirEditEmpenho('${e.id}')">✏️ Editar</button>
+                    <button onclick="toggleNotificadoEmpenho('${e.id}')">${e.notificado ? '🔕 Desmarcar notificação' : '🔔 Notificação recebida'}</button>
                     <button onclick="abrirSeletorItemCompra('${e.id}')">🛒 Nova Compra</button>
                     <button onclick="excluirEmpenho('${e.id}')" style="color:#b42318;">🗑️ Excluir</button>
                   </div>
@@ -7121,7 +7149,7 @@
             ${e.dataPagamento ? `<span style="font-size:9px;color:var(--muted);">Pago ${formatDate(e.dataPagamento)}</span>` : ''}
           </div>
         </td>
-        <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}</td>
+        <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}${notifBellHtml(e)}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>
           <div class="con-orgao-info">${e.contrato || ''}</div>
@@ -7139,6 +7167,7 @@
             <button class="row-menu-btn" onclick="toggleRowMenu(event,'emppagomenu-${e.id}')">⋯</button>
             <div class="row-menu hidden" id="emppagomenu-${e.id}">
               <button onclick="abrirEditEmpenho('${e.id}')">✏️ Editar</button>
+              <button onclick="toggleNotificadoEmpenho('${e.id}')">${e.notificado ? '🔕 Desmarcar notificação' : '🔔 Notificação recebida'}</button>
               <button onclick="toggleStatusDropdown(event,'empsdrop-enc-${e.id}')">🔄 Mudar Status</button>
               <button onclick="excluirEmpenho('${e.id}')" style="color:#b42318;">🗑️ Excluir</button>
             </div>
@@ -7277,6 +7306,7 @@
       qs('empEditSetor').value      = e.responsavelSetor || '';
       qs('empEditContato').value    = e.responsavelContato || '';
       qs('empEditObs').value        = e.obs || '';
+      if (qs('empEditNotificado')) qs('empEditNotificado').checked = !!e.notificado;
       qs('empEditOrgao').textContent = e.orgao || '—';
       qs('empEditEmpresa').textContent = e.empresa || '—';
       qs('empEditValor').textContent = formatCurrency(e.valor);
@@ -7360,6 +7390,7 @@
         responsavelSetor:     qs('empEditSetor').value.trim(),
         responsavelContato:   qs('empEditContato').value.trim(),
         obs:                  qs('empEditObs').value.trim(),
+        notificado:           !!qs('empEditNotificado')?.checked,
       };
       persistEmpenhos();
       renderEmpenhos();
@@ -9357,6 +9388,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         responsavel_setor: e.responsavelSetor||null,
         responsavel_contato: e.responsavelContato||null,
         obs: e.obs||null, itens_empenhados: e.itensEmpenhados||[],
+        notificado: !!e.notificado,
       };
     }
     function mapCompra(c) {
@@ -9429,7 +9461,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         contrato:r.contrato, sistema:r.sistema, valor:Number(r.valor)||0,
         status:r.status, responsavel:r.responsavel,
         responsavelSetor:r.responsavel_setor, responsavelContato:r.responsavel_contato,
-        obs:r.obs, itensEmpenhados:r.itens_empenhados||[] };
+        obs:r.obs, itensEmpenhados:r.itens_empenhados||[],
+        notificado:!!r.notificado };
     }
     function fromDbCompra(r) {
       return {
@@ -10239,6 +10272,10 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 <button onclick="document.getElementById('empEditIaWrap').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;">✕</button>
 </div>
 <div id="empEditIaContent" style="font-size:11px;color:var(--text);line-height:1.6;white-space:pre-wrap;"></div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:10px 14px;margin-bottom:14px;">
+<input id="empEditNotificado" type="checkbox" style="width:15px;height:15px;accent-color:#f0a938;cursor:pointer;"/>
+<label for="empEditNotificado" style="font-size:11px;font-weight:700;color:var(--text);cursor:pointer;margin:0;">🔔 Notificação recebida <span style="font-weight:400;color:var(--muted);">(exibe alerta na tabela)</span></label>
 </div>
 <div class="emp-form-field" style="margin-bottom:0;">
 <label>Observações</label>
