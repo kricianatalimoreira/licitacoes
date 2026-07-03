@@ -1082,6 +1082,21 @@
       cursor: pointer;
     }
     .modal-body { padding: 13px 17px 6px; }
+    /* ── Autocomplete de Órgão (Nova Disputa) ── */
+    .ac-orgao-box {
+      display: none; position: absolute; top: calc(100% + 2px); left: 0; right: 0;
+      z-index: 3000; background: var(--card); border: 1px solid var(--line);
+      border-radius: 10px; box-shadow: var(--shadow);
+      max-height: 220px; overflow-y: auto;
+    }
+    .ac-orgao-item {
+      padding: 7px 11px; cursor: pointer; display: flex; flex-direction: column; gap: 1px;
+      border-bottom: 1px solid var(--line);
+    }
+    .ac-orgao-item:last-child { border-bottom: none; }
+    .ac-orgao-item:hover, .ac-orgao-item.ativo { background: var(--primary-hover); }
+    .ac-orgao-item strong { font-size: 12px; color: var(--text); }
+    .ac-orgao-item small { font-size: 10px; color: var(--muted); }
     .modal-grid-4 {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -5050,6 +5065,107 @@
       const opts = todos.map(o => `<option value="${o}">`).join('');
       ['orgaoAndList','orgaoEncList'].forEach(id => {
         const el = qs(id); if (el) el.innerHTML = opts;
+      });
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // AUTOCOMPLETE DE ÓRGÃO (Nova Disputa) — ao digitar, sugere
+    // órgãos já usados em disputas e contratos e pré-preenche
+    // UF, Sistema e Empresa (esta última só se for sempre a mesma).
+    // ══════════════════════════════════════════════════════════
+    function getOrgaosConhecidos() {
+      const mapa = {};
+      const registrar = (item) => {
+        const nome = String(item.orgao || '').trim();
+        if (!nome) return;
+        const chave = nome.toUpperCase();
+        if (!mapa[chave]) mapa[chave] = { nome: chave, uf: '', sistema: '', empresas: new Set(), usos: 0, ultData: '' };
+        const o = mapa[chave];
+        o.usos++;
+        const dt = String(item.data || '');
+        if (dt >= o.ultData) {
+          o.ultData = dt;
+          if (item.uf)      o.uf      = item.uf;
+          if (item.sistema) o.sistema = item.sistema;
+        } else {
+          if (!o.uf && item.uf)           o.uf      = item.uf;
+          if (!o.sistema && item.sistema) o.sistema = item.sistema;
+        }
+        if (item.empresa) o.empresas.add(item.empresa);
+      };
+      disputas.forEach(registrar);
+      disputasEncerradas.forEach(registrar);
+      contratosAtivos.forEach(registrar);
+      contratosEncerrados.forEach(registrar);
+      return Object.values(mapa).sort((a, b) => b.usos - a.usos);
+    }
+
+    function initAutocompleteOrgao() {
+      const input = qs('disputaOrgao');
+      if (!input || input.dataset.acAtivo) return;
+      input.dataset.acAtivo = '1';
+      input.setAttribute('autocomplete', 'new-password');
+
+      const wrap = input.parentElement;
+      wrap.style.position = 'relative';
+      const box = document.createElement('div');
+      box.className = 'ac-orgao-box';
+      wrap.appendChild(box);
+
+      let idxAtivo = -1;
+
+      const fechar = () => { box.style.display = 'none'; box.innerHTML = ''; idxAtivo = -1; };
+
+      const aplicar = (o) => {
+        input.value = o.nome;
+        const selUF  = qs('disputaUF');
+        const selSis = qs('disputaSistema');
+        const selEmp = qs('disputaEmpresa');
+        if (selUF && o.uf && !selUF.value)   selUF.value  = o.uf;
+        if (selSis && o.sistema && !selSis.value) selSis.value = o.sistema;
+        if (selEmp && !selEmp.value && o.empresas.size === 1) selEmp.value = [...o.empresas][0];
+        fechar();
+      };
+
+      const renderBox = () => {
+        const termo = input.value.trim().toUpperCase();
+        fechar();
+        if (termo.length < 2) return;
+        const matches = getOrgaosConhecidos()
+          .filter(o => o.nome.includes(termo) && o.nome !== termo)
+          .slice(0, 8);
+        if (!matches.length) return;
+        matches.forEach((o, i) => {
+          const item = document.createElement('div');
+          item.className = 'ac-orgao-item';
+          const emp = o.empresas.size === 1 ? [...o.empresas][0] : (o.empresas.size > 1 ? 'Gadita/Hamate' : '—');
+          item.innerHTML = `<strong>${escapeHTML(o.nome)}</strong><small>${escapeHTML(o.uf || '—')} · ${escapeHTML(o.sistema || '—')} · ${escapeHTML(emp)} · ${o.usos} registro(s)</small>`;
+          item.addEventListener('mousedown', (e) => { e.preventDefault(); aplicar(o); });
+          box.appendChild(item);
+        });
+        box.style.display = 'block';
+        box._matches = matches;
+      };
+
+      input.addEventListener('input', renderBox);
+      input.addEventListener('focus', renderBox);
+      input.addEventListener('blur', () => setTimeout(fechar, 150));
+      input.addEventListener('keydown', (e) => {
+        const itens = box.querySelectorAll('.ac-orgao-item');
+        if (!itens.length || box.style.display === 'none') return;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          idxAtivo = e.key === 'ArrowDown'
+            ? Math.min(idxAtivo + 1, itens.length - 1)
+            : Math.max(idxAtivo - 1, 0);
+          itens.forEach((el, i) => el.classList.toggle('ativo', i === idxAtivo));
+          itens[idxAtivo].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter' && idxAtivo >= 0) {
+          e.preventDefault();
+          aplicar(box._matches[idxAtivo]);
+        } else if (e.key === 'Escape') {
+          fechar();
+        }
       });
     }
 
@@ -9075,6 +9191,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     populateUFs('conUF');
     populateUFs('disputaUF');
     populateUFs('encUF');
+    initAutocompleteOrgao();
     loadData();
 
     // Pós-migração: _migracaoPendente será consumido dentro do syncFromCloud,
