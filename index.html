@@ -809,14 +809,16 @@
     .and-table th:nth-child(8),  .and-table td:nth-child(8),
     .enc-table th:nth-child(8),  .enc-table td:nth-child(8)  { width: 11%; }
 
-    .and-table th:nth-child(9),  .and-table td:nth-child(9),
-    .enc-table th:nth-child(9),  .enc-table td:nth-child(9)  { width: 10%; }
+    .and-table th:nth-child(9),  .and-table td:nth-child(9)  { width: 10%; }
 
-    .and-table th:nth-child(10),  .and-table td:nth-child(10),
-    .enc-table th:nth-child(10),  .enc-table td:nth-child(10)  { width: 9%; }
+    .and-table th:nth-child(10),  .and-table td:nth-child(10)  { width: 9%; }
 
-    .and-table th:nth-child(11), .and-table td:nth-child(11),
-    .enc-table th:nth-child(11), .enc-table td:nth-child(11) { width: 6%; }
+    .and-table th:nth-child(11), .and-table td:nth-child(11) { width: 6%; }
+
+    /* enc-table sem a coluna Bruto: 10 colunas — 10% extra vai para Órgão */
+    .enc-table th:nth-child(3),  .enc-table td:nth-child(3)  { width: 31%; }
+    .enc-table th:nth-child(9),  .enc-table td:nth-child(9)  { width: 9%; }
+    .enc-table th:nth-child(10), .enc-table td:nth-child(10) { width: 6%; }
 
     .historico-header-cell {
       display: flex;
@@ -3222,7 +3224,7 @@
 <div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Vencidas</div><div class="disputa-stat-value" id="disputaStatVencidas">0</div></div>
 <div class="disputa-stat-card stat-red"><div class="disputa-stat-label">Perdidas</div><div class="disputa-stat-value" id="disputaStatPerdidas">0</div></div>
 <div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Fracassado/Suspenso</div><div class="disputa-stat-value" id="disputaStatFracassado">0</div></div>
-<div class="disputa-stat-card" style="border-color:var(--primary-border); background:var(--primary-soft);"><div class="disputa-stat-label">Bruto total</div><div class="disputa-stat-value" id="disputaStatBrutoTotal" style="font-size:16px;color:var(--primary-dark);">R$ 0,00</div></div>
+<div class="disputa-stat-card" style="border-color:var(--primary-border); background:var(--primary-soft);"><div class="disputa-stat-label">Taxa de conversão</div><div class="disputa-stat-value" id="disputaStatConversao" style="font-size:16px;color:var(--primary-dark);">0%</div><div style="font-size:9px;color:var(--muted);margin-top:2px;" id="disputaStatConversaoDetalhe">—</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -3355,7 +3357,6 @@
 </div>
 </div>
 </th>
-<th>Bruto</th>
 <th>Links</th>
 <th>Ações</th>
 </tr>
@@ -3369,17 +3370,13 @@
 <div class="sort-select-wrap">
 <label>Ordenar</label>
 <select class="sort-select" id="sortEncerradas" onchange="renderHistoricoDisputas(); saveSortPrefs()">
-<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="processo_asc">Processo A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="sistema_asc">Sistema A→Z</option><option value="status_asc">Status A→Z</option><option value="bruto_desc">Bruto ↓ (maior)</option><option value="bruto_asc">Bruto ↑ (menor)</option></select>
+<option value="">Ordenar por...</option><option value="data_desc">Data ↓ (mais recente)</option><option value="data_asc">Data ↑ (mais antiga)</option><option value="orgao_asc">Órgão A→Z</option><option value="orgao_desc">Órgão Z→A</option><option value="processo_asc">Processo A→Z</option><option value="empresa_asc">Empresa A→Z</option><option value="sistema_asc">Sistema A→Z</option><option value="status_asc">Status A→Z</option></select>
 </div>
 <div style="flex:1;"></div>
 <span class="subtotal-label">Subtotal filtrado</span>
 <div class="subtotal-item">
 <span class="subtotal-item-label">Disputas</span>
 <span class="subtotal-item-value" id="subtotalEncQtde">0</span>
-</div>
-<div class="subtotal-item">
-<span class="subtotal-item-label">Valor bruto</span>
-<span class="subtotal-item-value" id="subtotalEncBruto">R$ 0,00</span>
 </div>
 </div>
 </div>
@@ -4704,17 +4701,21 @@
       const vencidas  = disputasEncerradas.filter(i => i.status === 'Vencida').length;
       const perdidas  = disputasEncerradas.filter(i => i.status === 'Perdida').length;
       const fracass   = disputasEncerradas.filter(i => i.status === 'Fracassado/Suspenso').length;
-      const brutoTot  = disputasEncerradas.reduce((acc, i) => acc + (Number(i.bruto) || 0), 0);
 
       qs('disputaStatEncTotal').textContent   = total;
       qs('disputaStatVencidas').textContent   = vencidas;
       qs('disputaStatPerdidas').textContent   = perdidas;
       qs('disputaStatFracassado').textContent = fracass;
-      qs('disputaStatBrutoTotal').textContent = formatCurrency(brutoTot);
 
-      const brutoFilt = filtradas.reduce((acc, i) => acc + (Number(i.bruto) || 0), 0);
+      // Taxa de conversão: vencidas ÷ total de encerradas
+      const conv = total > 0 ? (vencidas / total) * 100 : 0;
+      qs('disputaStatConversao').textContent = conv.toFixed(1).replace('.', ',') + '%';
+      const disputadas = vencidas + perdidas; // exclui fracassado/suspenso
+      const convDisp = disputadas > 0 ? (vencidas / disputadas) * 100 : 0;
+      qs('disputaStatConversaoDetalhe').textContent =
+        `${vencidas} de ${total} · ${convDisp.toFixed(1).replace('.', ',')}% das disputadas`;
+
       qs('subtotalEncQtde').textContent  = filtradas.length;
-      qs('subtotalEncBruto').textContent = formatCurrency(brutoFilt);
     }
 
     // ── Histórico: renderiza as linhas da tabela ──────────────────────────────
@@ -4728,11 +4729,10 @@
         empresa:  i => i.empresa || '',
         sistema:  i => i.sistema || '',
         status:   i => i.status || '',
-        valor:    i => Number(i.bruto) || 0,
       });
 
       if (!sorted.length) {
-        body.innerHTML = `<tr><td colspan="11"><div class="empty-state">Nenhuma disputa encerrada encontrada.</div></td></tr>`;
+        body.innerHTML = `<tr><td colspan="10"><div class="empty-state">Nenhuma disputa encerrada encontrada.</div></td></tr>`;
         return;
       }
 
@@ -4748,7 +4748,6 @@
             <td>${companyBadge(item.empresa)}</td>
             <td>${item.sistema || '—'}</td>
             <td>${statusBadge(item.status)}</td>
-            <td>${formatCurrency(item.bruto)}</td>
             <td>${linksHtml(item)}</td>
             <td>${rowMenuEncerrada(item)}</td>
           </tr>`;
