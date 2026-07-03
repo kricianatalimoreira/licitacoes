@@ -9771,6 +9771,26 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       empenhos            = empenhos.filter(e => !idsRemover.empenhos.has(e.id));
       compras             = compras.filter(c => !idsRemover.compras.has(c.id));
 
+      // Exclui também na NUVEM — o persistAll() abaixo faz apenas upsert
+      // (insere/atualiza, nunca deleta). Sem o DELETE no Supabase, as
+      // duplicatas voltavam no próximo sync ("nuvem sempre vence").
+      const _tabelaDe = {
+        disputas: 'disputas', disputasEncerradas: 'disputas_encerradas',
+        contratosAtivos: 'contratos_ativos', contratosEncerrados: 'contratos_encerrados',
+        empenhos: 'empenhos', compras: 'compras',
+      };
+      (async () => {
+        showSync('saving', '☁ excluindo duplicatas da nuvem...');
+        const promessas = [];
+        Object.entries(idsRemover).forEach(([key, ids]) => {
+          ids.forEach(id => promessas.push(sbDelete(_tabelaDe[key], id)));
+        });
+        const r = await Promise.allSettled(promessas);
+        const falhas = r.filter(p => p.status === 'rejected').length;
+        showSync(falhas ? 'err' : 'ok',
+          falhas ? `✗ ${falhas} exclusão(ões) falharam na nuvem` : '✓ duplicatas excluídas (local + nuvem)');
+      })();
+
       persistAll();
       persistEmpenhos();
       persistCompras();
