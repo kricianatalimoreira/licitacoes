@@ -2955,7 +2955,10 @@
 <div class="meta-card" style="display:flex;flex-direction:column;box-sizing:border-box;max-height:582px;overflow:hidden;">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
 <div style="font-size:11px;font-weight:800;color:var(--primary);letter-spacing:.08em;">📋 DISPUTAS EM ANDAMENTO</div>
+<div style="display:flex;align-items:center;gap:10px;">
+<button class="venc-banner-link" style="font-size:10px;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;" onclick="acompanharTodasDashboard()" title="Abre em novas abas o link de cada disputa em andamento">🔗 Acompanhar todas</button>
 <button class="venc-banner-link" style="font-size:10px;background:none;border:none;cursor:pointer;" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">Ver todas →</button>
+</div>
 </div>
 <div class="dash-disputa-row dash-disputa-row-head">
 <div>Data</div>
@@ -3051,6 +3054,7 @@
 <h2>⚡ Em andamento</h2>
 </div>
 <div class="actions">
+<button class="btn btn-light" onclick="acompanharTodasTabela()" title="Abre em novas abas o link de cada disputa exibida na tabela (respeitando os filtros aplicados)">🔗 Acompanhar todas</button>
 <button class="btn btn-primary" onclick="showCadastroDisputa()">+ Nova Disputa</button>
 </div>
 </div>
@@ -4439,6 +4443,27 @@
       return /^https?:\/\//i.test(s) ? s : '#';
     }
 
+    // ── Acompanhar todas: abre em abas todos os links de sala das disputas informadas ──
+    let _ultimaListaAndamento = [];
+    function abrirTodosLinksDisputas(lista) {
+      const comLink = (lista || []).filter(d => d && d.sala && safeUrl(d.sala) !== '#');
+      if (!comLink.length) {
+        alert('Nenhuma disputa com link cadastrado para abrir.');
+        return;
+      }
+      comLink.forEach(d => {
+        window.open(safeUrl(d.sala), '_blank', 'noopener');
+      });
+    }
+    // Botão do Dashboard: usa as disputas em andamento (mesma base da lista exibida)
+    function acompanharTodasDashboard() {
+      abrirTodosLinksDisputas(disputas);
+    }
+    // Botão da tabela "Em andamento": usa exatamente a lista filtrada/ordenada exibida na tabela
+    function acompanharTodasTabela() {
+      abrirTodosLinksDisputas(_ultimaListaAndamento);
+    }
+
     function formatDateTime(value) {
       if (!value) return { date: '—', time: '' };
       const dateObj = new Date(value);
@@ -4644,6 +4669,8 @@
         status:   i => i.status || '',
         valor:    i => Number(i.valor) || 0,
       });
+
+      _ultimaListaAndamento = sortedAnd;
 
       if (!sortedAnd.length) {
         body.innerHTML = `<tr><td colspan="11"><div class="empty-state">Nenhuma disputa encontrada em andamento.</div></td></tr>`;
