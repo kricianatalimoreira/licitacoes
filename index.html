@@ -2820,6 +2820,14 @@
 </head>
 <body>
 
+<!-- ═══ OVERLAY: bloqueia a tela até os dados chegarem do Supabase ═══ -->
+<div id="kmCloudLoadingOverlay" style="position:fixed;inset:0;z-index:999999;background:#0f1220;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#fff;font-family:inherit;">
+  <div style="width:42px;height:42px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:kmSpin 0.9s linear infinite;"></div>
+  <div id="kmCloudLoadingText" style="font-size:14px;font-weight:600;opacity:.9;">☁ Carregando dados do Supabase...</div>
+  <button id="kmCloudRetryBtn" onclick="kmRetryCloudLoad()" style="display:none;padding:10px 18px;border-radius:8px;border:none;background:#fff;color:#0f1220;font-weight:700;cursor:pointer;">Tentar novamente</button>
+</div>
+<style>@keyframes kmSpin{to{transform:rotate(360deg);}}</style>
+
 <div id="syncStatus"></div>
 <button id="syncCloudBtn" title="Salvar tudo na nuvem agora" onclick="syncManual()">☁ Salvar na nuvem</button>
 
@@ -9171,27 +9179,25 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       renderEmpAndamento();
     }
 
-    window.reinitApp = function() {
-      loadContratos(); loadEmpenhos();
-      renderContratosAtivos(); renderContratosEncerrados();
+    // Utilitário de debug/console — recarrega tudo direto do Supabase
+    // (nunca do localStorage, mesmo aqui).
+    window.reinitApp = async function() {
       populateUFs('conUF'); populateUFs('disputaUF'); populateUFs('encUF');
-      loadData(); movePopoversToBody();
-      renderDisputas(); renderHistoricoDisputas(); atualizarListaOrgaos();
-      loadCompras(); carregarMetas(); renderEmpenhos(); renderCompras();
-      atualizarSino(); carregarTema(); renderDashboard();
+      movePopoversToBody(); carregarTema();
+      await syncFromCloud();
+      _reRenderAll();
     };
 
-    loadContratos();
-    loadEmpenhos();
-
-    renderContratosAtivos();
-    renderContratosEncerrados();
-
+    // ── IMPORTANTE ────────────────────────────────────────────
+    // NÃO carregamos nem renderizamos dados de disputas/contratos/
+    // empenhos/compras a partir do localStorage aqui. Em QUALQUER
+    // dispositivo (celular, Lenovo, Dell) os dados de negócio só
+    // podem vir do Supabase — isso acontece no DOMContentLoaded,
+    // via syncFromCloud(), antes de qualquer render.
     populateUFs('conUF');
     populateUFs('disputaUF');
     populateUFs('encUF');
     initAutocompleteOrgao();
-    loadData();
 
     // Pós-migração: _migracaoPendente será consumido dentro do syncFromCloud,
     // que vai SUBIR os dados locais (Lenovo = fonte da verdade) para o Supabase.
@@ -10234,16 +10240,11 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     // ── Helpers ────────────────────────────────────────────────
+    // Aplica SOMENTE preferências visuais locais (tema, ordenação, popovers).
+    // NUNCA carrega disputas/contratos/empenhos/compras do localStorage —
+    // esses dados de negócio só podem vir do Supabase (syncFromCloud).
     function _loadLocalModules() {
       if (typeof movePopoversToBody === 'function') movePopoversToBody();
-      if (typeof loadData      === 'function') loadData();
-      if (typeof loadContratos === 'function') loadContratos();
-      const _reparouA = repararContratosZerados(contratosAtivos);
-      const _reparouE = repararContratosZerados(contratosEncerrados);
-      if (_reparouA || _reparouE) { if (typeof persistAll === 'function') persistAll(); }
-      if (typeof loadEmpenhos  === 'function') loadEmpenhos();
-      if (typeof loadCompras   === 'function') loadCompras();
-      if (typeof carregarMetas === 'function') carregarMetas();
       loadSortPrefs();
       if (typeof aplicarTema   === 'function') {
         const t = localStorage.getItem('km_tema_v1') || 'rosa';
@@ -10266,10 +10267,48 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     // ── Startup ────────────────────────────────────────────────
-    document.addEventListener('DOMContentLoaded', function() {
-      _loadLocalModules();
+    // Em QUALQUER dispositivo, os dados de negócio (disputas, contratos,
+    // empenhos, compras) só aparecem na tela depois de confirmados pelo
+    // Supabase. Enquanto isso, um overlay bloqueia a interface — nunca
+    // mostramos dados antigos/locais de outro dispositivo por engano.
+    function _kmOverlayMostrar(msg) {
+      const ov = document.getElementById('kmCloudLoadingOverlay');
+      if (!ov) return;
+      ov.style.display = 'flex';
+      const t = document.getElementById('kmCloudLoadingText');
+      if (t) t.textContent = msg || '☁ Carregando dados do Supabase...';
+      const btn = document.getElementById('kmCloudRetryBtn');
+      if (btn) btn.style.display = 'none';
+    }
+    function _kmOverlayEsconder() {
+      const ov = document.getElementById('kmCloudLoadingOverlay');
+      if (ov) ov.style.display = 'none';
+    }
+    function _kmOverlayErro() {
+      const t = document.getElementById('kmCloudLoadingText');
+      if (t) t.textContent = '✗ Não foi possível carregar os dados do Supabase. Verifique sua conexão.';
+      const btn = document.getElementById('kmCloudRetryBtn');
+      if (btn) btn.style.display = 'inline-block';
+    }
+
+    async function _kmCarregarDoSupabaseEIniciar() {
+      _kmOverlayMostrar();
+      const ok = await syncFromCloud();
+      if (!ok) { _kmOverlayErro(); return; }
+
+      const _reparouA = repararContratosZerados(contratosAtivos);
+      const _reparouE = repararContratosZerados(contratosEncerrados);
+      if (_reparouA || _reparouE) { if (typeof persistAll === 'function') persistAll(); }
+
       _reRenderAll();
-      syncFromCloud().then(() => _reRenderAll()).catch(e => console.warn('sync error:', e));
+      _kmOverlayEsconder();
+    }
+
+    window.kmRetryCloudLoad = function() { _kmCarregarDoSupabaseEIniciar(); };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      _loadLocalModules(); // só tema, ordenação e popovers — nada de dados
+      _kmCarregarDoSupabaseEIniciar();
     });
 
 
