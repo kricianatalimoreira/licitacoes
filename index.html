@@ -4881,6 +4881,11 @@
       if (!item.bruto) item.bruto = 0;
       disputasEncerradas.unshift(item);
       persist();
+      // persist() só faz upsert (insere/atualiza) — nunca deleta. Sem excluir
+      // a linha antiga da tabela "disputas" na nuvem, ela volta a aparecer em
+      // Pendentes no próximo carregamento ("nuvem sempre vence"), mesmo já
+      // estando corretamente também em disputasEncerradas.
+      sbDelete('disputas', item.id).catch(e => console.error('[KM] Erro ao remover disputa de "disputas" na nuvem:', e));
       renderDisputas();
       renderHistoricoDisputas();
       closeAllMenus();
@@ -4948,6 +4953,10 @@
       item.retorno = item.retorno || '';
       disputas.unshift(item);
       persist();
+      // Remove a linha antiga de "disputas_encerradas" na nuvem — mesmo motivo
+      // de encerrarDisputa: upsert não deleta, e a disputa voltaria a
+      // aparecer em Vencidas/Perdidas no próximo carregamento.
+      sbDelete('disputas_encerradas', item.id).catch(e => console.error('[KM] Erro ao remover disputa de "disputas_encerradas" na nuvem:', e));
       renderDisputas();
       renderHistoricoDisputas();
       closeAllMenus();
@@ -6192,6 +6201,10 @@
       item.status = item.status || 'Encerrado';
       contratosEncerrados.unshift(item);
       persistAll();
+      // Mesmo motivo de encerrarDisputa: persistAll() só faz upsert, então
+      // sem excluir a linha antiga de "contratos_ativos" na nuvem, o
+      // contrato voltaria a aparecer como ativo no próximo carregamento.
+      sbDelete('contratos_ativos', item.id).catch(e => console.error('[KM] Erro ao remover contrato de "contratos_ativos" na nuvem:', e));
       renderContratosAtivos();
       renderContratosEncerrados();
       closeAllMenus();
@@ -6203,6 +6216,8 @@
       const item = contratosEncerrados.splice(idx, 1)[0];
       contratosAtivos.unshift(item);
       persistAll();
+      // Remove a linha antiga de "contratos_encerrados" na nuvem pelo mesmo motivo.
+      sbDelete('contratos_encerrados', item.id).catch(e => console.error('[KM] Erro ao remover contrato de "contratos_encerrados" na nuvem:', e));
       renderContratosAtivos();
       renderContratosEncerrados();
       closeAllMenus();
@@ -10423,6 +10438,20 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       if (btn) btn.style.display = 'inline-block';
     }
 
+    // Remove disputas "fantasmas": registros que existem tanto em "disputas"
+    // (Pendentes) quanto em "disputasEncerradas" (Vencidas/Perdidas) com o
+    // mesmo id — resíduo do bug em que encerrarDisputa() não excluía a linha
+    // antiga na nuvem. Mantém sempre a versão encerrada e limpa a órfã.
+    function repararDisputasOrfas() {
+      const idsEncerradas = new Set(disputasEncerradas.map(d => d.id));
+      const orfas = disputas.filter(d => idsEncerradas.has(d.id));
+      if (!orfas.length) return false;
+      disputas = disputas.filter(d => !idsEncerradas.has(d.id));
+      orfas.forEach(d => sbDelete('disputas', d.id).catch(e => console.error('[KM] Erro ao remover disputa fantasma da nuvem:', e)));
+      console.info(`[KM] ${orfas.length} disputa(s) fantasma(s) removida(s) de Pendentes.`);
+      return true;
+    }
+
     async function _kmCarregarDoSupabaseEIniciar() {
       _kmOverlayMostrar();
       const ok = await syncFromCloud();
@@ -10430,7 +10459,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
       const _reparouA = repararContratosZerados(contratosAtivos);
       const _reparouE = repararContratosZerados(contratosEncerrados);
-      if (_reparouA || _reparouE) { if (typeof persistAll === 'function') persistAll(); }
+      const _reparouDisp = repararDisputasOrfas();
+      if (_reparouA || _reparouE || _reparouDisp) { if (typeof persistAll === 'function') persistAll(); }
 
       _reRenderAll();
       _kmOverlayEsconder();
