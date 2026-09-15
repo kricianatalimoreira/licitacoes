@@ -5,6 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Gestão de Licitações • Disputas</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 
 
@@ -4151,7 +4152,12 @@
 <div class="stepper-panel" id="spanel-2">
 <div class="con-form-itens-header">
 <span class="con-form-itens-title">Itens / Lotes do Contrato</span>
+<div style="display:flex;gap:8px;">
+<button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--line);color:var(--text);" onclick="baixarModeloItensExcel()" title="Baixa uma planilha modelo com as colunas certas">⬇️ Modelo Excel</button>
+<button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--line);color:var(--text);" onclick="qs('conImportExcelInput').click()">📥 Importar Excel</button>
+<input type="file" id="conImportExcelInput" accept=".xlsx,.xls" style="display:none;" onchange="importarItensExcel('con', this)"/>
 <button class="btn btn-primary btn-sm" onclick="adicionarItemContrato('con')">+ Adicionar Item</button>
+</div>
 </div>
 <div style="overflow-x:auto;border:1px solid var(--line);border-radius:10px;">
 <table class="con-form-itens-table">
@@ -5768,6 +5774,105 @@
     function removerItemContrato(pfx, id) {
       _conItens = _conItens.filter(x => x.id !== id);
       reRenderItens(pfx);
+    }
+
+    // ── Importação de itens via planilha Excel ───────────
+    // Cabeçalhos aceitos (não sensível a maiúsculas/acentos):
+    // Descrição, Marca, Modelo, Qtd, Vl. Unit., Compra Unit.
+    function _normalizarCabecalho(str) {
+      return String(str || '')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
+        .toLowerCase().replace(/[^a-z0-9]/g, ''); // remove espaços/pontuação
+    }
+
+    const _MAPA_COLUNAS_ITEM = {
+      descricao: ['descricao', 'descricaodoitem', 'item', 'objeto'],
+      marca:     ['marca'],
+      modelo:    ['modelo'],
+      qtd:       ['qtd', 'quantidade', 'qtde'],
+      vlUnit:    ['vlunit', 'valorunitario', 'vunit', 'precounitario', 'vlunitr'],
+      compraUnit:['compraunit', 'compraprevunit', 'compraprevistaunit', 'compraprevistaunitario', 'custounitario', 'compraprev']
+    };
+
+    function _extrairValorColuna(rowNormalizada, chaves) {
+      for (const chave of chaves) {
+        if (rowNormalizada[chave] !== undefined) return rowNormalizada[chave];
+      }
+      return '';
+    }
+
+    function baixarModeloItensExcel() {
+      const modelo = [{
+        'Descrição': 'Notebook 15"',
+        'Marca': 'Dell',
+        'Modelo': 'Inspiron 15',
+        'Qtd': 10,
+        'Vl. Unit.': 3500.00,
+        'Compra Unit.': 2800.00
+      }];
+      const ws = XLSX.utils.json_to_sheet(modelo);
+      ws['!cols'] = [{wch:24},{wch:14},{wch:16},{wch:8},{wch:12},{wch:14}];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Itens');
+      XLSX.writeFile(wb, 'modelo_itens_contrato.xlsx');
+    }
+
+    function importarItensExcel(pfx, inputEl) {
+      const file = inputEl.files && inputEl.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const primeiraAba = workbook.SheetNames[0];
+          const linhas = XLSX.utils.sheet_to_json(workbook.Sheets[primeiraAba], { defval: '' });
+
+          if (!linhas.length) {
+            showToast('A planilha está vazia ou não foi possível lê-la.', 'error');
+            return;
+          }
+
+          const itensImportados = linhas.map(linha => {
+            const linhaNormalizada = {};
+            Object.keys(linha).forEach(k => { linhaNormalizada[_normalizarCabecalho(k)] = linha[k]; });
+
+            const descricao = String(_extrairValorColuna(linhaNormalizada, _MAPA_COLUNAS_ITEM.descricao) || '').trim();
+            const marca     = String(_extrairValorColuna(linhaNormalizada, _MAPA_COLUNAS_ITEM.marca) || '').trim();
+            const modelo    = String(_extrairValorColuna(linhaNormalizada, _MAPA_COLUNAS_ITEM.modelo) || '').trim();
+            const qtd        = Math.max(1, Number(_extrairValorColuna(linhaNormalizada, _MAPA_COLUNAS_ITEM.qtd)) || 1);
+            const vlUnit      = parseCurrency(_extrairValorColuna(linhaNormalizada, _MAPA_COLUNAS_ITEM.vlUnit));
+            const compraUnit  = parseCurrency(_extrairValorColuna(linhaNormalizada, _MAPA_COLUNAS_ITEM.compraUnit));
+
+            return { id: crypto.randomUUID(), descricao, marca, modelo, qtd, vlUnit, compraUnit };
+          }).filter(item => item.descricao || item.marca || item.modelo || item.vlUnit > 0);
+
+          if (!itensImportados.length) {
+            showToast('Nenhuma linha válida encontrada. Confira os cabeçalhos da planilha (use o botão "Modelo Excel").', 'error');
+            inputEl.value = '';
+            return;
+          }
+
+          const temItensExistentes = _conItens.some(x => x.descricao || x.marca || x.modelo || x.vlUnit > 0);
+          let substituir = false;
+          if (temItensExistentes) {
+            substituir = confirm(
+              `Já existem ${_conItens.length} item(ns) na tabela.\n\nClique OK para SUBSTITUIR pelos ${itensImportados.length} item(ns) da planilha,\nou Cancelar para ADICIONAR os novos itens aos já existentes.`
+            );
+          }
+
+          _conItens = substituir ? itensImportados : [..._conItens, ...itensImportados];
+          reRenderItens(pfx);
+          showToast(`${itensImportados.length} item(ns) importado(s) da planilha.`, 'success');
+        } catch (err) {
+          console.error(err);
+          showToast('Erro ao ler a planilha. Verifique se o arquivo é um .xlsx/.xls válido.', 'error');
+        } finally {
+          inputEl.value = ''; // permite reimportar o mesmo arquivo depois
+        }
+      };
+      reader.readAsArrayBuffer(file);
     }
 
     function renderItensContrato(pfx) {
