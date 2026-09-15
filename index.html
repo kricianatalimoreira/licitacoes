@@ -5943,6 +5943,9 @@
       if (qs(`${pfx}Royalties`))  qs(`${pfx}Royalties`).value  = royaltiesT;
       if (qs(`${pfx}Imposto`))    qs(`${pfx}Imposto`).value    = impostoT;
       if (qs(`${pfx}TotalItens`)) qs(`${pfx}TotalItens`).value = _conItens.reduce((s,x)=>s+Number(x.qtd||0),0);
+
+      // Mantém o card-resumo do topo (calc-row) sempre sincronizado com os totais calculados
+      if (pfx === 'con') atualizarCalcRow();
     }
 
     // ── Ajuste de imposto por regime tributário ──────────
