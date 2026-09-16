@@ -2783,6 +2783,28 @@
     .dash-disputa-link-btn-empty:hover { opacity: 1; }
     .dash-disputa-empty { padding: 18px 10px; text-align: center; font-size: 11px; color: var(--muted); height: 35px; box-sizing: border-box; display:flex; align-items:center; justify-content:center; }
 
+    /* Card de Empenhos em Andamento no Dashboard */
+    .dash-emp-row {
+      display: grid;
+      grid-template-columns: 70px 1.3fr 0.8fr 0.8fr 0.9fr;
+      gap: 10px;
+      align-items: center;
+      padding: 0 10px;
+      font-size: 11px;
+      height: 35px;
+      box-sizing: border-box;
+    }
+    .dash-emp-row-head {
+      font-size: 9px; font-weight: 800; text-transform: uppercase;
+      color: var(--muted); letter-spacing: .04em;
+      border-bottom: 1px solid var(--line); padding-bottom: 6px;
+      height: auto;
+    }
+    .dash-emp-list { display: flex; flex-direction: column; overflow-y: auto; }
+    .dash-emp-list .dash-emp-row { border-bottom: 1px solid var(--line); }
+    .dash-emp-list .dash-emp-row:last-child { border-bottom: none; }
+    .dash-emp-row:hover { background: var(--primary-hover); }
+
     /* Donut chart */
     .dash-donut-wrap { display: flex; align-items: center; gap: 18px; }
     .dash-donut-svg  { flex: 0 0 auto; }
@@ -2953,7 +2975,7 @@
 <div style="flex:1.15;display:flex;flex-direction:column;gap:14px;min-width:0;">
 
 <!-- DISPUTAS EM ANDAMENTO (lista, destaque) -->
-<div class="meta-card" style="display:flex;flex-direction:column;box-sizing:border-box;max-height:582px;overflow:hidden;">
+<div class="meta-card" style="display:flex;flex-direction:column;box-sizing:border-box;max-height:260px;overflow:hidden;">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
 <div style="font-size:11px;font-weight:800;color:var(--primary);letter-spacing:.08em;">📋 DISPUTAS EM ANDAMENTO</div>
 <div style="display:flex;align-items:center;gap:10px;">
@@ -2969,6 +2991,22 @@
 <div style="text-align:center;">Link</div>
 </div>
 <div class="dash-disputas-list" id="dashDisputasAndamentoList" style="flex:1;overflow-y:auto;"></div>
+</div>
+
+<!-- EMPENHOS EM ANDAMENTO (lista) -->
+<div class="meta-card" style="display:flex;flex-direction:column;box-sizing:border-box;max-height:320px;overflow:hidden;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+<div style="font-size:11px;font-weight:800;color:var(--primary);letter-spacing:.08em;">📦 EMPENHOS EM ANDAMENTO</div>
+<button class="venc-banner-link" style="font-size:10px;background:none;border:none;cursor:pointer;" onclick="showSection('empenhos-andamento',document.querySelector('[data-section-target=empenhos-andamento]'))">Ver todos →</button>
+</div>
+<div class="dash-emp-row dash-emp-row-head">
+<div>Data</div>
+<div>Órgão / Contrato</div>
+<div>Nº Empenho</div>
+<div>Valor</div>
+<div>Status</div>
+</div>
+<div class="dash-emp-list" id="dashEmpAndamentoList" style="flex:1;overflow-y:auto;"></div>
 </div>
 
 
@@ -5943,9 +5981,6 @@
       if (qs(`${pfx}Royalties`))  qs(`${pfx}Royalties`).value  = royaltiesT;
       if (qs(`${pfx}Imposto`))    qs(`${pfx}Imposto`).value    = impostoT;
       if (qs(`${pfx}TotalItens`)) qs(`${pfx}TotalItens`).value = _conItens.reduce((s,x)=>s+Number(x.qtd||0),0);
-
-      // Mantém o card-resumo do topo (calc-row) sempre sincronizado com os totais calculados
-      if (pfx === 'con') atualizarCalcRow();
     }
 
     // ── Ajuste de imposto por regime tributário ──────────
@@ -9132,6 +9167,28 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const empPend = empenhos.filter(e => e.status === 'Pendente');
       const empAnd  = empenhos.filter(e => ['Compra Feita','Ag. Liquidação'].includes(e.status));
       const empPagos = empenhos.filter(e => e.status === 'Paga');
+
+      // ── Lista: Empenhos em andamento ──
+      const listaEmpAndamento = qs('dashEmpAndamentoList');
+      if (listaEmpAndamento) {
+        const empAndOrdenados = [...empAnd].sort((a,b) => (a.data||'').localeCompare(b.data||''));
+        if (empAndOrdenados.length === 0) {
+          listaEmpAndamento.innerHTML = '<div class="dash-disputa-empty">Nenhum empenho em andamento.</div>';
+        } else {
+          listaEmpAndamento.innerHTML = empAndOrdenados.map((e, idx) => {
+            const dataFmt = e.data ? formatDate(e.data) : '—';
+            const orgaoContrato = [e.orgao, e.empresa].filter(Boolean).join(' · ') || '—';
+            const zebra = idx % 2 === 1 ? ' style="background:var(--row-zebra,rgba(0,0,0,.018));"' : '';
+            return `<div class="dash-emp-row"${zebra}>
+              <div class="dash-disputa-data">${dataFmt}</div>
+              <div class="dash-disputa-orgao" title="${escapeHTML(orgaoContrato)}">${escapeHTML(orgaoContrato)}</div>
+              <div style="color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHTML(e.numero) || ''}">${escapeHTML(e.numero) || '—'}</div>
+              <div style="font-weight:700;">${formatCurrency(Number(e.valor)||0)}</div>
+              <div>${empStatusBadge(e.status)}</div>
+            </div>`;
+          }).join('');
+        }
+      }
 
       // Financeiro pendentes (previsto via contrato)
       const calcEmpPrev = (lista) => {
