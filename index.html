@@ -2127,11 +2127,11 @@
 
     /* Andamento: 1 coluna a menos (sem Dt. Compra, mesclada em DATAS) */
     .emp-table-and th:nth-child(1), .emp-table-and td:nth-child(1)  { width: 26px; min-width: 26px; max-width: 26px; }
-    .emp-table-and th:nth-child(2),  .emp-table-and td:nth-child(2)  { width: 8%; }   /* DATAS */
+    .emp-table-and th:nth-child(2),  .emp-table-and td:nth-child(2)  { width: 13%; }   /* DATAS (Pedido/Compra/Entrega/Pago + dias) */
     .emp-table-and th:nth-child(3),  .emp-table-and td:nth-child(3)  { width: 6%; }   /* Nº Empenho */
-    .emp-table-and th:nth-child(4),  .emp-table-and td:nth-child(4)  { width: 17%; white-space:normal; } /* Órgão */
+    .emp-table-and th:nth-child(4),  .emp-table-and td:nth-child(4)  { width: 15%; white-space:normal; } /* Órgão */
     .emp-table-and th:nth-child(5),  .emp-table-and td:nth-child(5)  { width: 6%; }   /* Empresa */
-    .emp-table-and th:nth-child(6),  .emp-table-and td:nth-child(6)  { width: 16%; white-space:normal; } /* Itens */
+    .emp-table-and th:nth-child(6),  .emp-table-and td:nth-child(6)  { width: 13%; white-space:normal; } /* Itens */
     .emp-table-and th:nth-child(7),  .emp-table-and td:nth-child(7)  { width: 8%; }   /* Vl. Empenho */
     .emp-table-and th:nth-child(8),  .emp-table-and td:nth-child(8)  { width: 8%; }   /* Vl. Compra */
     .emp-table-and th:nth-child(9),  .emp-table-and td:nth-child(9)  { width: 7%; }   /* Custo */
@@ -2142,11 +2142,11 @@
 
     /* Pagos: mesmas larguras da Pendentes, sem coluna de Ações (11 colunas) */
     .emp-table-pagos th:nth-child(1), .emp-table-pagos td:nth-child(1)  { width: 26px; min-width: 26px; max-width: 26px; }
-    .emp-table-pagos th:nth-child(2),  .emp-table-pagos td:nth-child(2)  { width: 8%; }   /* DATAS */
+    .emp-table-pagos th:nth-child(2),  .emp-table-pagos td:nth-child(2)  { width: 13%; }   /* DATAS (Pedido/Compra/Entrega/Pago + dias) */
     .emp-table-pagos th:nth-child(3),  .emp-table-pagos td:nth-child(3)  { width: 6%; }   /* Nº Empenho */
-    .emp-table-pagos th:nth-child(4),  .emp-table-pagos td:nth-child(4)  { width: 17%; white-space:normal; } /* Órgão */
+    .emp-table-pagos th:nth-child(4),  .emp-table-pagos td:nth-child(4)  { width: 15%; white-space:normal; } /* Órgão */
     .emp-table-pagos th:nth-child(5),  .emp-table-pagos td:nth-child(5)  { width: 6%; }   /* Empresa */
-    .emp-table-pagos th:nth-child(6),  .emp-table-pagos td:nth-child(6)  { width: 16%; white-space:normal; } /* Itens */
+    .emp-table-pagos th:nth-child(6),  .emp-table-pagos td:nth-child(6)  { width: 13%; white-space:normal; } /* Itens */
     .emp-table-pagos th:nth-child(7),  .emp-table-pagos td:nth-child(7)  { width: 8%; }   /* Vl. Empenho */
     .emp-table-pagos th:nth-child(8),  .emp-table-pagos td:nth-child(8)  { width: 8%; }   /* Vl. Compra */
     .emp-table-pagos th:nth-child(9),  .emp-table-pagos td:nth-child(9)  { width: 7%; }   /* Custo */
@@ -2154,6 +2154,20 @@
     .emp-table-pagos th:nth-child(11), .emp-table-pagos td:nth-child(11) { width: 5%; text-align:center; } /* % Lucro */
     .emp-table-pagos th:nth-child(12), .emp-table-pagos td:nth-child(12) { width: 7%; white-space:normal; } /* Status */
     .emp-table-pagos th:nth-child(13), .emp-table-pagos td:nth-child(13) { width: 5%; text-align:center; } /* Ações */
+
+
+    /* ── Datas por etapa (Pedido / Compra / Entrega / Pago) + contador de dias ── */
+    .dt-etapa { display:flex; align-items:center; flex-wrap:wrap; gap:2px 4px; line-height:1.6; }
+    .dt-lbl   { font-size:9px; font-weight:600; color:var(--muted); width:37px; flex:0 0 auto; }
+    .dt-val   { font-size:10px; font-weight:700; color:var(--text); white-space:nowrap; }
+    .dt-vazio { font-size:10px; color:var(--muted); }
+    .dt-click { cursor:pointer; }
+    .dt-click:hover .dt-val, .dt-click:hover .dt-vazio { text-decoration:underline; }
+    .dias-badge { display:inline-block; font-size:9px; font-weight:700; border-radius:5px; padding:1px 5px; white-space:nowrap; }
+    .dias-yellow { color:#92400e; background:#fef3c7; }   /* até 30 dias  */
+    .dias-orange { color:#c2410c; background:#ffedd5; }   /* 31 a 60 dias */
+    .dias-red    { color:#b42318; background:#fee2e2; }   /* mais de 60   */
+    .dias-inv    { color:#6b7280; background:#e5e7eb; }   /* data inconsistente */
 
     /* Status empenho */
     .emp-status-compra    { background:#0f2a1e; color:#2dd47a; }
@@ -6967,6 +6981,11 @@
         renderEmpAndamento();
         renderEmpPendentes();
         renderEmpEncerrados();
+        // Ag. Liquidação = já foi entregue: pergunta a data de entrega (pode cancelar)
+        if (statusNorm === 'Ag. Liquidação' && !emp.dataEntrega) {
+          abrirModalEntrega(id);
+          return;
+        }
         // Se voltou para Pendente, navega para a aba Pendentes
         if (statusNorm === 'Pendente') {
           const secEl = document.querySelector('[data-section-target="empenhos-pendentes"]');
@@ -7102,6 +7121,148 @@
       renderEmpenhos();
     }
 
+    // ══════════════════════════════════════════════════════════
+    //  DATAS POR ETAPA — Pedido → Compra → Entrega → Pago
+    //  Cada contador mostra quanto tempo o empenho ficou NAQUELA etapa:
+    //  vai até a data da etapa seguinte; se ela ainda não aconteceu, conta até hoje (⏳).
+    //  Exceção: em "Pago", o contador é o total (do pedido até o pagamento).
+    // ══════════════════════════════════════════════════════════
+    function _dtEtapa(v) {
+      if (!v) return null;
+      const p = String(v).slice(0, 10).split('-');
+      if (p.length !== 3) return null;
+      const d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    // dd/mm/aa (curto, para caber na coluna)
+    function formatDateCurta(v) {
+      if (!v) return '—';
+      const [y, m, d] = String(v).slice(0, 10).split('-');
+      if (!y || !m || !d) return '—';
+      return `${d}/${m}/${y.slice(2)}`;
+    }
+
+    function diasBadgeHtml(dias, emCurso, titulo) {
+      if (dias === null || dias === undefined) return '';
+      if (dias < 0) {
+        return `<span class="dias-badge dias-inv" title="Data anterior à etapa anterior — confira as datas">⚠</span>`;
+      }
+      const cls = dias > 60 ? 'dias-red' : dias > 30 ? 'dias-orange' : 'dias-yellow';
+      return `<span class="dias-badge ${cls}" title="${titulo}">${emCurso ? '⏳ ' : ''}${dias} d</span>`;
+    }
+
+    // modo: 'andamento' (Pedido, Compra, Entrega) | 'pago' (Pedido, Pago)
+    function empDatasHtml(e, modo, dataCompra) {
+      const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+      const dPedido  = _dtEtapa(e.data);
+      const dCompra  = _dtEtapa(dataCompra);
+      const dEntrega = _dtEtapa(e.dataEntrega);
+      const dPago    = _dtEtapa(e.dataPagamento);
+      const diasEnt  = (ini, fim) => Math.round((fim - ini) / 86400000);
+      // primeira etapa seguinte que já aconteceu; senão "hoje" (em curso)
+      const seguinte = (...pares) => {
+        for (const [nome, d] of pares) if (d) return { nome, d, emCurso: false };
+        return { nome: 'hoje', d: hoje, emCurso: true };
+      };
+      const badgeEtapa = (ini, prox, de) => {
+        const n = diasEnt(ini, prox.d);
+        const tit = prox.emCurso
+          ? `Em curso: ${n} dias desde ${de} (contando até hoje)`
+          : `${n} dias entre ${de} e ${prox.nome}`;
+        return diasBadgeHtml(n, prox.emCurso, tit);
+      };
+      const linha = (rotulo, valor, badge, extra = '') =>
+        `<div class="dt-etapa${extra}"><span class="dt-lbl">${rotulo}</span>${valor}${badge}</div>`;
+      const vazio = `<span class="dt-vazio">—</span>`;
+      const val = (v) => `<span class="dt-val">${formatDateCurta(v)}</span>`;
+      const out = [];
+
+      // Pedido → compra (ou próxima etapa registrada)
+      if (dPedido) {
+        const prox = seguinte(['a compra', dCompra], ['a entrega', dEntrega], ['o pagamento', dPago]);
+        out.push(linha('Pedido:', val(e.data), badgeEtapa(dPedido, prox, 'o pedido')));
+      } else {
+        out.push(linha('Pedido:', vazio, ''));
+      }
+
+      if (modo === 'andamento') {
+        // Compra → entrega
+        if (dCompra) {
+          const prox = seguinte(['a entrega', dEntrega], ['o pagamento', dPago]);
+          out.push(linha('Compra:', val(dataCompra), badgeEtapa(dCompra, prox, 'a compra')));
+        } else {
+          out.push(linha('Compra:', vazio, ''));
+        }
+        // Entrega → pagamento (clicável para registrar/editar a data)
+        const clique = ` dt-click" onclick="abrirModalEntrega('${e.id}')" title="Clique para ${dEntrega ? 'editar' : 'registrar'} a data de entrega`;
+        if (dEntrega) {
+          const prox = seguinte(['o pagamento', dPago]);
+          out.push(linha('Entrega:', val(e.dataEntrega), badgeEtapa(dEntrega, prox, 'a entrega'), clique));
+        } else {
+          out.push(linha('Entrega:', `<span class="dt-vazio">definir</span>`, '', clique));
+        }
+      } else {
+        // Pago: total do pedido até o pagamento
+        if (dPago) {
+          const n = dPedido ? diasEnt(dPedido, dPago) : null;
+          out.push(linha('Pago:', val(e.dataPagamento),
+            diasBadgeHtml(n, false, `Total: ${n} dias do pedido até o pagamento`)));
+        } else {
+          out.push(linha('Pago:', vazio, ''));
+        }
+      }
+      return `<div style="display:flex;flex-direction:column;gap:1px;">${out.join('')}</div>`;
+    }
+
+    // ── Data de entrega (modal) ──
+    let _entregaEmpId = null;
+
+    function _hojeISOLocal() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function abrirModalEntrega(id) {
+      const emp = empenhos.find(e => e.id === id);
+      if (!emp) return;
+      closeAllMenus();
+      _entregaEmpId = id;
+      const inp = document.getElementById('modalEntregaDataInput');
+      if (inp) inp.value = emp.dataEntrega || _hojeISOLocal();
+      const btnRem = document.getElementById('modalEntregaRemover');
+      if (btnRem) btnRem.style.display = emp.dataEntrega ? '' : 'none';
+      document.getElementById('modalEntregaWrap').classList.remove('hidden');
+    }
+
+    function fecharModalEntrega() {
+      document.getElementById('modalEntregaWrap').classList.add('hidden');
+      _entregaEmpId = null;
+    }
+
+    function confirmarEntregaEmpenho() {
+      const val = document.getElementById('modalEntregaDataInput')?.value;
+      if (!val) { showToast('Informe a data de entrega.', 'error'); return; }
+      const emp = empenhos.find(e => e.id === _entregaEmpId);
+      if (emp) {
+        emp.dataEntrega = val;
+        persistEmpenhos();
+        renderEmpAndamento();
+        mostrarToast('📦 Entrega registrada', `Data de entrega: ${formatDate(val)}.`);
+      }
+      fecharModalEntrega();
+    }
+
+    function removerEntregaEmpenho() {
+      const emp = empenhos.find(e => e.id === _entregaEmpId);
+      if (emp) {
+        emp.dataEntrega = null;
+        persistEmpenhos();
+        renderEmpAndamento();
+      }
+      fecharModalEntrega();
+    }
+
     function empRowHtml(e) {
       const itensDesc = itensEmpCompactHtml(e);
       const statusOpts = ['Pendente','Compra Feita','Ag. Liquidação','Paga']
@@ -7111,22 +7272,8 @@
         <div class="status-dropdown hidden" id="empsdrop-${e.id}">${statusOpts}</div>
       </div>`;
 
-      // Badge: dias desde a compra (data da compra mais recente)
+      // Datas por etapa (Pedido / Compra / Entrega) com contador de dias
       const { vlCompraReal, custoReal, lucroReal, vlEmpTotal, dataCompra, temCompra } = calcEmpFinanceiroRealizado(e);
-      let dataCompraBadge = '';
-      if (dataCompra) {
-        const hoje = new Date(); hoje.setHours(0,0,0,0);
-        const partes = dataCompra.split('-');
-        const dtC = new Date(Number(partes[0]), Number(partes[1])-1, Number(partes[2]));
-        const diffDias = Math.floor((hoje - dtC) / 86400000);
-        if (diffDias === 0) {
-          dataCompraBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#dbeafe;border-radius:5px;padding:1px 5px;">Hoje</span>`;
-        } else if (diffDias > 0) {
-          const cor = diffDias >= 60 ? '#b42318' : diffDias >= 30 ? '#b45309' : '#1f8a4c';
-          const bg  = diffDias >= 60 ? '#fee2e2' : diffDias >= 30 ? '#fef3c7' : '#d1fae5';
-          dataCompraBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:${bg};border-radius:5px;padding:1px 5px;">${diffDias} dias</span>`;
-        }
-      }
 
       // Valores realizados
       const hasR = temCompra;
@@ -7146,13 +7293,7 @@
 
       return `<tr>
         ${bulkCheckboxTd('empAnd', e.id)}
-        <td>
-          <div style="display:flex;flex-direction:column;gap:1px;">
-            <span class="data-dia">${formatDate(e.data)}</span>
-            ${dataCompra ? `<span style="font-size:9px;color:var(--muted);">Comprado em: ${formatDate(dataCompra)}</span>` : ''}
-            ${dataCompraBadge}
-          </div>
-        </td>
+        <td>${empDatasHtml(e, 'andamento', dataCompra)}</td>
         <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}${notifBellHtml(e)}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>
@@ -7171,6 +7312,7 @@
             <button class="row-menu-btn" onclick="toggleRowMenu(event,'empmenu-${e.id}')">⋯</button>
             <div class="row-menu hidden" id="empmenu-${e.id}">
               <button onclick="abrirEditEmpenho('${e.id}')">✏️ Editar</button>
+              <button onclick="abrirModalEntrega('${e.id}')">📦 Data de entrega</button>
               <button onclick="toggleNotificadoEmpenho('${e.id}')">${e.notificado ? '🔕 Desmarcar notificação' : '🔔 Notificação recebida'}</button>
               <button onclick="mudarStatusEmpenho('${e.id}','Paga')" style="color:#1f8a4c;">💰 Pagar</button>
               <button onclick="excluirEmpenho('${e.id}')" style="color:#b42318;">🗑️ Excluir</button>
@@ -7450,13 +7592,7 @@
 
       return `<tr>
         ${bulkCheckboxTd('empEnc', e.id)}
-        <td>
-          <div style="display:flex;flex-direction:column;gap:1px;">
-            <span class="data-dia">${formatDate(e.data)}</span>
-            ${dataCompra ? `<span style="font-size:9px;color:var(--muted);">Compra ${formatDate(dataCompra)}</span>` : ''}
-            ${e.dataPagamento ? `<span style="font-size:9px;color:var(--muted);">Pago ${formatDate(e.dataPagamento)}</span>` : ''}
-          </div>
-        </td>
+        <td>${empDatasHtml(e, 'pago', dataCompra)}</td>
         <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}${notifBellHtml(e)}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>
@@ -9711,6 +9847,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       return {
         id: e.id, contrato_id: e.contratoId||null, numero: e.numero||null,
         data: e.data||null, data_pagamento: e.dataPagamento||null,
+        data_entrega: e.dataEntrega||null,
         orgao: e.orgao||null, empresa: e.empresa||null, contrato: e.contrato||null,
         sistema: e.sistema||null, valor: Number(e.valor)||0,
         status: e.status||'Pendente', responsavel: e.responsavel||null,
@@ -9786,7 +9923,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
     function fromDbEmpenho(r) {
       return { id:r.id, contratoId:r.contrato_id, numero:r.numero, data:r.data,
-        dataPagamento:r.data_pagamento, orgao:r.orgao, empresa:r.empresa,
+        dataPagamento:r.data_pagamento, dataEntrega:r.data_entrega, orgao:r.orgao, empresa:r.empresa,
         contrato:r.contrato, sistema:r.sistema, valor:Number(r.valor)||0,
         status:r.status, responsavel:r.responsavel,
         responsavelSetor:r.responsavel_setor, responsavelContato:r.responsavel_contato,
@@ -10971,6 +11108,32 @@ function showToast(msg, type = 'info', duration = 3500) {
         <button onclick="confirmarPagamentoEmpenho()"
           style="padding:9px 22px;border-radius:9px;border:none;background:var(--primary);
                  color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;">✅ Confirmar Pago</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Data de Entrega ── -->
+  <div class="modal-overlay hidden" id="modalEntregaWrap" onclick="if(event.target===this)fecharModalEntrega()">
+    <div class="modal-box" style="max-width:380px;padding:32px 28px;text-align:center;">
+      <div style="font-size:28px;margin-bottom:8px;">📦</div>
+      <h3 style="margin:0 0 6px;font-size:15px;font-weight:700;color:var(--text);">Data de Entrega</h3>
+      <p style="font-size:11px;color:var(--muted);margin:0 0 20px;">Informe a data em que o material foi entregue ao órgão.<br>O contador de dias passa a contar a espera pelo pagamento.</p>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start;margin-bottom:22px;">
+        <label style="font-size:11px;font-weight:600;color:var(--muted);">Data de Entrega</label>
+        <input id="modalEntregaDataInput" type="date"
+          style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;
+                 background:var(--card);color:var(--text);font-size:13px;font-family:inherit;box-sizing:border-box;"/>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button onclick="fecharModalEntrega()"
+          style="padding:9px 22px;border-radius:9px;border:1px solid var(--line);background:var(--card);
+                 color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer;">Cancelar</button>
+        <button id="modalEntregaRemover" onclick="removerEntregaEmpenho()"
+          style="padding:9px 22px;border-radius:9px;border:1px solid var(--line);background:var(--card);
+                 color:#b42318;font-size:12px;font-family:inherit;cursor:pointer;">Remover data</button>
+        <button onclick="confirmarEntregaEmpenho()"
+          style="padding:9px 22px;border-radius:9px;border:none;background:var(--primary);
+                 color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;">✅ Salvar</button>
       </div>
     </div>
   </div>
