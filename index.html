@@ -7158,7 +7158,7 @@
       return `<span class="dias-badge ${cls}${emCurso ? ' dias-curso' : ''}" title="${titulo}">${dias} d</span>`;
     }
 
-    // modo: 'andamento' (Pedido, Compra, Entrega) | 'pago' (Pedido, Pago)
+    // modo: 'andamento' (Pedido, Compra, Entrega) | 'pago' (Pedido, Compra, Entrega, Pago)
     function empDatasHtml(e, modo, dataCompra) {
       const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
       const dPedido  = _dtEtapa(e.data);
@@ -7192,24 +7192,23 @@
         out.push(linha('Pedido', vazio, ''));
       }
 
-      if (modo === 'andamento') {
-        // Compra → entrega
-        if (dCompra) {
-          const prox = seguinte(['a entrega', dEntrega], ['o pagamento', dPago]);
-          out.push(linha('Compra', val(dataCompra), badgeEtapa(dCompra, prox, 'a compra')));
-        } else {
-          out.push(linha('Compra', vazio, ''));
-        }
-        // Entrega → pagamento (clicável para registrar/editar a data)
-        const clique = ` dt-click" onclick="abrirModalEntrega('${e.id}')" title="Clique para ${dEntrega ? 'editar' : 'registrar'} a data de entrega`;
-        if (dEntrega) {
-          const prox = seguinte(['o pagamento', dPago]);
-          out.push(linha('Entrega', val(e.dataEntrega), badgeEtapa(dEntrega, prox, 'a entrega'), clique));
-        } else {
-          out.push(linha('Entrega', `<span class="dt-vazio">definir</span>`, '', clique));
-        }
+      // Compra → entrega
+      if (dCompra) {
+        const prox = seguinte(['a entrega', dEntrega], ['o pagamento', dPago]);
+        out.push(linha('Compra', val(dataCompra), badgeEtapa(dCompra, prox, 'a compra')));
       } else {
-        // Pago: total do pedido até o pagamento
+        out.push(linha('Compra', vazio, ''));
+      }
+      // Entrega → pagamento (clicável para registrar/editar a data)
+      const clique = ` dt-click\" onclick=\"abrirModalEntrega('${e.id}')\" title=\"Clique para ${dEntrega ? 'editar' : 'registrar'} a data de entrega`;
+      if (dEntrega) {
+        const prox = seguinte(['o pagamento', dPago]);
+        out.push(linha('Entrega', val(e.dataEntrega), badgeEtapa(dEntrega, prox, 'a entrega'), clique));
+      } else {
+        out.push(linha('Entrega', `<span class=\"dt-vazio\">definir</span>`, '', clique));
+      }
+      // Pago (só em Empenhos pagos): contador = total, do pedido até o pagamento
+      if (modo === 'pago') {
         if (dPago) {
           const n = dPedido ? diasEnt(dPedido, dPago) : null;
           out.push(linha('Pago', val(e.dataPagamento),
@@ -7254,6 +7253,7 @@
         emp.dataEntrega = val;
         persistEmpenhos();
         renderEmpAndamento();
+        renderEmpEncerrados();
         mostrarToast('📦 Entrega registrada', `Data de entrega: ${formatDate(val)}.`);
       }
       fecharModalEntrega();
@@ -7265,6 +7265,7 @@
         emp.dataEntrega = null;
         persistEmpenhos();
         renderEmpAndamento();
+        renderEmpEncerrados();
       }
       fecharModalEntrega();
     }
@@ -7617,6 +7618,7 @@
             <button class="row-menu-btn" onclick="toggleRowMenu(event,'emppagomenu-${e.id}')">⋯</button>
             <div class="row-menu hidden" id="emppagomenu-${e.id}">
               <button onclick="abrirEditEmpenho('${e.id}')">✏️ Editar</button>
+              <button onclick="abrirModalEntrega('${e.id}')">📦 Data de entrega</button>
               <button onclick="toggleNotificadoEmpenho('${e.id}')">${e.notificado ? '🔕 Desmarcar notificação' : '🔔 Notificação recebida'}</button>
               <button onclick="toggleStatusDropdown(event,'empsdrop-enc-${e.id}')">🔄 Mudar Status</button>
               <button onclick="excluirEmpenho('${e.id}')" style="color:#b42318;">🗑️ Excluir</button>
@@ -9793,8 +9795,19 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         if (!res.ok) {
           const txt = await res.text();
           console.error(`[KM] Erro upsert ${tabela}:`, res.status, txt);
-          throw new Error(`Upsert ${tabela}: ${res.status}`);
+          throw new Error(`Upsert ${tabela}: ${res.status} ${txt}`);
         }
+      }
+    }
+
+    // Mostra na tela o motivo real quando o Supabase recusa o salvamento
+    function avisoErroSupabase(e) {
+      const msg = String((e && e.message) || e || '');
+      if (/data_entrega/i.test(msg)) {
+        mostrarToast('☁ Falta a coluna data_entrega no Supabase',
+          'Rode no SQL Editor: alter table empenhos add column if not exists data_entrega date; — depois: notify pgrst, \'reload schema\';');
+      } else {
+        mostrarToast('☁ Erro ao salvar na nuvem', escapeHTML(msg.slice(0, 220)));
       }
     }
 
@@ -10192,7 +10205,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         try {
           await sbUpsert('empenhos', empenhos.map(mapEmpenho));
           showSync('ok', '✓ empenhos salvos');
-        } catch(e) { console.error('[KM] persistEmpenhos:', e); showSync('err', '✗ erro ao salvar'); }
+        } catch(e) { console.error('[KM] persistEmpenhos:', e); showSync('err', '✗ erro ao salvar'); avisoErroSupabase(e); }
       });
     }
 
@@ -10525,7 +10538,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     async function syncToCloud() {
       showSync('saving', '☁ salvando...');
       try { await _persistAllImmediate(); showSync('ok', '✓ salvo na nuvem'); }
-      catch(e) { showSync('err', '✗ erro ao salvar'); }
+      catch(e) { showSync('err', '✗ erro ao salvar'); avisoErroSupabase(e); }
     }
 
     // ── Exposição global para debug/console ───────────────────
@@ -10550,6 +10563,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       } catch(e) {
         btn.className = 'err';
         btn.textContent = '✗ Erro ao salvar';
+        console.error('[KM] syncManual:', e);
+        avisoErroSupabase(e);
         setTimeout(() => {
           btn.className = '';
           btn.textContent = '☁ Salvar na nuvem';
