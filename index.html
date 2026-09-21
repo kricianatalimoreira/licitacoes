@@ -2156,18 +2156,24 @@
     .emp-table-pagos th:nth-child(13), .emp-table-pagos td:nth-child(13) { width: 5%; text-align:center; } /* Ações */
 
 
-    /* ── Datas por etapa (Pedido / Compra / Entrega / Pago) + contador de dias ── */
-    .dt-etapa { display:flex; align-items:center; flex-wrap:wrap; gap:2px 4px; line-height:1.6; }
-    .dt-lbl   { font-size:9px; font-weight:600; color:var(--muted); width:37px; flex:0 0 auto; }
-    .dt-val   { font-size:10px; font-weight:700; color:var(--text); white-space:nowrap; }
-    .dt-vazio { font-size:10px; color:var(--muted); }
+    /* ── Datas por etapa (Pedido / Compra / Entrega / Pago) + contador de dias ──
+       Grade fixa de 3 colunas (rótulo | data | dias): rótulos, datas e etiquetas
+       ficam alinhados na vertical em todas as linhas da tabela. */
+    .dt-wrap  { display:flex; flex-direction:column; gap:5px; padding-left:2px; }
+    .dt-etapa { display:grid; grid-template-columns:36px 44px 34px; align-items:center; column-gap:4px; min-height:16px; }
+    .dt-lbl   { font-size:9px; font-weight:600; color:var(--muted); letter-spacing:.2px; }
+    .dt-val   { font-size:10px; font-weight:600; color:var(--text); white-space:nowrap; font-variant-numeric:tabular-nums; }
+    .dt-vazio { font-size:10px; color:var(--muted); opacity:.65; }
     .dt-click { cursor:pointer; }
-    .dt-click:hover .dt-val, .dt-click:hover .dt-vazio { text-decoration:underline; }
-    .dias-badge { display:inline-block; font-size:9px; font-weight:700; border-radius:5px; padding:1px 5px; white-space:nowrap; }
-    .dias-yellow { color:#92400e; background:#fef3c7; }   /* até 30 dias  */
-    .dias-orange { color:#c2410c; background:#ffedd5; }   /* 31 a 60 dias */
-    .dias-red    { color:#b42318; background:#fee2e2; }   /* mais de 60   */
-    .dias-inv    { color:#6b7280; background:#e5e7eb; }   /* data inconsistente */
+    .dt-click:hover .dt-val, .dt-click:hover .dt-vazio { text-decoration:underline; opacity:1; }
+    /* Etiqueta de dias: pílula de largura fixa (mesmo formato dos badges de Empresa/Status) */
+    .dias-badge  { display:block; box-sizing:border-box; width:34px; text-align:center; font-size:9px; font-weight:700;
+                   line-height:14px; border-radius:999px; border:1px solid transparent; font-variant-numeric:tabular-nums; }
+    .dias-yellow { color:#8a6212; background:#fdf6df; border-color:#f3e3a6; }   /* até 30 dias  */
+    .dias-orange { color:#b4540f; background:#fdeedd; border-color:#f6cfa3; }   /* 31 a 60 dias */
+    .dias-red    { color:#b3372f; background:#fde9e7; border-color:#f4bdb8; }   /* mais de 60   */
+    .dias-inv    { color:#6b7280; background:#f1f2f4; border-color:#dcdee2; }   /* data inconsistente */
+    .dias-curso  { border-style:dashed; }                                       /* etapa em curso (conta até hoje) */
 
     /* Status empenho */
     .emp-status-compra    { background:#0f2a1e; color:#2dd47a; }
@@ -7149,7 +7155,7 @@
         return `<span class="dias-badge dias-inv" title="Data anterior à etapa anterior — confira as datas">⚠</span>`;
       }
       const cls = dias > 60 ? 'dias-red' : dias > 30 ? 'dias-orange' : 'dias-yellow';
-      return `<span class="dias-badge ${cls}" title="${titulo}">${emCurso ? '⏳ ' : ''}${dias} d</span>`;
+      return `<span class="dias-badge ${cls}${emCurso ? ' dias-curso' : ''}" title="${titulo}">${dias} d</span>`;
     }
 
     // modo: 'andamento' (Pedido, Compra, Entrega) | 'pago' (Pedido, Pago)
@@ -7168,7 +7174,7 @@
       const badgeEtapa = (ini, prox, de) => {
         const n = diasEnt(ini, prox.d);
         const tit = prox.emCurso
-          ? `Em curso: ${n} dias desde ${de} (contando até hoje)`
+          ? `Em curso (borda tracejada): ${n} dias desde ${de}, contando até hoje`
           : `${n} dias entre ${de} e ${prox.nome}`;
         return diasBadgeHtml(n, prox.emCurso, tit);
       };
@@ -7181,38 +7187,38 @@
       // Pedido → compra (ou próxima etapa registrada)
       if (dPedido) {
         const prox = seguinte(['a compra', dCompra], ['a entrega', dEntrega], ['o pagamento', dPago]);
-        out.push(linha('Pedido:', val(e.data), badgeEtapa(dPedido, prox, 'o pedido')));
+        out.push(linha('Pedido', val(e.data), badgeEtapa(dPedido, prox, 'o pedido')));
       } else {
-        out.push(linha('Pedido:', vazio, ''));
+        out.push(linha('Pedido', vazio, ''));
       }
 
       if (modo === 'andamento') {
         // Compra → entrega
         if (dCompra) {
           const prox = seguinte(['a entrega', dEntrega], ['o pagamento', dPago]);
-          out.push(linha('Compra:', val(dataCompra), badgeEtapa(dCompra, prox, 'a compra')));
+          out.push(linha('Compra', val(dataCompra), badgeEtapa(dCompra, prox, 'a compra')));
         } else {
-          out.push(linha('Compra:', vazio, ''));
+          out.push(linha('Compra', vazio, ''));
         }
         // Entrega → pagamento (clicável para registrar/editar a data)
         const clique = ` dt-click" onclick="abrirModalEntrega('${e.id}')" title="Clique para ${dEntrega ? 'editar' : 'registrar'} a data de entrega`;
         if (dEntrega) {
           const prox = seguinte(['o pagamento', dPago]);
-          out.push(linha('Entrega:', val(e.dataEntrega), badgeEtapa(dEntrega, prox, 'a entrega'), clique));
+          out.push(linha('Entrega', val(e.dataEntrega), badgeEtapa(dEntrega, prox, 'a entrega'), clique));
         } else {
-          out.push(linha('Entrega:', `<span class="dt-vazio">definir</span>`, '', clique));
+          out.push(linha('Entrega', `<span class="dt-vazio">definir</span>`, '', clique));
         }
       } else {
         // Pago: total do pedido até o pagamento
         if (dPago) {
           const n = dPedido ? diasEnt(dPedido, dPago) : null;
-          out.push(linha('Pago:', val(e.dataPagamento),
+          out.push(linha('Pago', val(e.dataPagamento),
             diasBadgeHtml(n, false, `Total: ${n} dias do pedido até o pagamento`)));
         } else {
-          out.push(linha('Pago:', vazio, ''));
+          out.push(linha('Pago', vazio, ''));
         }
       }
-      return `<div style="display:flex;flex-direction:column;gap:1px;">${out.join('')}</div>`;
+      return `<div class="dt-wrap">${out.join('')}</div>`;
     }
 
     // ── Data de entrega (modal) ──
