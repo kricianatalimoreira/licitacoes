@@ -2901,7 +2901,15 @@
 #empenhos-andamento .emp-data-badge:focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
 #empenhos-andamento .emp-data-badge .dt-val { font-size:11px; }
 #empenhos-andamento .emp-data-atual > .dias-badge { margin-left:8px; width:auto; padding:0 4px; }
-#empenhos-andamento .emp-table-and th:nth-child(1), #empenhos-andamento .emp-table-and td:nth-child(1) { width:1.869%; }
+#empenhos-andamento .emp-table-and th:nth-child(1),
+#empenhos-andamento .emp-table-and td:nth-child(1) {
+  width:32px; min-width:32px; max-width:32px; box-sizing:border-box;
+  padding-left:4px; padding-right:4px; text-align:center;
+}
+#empenhos-andamento .emp-table-and th:nth-child(1) input[type="checkbox"],
+#empenhos-andamento .emp-table-and td:nth-child(1) input[type="checkbox"] {
+  display:block; width:13px; height:13px; margin:0 auto;
+}
 #empenhos-andamento .emp-table-and th:nth-child(2), #empenhos-andamento .emp-table-and td:nth-child(2) { width:12.000%; }
 #empenhos-andamento .emp-table-and th:nth-child(3), #empenhos-andamento .emp-table-and td:nth-child(3) { width:6.542%; }
 #empenhos-andamento .emp-table-and th:nth-child(4), #empenhos-andamento .emp-table-and td:nth-child(4) { width:18.822%; }
