@@ -7255,7 +7255,7 @@
         const acompanhamento = !ultima ? 'Nenhuma data registrada'
           : dPago ? 'Pagamento registrado'
           : dias < 0 ? 'Data futura registrada'
-          : ultima.espera + (dias === 0 ? ' desde hoje' : ' há ' + dias + (dias === 1 ? ' dia' : ' dias'));
+          : dias === 0 ? 'Hoje' : 'Há ' + dias + (dias === 1 ? ' dia' : ' dias');
         const historico = etapas.map(etapa =>
           `<div class="emp-historico-linha"><span>${etapa.nome}</span><span>${etapa.parsed ? formatDateCurta(etapa.data) : 'Não registrada'}</span></div>`
         ).join('');
