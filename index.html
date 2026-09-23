@@ -2894,17 +2894,6 @@
 #empenhos-andamento .status-wrap > span { display:inline-flex; align-items:center; gap:3px; }
 #empenhos-andamento .emp-table-and tbody tr { background:var(--card); }
 #empenhos-andamento .emp-table-and tbody tr:hover { background:var(--primary-soft); }
-#empenhos-andamento .emp-table-and th:nth-child(1), #empenhos-andamento .emp-table-and td:nth-child(1) { width:1.942%; }
-#empenhos-andamento .emp-table-and th:nth-child(2), #empenhos-andamento .emp-table-and td:nth-child(2) { width:9.709%; }
-#empenhos-andamento .emp-table-and th:nth-child(3), #empenhos-andamento .emp-table-and td:nth-child(3) { width:6.796%; }
-#empenhos-andamento .emp-table-and th:nth-child(4), #empenhos-andamento .emp-table-and td:nth-child(4) { width:19.417%; }
-#empenhos-andamento .emp-table-and th:nth-child(5), #empenhos-andamento .emp-table-and td:nth-child(5) { width:14.563%; }
-#empenhos-andamento .emp-table-and th:nth-child(6), #empenhos-andamento .emp-table-and td:nth-child(6) { width:8.738%; }
-#empenhos-andamento .emp-table-and th:nth-child(7), #empenhos-andamento .emp-table-and td:nth-child(7) { width:8.738%; }
-#empenhos-andamento .emp-table-and th:nth-child(8), #empenhos-andamento .emp-table-and td:nth-child(8) { width:7.767%; }
-#empenhos-andamento .emp-table-and th:nth-child(9), #empenhos-andamento .emp-table-and td:nth-child(9) { width:8.738%; }
-#empenhos-andamento .emp-table-and th:nth-child(10), #empenhos-andamento .emp-table-and td:nth-child(10) { width:9.709%; }
-#empenhos-andamento .emp-table-and th:nth-child(11), #empenhos-andamento .emp-table-and td:nth-child(11) { width:3.883%; }
 #empenhos-andamento .emp-orgao-company { margin:5px 0; }
 #empenhos-andamento .emp-company-filter { margin-top:5px; font-weight:400; }
 #empenhos-andamento .emp-data-atual { display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
@@ -2912,6 +2901,28 @@
 #empenhos-andamento .emp-data-badge:focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
 #empenhos-andamento .emp-data-badge .dt-val { font-size:11px; }
 #empenhos-andamento .emp-data-atual > .dias-badge { margin-left:8px; width:auto; padding:0 4px; }
+#empenhos-andamento .emp-table-and th:nth-child(1), #empenhos-andamento .emp-table-and td:nth-child(1) { width:1.869%; }
+#empenhos-andamento .emp-table-and th:nth-child(2), #empenhos-andamento .emp-table-and td:nth-child(2) { width:16.822%; }
+#empenhos-andamento .emp-table-and th:nth-child(3), #empenhos-andamento .emp-table-and td:nth-child(3) { width:6.542%; }
+#empenhos-andamento .emp-table-and th:nth-child(4), #empenhos-andamento .emp-table-and td:nth-child(4) { width:16.822%; }
+#empenhos-andamento .emp-table-and th:nth-child(5), #empenhos-andamento .emp-table-and td:nth-child(5) { width:12.150%; }
+#empenhos-andamento .emp-table-and th:nth-child(6), #empenhos-andamento .emp-table-and td:nth-child(6) { width:8.411%; }
+#empenhos-andamento .emp-table-and th:nth-child(7), #empenhos-andamento .emp-table-and td:nth-child(7) { width:8.411%; }
+#empenhos-andamento .emp-table-and th:nth-child(8), #empenhos-andamento .emp-table-and td:nth-child(8) { width:7.477%; }
+#empenhos-andamento .emp-table-and th:nth-child(9), #empenhos-andamento .emp-table-and td:nth-child(9) { width:8.411%; }
+#empenhos-andamento .emp-table-and th:nth-child(10), #empenhos-andamento .emp-table-and td:nth-child(10) { width:9.346%; }
+#empenhos-andamento .emp-table-and th:nth-child(11), #empenhos-andamento .emp-table-and td:nth-child(11) { width:3.738%; }
+#empenhos-andamento .emp-data-resumo { display:flex; flex-direction:column; gap:4px; white-space:normal; }
+#empenhos-andamento .emp-data-resumo > strong { font-size:11px; color:var(--text); }
+#empenhos-andamento .emp-data-espera { font-size:10px; color:var(--muted); }
+#empenhos-andamento .emp-data-historico { font-size:10px; }
+#empenhos-andamento .emp-data-historico summary { cursor:pointer; color:var(--primary); list-style:none; }
+#empenhos-andamento .emp-data-historico summary::-webkit-details-marker { display:none; }
+#empenhos-andamento .emp-data-historico summary::before { content:'⌄ '; }
+#empenhos-andamento .emp-data-historico[open] summary::before { content:'⌃ '; }
+#empenhos-andamento .emp-historico-conteudo { margin-top:7px; padding-top:6px; border-top:1px solid var(--line); }
+#empenhos-andamento .emp-historico-linha { display:flex; justify-content:space-between; gap:6px; margin-bottom:4px; }
+#empenhos-andamento .emp-editar-entrega { border:0; padding:3px 0; background:transparent; color:var(--primary); cursor:pointer; font:inherit; }
 </style>
 </head>
 <body>
@@ -7235,24 +7246,28 @@
 
       if (modo === 'andamento') {
         const etapas = [
-          { nome: 'Pedido', data: e.data, parsed: dPedido },
-          { nome: 'Compra', data: dataCompra, parsed: dCompra },
-          { nome: 'Entrega', data: e.dataEntrega, parsed: dEntrega }
+          { nome: 'Pedido', titulo: 'Pedido em', espera: 'Aguardando compra', data: e.data, parsed: dPedido },
+          { nome: 'Compra', titulo: 'Comprado em', espera: 'Aguardando entrega', data: dataCompra, parsed: dCompra },
+          { nome: 'Entrega', titulo: 'Entregue em', espera: 'Aguardando pagamento', data: e.dataEntrega, parsed: dEntrega }
         ];
         const ultima = [...etapas].reverse().find(etapa => etapa.parsed);
+        const dias = ultima ? diasEnt(ultima.parsed, hoje) : null;
+        const acompanhamento = !ultima ? 'Nenhuma data registrada'
+          : dPago ? 'Pagamento registrado'
+          : dias < 0 ? 'Data futura registrada'
+          : ultima.espera + (dias === 0 ? ' desde hoje' : ' há ' + dias + (dias === 1 ? ' dia' : ' dias'));
         const historico = etapas.map(etapa =>
-          etapa.nome + ': ' + (etapa.parsed ? formatDateCurta(etapa.data) : 'Não registrada')
-        ).join('\n');
-        const dias = ultima && !dPago
-          ? diasBadgeHtml(diasEnt(ultima.parsed, hoje), true, 'Dias desde ' + ultima.nome.toLowerCase())
-          : '';
-        return `<div class="emp-data-atual">
-          <button type="button" class="emp-data-badge" title="${escapeHTML(historico)}"
-            aria-label="${escapeHTML(historico)}" onclick="abrirModalEntrega('${e.id}')">
-            <span class="dt-lbl">${ultima ? ultima.nome : 'Sem data'}</span>
-            <span class="dt-val">${ultima ? formatDateCurta(ultima.data) : '—'}</span>
-          </button>
-          ${dias}
+          `<div class="emp-historico-linha"><span>${etapa.nome}</span><span>${etapa.parsed ? formatDateCurta(etapa.data) : 'Não registrada'}</span></div>`
+        ).join('');
+        return `<div class="emp-data-resumo">
+          <strong>${ultima ? ultima.titulo + ' ' + formatDateCurta(ultima.data) : 'Sem data'}</strong>
+          <span class="emp-data-espera">${acompanhamento}</span>
+          <details class="emp-data-historico">
+            <summary>Ver histórico</summary>
+            <div class="emp-historico-conteudo">${historico}
+              <button type="button" class="emp-editar-entrega" onclick="abrirModalEntrega('${e.id}')">${dEntrega ? 'Editar' : 'Registrar'} entrega</button>
+            </div>
+          </details>
         </div>`;
       }
 
