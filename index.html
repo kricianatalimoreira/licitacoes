@@ -2934,7 +2934,7 @@
 
 /* Uma única grade mantém cabeçalho e corpo alinhados, inclusive com rolagem. */
 #empenhos-andamento .table-wrap {
-  overflow:auto; scrollbar-gutter:stable;
+  overflow:auto; scrollbar-gutter:auto;
   height:max(350px, calc(100vh - var(--topbar-h) - var(--kpi-h) - var(--padding-v) - 10px));
 }
 #empenhos-andamento .emp-table-and { display:table; }
@@ -2968,7 +2968,7 @@ table.site-table-4, table.site-table-6 { min-width:1280px; }
 table.site-table-7 { min-width:1280px; }
 table.site-table-8, table.site-table-9 { min-width:800px; }
 .table-wrap:has(> table.site-list) {
-  overflow:auto; scrollbar-gutter:stable;
+  overflow:auto; scrollbar-gutter:auto;
   height:max(350px, calc(100vh - var(--topbar-h) - var(--kpi-h) - var(--padding-v) - 10px));
 }
 .table-wrap:has(> table.site-list)::-webkit-scrollbar { width:6px; height:6px; }
@@ -3219,6 +3219,16 @@ table.site-table.site-table-9 th:nth-child(8) { width:80px !important; min-width
   .page-section > .disputa-stats { grid-template-columns:repeat(7,minmax(145px,1fr)) !important; overflow-x:auto; padding-bottom:6px; }
   .page-section > .topbar h2 { font-size:15px; }
 }
+</style>
+
+<style id="site-table-actions-edge">
+/* A última coluna termina no limite útil da tabela, sem margem reservada. */
+:is(body, #empenhos-andamento) table.site-list thead th:last-child,
+:is(body, #empenhos-andamento) table.site-list tbody td:last-child {
+  text-align:center !important; padding-left:6px !important; padding-right:6px !important;
+  border-right:0 !important;
+}
+table.site-list tbody td:last-child .row-menu-wrap { display:flex; justify-content:center; }
 </style>
 </head>
 <body>
