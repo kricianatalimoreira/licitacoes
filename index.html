@@ -2923,6 +2923,23 @@
 #empenhos-andamento .emp-historico-conteudo { margin-top:7px; padding-top:6px; border-top:1px solid var(--line); }
 #empenhos-andamento .emp-historico-linha { display:flex; justify-content:space-between; gap:6px; margin-bottom:4px; }
 #empenhos-andamento .emp-editar-entrega { border:0; padding:3px 0; background:transparent; color:var(--primary); cursor:pointer; font:inherit; }
+
+/* Uma única grade mantém cabeçalho e corpo alinhados, inclusive com rolagem. */
+#empenhos-andamento .table-wrap {
+  overflow:auto; scrollbar-gutter:stable;
+  height:max(350px, calc(100vh - var(--topbar-h) - var(--kpi-h) - var(--padding-v) - 10px));
+}
+#empenhos-andamento .emp-table-and { display:table; }
+#empenhos-andamento .emp-table-and thead { display:table-header-group; }
+#empenhos-andamento .emp-table-and tbody {
+  display:table-row-group; height:auto; min-height:0; overflow:visible; scrollbar-gutter:auto;
+}
+#empenhos-andamento .emp-table-and thead tr,
+#empenhos-andamento .emp-table-and tbody tr { display:table-row; }
+#empenhos-andamento .emp-table-and thead th { position:sticky; top:0; }
+#empenhos-andamento .emp-table-and thead th:last-child { padding-right:8px; }
+#empenhos-andamento .table-wrap::-webkit-scrollbar { width:6px; height:6px; }
+#empenhos-andamento .table-wrap::-webkit-scrollbar-thumb { background:var(--primary-border); border-radius:4px; }
 </style>
 </head>
 <body>
