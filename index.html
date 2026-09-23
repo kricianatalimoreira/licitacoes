@@ -2860,6 +2860,53 @@
     .dash-line-wrap { width: 100%; overflow: hidden; }
   </style>
 
+<style id="emp-andamento-layout">
+
+/* Organização da tabela de empenhos em andamento — setembro 2026 */
+#empenhos-andamento .emp-table-and { min-width:1120px; table-layout:fixed; }
+#empenhos-andamento .emp-table-and th,
+#empenhos-andamento .emp-table-and td {
+  border-left:0 !important; border-right:0 !important;
+  padding:12px 8px; vertical-align:top; line-height:1.45;
+}
+#empenhos-andamento .emp-table-and tbody td { border-bottom:1px solid var(--line); font-size:11px; }
+#empenhos-andamento .emp-table-and thead th {
+  font-size:10px !important; text-transform:none; letter-spacing:0;
+  word-break:normal; color:var(--muted) !important; vertical-align:middle;
+}
+#empenhos-andamento .emp-table-and .historico-header-cell { gap:4px; }
+#empenhos-andamento .emp-table-and th:nth-child(1), #empenhos-andamento .emp-table-and td:nth-child(1) { width:2.000%; }
+#empenhos-andamento .emp-table-and th:nth-child(2), #empenhos-andamento .emp-table-and td:nth-child(2) { width:13.000%; }
+#empenhos-andamento .emp-table-and th:nth-child(3), #empenhos-andamento .emp-table-and td:nth-child(3) { width:6.000%; }
+#empenhos-andamento .emp-table-and th:nth-child(4), #empenhos-andamento .emp-table-and td:nth-child(4) { width:14.000%; }
+#empenhos-andamento .emp-table-and th:nth-child(5), #empenhos-andamento .emp-table-and td:nth-child(5) { width:7.000%; }
+#empenhos-andamento .emp-table-and th:nth-child(6), #empenhos-andamento .emp-table-and td:nth-child(6) { width:13.000%; }
+#empenhos-andamento .emp-table-and th:nth-child(7), #empenhos-andamento .emp-table-and td:nth-child(7) { width:8.000%; }
+#empenhos-andamento .emp-table-and th:nth-child(8), #empenhos-andamento .emp-table-and td:nth-child(8) { width:8.000%; }
+#empenhos-andamento .emp-table-and th:nth-child(9), #empenhos-andamento .emp-table-and td:nth-child(9) { width:6.000%; }
+#empenhos-andamento .emp-table-and th:nth-child(10), #empenhos-andamento .emp-table-and td:nth-child(10) { width:8.000%; }
+#empenhos-andamento .emp-table-and th:nth-child(11), #empenhos-andamento .emp-table-and td:nth-child(11) { width:11.000%; }
+#empenhos-andamento .emp-table-and th:nth-child(12), #empenhos-andamento .emp-table-and td:nth-child(12) { width:4.000%; }
+#empenhos-andamento .emp-table-and td:nth-child(3) { white-space:normal; overflow-wrap:anywhere; }
+#empenhos-andamento .emp-table-and td:nth-child(5) { white-space:normal; }
+#empenhos-andamento .emp-table-and td:nth-child(5) .company-badge { max-width:100%; white-space:normal; text-overflow:clip; overflow:visible; }
+#empenhos-andamento .emp-table-and td:nth-child(n+7):nth-child(-n+10) { text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+#empenhos-andamento .emp-table-and td:nth-child(n+7):nth-child(-n+10) span { font-size:11px !important; }
+#empenhos-andamento .emp-table-and th:nth-child(n+7):nth-child(-n+10) .historico-header-cell { justify-content:flex-end; }
+#empenhos-andamento .emp-table-and td:nth-child(11) { text-align:left; white-space:normal; }
+#empenhos-andamento .emp-table-and td:nth-child(12) { text-align:center; }
+#empenhos-andamento .emp-lucro-percentual { margin-top:3px; }
+#empenhos-andamento .emp-lucro-percentual span { font-weight:400 !important; color:var(--muted) !important; }
+#empenhos-andamento .emp-table-and .con-orgao-nome { font-size:12px; line-height:1.4; }
+#empenhos-andamento .dt-wrap { gap:6px; padding:0; }
+#empenhos-andamento .dt-etapa { grid-template-columns:36px 46px 30px; column-gap:3px; }
+#empenhos-andamento .dias-badge { width:30px; }
+#empenhos-andamento .dias-badge:not(.dias-curso):not(.dias-inv),
+#empenhos-andamento .dias-yellow { color:var(--muted); background:transparent; border-color:transparent; }
+#empenhos-andamento .status-wrap > span { display:inline-flex; align-items:center; gap:3px; }
+#empenhos-andamento .emp-table-and tbody tr { background:var(--card); }
+#empenhos-andamento .emp-table-and tbody tr:hover { background:var(--primary-soft); }
+</style>
 </head>
 <body>
 
@@ -3926,12 +3973,7 @@
 <button class="sort-col-btn" data-sort-select="sortEmpAnd" data-sort-asc="lucro_asc" data-sort-desc="lucro_desc" title="Ordenar" onclick="sortByCol('sortEmpAnd','lucro_asc','lucro_desc','renderEmpAndamento')">↕</button>
 </div>
 </th>
-<th class="historico-th" style="color:#a3e635;">
-<div class="historico-header-cell">
-<span>% Lucro</span>
-<button class="sort-col-btn" data-sort-select="sortEmpAnd" data-sort-asc="pct_asc" data-sort-desc="pct_desc" title="Ordenar" onclick="sortByCol('sortEmpAnd','pct_asc','pct_desc','renderEmpAndamento')">↕</button>
-</div>
-</th>
+
 <th class="historico-th">
 <div class="historico-header-cell">
 <span>Status</span>
@@ -7311,8 +7353,7 @@
         <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
         <td>${vlCompraHtml}</td>
         <td>${custoHtml}</td>
-        <td>${lucroHtml}</td>
-        <td style="text-align:center;">${pctHtml}</td>
+        <td><div class="emp-lucro-valor">${lucroHtml}</div><div class="emp-lucro-percentual" title="Percentual de lucro">${pctHtml}</div></td>
         <td>${statusHtml}</td>
         <td>
           <div class="row-menu-wrap">
@@ -7405,7 +7446,7 @@
       }, 'data_asc');
       body.innerHTML = sortedEmpAnd.length
         ? sortedEmpAnd.map(empRowHtml).join('')
-        : `<tr><td colspan="13"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
+        : `<tr><td colspan="12"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
     }
 
     // ── Empenhos encerrados (status === 'Paga') ──
