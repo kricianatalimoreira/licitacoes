@@ -7214,6 +7214,8 @@
         return { nome: 'hoje', d: hoje, emCurso: true };
       };
       const badgeEtapa = (ini, prox, de) => {
+        // Em andamento: mostra somente o tempo da etapa ainda em curso.
+        if (modo === 'andamento' && !prox.emCurso) return '';
         const n = diasEnt(ini, prox.d);
         const tit = prox.emCurso
           ? `Em curso (borda tracejada): ${n} dias desde ${de}, contando até hoje`
