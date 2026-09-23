@@ -3835,8 +3835,8 @@
 <div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Valor Empenho</div><div class="disputa-stat-value" id="empAndStatValor" style="font-size:16px;color:#2563eb;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Valor da Compra</div><div class="disputa-stat-value" id="empAndStatCompra" style="font-size:16px;color:#a78bfa;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#1a0d08;border-color:#7a3a0a;"><div class="disputa-stat-label">Valor do Custo</div><div class="disputa-stat-value" id="empAndStatCusto" style="font-size:16px;color:#fb923c;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#0a2018;border-color:#1a6040;"><div class="disputa-stat-label">Lucro</div><div class="disputa-stat-value" id="empAndStatLucro" style="font-size:16px;color:#34d399;">R$ 0,00</div></div>
-<div class="disputa-stat-card"><div class="disputa-stat-label">% Lucro</div><div class="disputa-stat-value" id="empAndStatPctLucro" style="font-size:16px;">—</div></div>
+<div class="disputa-stat-card" style="background:#0a2018;border-color:#1a6040;"><div class="disputa-stat-label">Lucro</div><div class="disputa-stat-value" id="empAndStatLucro" style="font-size:16px;color:#34d399;">R$ 0,00</div><div class="disputa-stat-label" style="margin-top:4px;font-size:11px;"><span id="empAndStatPctLucro">—</span> de lucro</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Retorno previsto</div><div class="disputa-stat-value" id="empAndStatRetorno" style="font-size:16px;">R$ 0,00</div><div class="disputa-stat-label" style="margin-top:4px;">Compra + lucro</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -7367,6 +7367,7 @@
         _empAndLucroTotal  += lucroReal;
       });
       if (qs('empAndStatCompra')) qs('empAndStatCompra').textContent = formatCurrency(_empAndCompraTotal);
+      if (qs('empAndStatRetorno')) qs('empAndStatRetorno').textContent = formatCurrency(_empAndCompraTotal + _empAndLucroTotal);
       if (qs('empAndStatCusto'))  qs('empAndStatCusto').textContent  = formatCurrency(_empAndCustoTotal);
       const lucroEl = qs('empAndStatLucro');
       if (lucroEl) {
