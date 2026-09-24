@@ -3346,6 +3346,10 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 :root body [data-negative-number][data-negative-number] { color:#f87171 !important; }
 :root[data-mode="light"] body [data-negative-number][data-negative-number] { color:#b42318 !important; }
 </style>
+<style id="positive-profit-colors">
+:root body [data-positive-profit][data-positive-profit] { color:#86c9a4 !important; }
+:root[data-mode="light"] body [data-positive-profit][data-positive-profit] { color:#237a46 !important; }
+</style>
 </head>
 <body>
 
@@ -11785,6 +11789,15 @@ function showToast(msg, type = 'info', duration = 3500) {
 <script id="negative-number-format">
 (() => {
   const negative = /^(?:[-−]\s*(?:R\$\s*)?|R\$\s*[-−]\s*)\d[\d.,]*(?:\s*%)?$/;
+  const positive = /^(?:R\$\s*)?\d[\d.,]*(?:\s*%)?$/;
+  function isProfit(el) {
+    if (/lucro/i.test(el.id) || /^emp.*StatPct$/.test(el.id) || el.closest('.emp-lucro-valor,.emp-lucro-percentual')) return true;
+    const cell = el.closest('td');
+    const header = cell?.closest('table')?.tHead?.rows[0]?.cells[cell.cellIndex];
+    if (header && /lucro/i.test(header.textContent)) return true;
+    const card = el.closest('.disputa-stat-card,.dash-kpi-card,.kpi-card');
+    return !!card && /lucro/i.test(card.querySelector('.disputa-stat-label,.dash-kpi-label,.kpi-label')?.textContent || '');
+  }
   let scheduled = false;
   function update() {
     scheduled = false;
@@ -11794,6 +11807,8 @@ function showToast(msg, type = 'info', duration = 3500) {
       const isNegative = negative.test(text) && /[1-9]/.test(text);
       if (isNegative) el.setAttribute('data-negative-number', 'true');
       else el.removeAttribute('data-negative-number');
+      if (isProfit(el) && positive.test(text) && /[1-9]/.test(text)) el.setAttribute('data-positive-profit', 'true');
+      else el.removeAttribute('data-positive-profit');
     });
   }
   function schedule() {
