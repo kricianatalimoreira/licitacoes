@@ -3263,6 +3263,12 @@ table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(9) {
 table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(10) { width:110px !important; }
 table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(11) { width:44px !important; }
 </style>
+<style id="site-uppercase">
+/* Regra visual global, inclusive textos inseridos depois e campos de formulário. */
+html, body, body *, body *::before, body *::after, body *::placeholder {
+  text-transform:uppercase !important;
+}
+</style>
 </head>
 <body>
 
@@ -11570,7 +11576,8 @@ function showToast(msg, type = 'info', duration = 3500) {
     while ((node = walker.nextNode())) {
       const style = getComputedStyle(node.parentElement);
       context.font = style.fontWeight + ' ' + (node.parentElement.dataset.tableBaseFont ? node.parentElement.dataset.tableBaseFont + "px" : style.fontSize) + ' ' + style.fontFamily;
-      width += context.measureText(node.textContent.replace(/\s+/g, ' ')).width;
+      const text = node.textContent.replace(/\s+/g, ' ');
+      width += context.measureText(style.textTransform === 'uppercase' ? text.toLocaleUpperCase('pt-BR') : text).width;
     }
     return Math.ceil(width) + 32;
   }
