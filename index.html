@@ -3230,6 +3230,23 @@ table.site-table.site-table-9 th:nth-child(8) { width:80px !important; min-width
 }
 table.site-list tbody td:last-child .row-menu-wrap { display:flex; justify-content:center; }
 </style>
+
+<style id="site-table-column-sizing">
+table.site-table.site-list { table-layout:auto !important; }
+table.site-table.site-list th:nth-child(2),
+table.site-table.site-table-0 th:nth-child(9),
+table.site-table.site-table-8 th:nth-child(2) { width:112px !important; }
+table.site-table.site-list td:nth-child(2) { white-space:nowrap !important; }
+table.site-table:is(.site-table-0,.site-table-1,.site-table-2,.site-table-3) td:nth-child(3),
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) td:nth-child(4) {
+  min-width:260px !important; white-space:nowrap !important;
+  overflow:visible; text-overflow:clip; overflow-wrap:normal; word-break:normal;
+}
+table.site-table .con-orgao-nome {
+  white-space:nowrap !important; overflow:visible; text-overflow:clip;
+  overflow-wrap:normal; word-break:normal;
+}
+</style>
 </head>
 <body>
 
