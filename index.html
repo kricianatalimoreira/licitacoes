@@ -2923,6 +2923,12 @@ table.site-table .emp-data-atual > .dias-badge { margin-left:8px; width:auto; pa
 table.site-table .emp-data-resumo { display:flex; flex-direction:column; gap:2px; white-space:normal; }
 table.site-table .emp-data-resumo > strong { font-size:11px; color:var(--text); }
 table.site-table .emp-data-espera { font-size:10px; color:var(--muted); }
+table.site-table .emp-data-espera[data-espera="verde"] { color:#15803d; font-weight:700; }
+table.site-table .emp-data-espera[data-espera="laranja"] { color:#c2410c; font-weight:700; }
+table.site-table .emp-data-espera[data-espera="vermelho"] { color:#dc2626; font-weight:700; }
+:root:not([data-mode="light"]) table.site-table .emp-data-espera[data-espera="verde"] { color:#4ade80; }
+:root:not([data-mode="light"]) table.site-table .emp-data-espera[data-espera="laranja"] { color:#fb923c; }
+:root:not([data-mode="light"]) table.site-table .emp-data-espera[data-espera="vermelho"] { color:#f87171; }
 table.site-table .emp-data-historico { font-size:10px; }
 table.site-table .emp-data-historico summary { cursor:pointer; color:var(--primary); list-style:none; }
 table.site-table .emp-data-historico summary::-webkit-details-marker { display:none; }
@@ -7591,7 +7597,7 @@ html, body, body *, body *::before, body *::after, body *::placeholder {
         ).join('');
         return `<div class="emp-data-resumo">
           <strong>${ultima ? ultima.titulo + ' ' + formatDateCurta(ultima.data) : 'Sem data'}</strong>
-          <span class="emp-data-espera">${acompanhamento}</span>
+          <span class="emp-data-espera" data-espera="${!dPago && dias !== null && dias >= 0 ? (dias >= 60 ? 'vermelho' : dias >= 30 ? 'laranja' : 'verde') : ''}">${acompanhamento}</span>
           <details class="emp-data-historico">
             <summary>Ver histórico</summary>
             <div class="emp-historico-conteudo">${historico}
