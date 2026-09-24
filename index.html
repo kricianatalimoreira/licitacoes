@@ -7615,7 +7615,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         const ultima = [...etapas].reverse().find(etapa => etapa.parsed);
         const dias = ultima ? diasEnt(ultima.parsed, hoje) : null;
         const acompanhamento = !ultima ? 'Nenhuma data registrada'
-          : dPago ? 'Pagamento registrado'
+          : dPago ? ''
           : dias < 0 ? 'Data futura registrada'
           : dias === 0 ? 'Hoje' : 'Há ' + dias + (dias === 1 ? ' dia' : ' dias');
         const historico = etapas.map(etapa =>
@@ -7623,7 +7623,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         ).join('');
         return `<div class="emp-data-resumo">
           <strong>${ultima ? ultima.titulo + ' ' + formatDateCurta(ultima.data) : 'Sem data'}</strong>
-          <span class="emp-data-espera" data-espera="${!dPago && dias !== null && dias >= 0 ? (dias >= 60 ? 'vermelho' : dias >= 30 ? 'laranja' : 'verde') : ''}">${acompanhamento}</span>
+          ${acompanhamento ? `<span class="emp-data-espera" data-espera="${!dPago && dias !== null && dias >= 0 ? (dias >= 60 ? 'vermelho' : dias >= 30 ? 'laranja' : 'verde') : ''}">${acompanhamento}</span>` : ''}
           <details class="emp-data-historico">
             <summary>Ver histórico</summary>
             <div class="emp-historico-conteudo">${historico}
