@@ -3275,6 +3275,29 @@ html, body, body *, body *::before, body *::after, body *::placeholder {
   text-transform:uppercase !important;
 }
 </style>
+<style id="disputas-shared-layout">
+table.site-table:is(.site-table-0,.site-table-1) { table-layout:fixed !important; min-width:var(--disputa-table-width,1114px) !important; }
+table.site-table:is(.site-table-0,.site-table-1) th:nth-child(1) { width:32px !important; }
+table.site-table:is(.site-table-0,.site-table-1) th:nth-child(2) { width:112px !important; }
+table.site-table:is(.site-table-0,.site-table-1) th:nth-child(3) { width:var(--disputa-orgao-width,260px) !important; }
+table.site-table:is(.site-table-0,.site-table-1) th:nth-child(4) { width:44px !important; }
+table.site-table:is(.site-table-0,.site-table-1) th:nth-child(5) { width:140px !important; }
+table.site-table:is(.site-table-0,.site-table-1) th:nth-child(6) { width:80px !important; }
+table.site-table:is(.site-table-0,.site-table-1) th:nth-child(7) { width:110px !important; }
+table.site-table:is(.site-table-0,.site-table-1) th:nth-child(8) { width:110px !important; }
+table.site-table:is(.site-table-0,.site-table-1) th:nth-child(9) { width:112px !important; }
+table.site-table:is(.site-table-0,.site-table-1) th:nth-child(10) { width:70px !important; }
+table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !important; }
+/* O painel termina na tela; somente a lista de registros rola. */
+.content:has(> .page-section:not(.hidden) table.site-list) { height:100dvh; overflow:hidden; box-sizing:border-box; }
+.page-section:not(.hidden):has(table.site-list) { height:100%; min-height:0; display:flex; flex-direction:column; }
+.page-section:has(table.site-list) > .topbar,
+.page-section:has(table.site-list) > .disputa-stats { flex-shrink:0; }
+.page-section:has(table.site-list) > .disputa-table-card { flex:1; min-height:0; display:flex; flex-direction:column; }
+.page-section .disputa-table-card > .table-wrap:has(> table.site-list) { height:0 !important; min-height:0; flex:1; overflow:auto; }
+.page-section .disputa-table-card > .subtotal-bar,
+.page-section .disputa-table-card > .bulk-bar { flex-shrink:0; }
+</style>
 </head>
 <body>
 
@@ -3843,6 +3866,7 @@ html, body, body *, body *::before, body *::after, body *::placeholder {
 </div>
 </div>
 </th>
+<th>Retorno</th>
 <th>Links</th>
 <th>Ações</th>
 </tr>
@@ -5224,12 +5248,13 @@ html, body, body *, body *::before, body *::after, body *::placeholder {
       });
 
       if (!sorted.length) {
-        body.innerHTML = `<tr><td colspan="10"><div class="empty-state">Nenhuma disputa encerrada encontrada.</div></td></tr>`;
+        body.innerHTML = `<tr><td colspan="11"><div class="empty-state">Nenhuma disputa encerrada encontrada.</div></td></tr>`;
         return;
       }
 
       body.innerHTML = sorted.map(item => {
         const data = formatDateTime(item.data);
+        const retorno = formatDateTime(item.retorno);
         return `
           <tr>
             ${bulkCheckboxTd('encDisp', item.id)}
@@ -5240,6 +5265,7 @@ html, body, body *, body *::before, body *::after, body *::placeholder {
             <td>${companyBadge(item.empresa)}</td>
             <td>${item.sistema || '—'}</td>
             <td>${statusBadge(item.status)}</td>
+            <td><div class="cell-data-hora"><span class="data-dia">${retorno.date}</span><span class="data-hora">${retorno.time || ''}</span></div></td>
             <td>${linksHtml(item)}</td>
             <td>${rowMenuEncerrada(item)}</td>
           </tr>`;
@@ -11570,6 +11596,7 @@ function showToast(msg, type = 'info', duration = 3500) {
 <script id="emp-shared-column-sizing">
 (() => {
   const tables = [...document.querySelectorAll('table.site-table-4, table.site-table-5, table.site-table-6')];
+  const disputas = [...document.querySelectorAll('table.site-table-0, table.site-table-1')];
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
   if (!context) return;
@@ -11594,7 +11621,14 @@ function showToast(msg, type = 'info', duration = 3500) {
       table.querySelectorAll('.con-orgao-nome').forEach(el => { orgao = Math.max(orgao, textWidth(el)); });
       table.querySelectorAll('.itens-emp-item').forEach(el => { itens = Math.max(itens, textWidth(el)); });
     });
+    let disputaOrgao = 260;
+    disputas.forEach(table => table.querySelectorAll('tbody tr').forEach(row => {
+      const cell = row.cells[2];
+      if (cell) disputaOrgao = Math.max(disputaOrgao, textWidth(cell));
+    }));
     const style = document.documentElement.style;
+    style.setProperty('--disputa-orgao-width', disputaOrgao + 'px');
+    style.setProperty('--disputa-table-width', (854 + disputaOrgao) + 'px');
     style.setProperty('--emp-orgao-width', orgao + 'px');
     style.setProperty('--emp-itens-width', itens + 'px');
     style.setProperty('--emp-table-width', (774 + orgao + itens) + 'px');
@@ -11603,7 +11637,7 @@ function showToast(msg, type = 'info', duration = 3500) {
     if (!scheduled) { scheduled = true; requestAnimationFrame(syncWidths); }
   }
   const observer = new MutationObserver(schedule);
-  tables.forEach(table => observer.observe(table.tBodies[0], { childList:true, subtree:true, characterData:true }));
+  [...tables,...disputas].forEach(table => observer.observe(table.tBodies[0], { childList:true, subtree:true, characterData:true }));
   if (document.fonts) document.fonts.ready.then(schedule);
   schedule();
 })();
