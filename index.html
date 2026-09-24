@@ -11572,7 +11572,7 @@ function showToast(msg, type = 'info', duration = 3500) {
       context.font = style.fontWeight + ' ' + style.fontSize + ' ' + style.fontFamily;
       width += context.measureText(node.textContent.replace(/\s+/g, ' ')).width;
     }
-    return Math.ceil(width) + 20;
+    return Math.ceil(width) + 32;
   }
   function syncWidths() {
     scheduled = false;
@@ -11594,6 +11594,52 @@ function showToast(msg, type = 'info', duration = 3500) {
   if (document.fonts) document.fonts.ready.then(schedule);
   schedule();
 })();
+</script>
+<script id="site-tables-fit-width">
+// Ajusta a escala de cada tabela ao espaço disponível, preservando todas as colunas.
+(() => {
+  let scheduled = false;
+  const watched = new WeakMap();
+  const resize = new ResizeObserver(entries => {
+    let changed = false;
+    entries.forEach(entry => {
+      const width = entry.contentRect.width;
+      if (watched.get(entry.target) !== width) {
+        watched.set(entry.target, width);
+        changed = true;
+      }
+    });
+    if (changed) schedule();
+  });
+  function fit() {
+    scheduled = false;
+    document.querySelectorAll('table.site-table').forEach(table => {
+      const parent = table.parentElement;
+      if (!watched.has(parent)) { watched.set(parent, -1); resize.observe(parent); }
+      if (!table.getClientRects().length || !parent.clientWidth) return;
+      const style = getComputedStyle(parent);
+      const available = parent.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      if (available <= 0) return;
+      table.style.zoom = '1';
+      table.style.width = available + 'px';
+      const natural = Math.max(table.offsetWidth, table.scrollWidth);
+      const scale = Math.min(1, available / natural);
+      table.style.width = natural + 'px';
+      table.style.zoom = String(scale);
+    });
+  }
+  function schedule() {
+    if (!scheduled) { scheduled = true; requestAnimationFrame(fit); }
+  }
+  new MutationObserver(records => {
+    if (records.some(record => !(record.type === 'attributes' && record.target.matches('table.site-table')))) schedule();
+  }).observe(document.body, {subtree:true, childList:true, characterData:true, attributes:true, attributeFilter:['class','style','open']});
+  new MutationObserver(schedule).observe(document.documentElement, {attributes:true, attributeFilter:['style','class','data-mode']});
+  if (document.fonts) document.fonts.ready.then(schedule);
+  window.addEventListener('resize', schedule);
+  schedule();
+})();
+
 </script>
 </body>
 </html>
