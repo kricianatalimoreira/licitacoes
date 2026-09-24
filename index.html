@@ -2883,8 +2883,8 @@
 #empenhos-andamento .emp-table-and th:nth-child(n+6):nth-child(-n+9) .historico-header-cell { justify-content:flex-end; }
 #empenhos-andamento .emp-table-and td:nth-child(10) { text-align:left; white-space:normal; }
 #empenhos-andamento .emp-table-and td:nth-child(11) { text-align:center; }
-#empenhos-andamento .emp-lucro-percentual { margin-top:2px; }
-#empenhos-andamento .emp-lucro-percentual span { font-weight:400 !important; color:var(--muted) !important; }
+table.site-table .emp-lucro-percentual { margin-top:2px; }
+table.site-table .emp-lucro-percentual span { font-weight:400 !important; color:var(--muted) !important; }
 #empenhos-andamento .emp-table-and .con-orgao-nome { font-size:12px; line-height:1.25; }
 #empenhos-andamento .dt-wrap { gap:6px; padding:0; }
 #empenhos-andamento .dt-etapa { grid-template-columns:36px 46px 30px; column-gap:3px; }
@@ -2894,13 +2894,13 @@
 #empenhos-andamento .status-wrap > span { display:inline-flex; align-items:center; gap:3px; }
 #empenhos-andamento .emp-table-and tbody tr { background:var(--card); }
 #empenhos-andamento .emp-table-and tbody tr:hover { background:var(--primary-soft); }
-#empenhos-andamento .emp-orgao-company { margin:2px 0; }
-#empenhos-andamento .emp-company-filter { margin-top:2px; font-weight:400; }
-#empenhos-andamento .emp-data-atual { display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
-#empenhos-andamento .emp-data-badge { display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; padding:5px 8px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer; }
-#empenhos-andamento .emp-data-badge:focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
-#empenhos-andamento .emp-data-badge .dt-val { font-size:11px; }
-#empenhos-andamento .emp-data-atual > .dias-badge { margin-left:8px; width:auto; padding:0 4px; }
+table.site-table .emp-orgao-company { margin:2px 0; }
+table.site-table .emp-company-filter { margin-top:2px; font-weight:400; }
+table.site-table .emp-data-atual { display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
+table.site-table .emp-data-badge { display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; padding:5px 8px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--text); font-family:inherit; cursor:pointer; }
+table.site-table .emp-data-badge:focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
+table.site-table .emp-data-badge .dt-val { font-size:11px; }
+table.site-table .emp-data-atual > .dias-badge { margin-left:8px; width:auto; padding:0 4px; }
 #empenhos-andamento .emp-table-and th:nth-child(1),
 #empenhos-andamento .emp-table-and td:nth-child(1) {
   width:32px; min-width:32px; max-width:32px; box-sizing:border-box;
@@ -2920,17 +2920,17 @@
 #empenhos-andamento .emp-table-and th:nth-child(9), #empenhos-andamento .emp-table-and td:nth-child(9) { width:100px; box-sizing:border-box; }
 #empenhos-andamento .emp-table-and th:nth-child(10), #empenhos-andamento .emp-table-and td:nth-child(10) { width:110px; box-sizing:border-box; }
 #empenhos-andamento .emp-table-and th:nth-child(11), #empenhos-andamento .emp-table-and td:nth-child(11) { width:44px; box-sizing:border-box; }
-#empenhos-andamento .emp-data-resumo { display:flex; flex-direction:column; gap:2px; white-space:normal; }
-#empenhos-andamento .emp-data-resumo > strong { font-size:11px; color:var(--text); }
-#empenhos-andamento .emp-data-espera { font-size:10px; color:var(--muted); }
-#empenhos-andamento .emp-data-historico { font-size:10px; }
-#empenhos-andamento .emp-data-historico summary { cursor:pointer; color:var(--primary); list-style:none; }
-#empenhos-andamento .emp-data-historico summary::-webkit-details-marker { display:none; }
-#empenhos-andamento .emp-data-historico summary::before { content:'⌄ '; }
-#empenhos-andamento .emp-data-historico[open] summary::before { content:'⌃ '; }
-#empenhos-andamento .emp-historico-conteudo { margin-top:7px; padding-top:6px; border-top:1px solid var(--line); }
-#empenhos-andamento .emp-historico-linha { display:flex; justify-content:space-between; gap:6px; margin-bottom:4px; }
-#empenhos-andamento .emp-editar-entrega { border:0; padding:3px 0; background:transparent; color:var(--primary); cursor:pointer; font:inherit; }
+table.site-table .emp-data-resumo { display:flex; flex-direction:column; gap:2px; white-space:normal; }
+table.site-table .emp-data-resumo > strong { font-size:11px; color:var(--text); }
+table.site-table .emp-data-espera { font-size:10px; color:var(--muted); }
+table.site-table .emp-data-historico { font-size:10px; }
+table.site-table .emp-data-historico summary { cursor:pointer; color:var(--primary); list-style:none; }
+table.site-table .emp-data-historico summary::-webkit-details-marker { display:none; }
+table.site-table .emp-data-historico summary::before { content:'⌄ '; }
+table.site-table .emp-data-historico[open] summary::before { content:'⌃ '; }
+table.site-table .emp-historico-conteudo { margin-top:7px; padding-top:6px; border-top:1px solid var(--line); }
+table.site-table .emp-historico-linha { display:flex; justify-content:space-between; gap:6px; margin-bottom:4px; }
+table.site-table .emp-editar-entrega { border:0; padding:3px 0; background:transparent; color:var(--primary); cursor:pointer; font:inherit; }
 
 /* Uma única grade mantém cabeçalho e corpo alinhados, inclusive com rolagem. */
 #empenhos-andamento .table-wrap {
@@ -2964,7 +2964,7 @@ table.site-table th, table.site-table td {
 table.site-table td { width:auto !important; min-width:0 !important; max-width:none !important; font-size:11px; }
 table.site-table thead th { font-size:10px !important; text-transform:none; letter-spacing:0; word-break:normal; white-space:normal; vertical-align:middle; color:var(--muted) !important; }
 table.site-list { min-width:1120px; }
-table.site-table-4, table.site-table-6 { min-width:1280px; }
+table.site-table-4, table.site-table-6 { min-width:1120px; }
 table.site-table-7 { min-width:1280px; }
 table.site-table-8, table.site-table-9 { min-width:800px; }
 .table-wrap:has(> table.site-list) {
@@ -3040,29 +3040,6 @@ table.site-table.site-table-3 td:nth-child(7) { text-align:right !important; whi
 table.site-table.site-table-3 td:nth-child(7) span { font-size:11px !important; }
 table.site-table.site-table-3 th:nth-child(8) { width:80px !important; min-width:0 !important; max-width:none !important; }
 table.site-table.site-table-3 th:nth-child(9) { width:44px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 th:nth-child(1) { width:32px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 th:nth-child(1), table.site-table.site-table-4 td:nth-child(1) { padding-left:4px !important; padding-right:4px !important; text-align:center; }
-table.site-table.site-table-4 input[type="checkbox"] { display:block; width:13px; height:13px; margin:0 auto; }
-table.site-table.site-table-4 th:nth-child(2) { width:140px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 th:nth-child(3) { width:76px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 th:nth-child(4) { width:auto !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 th:nth-child(5) { width:80px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 th:nth-child(6) { width:auto !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 th:nth-child(7) { width:100px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 td:nth-child(7) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
-table.site-table.site-table-4 td:nth-child(7) span { font-size:11px !important; }
-table.site-table.site-table-4 th:nth-child(8) { width:100px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 td:nth-child(8) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
-table.site-table.site-table-4 td:nth-child(8) span { font-size:11px !important; }
-table.site-table.site-table-4 th:nth-child(9) { width:100px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 td:nth-child(9) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
-table.site-table.site-table-4 td:nth-child(9) span { font-size:11px !important; }
-table.site-table.site-table-4 th:nth-child(10) { width:100px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 td:nth-child(10) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
-table.site-table.site-table-4 td:nth-child(10) span { font-size:11px !important; }
-table.site-table.site-table-4 th:nth-child(11) { width:80px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 th:nth-child(12) { width:110px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 th:nth-child(13) { width:44px !important; min-width:0 !important; max-width:none !important; }
 table.site-table.site-table-5 th:nth-child(1) { width:32px !important; min-width:0 !important; max-width:none !important; }
 table.site-table.site-table-5 th:nth-child(1), table.site-table.site-table-5 td:nth-child(1) { padding-left:4px !important; padding-right:4px !important; text-align:center; }
 table.site-table.site-table-5 input[type="checkbox"] { display:block; width:13px; height:13px; margin:0 auto; }
@@ -3084,29 +3061,6 @@ table.site-table.site-table-5 td:nth-child(9) { text-align:right !important; whi
 table.site-table.site-table-5 td:nth-child(9) span { font-size:11px !important; }
 table.site-table.site-table-5 th:nth-child(10) { width:110px !important; min-width:0 !important; max-width:none !important; }
 table.site-table.site-table-5 th:nth-child(11) { width:44px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 th:nth-child(1) { width:32px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 th:nth-child(1), table.site-table.site-table-6 td:nth-child(1) { padding-left:4px !important; padding-right:4px !important; text-align:center; }
-table.site-table.site-table-6 input[type="checkbox"] { display:block; width:13px; height:13px; margin:0 auto; }
-table.site-table.site-table-6 th:nth-child(2) { width:140px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 th:nth-child(3) { width:76px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 th:nth-child(4) { width:auto !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 th:nth-child(5) { width:80px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 th:nth-child(6) { width:auto !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 th:nth-child(7) { width:100px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 td:nth-child(7) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
-table.site-table.site-table-6 td:nth-child(7) span { font-size:11px !important; }
-table.site-table.site-table-6 th:nth-child(8) { width:100px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 td:nth-child(8) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
-table.site-table.site-table-6 td:nth-child(8) span { font-size:11px !important; }
-table.site-table.site-table-6 th:nth-child(9) { width:100px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 td:nth-child(9) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
-table.site-table.site-table-6 td:nth-child(9) span { font-size:11px !important; }
-table.site-table.site-table-6 th:nth-child(10) { width:100px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 td:nth-child(10) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
-table.site-table.site-table-6 td:nth-child(10) span { font-size:11px !important; }
-table.site-table.site-table-6 th:nth-child(11) { width:80px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 th:nth-child(12) { width:110px !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-6 th:nth-child(13) { width:44px !important; min-width:0 !important; max-width:none !important; }
 table.site-table.site-table-7 th:nth-child(1) { width:auto !important; min-width:0 !important; max-width:none !important; }
 table.site-table.site-table-7 th:nth-child(2) { width:auto !important; min-width:0 !important; max-width:none !important; }
 table.site-table.site-table-7 th:nth-child(3) { width:auto !important; min-width:0 !important; max-width:none !important; }
@@ -3154,6 +3108,48 @@ table.site-table.site-table-9 td:nth-child(6) { text-align:right !important; whi
 table.site-table.site-table-9 td:nth-child(6) span { font-size:11px !important; }
 table.site-table.site-table-9 th:nth-child(7) { width:80px !important; min-width:0 !important; max-width:none !important; }
 table.site-table.site-table-9 th:nth-child(8) { width:80px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-4 th:nth-child(1) { width:32px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-4 th:nth-child(1), table.site-table.site-table-4 td:nth-child(1) { padding-left:4px !important; padding-right:4px !important; text-align:center; }
+table.site-table.site-table-4 input[type="checkbox"] { display:block; width:13px; height:13px; margin:0 auto; }
+table.site-table.site-table-4 th:nth-child(2) { width:140px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-4 th:nth-child(3) { width:76px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-4 th:nth-child(4) { width:auto !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-4 th:nth-child(5) { width:auto !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-4 th:nth-child(6) { width:100px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-4 td:nth-child(6) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
+table.site-table.site-table-4 td:nth-child(6) span { font-size:11px !important; }
+table.site-table.site-table-4 th:nth-child(7) { width:100px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-4 td:nth-child(7) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
+table.site-table.site-table-4 td:nth-child(7) span { font-size:11px !important; }
+table.site-table.site-table-4 th:nth-child(8) { width:100px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-4 td:nth-child(8) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
+table.site-table.site-table-4 td:nth-child(8) span { font-size:11px !important; }
+table.site-table.site-table-4 th:nth-child(9) { width:100px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-4 td:nth-child(9) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
+table.site-table.site-table-4 td:nth-child(9) span { font-size:11px !important; }
+table.site-table.site-table-4 th:nth-child(10) { width:110px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-4 th:nth-child(11) { width:44px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-6 th:nth-child(1) { width:32px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-6 th:nth-child(1), table.site-table.site-table-6 td:nth-child(1) { padding-left:4px !important; padding-right:4px !important; text-align:center; }
+table.site-table.site-table-6 input[type="checkbox"] { display:block; width:13px; height:13px; margin:0 auto; }
+table.site-table.site-table-6 th:nth-child(2) { width:140px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-6 th:nth-child(3) { width:76px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-6 th:nth-child(4) { width:auto !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-6 th:nth-child(5) { width:auto !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-6 th:nth-child(6) { width:100px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-6 td:nth-child(6) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
+table.site-table.site-table-6 td:nth-child(6) span { font-size:11px !important; }
+table.site-table.site-table-6 th:nth-child(7) { width:100px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-6 td:nth-child(7) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
+table.site-table.site-table-6 td:nth-child(7) span { font-size:11px !important; }
+table.site-table.site-table-6 th:nth-child(8) { width:100px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-6 td:nth-child(8) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
+table.site-table.site-table-6 td:nth-child(8) span { font-size:11px !important; }
+table.site-table.site-table-6 th:nth-child(9) { width:100px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-6 td:nth-child(9) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
+table.site-table.site-table-6 td:nth-child(9) span { font-size:11px !important; }
+table.site-table.site-table-6 th:nth-child(10) { width:110px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-6 th:nth-child(11) { width:44px !important; min-width:0 !important; max-width:none !important; }
 </style>
 
 <style id="site-table-header-standard">
@@ -4102,7 +4098,7 @@ table.site-table .con-orgao-nome {
 <th style="text-align:center;"><input type="checkbox" id="selAll_empPend" onchange="bulkToggleAll('empPend', this.checked)" title="Selecionar todos"/></th>
 <th class="historico-th">
 <div class="historico-header-cell">
-<span>Dt. Empenho</span>
+<span>DATAS</span>
 <button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'empPendPopover-data')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
 <div class="historico-inline-popover hidden" id="empPendPopover-data">
 <div class="historico-popover-title">Filtrar Data Empenho</div>
@@ -4142,9 +4138,7 @@ table.site-table .con-orgao-nome {
 <input autocomplete="new-password" class="field-box" id="fEmpPendOrgao" oninput="renderEmpPendentes()" placeholder="Digite parte do órgão" type="text"/>
 </div>
 </div>
-</th>
-<th class="historico-th">
-<div class="historico-header-cell">
+<div class="historico-header-cell emp-company-filter">
 <span>Empresa</span>
 <button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'empPendPopover-empresa')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
 <div class="historico-inline-popover hidden" id="empPendPopover-empresa">
@@ -4181,12 +4175,6 @@ table.site-table .con-orgao-nome {
 <div class="historico-header-cell">
 <span>Lucro Prev.</span>
 <button class="sort-col-btn" data-sort-select="sortEmpPend" data-sort-asc="lucro_asc" data-sort-desc="lucro_desc" title="Ordenar" onclick="sortByCol('sortEmpPend','lucro_asc','lucro_desc','renderEmpPendentes')">↕</button>
-</div>
-</th>
-<th class="historico-th" style="color:#a3e635;">
-<div class="historico-header-cell">
-<span>% Lucro</span>
-<button class="sort-col-btn" data-sort-select="sortEmpPend" data-sort-asc="pct_asc" data-sort-desc="pct_desc" title="Ordenar" onclick="sortByCol('sortEmpPend','pct_asc','pct_desc','renderEmpPendentes')">↕</button>
 </div>
 </th>
 <th>Status</th>
@@ -4414,9 +4402,7 @@ table.site-table .con-orgao-nome {
 <input autocomplete="new-password" class="field-box" id="fEmpEncOrgao" oninput="renderEmpEncerrados()" placeholder="Digite parte do órgão" type="text"/>
 </div>
 </div>
-</th>
-<th class="historico-th">
-<div class="historico-header-cell">
+<div class="historico-header-cell emp-company-filter">
 <span>Empresa</span>
 <button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'empEncPopover-empresa')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
 <div class="historico-inline-popover hidden" id="empEncPopover-empresa">
@@ -4453,12 +4439,6 @@ table.site-table .con-orgao-nome {
 <div class="historico-header-cell">
 <span>Lucro</span>
 <button class="sort-col-btn" data-sort-select="sortEmpEnc" data-sort-asc="lucro_asc" data-sort-desc="lucro_desc" title="Ordenar" onclick="sortByCol('sortEmpEnc','lucro_asc','lucro_desc','renderEmpEncerrados')">↕</button>
-</div>
-</th>
-<th class="historico-th" style="color:#1f8a4c;">
-<div class="historico-header-cell">
-<span>% Lucro</span>
-<button class="sort-col-btn" data-sort-select="sortEmpEnc" data-sort-asc="pct_asc" data-sort-desc="pct_desc" title="Ordenar" onclick="sortByCol('sortEmpEnc','pct_asc','pct_desc','renderEmpEncerrados')">↕</button>
 </div>
 </th>
 <th>Status</th>
@@ -7572,12 +7552,13 @@ table.site-table .con-orgao-nome {
       const val = (v) => `<span class="dt-val">${formatDateCurta(v)}</span>`;
       const out = [];
 
-      if (modo === 'andamento') {
+      if (['andamento', 'pendente', 'pago'].includes(modo)) {
         const etapas = [
           { nome: 'Pedido', titulo: 'Pedido em', espera: 'Aguardando compra', data: e.data, parsed: dPedido },
           { nome: 'Compra', titulo: 'Comprado em', espera: 'Aguardando entrega', data: dataCompra, parsed: dCompra },
           { nome: 'Entrega', titulo: 'Entregue em', espera: 'Aguardando pagamento', data: e.dataEntrega, parsed: dEntrega }
         ];
+        if (modo === 'pago' || dPago) etapas.push({ nome: 'Pagamento', titulo: 'Pago em', data: e.dataPagamento, parsed: dPago });
         const ultima = [...etapas].reverse().find(etapa => etapa.parsed);
         const dias = ultima ? diasEnt(ultima.parsed, hoje) : null;
         const acompanhamento = !ultima ? 'Nenhuma data registrada'
@@ -7907,23 +7888,8 @@ table.site-table .con-orgao-nome {
       if (qs('subtotalEmpPendValor')) qs('subtotalEmpPendValor').textContent = formatCurrency(filtered.reduce((s,e)=>s+Number(e.valor||0),0));
 
       body.innerHTML = filtered.length === 0
-        ? '<tr><td colspan="13" style="text-align:center;padding:32px;color:var(--muted);">Nenhum empenho pendente.</td></tr>'
+        ? '<tr><td colspan="11" style="text-align:center;padding:32px;color:var(--muted);">Nenhum empenho pendente.</td></tr>'
         : filtered.map(e => {
-            // Badge dias pendentes
-            let diasPendBadge = '';
-            if (e.data) {
-              const hoje = new Date(); hoje.setHours(0,0,0,0);
-              const partes = e.data.split('-');
-              const dataEmp = new Date(Number(partes[0]), Number(partes[1])-1, Number(partes[2]));
-              const diff = Math.floor((hoje - dataEmp) / 86400000);
-              if (diff === 0) {
-                diasPendBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:#2563eb;background:#dbeafe;border-radius:5px;padding:1px 5px;">Hoje</span>`;
-              } else if (diff > 0) {
-                const cor = diff >= 60 ? '#b42318' : diff >= 30 ? '#b45309' : '#1f8a4c';
-                const bg  = diff >= 60 ? '#fee2e2' : diff >= 30 ? '#fef3c7' : '#d1fae5';
-                diasPendBadge = `<span style="display:inline-block;margin-top:3px;font-size:9px;font-weight:700;color:${cor};background:${bg};border-radius:5px;padding:1px 5px;">${diff} dias</span>`;
-              }
-            }
             const itensDesc = itensEmpCompactHtml(e);
             const prog = progressoCompra(e);
             const progBadge = prog.total > 0
@@ -7952,19 +7918,18 @@ table.site-table .con-orgao-nome {
             }
             return `<tr>
               ${bulkCheckboxTd('empPend', e.id)}
-              <td><div style="display:flex;flex-direction:column;gap:1px;"><span class="data-dia">${formatDate(e.data)}</span>${diasPendBadge}</div></td>
+              <td>${empDatasHtml(e, 'pendente', calcEmpFinanceiroRealizado(e).dataCompra)}</td>
               <td style="font-weight:700;font-size:10px;">${e.numero||'—'}${notifBellHtml(e)}</td>
               <td class="cell-wrap">
                 <div class="con-orgao-nome">${e.orgao||'—'}</div>
+          <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>
                 <div class="con-orgao-info">${e.contrato||''}</div>
               </td>
-              <td>${companyBadge(e.empresa)}</td>
               <td class="cell-wrap">${itensDesc||'—'}${progBadge}</td>
               <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
               <td>${vlCompraHtml}</td>
               <td>${custoHtml}</td>
-              <td>${lucroHtml}</td>
-              <td style="text-align:center;">${pctHtml}</td>
+              <td><div class="emp-lucro-valor">${lucroHtml}</div><div class="emp-lucro-percentual" title="Percentual de lucro">${pctHtml}</div></td>
               <td><div class="status-wrap"><span class="status-badge status-pendente">Pendente</span></div></td>
               <td>
                 <div class="row-menu-wrap">
@@ -8018,15 +7983,14 @@ table.site-table .con-orgao-nome {
         <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}${notifBellHtml(e)}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>
+          <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>
           <div class="con-orgao-info">${e.contrato || ''}</div>
         </td>
-        <td>${companyBadge(e.empresa)}</td>
         <td class="cell-wrap">${itensDesc || '—'}</td>
         <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
         <td>${vlCompraHtml}</td>
         <td>${custoHtml}</td>
-        <td>${lucroHtml}</td>
-        <td style="text-align:center;">${pctHtml}</td>
+        <td><div class="emp-lucro-valor">${lucroHtml}</div><div class="emp-lucro-percentual" title="Percentual de lucro">${pctHtml}</div></td>
         <td>${statusHtml}</td>
         <td>
           <div class="row-menu-wrap">
@@ -8097,7 +8061,7 @@ table.site-table .con-orgao-nome {
       }, 'data_desc');
       body.innerHTML = sortedEmpEnc.length
         ? sortedEmpEnc.map(empPagosRowHtml).join('')
-        : `<tr><td colspan="13"><div class="empty-state">Nenhum empenho pago encontrado.</div></td></tr>`;
+        : `<tr><td colspan="11"><div class="empty-state">Nenhum empenho pago encontrado.</div></td></tr>`;
     }
 
     // Mantida para compatibilidade com chamadas internas (persistEmpenhos, etc.)
