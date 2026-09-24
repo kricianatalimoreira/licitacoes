@@ -3298,6 +3298,50 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 .page-section .disputa-table-card > .subtotal-bar,
 .page-section .disputa-table-card > .bulk-bar { flex-shrink:0; }
 </style>
+<style id="site-neutral-palette">
+/* Paleta profissional: estrutura neutra; cor reservada a estados operacionais. */
+:root {
+  --bg:#181a1d !important; --card:#222529 !important; --line:#3b4046 !important;
+  --text:#eceeef !important; --muted:#b0b5bc !important;
+  --primary:#626b76 !important; --primary-dark:#c4c9cf !important;
+  --primary-soft:#2d3136 !important; --primary-hover:#30353a !important;
+  --primary-th1:#2b2f34 !important; --primary-th2:#2b2f34 !important;
+  --primary-border:#525960 !important; --primary-border-light:#3b4046 !important;
+}
+:root[data-mode="light"] {
+  --bg:#f4f5f6 !important; --card:#ffffff !important; --line:#dce0e4 !important;
+  --text:#29313a !important; --muted:#626c77 !important;
+  --primary:#525d69 !important; --primary-dark:#4b5563 !important;
+  --primary-soft:#eef0f2 !important; --primary-hover:#f0f2f4 !important;
+  --primary-th1:#eceff2 !important; --primary-th2:#eceff2 !important;
+  --primary-border:#c6ccd2 !important; --primary-border-light:#dce0e4 !important;
+}
+:root body :is(.disputa-stat-card,.dash-kpi-card,.kpi-card) {
+  background:var(--card) !important; border-color:var(--line) !important;
+  box-shadow:0 2px 6px rgba(0,0,0,.05) !important;
+}
+:root body :is(.disputa-stat-value,.dash-kpi-value,.kpi-value) { color:var(--text) !important; }
+:root body :is(.company-badge,.company-gadita,.company-hamate,.uf-badge,.link-badge-sistema,.link-badge-drive) {
+  background:var(--primary-soft) !important; color:var(--primary-dark) !important;
+  border-color:var(--line) !important;
+}
+:root body :is(thead th,tfoot td,tfoot th,.subtotal-bar,.table-footer,.footer-bar) {
+  background:var(--primary-th1) !important; color:var(--muted) !important; border-color:var(--line) !important;
+}
+:root body table.site-table td[style*="color"],
+:root body table.site-table td :is(span,strong,div)[style*="color"] { color:var(--text) !important; }
+:root body table.site-table .emp-lucro-percentual span { color:var(--muted) !important; }
+:root body :is(.status-gray,.status-pendente,.status-purple,.status-blue) {
+  background:var(--primary-soft) !important; color:var(--primary-dark) !important;
+}
+:root[data-mode="light"] body :is(.status-green) { background:#edf3ef !important; color:#3e6650 !important; }
+:root[data-mode="light"] body :is(.status-orange,.status-yellow) { background:#f5f1e9 !important; color:#806335 !important; }
+:root[data-mode="light"] body .status-red { background:#f6eded !important; color:#925353 !important; }
+:root:not([data-mode="light"]) body .status-green { background:#293b30 !important; color:#a4c4b0 !important; }
+:root:not([data-mode="light"]) body :is(.status-orange,.status-yellow) { background:#3b352b !important; color:#d2bd94 !important; }
+:root:not([data-mode="light"]) body .status-red { background:#402f30 !important; color:#ddb0b0 !important; }
+
+</style>
 </head>
 <body>
 
