@@ -3232,6 +3232,11 @@ table.site-list tbody td:last-child .row-menu-wrap { display:flex; justify-conte
 </style>
 
 <style id="site-table-column-sizing">
+/* Cada item ocupa uma linha; a tabela cresce para acomodar a descrição. */
+table.site-table .itens-emp-item {
+  white-space:nowrap; overflow:visible; text-overflow:clip;
+  overflow-wrap:normal; word-break:normal;
+}
 table.site-table.site-list { table-layout:auto !important; }
 table.site-table.site-list th:nth-child(2),
 table.site-table.site-table-0 th:nth-child(9),
@@ -8109,7 +8114,7 @@ table.site-table .con-orgao-nome {
       if (!itens.length) return '—';
       const itemHtml = (ie) => {
         const saldoRestante = saldoQtdItem(e.contratoId, ie.itemId);
-        return `<div style="font-size:10px;line-height:1.4;">${escapeHTML(ie.descricao) || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
+        return `<div class="itens-emp-item" style="font-size:10px;line-height:1.4;">${escapeHTML(ie.descricao) || '—'} <span style="color:var(--primary-dark);font-weight:700;">×${ie.qtdEmp}</span> <span style="color:var(--muted);font-size:9px;">(saldo: ${saldoRestante})</span></div>`;
       };
       const first = itemHtml(itens[0]);
       if (itens.length === 1) return first;
