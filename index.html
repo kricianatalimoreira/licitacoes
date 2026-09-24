@@ -3248,6 +3248,21 @@ table.site-table .con-orgao-nome {
   overflow-wrap:normal; word-break:normal;
 }
 </style>
+<style id="emp-shared-column-widths">
+/* A mesma grade em pendentes, andamento e pagos, sem compressão pelo conteúdo. */
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) { table-layout:fixed !important; min-width:var(--emp-table-width,1224px) !important; }
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(1) { width:32px !important; }
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(2) { width:112px !important; }
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(3) { width:76px !important; }
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(4) { width:var(--emp-orgao-width,260px) !important; }
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(5) { width:var(--emp-itens-width,190px) !important; }
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(6) { width:100px !important; }
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(7) { width:100px !important; }
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(8) { width:100px !important; }
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(9) { width:100px !important; }
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(10) { width:110px !important; }
+table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(11) { width:44px !important; }
+</style>
 </head>
 <body>
 
@@ -11540,5 +11555,45 @@ function showToast(msg, type = 'info', duration = 3500) {
 
   <div id="toastContainer"></div>
 
+<script id="emp-shared-column-sizing">
+(() => {
+  const tables = [...document.querySelectorAll('table.site-table-4, table.site-table-5, table.site-table-6')];
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  if (!context) return;
+  let scheduled = false;
+  function textWidth(element) {
+    // Somar trechos preserva as fontes diferentes de descrição, quantidade e saldo.
+    let width = 0;
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      const style = getComputedStyle(node.parentElement);
+      context.font = style.fontWeight + ' ' + style.fontSize + ' ' + style.fontFamily;
+      width += context.measureText(node.textContent.replace(/\s+/g, ' ')).width;
+    }
+    return Math.ceil(width) + 20;
+  }
+  function syncWidths() {
+    scheduled = false;
+    let orgao = 260, itens = 190;
+    tables.forEach(table => {
+      table.querySelectorAll('.con-orgao-nome').forEach(el => { orgao = Math.max(orgao, textWidth(el)); });
+      table.querySelectorAll('.itens-emp-item').forEach(el => { itens = Math.max(itens, textWidth(el)); });
+    });
+    const style = document.documentElement.style;
+    style.setProperty('--emp-orgao-width', orgao + 'px');
+    style.setProperty('--emp-itens-width', itens + 'px');
+    style.setProperty('--emp-table-width', (774 + orgao + itens) + 'px');
+  }
+  function schedule() {
+    if (!scheduled) { scheduled = true; requestAnimationFrame(syncWidths); }
+  }
+  const observer = new MutationObserver(schedule);
+  tables.forEach(table => observer.observe(table.tBodies[0], { childList:true, subtree:true, characterData:true }));
+  if (document.fonts) document.fonts.ready.then(schedule);
+  schedule();
+})();
+</script>
 </body>
 </html>
