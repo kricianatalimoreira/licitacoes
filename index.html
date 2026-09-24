@@ -3342,6 +3342,10 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 :root:not([data-mode="light"]) body .status-red { background:#402f30 !important; color:#ddb0b0 !important; }
 
 </style>
+<style id="negative-number-colors">
+:root body [data-negative-number][data-negative-number] { color:#f87171 !important; }
+:root[data-mode="light"] body [data-negative-number][data-negative-number] { color:#b42318 !important; }
+</style>
 </head>
 <body>
 
@@ -11774,6 +11778,28 @@ function showToast(msg, type = 'info', duration = 3500) {
   new MutationObserver(schedule).observe(document.documentElement, {attributes:true, attributeFilter:['style','class','data-mode']});
   if (document.fonts) document.fonts.ready.then(schedule);
   window.addEventListener('resize', schedule);
+  schedule();
+})();
+
+</script>
+<script id="negative-number-format">
+(() => {
+  const negative = /^(?:[-−]\s*(?:R\$\s*)?|R\$\s*[-−]\s*)\d[\d.,]*(?:\s*%)?$/;
+  let scheduled = false;
+  function update() {
+    scheduled = false;
+    document.querySelectorAll('body *').forEach(el => {
+      if (el.children.length || el.matches('script,style,input,textarea,select,option')) return;
+      const text = el.textContent.trim();
+      const isNegative = negative.test(text) && /[1-9]/.test(text);
+      if (isNegative) el.setAttribute('data-negative-number', 'true');
+      else el.removeAttribute('data-negative-number');
+    });
+  }
+  function schedule() {
+    if (!scheduled) { scheduled = true; requestAnimationFrame(update); }
+  }
+  new MutationObserver(schedule).observe(document.body, {childList:true,subtree:true,characterData:true});
   schedule();
 })();
 
