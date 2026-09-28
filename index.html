@@ -3272,7 +3272,10 @@ table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(11) 
 
 <style id="contratos-shared-layout">
 /* Contratos seguem a grade compacta de empenhos, com empresa junto ao órgão. */
-table.site-table.site-table-2 { table-layout:fixed !important; min-width:var(--con-active-width,1128px) !important; }
+table.site-table:is(.site-table-2,.site-table-3) .dt-etapa { display:flex; flex-direction:column; align-items:flex-start; gap:1px; }
+table.site-table:is(.site-table-2,.site-table-3) .dt-lbl { width:auto; min-width:0; }
+table.site-table:is(.site-table-2,.site-table-3) .dt-wrap { gap:4px; }
+table.site-table.site-table-2 { table-layout:fixed !important; min-width:max(var(--emp-table-width,1224px),var(--con-active-width,1224px)) !important; }
 table.site-table.site-table-2 th:nth-child(1) { width:32px !important; }
 table.site-table.site-table-2 th:nth-child(2) { width:112px !important; }
 table.site-table.site-table-2 th:nth-child(3) { width:var(--con-orgao-width,260px) !important; }
@@ -3280,23 +3283,25 @@ table.site-table.site-table-2 th:nth-child(4) { width:100px !important; }
 table.site-table.site-table-2 th:nth-child(5) { width:100px !important; }
 table.site-table.site-table-2 th:nth-child(6) { width:100px !important; }
 table.site-table.site-table-2 th:nth-child(7) { width:100px !important; }
-table.site-table.site-table-2 th:nth-child(8) { width:110px !important; }
+table.site-table.site-table-2 th:nth-child(8) { width:206px !important; }
 table.site-table.site-table-2 th:nth-child(9) { width:70px !important; }
 table.site-table.site-table-2 th:nth-child(10) { width:44px !important; }
 table.site-table.site-table-2 td:nth-child(n+4) { text-align:left !important; white-space:normal; }
 table.site-table.site-table-2 td:nth-child(n+4):nth-child(-n+7) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
-table.site-table.site-table-3 { table-layout:fixed !important; min-width:var(--con-closed-width,1128px) !important; }
+table.site-table.site-table-3 { table-layout:fixed !important; min-width:max(var(--emp-table-width,1224px),var(--con-closed-width,1028px)) !important; }
 table.site-table.site-table-3 th:nth-child(1) { width:32px !important; }
 table.site-table.site-table-3 th:nth-child(2) { width:112px !important; }
 table.site-table.site-table-3 th:nth-child(3) { width:var(--con-orgao-width,260px) !important; }
 table.site-table.site-table-3 th:nth-child(4) { width:100px !important; }
 table.site-table.site-table-3 th:nth-child(5) { width:100px !important; }
 table.site-table.site-table-3 th:nth-child(6) { width:100px !important; }
-table.site-table.site-table-3 th:nth-child(7) { width:220px !important; }
+table.site-table.site-table-3 th:nth-child(7) { width:280px !important; }
 table.site-table.site-table-3 th:nth-child(8) { width:44px !important; }
 table.site-table.site-table-3 td:nth-child(n+4) { text-align:left !important; white-space:normal; }
 table.site-table.site-table-3 td:nth-child(n+4):nth-child(-n+6) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
-table.site-table:is(.site-table-2,.site-table-3) .con-company-row { margin-top:3px; }
+table.site-table:is(.site-table-2,.site-table-3) .con-orgao-wrap { display:block; }
+table.site-table:is(.site-table-2,.site-table-3) .con-orgao-nome,
+table.site-table:is(.site-table-2,.site-table-3) .con-orgao-info { display:block; }
 table.site-table:is(.site-table-2,.site-table-3) .con-orgao-info { white-space:normal; overflow-wrap:anywhere; }
 </style>
 <style id="site-uppercase">
@@ -4001,10 +4006,10 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <tr>
 <th style="text-align:center;"><input type="checkbox" id="selAll_conAt" onchange="bulkToggleAll('conAt', this.checked)" title="Selecionar todos"/></th>
 <th class="historico-th">
-<div class="historico-header-cell"><span>Data</span>
+<div class="historico-header-cell"><span>Datas</span>
 <button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conAPopover-data')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
 <div class="historico-inline-popover hidden" id="conAPopover-data">
-<div class="historico-popover-title">Filtrar Data</div>
+<div class="historico-popover-title">Filtrar Data do Contrato</div>
 <label>Data exata</label><input class="field-box" id="fConAData" oninput="renderContratosAtivos()" type="date"/>
 <div class="sort-month-grid" style="margin-top:5px;">
 <div><label>Mês</label><select class="field-box" id="fConAMes" onchange="renderContratosAtivos(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option>
@@ -4121,10 +4126,10 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <tr>
 <th style="text-align:center;"><input type="checkbox" id="selAll_conEnc" onchange="bulkToggleAll('conEnc', this.checked)" title="Selecionar todos"/></th>
 <th class="historico-th">
-<div class="historico-header-cell"><span>Data</span>
+<div class="historico-header-cell"><span>Datas</span>
 <button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conEPopover-data')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
 <div class="historico-inline-popover hidden" id="conEPopover-data">
-<div class="historico-popover-title">Filtrar Data</div>
+<div class="historico-popover-title">Filtrar Data do Contrato</div>
 <input class="field-box" id="fConEData" oninput="renderContratosEncerrados()" type="date"/>
 <div class="sort-month-grid" style="margin-top:5px;">
 <div><label>Mês</label><select class="field-box" id="fConEMes" onchange="renderContratosEncerrados(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option>
@@ -6015,10 +6020,21 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       return '';
     }
 
+
+    function contratoDatasHtml(c, alerta = '') {
+      const disputa = c.disputaId
+        ? [...disputasEncerradas, ...disputas].find(d => d.id === c.disputaId)
+        : null;
+      const dataDisputa = disputa?.data || c.dataDisputa || '';
+      const linha = (rotulo, data) => `<div class="dt-etapa"><span class="dt-lbl">${rotulo}</span><span class="dt-val">${data ? formatDateCurta(data.slice(0, 10)) : '—'}</span></div>`;
+      return `<div class="dt-wrap">${linha('Disputa em', dataDisputa)}${linha('Contrato em', c.data)}${alerta}</div>`;
+    }
+
     function orgaoInfoHtml(c) {
       const info = [c.contrato, c.processo, c.sistema].filter(Boolean).join(' · ');
       return `<div class="con-orgao-wrap">
         <span class="con-orgao-nome">${escapeHTML(c.orgao) || '—'}</span>
+        <div class="emp-orgao-company">${companyBadge(c.empresa)}</div>
         ${info ? `<span class="con-orgao-info">${info}</span>` : ''}
       </div>`;
     }
@@ -6110,13 +6126,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         return `
           <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','ativo')" title="Clique para ver detalhes" style="">
             ${bulkCheckboxTd('conAt', c.id)}
-            <td>
-              <div class="cell-data-hora">
-                <span class="data-dia">${formatDate(c.data)}</span>
-                ${alerta}
-              </div>
-            </td>
-            <td>${orgaoInfoHtml(c)}<div class="con-company-row">${companyBadge(c.empresa)}</div>${rascunhoBadge}</td>
+            <td>${contratoDatasHtml(c, alerta)}</td>
+            <td>${orgaoInfoHtml(c)}${rascunhoBadge}</td>
             <td style="font-weight:700;">${formatCurrency(c.valor)}</td>
             <td>${formatCurrency(c.compra)}</td>
             <td style="color:#b76a00;font-weight:700;">${formatCurrency(custo)}</td>
@@ -6247,8 +6258,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         return `
           <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','enc')" title="Clique para ver detalhes" style="cursor:pointer;">
             ${bulkCheckboxTd('conEnc', c.id)}
-            <td><span class="data-dia">${formatDate(c.data)}</span></td>
-            <td>${orgaoInfoHtml(c)}<div class="con-company-row">${companyBadge(c.empresa)}</div></td>
+            <td>${contratoDatasHtml(c)}</td>
+            <td>${orgaoInfoHtml(c)}</td>
             <td style="font-weight:700;">${formatCurrency(c.valor)}</td>
             <td style="font-weight:700;color:#2563eb;">${valorEmp > 0 ? formatCurrency(valorEmp) : '<span style="color:var(--muted);font-size:10px;">Sem empenhos</span>'}</td>
             <td>${lucroEmp !== 0 ? lucroHtml(lucroEmp) : '<span style="color:var(--muted);font-size:10px;">—</span>'}</td>
@@ -6720,6 +6731,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       const item = {
         id:              crypto.randomUUID(),
         disputaId:       _disputaParaEncerrar?.id || null,
+        dataDisputa:     _disputaParaEncerrar?.data?.slice(0, 10) || '',
         data:            qs('conData')?.value || '',
         dataFim:         qs('conDataFim')?.value || '',
         orgao,
@@ -11709,8 +11721,8 @@ function showToast(msg, type = 'info', duration = 3500) {
     }));
     const style = document.documentElement.style;
     style.setProperty('--con-orgao-width', contratoOrgao + 'px');
-    style.setProperty('--con-active-width', (868 + contratoOrgao) + 'px');
-    style.setProperty('--con-closed-width', (708 + contratoOrgao) + 'px');
+    style.setProperty('--con-active-width', (964 + contratoOrgao) + 'px');
+    style.setProperty('--con-closed-width', (768 + contratoOrgao) + 'px');
     style.setProperty('--disputa-orgao-width', disputaOrgao + 'px');
     style.setProperty('--disputa-table-width', (854 + disputaOrgao) + 'px');
     style.setProperty('--emp-orgao-width', orgao + 'px');
