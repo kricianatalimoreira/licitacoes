@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict'),M=require('../email-matching');
+const a={id:'a',identifiers:{contrato:'58/2026',orgao:'Órgão Exemplo',cnpj:'12.345.678/0001-99',processo:'27/2025',ata:'9/2026',empenho:['42']},emails:[]};
+assert(M.suggest({identifiers:{contrato:'058/2026',orgao:'orgao exemplo'}},[a]).suggestion);
+assert(!M.suggest({identifiers:{orgao:'Órgão Exemplo'}},[a]).suggestion);
+assert(!M.suggest({subject:'Mensagem genérica'},[a]).suggestion);
+assert(!M.suggest({identifiers:{contrato:'58/2026'}},[a]).suggestion);
+assert(!M.suggest({identifiers:{contrato:'58/2026',orgao:'Órgão Exemplo'}},[a,{...a,id:'b'}]).suggestion);
+assert(M.suggest({identifiers:{empenho:'42',cnpj:'12345678000199'}},[a]).suggestion);
+assert(!M.suggest({identifiers:{contrato:'158/2026',orgao:'Órgão Exemplo'}},[a]).suggestion);
+assert(!M.suggest({identifiers:{contrato:'58/2026',orgao:'Órgão Exemplo'}},[{...a,excluida:true}]).suggestion);
+const thread={...a,emails:[{messageId:'<first@example.org>',provider:'gmail',account:'conta-a',threadId:'t1'}]};
+assert(M.suggest({references:'<first@example.org>'},[thread]).suggestion);
+assert(!M.suggest({provider:'gmail',account:'conta-b',threadId:'t1'},[thread]).suggestion);
+assert(!M.suggest({messageId:'first@example.org'},[thread]).suggestion);
+assert.throws(()=>M.normalize({link:'javascript:alert(1)'}));
+assert(M.same({messageId:'<m@example.org>'},{messageId:'m@example.org'}));
+console.log('PASS: identifiers, ambiguity, scoped threads, duplicates, deleted rows and URLs');
