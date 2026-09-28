@@ -75,8 +75,8 @@
         const all=[];let offset=0;
         // Paginação evita truncar silenciosamente bases acima do limite REST.
         while(true) {const page=await sbFetch(TABLE,`select=*&order=criado_em.asc,id.asc&limit=500&offset=${offset}`);all.push(...page);if(page.length<500)break;offset+=500;}
-        rows=all;ready=true;loadError='';
-      } catch(e) {ready=false;loadError='Tratativas indisponíveis. Verifique conexão e migration do banco.';console.warn('[Tratativas]',e.message);}
+        rows=all.map(t=>{const local=rows.find(x=>x.id===t.id);return local && local.versao>t.versao ? local : t;});ready=true;loadError='';
+      } catch(e) {ready=false;loadError='Não foi possível carregar as tratativas. Tente atualizar.';console.warn('[Tratativas]',e.message);}
       finally {loading=null;refreshUI();}
     })();return loading;
   }
@@ -163,7 +163,7 @@
   });
   const dialog=document.createElement('dialog');dialog.id='tratEditor';dialog.className='trat-dialog';dialog.setAttribute('aria-label','Tratativa administrativa');dialog.addEventListener('cancel',e=>{e.preventDefault();cancel();});document.body.append(dialog);
   window.KMTratativas={load,badges,empBadges,matches,clearFilters,details,appendBell,active,followup};
-    installFilters();load();
+  installFilters();load();
   // Datas de acompanhamento são recalculadas ao retornar à tela e durante o uso.
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
   setInterval(()=>{if(!document.hidden)atualizarSino();},60000);
