@@ -102,9 +102,67 @@
     const list=forContract(c.id);
     host.innerHTML=`<div class="trat-section-heading"><h3>Tratativas administrativas</h3><button class="btn btn-primary btn-sm" data-trat-action="new" data-contract="${esc(c.id)}" ${!ready?'disabled':''}>+ Nova tratativa</button></div><p class="trat-note">Solicitações administrativas não alteram o status do contrato nem dos empenhos.</p>${!ready?`<p role="status">${esc(loadError || 'Carregando…')}</p>`:!list.length?'<p class="trat-note">Nenhuma tratativa cadastrada.</p>':list.map(t=>card(t)).join('')}`;
   }
+
+  function emailTargets() {
+    return rows.map(t=>{
+      const c=contract(t.contrato_id)||{},refs=t.email_referencias||{};
+      return {id:t.id,excluida:t.excluida,emails:t.emails_vinculados||[],identifiers:{
+        empenho:(t.empenho_ids||[]).map(id=>empenhos.find(e=>String(e.id)===id)?.numero).filter(Boolean),
+        processo:c.processo,ata:c.ata||c.numeroAta,contrato:c.contrato,orgao:c.orgao,cnpj:c.cnpj,...refs}};
+    });
+  }
+  function emailList(t) {
+    const mails=t.emails_vinculados||[];
+    return mails.length ? '<div class="trat-email-list"><b>E-mails vinculados</b>'+mails.map(m=>'<p>'+link(m.link,m.subject||'Abrir e-mail')+(m.date?' · '+esc(datetime(m.date)):'')+'</p>').join('')+'</div>':'';
+  }
+  function receiveEmail(raw) {
+    if(!ready)throw new Error('Aguarde o carregamento das tratativas.');
+    const result=KMEmailMatching.suggest(raw,emailTargets());
+    openEmailLink(result.suggestion?.id||null,result.email,result);
+    return result;
+  }
+  function openEmailLink(id=null,email={},result=null) {
+    const available=rows.filter(t=>!t.excluida),chosen=available.find(t=>t.id===id);
+    if(!available.length){showToast('Cadastre uma tratativa antes de vincular um e-mail.','error');return;}
+    const d=el('tratEmailDialog'),meta=KMEmailMatching.normalize(email);
+    const heading=result?.suggestion ? 'Este e-mail parece estar relacionado à Tratativa #'+result.suggestion.id.slice(0,8)+'. Deseja vinculá-lo?' : result ? 'Correspondência incerta. Escolha a tratativa para vincular manualmente.' : 'Vincular e-mail manualmente';
+    const input=(key,label,value,type='text',required=false)=>'<label>'+label+'<input name="'+key+'" type="'+type+'" value="'+esc(value||'')+'" '+(required?'required':'')+'></label>';
+    d.innerHTML='<form><header><h3>'+esc(heading)+'</h3></header><div class="trat-form-body">'+(result?.suggestion?'<p>Correspondências: '+esc(result.suggestion.evidence.join(', '))+'</p>':'')+
+      '<label>Tratativa *<select name="tratativa" required><option value="">Selecione</option>'+available.map(t=>'<option value="'+esc(t.id)+'" '+(t.id===id?'selected':'')+'>#'+esc(t.id.slice(0,8))+' · '+esc(contract(t.contrato_id)?.orgao)+' · '+esc(tipoNome(t.tipo))+' · '+esc(t.situacao)+'</option>').join('')+'</select></label>'+
+      input('link','Link do e-mail *',meta.link,'url',true)+input('subject','Assunto',meta.subject)+
+      '<details><summary>Identificadores para correspondência futura (opcional)</summary><p>Informe apenas dados confirmados deste e-mail. Não informe senhas ou tokens.</p>'+
+      input('messageId','Message-ID',meta.messageId)+input('references','Referências da conversa',meta.references.join(' '))+
+      ['empenho','processo','ata','contrato','orgao','cnpj'].map(k=>input(k,({empenho:'Número do empenho',processo:'Número do processo',ata:'Número da ata',contrato:'Número do contrato',orgao:'Órgão',cnpj:'CNPJ'})[k],meta.identifiers[k])).join('')+'</details>'+
+      '<p class="trat-error" role="alert"></p></div><footer><button type="button" class="btn btn-light" data-email-cancel>Cancelar</button><button type="submit" class="btn btn-primary">Confirmar vínculo</button></footer></form>';
+    const f=d.querySelector('form');
+    // Capture versions on opening: stale edits are rejected rather than overwritten.
+    const versions=new Map(available.map(t=>[t.id,t.versao]));
+    d.querySelector('[data-email-cancel]').onclick=()=>{if(!f.dataset.saving)d.close();};
+    f.onsubmit=async ev=>{
+      ev.preventDefault();if(f.dataset.saving)return;
+      const data=Object.fromEntries(new FormData(f)),t=rows.find(t=>t.id===data.tratativa);
+      const error=f.querySelector('[role="alert"]');error.textContent='';
+      if(!t){error.textContent='Escolha uma tratativa disponível.';return;}
+      try {
+        const identifiers={};for(const k of ['empenho','processo','ata','contrato','orgao','cnpj'])if(data[k].trim())identifiers[k]=data[k].trim();
+        const normalized=KMEmailMatching.normalize({...meta,link:data.link,subject:data.subject,messageId:data.messageId,references:data.references,identifiers});
+        if((t.emails_vinculados||[]).some(m=>KMEmailMatching.same(m,normalized)))throw Error('Este e-mail já está vinculado a esta tratativa.');
+        const linked={...normalized,linkedAt:new Date().toISOString(),method:result?.suggestion?.id===t.id?'sugestao_confirmada':'manual'};
+        f.dataset.saving='true';f.querySelectorAll('button').forEach(b=>b.disabled=true);
+        const refs={...(t.email_referencias||{})};
+        for(const [k,v] of Object.entries(identifiers))refs[k]=[...new Set([...(Array.isArray(refs[k])?refs[k]:refs[k]?[refs[k]]:[]),v])];
+        const res=await fetch(SUPA_URL+'/rest/v1/'+TABLE+'?id=eq.'+encodeURIComponent(t.id)+'&versao=eq.'+versions.get(t.id)+'&excluida=eq.false',{method:'PATCH',headers:supaHeaders({'Prefer':'return=representation'}),body:JSON.stringify({emails_vinculados:[...(t.emails_vinculados||[]),linked],email_referencias:refs,nota_atualizacao:'E-mail vinculado por confirmação: '+(normalized.subject||normalized.messageId||'link informado')})});
+        if(!res.ok)throw Error('Não foi possível salvar o vínculo. Tente novamente.');
+        const saved=await res.json();if(!saved.length)throw Error('A tratativa foi alterada ou excluída. Atualize e tente novamente.');
+        rows=rows.filter(x=>x.id!==t.id).concat(saved);d.close();refreshUI();showToast('E-mail vinculado com histórico.','success');
+      }catch(e){error.textContent=e.message;}finally{delete f.dataset.saving;f.querySelectorAll('button').forEach(b=>b.disabled=false);}
+    };
+    d.showModal();
+  }
+
   function card(t) {
     const f=followup(t);const selected=(t.empenho_ids||[]).map(id=>empenhos.find(e=>String(e.id)===id)).filter(Boolean);
-    return `<article class="trat-card"><div class="trat-card-heading"><strong>${esc(tipoNome(t.tipo))}</strong>${badge(t)}</div><div class="trat-info"><span>Situação: <b>${esc(t.situacao)}</b></span><span>Solicitada/ocorrida em: ${date(t.data_ocorrencia)}</span><span>Última atualização: ${esc(datetime(t.atualizado_em))}</span><span>Abrangência: ${esc({'contrato':'Somente contrato','empenhos':'Empenhos/pedidos','contrato_empenhos':'Contrato + empenhos/pedidos'}[t.abrangencia])}</span></div><p class="trat-text">${esc(t.descricao)}</p>${selected.length?`<p class="trat-note">Empenhos: ${selected.map(e=>`${esc(e.numero || 'Sem número')} · ${formatCurrency(e.valor)}`).join('; ')}</p>`:''}${t.observacoes?`<p class="trat-text"><b>Observações:</b> ${esc(t.observacoes)}</p>`:''}<p class="trat-text"><b>Próxima ação:</b> ${esc(t.proxima_acao || 'Não informada')}</p>${t.acompanhar_em?`<p><b>Acompanhar em:</b> ${date(t.acompanhar_em)} ${f?`<span class="trat-badge trat-${f.days<0?'red':'blue'}">◷ ${esc(f.text)}</span>`:''}</p>`:''}${t.encerrada_em?`<p><b>Encerrada em:</b> ${date(t.encerrada_em)}</p><p class="trat-text"><b>Desfecho:</b> ${esc(t.resultado)}</p>`:''}<div class="trat-actions">${gmailLink(t.link_gmail)}<button class="btn btn-light btn-sm" data-trat-action="edit" data-id="${esc(t.id)}">Editar</button><button class="btn btn-light btn-sm" data-trat-action="update" data-id="${esc(t.id)}">Registrar atualização</button>${active(t)?`<button class="btn btn-light btn-sm" data-trat-action="close" data-id="${esc(t.id)}">Concluir tratativa</button>`:''}</div><div class="trat-actions trat-actions-secondary" aria-label="Documentos e histórico">${link(t.link_externo,'Abrir link')}<button class="btn btn-light btn-sm" data-trat-action="history" data-id="${esc(t.id)}">Ver histórico</button><button class="btn btn-light btn-sm" data-trat-action="delete" data-id="${esc(t.id)}">Excluir tratativa</button></div><div id="tratHistory-${esc(t.id)}" class="trat-history" hidden></div></article>`;
+    return `<article class="trat-card"><div class="trat-card-heading"><strong>#${esc(t.id.slice(0,8))} · ${esc(tipoNome(t.tipo))}</strong>${badge(t)}</div><div class="trat-info"><span>Situação: <b>${esc(t.situacao)}</b></span><span>Solicitada/ocorrida em: ${date(t.data_ocorrencia)}</span><span>Última atualização: ${esc(datetime(t.atualizado_em))}</span><span>Abrangência: ${esc({'contrato':'Somente contrato','empenhos':'Empenhos/pedidos','contrato_empenhos':'Contrato + empenhos/pedidos'}[t.abrangencia])}</span></div><p class="trat-text">${esc(t.descricao)}</p>${selected.length?`<p class="trat-note">Empenhos: ${selected.map(e=>`${esc(e.numero || 'Sem número')} · ${formatCurrency(e.valor)}`).join('; ')}</p>`:''}${t.observacoes?`<p class="trat-text"><b>Observações:</b> ${esc(t.observacoes)}</p>`:''}<p class="trat-text"><b>Próxima ação:</b> ${esc(t.proxima_acao || 'Não informada')}</p>${t.acompanhar_em?`<p><b>Acompanhar em:</b> ${date(t.acompanhar_em)} ${f?`<span class="trat-badge trat-${f.days<0?'red':'blue'}">◷ ${esc(f.text)}</span>`:''}</p>`:''}${t.encerrada_em?`<p><b>Encerrada em:</b> ${date(t.encerrada_em)}</p><p class="trat-text"><b>Desfecho:</b> ${esc(t.resultado)}</p>`:''}${emailList(t)}<div class="trat-actions">${gmailLink(t.link_gmail)}<button class="btn btn-light btn-sm" data-trat-action="edit" data-id="${esc(t.id)}">Editar</button><button class="btn btn-light btn-sm" data-trat-action="update" data-id="${esc(t.id)}">Registrar atualização</button>${active(t)?`<button class="btn btn-light btn-sm" data-trat-action="close" data-id="${esc(t.id)}">Concluir tratativa</button>`:''}</div><div class="trat-actions trat-actions-secondary" aria-label="E-mails e histórico"><button class="btn btn-light btn-sm" data-trat-action="link-email" data-id="${esc(t.id)}">Vincular e-mail</button>${link(t.link_externo,'Abrir link')}<button class="btn btn-light btn-sm" data-trat-action="history" data-id="${esc(t.id)}">Ver histórico</button><button class="btn btn-light btn-sm" data-trat-action="delete" data-id="${esc(t.id)}">Excluir tratativa</button></div><div id="tratHistory-${esc(t.id)}" class="trat-history" hidden></div></article>`;
   }
   async function history(id) {
     const host=el('tratHistory-'+id);if(!host)return;
@@ -112,7 +170,7 @@
     try {
       const list=[];let offset=0;
       while(true){const page=await sbFetch('tratativas_historico',`tratativa_id=eq.${encodeURIComponent(id)}&order=data_hora.asc,id.asc&limit=500&offset=${offset}`);list.push(...page);if(page.length<500)break;offset+=500;}
-      host.innerHTML=list.map(h=>`<div class="trat-history-entry"><b>${esc(datetime(h.data_hora))}</b><p class="trat-text">${esc(h.descricao)}</p><p>${esc(h.status_anterior || 'Cadastro')} → ${esc(h.novo_status)}</p>${h.usuario_id?`<p>Responsável: ${esc(h.usuario_id)}</p>`:'<p class="trat-note">Responsável não identificado (sistema sem sessão individual).</p>'}${h.observacao?`<p class="trat-text">${esc(h.observacao)}</p>`:''}<details><summary>Dados registrados nesta atualização</summary><dl>${Object.entries(h.depois||{}).filter(([k])=>!['id','contrato_id','nota_atualizacao','link_documento'].includes(k)).map(([k,v])=>`<dt>${esc(fieldName(k))}</dt><dd class="trat-text">${esc(Array.isArray(v)?v.join(', '):v??'—')}</dd>`).join('')}</dl></details></div>`).join('') || 'Nenhuma atualização registrada.';
+      host.innerHTML=list.map(h=>`<div class="trat-history-entry"><b>${esc(datetime(h.data_hora))}</b><p class="trat-text">${esc(h.descricao)}</p><p>${esc(h.status_anterior || 'Cadastro')} → ${esc(h.novo_status)}</p>${h.usuario_id?`<p>Responsável: ${esc(h.usuario_id)}</p>`:'<p class="trat-note">Responsável não identificado (sistema sem sessão individual).</p>'}${h.observacao?`<p class="trat-text">${esc(h.observacao)}</p>`:''}<details><summary>Dados registrados nesta atualização</summary><dl>${Object.entries(h.depois||{}).filter(([k])=>!['id','contrato_id','nota_atualizacao','link_documento'].includes(k)).map(([k,v])=>`<dt>${esc(fieldName(k))}</dt><dd class="trat-text">${esc(v && typeof v==='object'?JSON.stringify(v,null,2):v??'—')}</dd>`).join('')}</dl></details></div>`).join('') || 'Nenhuma atualização registrada.';
     } catch {host.textContent='Não foi possível carregar o histórico. Feche e tente novamente.';}
   }
   const fieldName = k => ({tipo:'Tipo',situacao:'Situação',data_ocorrencia:'Data da solicitação/ocorrência',descricao:'Descrição',abrangencia:'Abrangência',empenho_ids:'Empenhos vinculados (IDs)',observacoes:'Observações',link_externo:'Link externo',link_gmail:'Link do Gmail',link_documento:'Documento',proxima_acao:'Próxima ação',acompanhar_em:'Acompanhar em',resultado:'Desfecho',encerrada_em:'Encerramento',atualizado_em:'Última atualização',criado_em:'Cadastro',versao:'Versão'}[k]||k);
@@ -177,11 +235,14 @@
     if(action==='reload')return void load();if(action==='cancel')return cancel();
     if(action==='history')return void history(b.dataset.id);
     if(action==='delete')return void removeTreatment(b.dataset.id,b);
+    if(action==='link-email')return openEmailLink(b.dataset.id);
     if(action==='open-contract'){fecharBellDropdown();const c=contract(b.dataset.contract);if(c)abrirConView(c.id,contratosEncerrados.some(x=>x.id===c.id)?'enc':'ativo');return;}
     if(action==='new')return openEditor(b.dataset.contract);
     const t=rows.find(t=>t.id===b.dataset.id);if(t)openEditor(t.contrato_id,t.id,action);
   });
   const dialog=document.createElement('dialog');dialog.id='tratEditor';dialog.className='trat-dialog';dialog.setAttribute('aria-label','Tratativa administrativa');dialog.addEventListener('cancel',e=>{e.preventDefault();cancel();});document.body.append(dialog);
+  const emailDialog=document.createElement('dialog');emailDialog.id='tratEmailDialog';emailDialog.className='trat-dialog';emailDialog.setAttribute('aria-label','Vincular e-mail');emailDialog.addEventListener('cancel',e=>{if(emailDialog.querySelector('form')?.dataset.saving)e.preventDefault();});document.body.append(emailDialog);
+  window.KMTratativasEmail={suggest:email=>KMEmailMatching.suggest(email,emailTargets()),receive:receiveEmail};
   window.KMTratativas={load,badges,empBadges,matches,clearFilters,details,appendBell,active,followup};
   installFilters();load();
   // Datas de acompanhamento são recalculadas ao retornar à tela e durante o uso.
