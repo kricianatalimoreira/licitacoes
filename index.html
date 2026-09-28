@@ -3394,6 +3394,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 #cadastroContratoWrap table.site-table-7 input { min-height:32px; padding:6px 3px; }
 #cadastroContratoWrap table.site-table-7 td { padding:8px 5px !important; }
 </style>
+<link rel="stylesheet" href="tratativas.css">
 </head>
 <body>
 
@@ -6045,6 +6046,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         <span class="con-orgao-nome">${escapeHTML(c.orgao) || '—'}</span>
         <div class="emp-orgao-company">${companyBadge(c.empresa)}</div>
         ${info ? `<span class="con-orgao-info">${info}</span>` : ''}
+        ${window.KMTratativas?.badges(c) || ''}
       </div>`;
     }
 
@@ -6076,6 +6078,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       const fEmp   = qs('fConAEmpresa')?.value || '';
 
       const filtrados = contratosAtivos.filter(c => {
+        if (window.KMTratativas && !KMTratativas.matches(c,'A')) return false;
         if (fData  && (c.data || '') !== fData)                                      return false;
         if (fMes   && (c.data || '').slice(5,7) !== fMes.padStart(2,'0'))               return false;
         if (fAno   && (c.data || '').slice(0,4) !== fAno)                                return false;
@@ -6169,6 +6172,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       const fEmp   = qs('fConEEmpresa')?.value || '';
 
       const filtrados = contratosEncerrados.filter(c => {
+        if (window.KMTratativas && !KMTratativas.matches(c,'E')) return false;
         if (fData  && (c.data || '') !== fData)                         return false;
         if (fMes   && (c.data || '').slice(5,7) !== fMes.padStart(2,'0'))  return false;
         if (fAno   && (c.data || '').slice(0,4) !== fAno)                   return false;
@@ -6290,6 +6294,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 
     // ── Filtros ──────────────────────────────────────
     function limparFiltrosConAtivos() {
+      window.KMTratativas?.clearFilters('A');
       ['fConAData','fConAOrgao','fConAEmpresa','fConAStatus'].forEach(id => { const el = qs(id); if(el) el.value=''; });
       _filtroRascunhoAtivo = false;
       const btn = qs('btnFiltroRascunho');
@@ -6297,6 +6302,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       renderContratosAtivos(); closeAllPopovers();
     }
     function limparFiltrosConEncerrados() {
+      window.KMTratativas?.clearFilters('E');
       ['fConEData','fConEOrgao','fConEEmpresa','fConEStatus'].forEach(id => { const el = qs(id); if(el) el.value=''; });
       renderContratosEncerrados(); closeAllPopovers();
     }
@@ -7039,6 +7045,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       if (!c) return;
       _conViewId = id;
       _conViewType = tipo;
+      window.KMTratativas?.details(c);
       closeAllMenus();
 
       // Botão Gerar Empenho: só para contratos ativos
@@ -7850,7 +7857,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}${notifBellHtml(e)}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>
-          <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>
+          <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>${window.KMTratativas?.empBadges(e) || ''}
           <div class="con-orgao-info">${e.contrato || ''}</div>
         </td>
         <td class="cell-wrap">${itensDesc || '—'}</td>
@@ -8072,7 +8079,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
               <td style="font-weight:700;font-size:10px;">${e.numero||'—'}${notifBellHtml(e)}</td>
               <td class="cell-wrap">
                 <div class="con-orgao-nome">${e.orgao||'—'}</div>
-          <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>
+          <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>${window.KMTratativas?.empBadges(e) || ''}
                 <div class="con-orgao-info">${e.contrato||''}</div>
               </td>
               <td class="cell-wrap">${itensDesc||'—'}${progBadge}</td>
@@ -8133,7 +8140,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}${notifBellHtml(e)}</td>
         <td class="cell-wrap">
           <div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>
-          <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>
+          <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>${window.KMTratativas?.empBadges(e) || ''}
           <div class="con-orgao-info">${e.contrato || ''}</div>
         </td>
         <td class="cell-wrap">${itensDesc || '—'}</td>
@@ -8713,6 +8720,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         }
       });
       renderBellDropdown(alertas);
+      window.KMTratativas?.appendBell();
       atualizarBanners(alertas);
     }
 
@@ -11039,6 +11047,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           localStorage.setItem('km_tema_v1', temaRow.valor);
           if (typeof aplicarTema==='function') aplicarTema(temaRow.valor);
         }
+        window.KMTratativas?.load();
         showSync('ok', '✓ dados atualizados');
         return true;
       } catch(e) {
@@ -11398,6 +11407,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 <div class="con-view-section-title">📦 EMPENHOS</div>
 <div class="con-view-emp-grid" id="conViewEmpGrid" style="grid-template-columns:repeat(3,minmax(0,1fr));"></div>
 </div>
+<section id="conViewTratativas" class="trat-section" aria-label="Tratativas administrativas"></section>
 <!-- Itens / Lotes -->
 <div style="margin-bottom:22px;">
 <div class="con-view-itens-title">📋 Itens / Lotes</div>
@@ -11872,5 +11882,6 @@ function showToast(msg, type = 'info', duration = 3500) {
 })();
 
 </script>
+<script src="tratativas.js"></script>
 </body>
 </html>
