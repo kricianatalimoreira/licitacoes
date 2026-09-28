@@ -1,7 +1,9 @@
 /* Tratativas administrativas: módulo independente dos status e cálculos financeiros. */
 (() => {
   'use strict';
-  const TIPOS = ['EXTINÇÃO CONSENSUAL','CANCELAMENTO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO','SUBSTITUIÇÃO DE PRODUTO','PRORROGAÇÃO','NOTIFICAÇÃO','DEFESA ADMINISTRATIVA','SUSPENSÃO','OUTROS'];
+  const TIPOS = ['CANCELAMENTO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO','SUBSTITUIÇÃO DE PRODUTO','NOTIFICAÇÃO','DEFESA ADMINISTRATIVA'];
+  const tipoAtual = tipo => tipo === 'EXTINÇÃO CONSENSUAL' ? 'CANCELAMENTO' : tipo;
+  const tipoNome = tipo => ({'CANCELAMENTO':'PEDIDO DE CANCELAMENTO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO':'PEDIDO DE REEQUILÍBRIO ECONÔMICO-FINANCEIRO','SUBSTITUIÇÃO DE PRODUTO':'PEDIDO DE SUBSTITUIÇÃO DE PRODUTO','NOTIFICAÇÃO':'NOTIFICAÇÃO RECEBIDA','DEFESA ADMINISTRATIVA':'DEFESA ADMINISTRATIVA'})[tipoAtual(tipo)] || tipo;
   const STATUS = ['AGUARDANDO ENVIO','ENVIADO','AGUARDANDO RESPOSTA','EM ANÁLISE PELO ÓRGÃO','DOCUMENTAÇÃO COMPLEMENTAR SOLICITADA','DEFERIDO','INDEFERIDO','PARCIALMENTE DEFERIDO','CANCELADO','CONCLUÍDO'];
   const FINAIS = new Set(['DEFERIDO','INDEFERIDO','PARCIALMENTE DEFERIDO','CANCELADO','CONCLUÍDO']);
   const TABLE = 'tratativas_administrativas';
@@ -25,10 +27,10 @@
     return ({'EXTINÇÃO CONSENSUAL':'orange','CANCELAMENTO':'orange','REEQUILÍBRIO ECONÔMICO-FINANCEIRO':'yellow','SUBSTITUIÇÃO DE PRODUTO':'yellow','NOTIFICAÇÃO':'red','PRORROGAÇÃO':'blue','SUSPENSÃO':'purple'})[t.tipo] || 'neutral';
   }
   function label(t, pedido = false) {
-    if (!active(t)) return `${t.tipo} · ${t.situacao}`;
-    if (t.situacao === 'AGUARDANDO ENVIO') return `${t.tipo} · AGUARDANDO ENVIO`;
+    if (!active(t)) return `${tipoNome(t.tipo)} · ${t.situacao}`;
+    if (t.situacao === 'AGUARDANDO ENVIO') return `${tipoNome(t.tipo)} · AGUARDANDO ENVIO`;
     if (pedido && t.tipo === 'EXTINÇÃO CONSENSUAL') return 'CANCELAMENTO SOLICITADO';
-    return ({'EXTINÇÃO CONSENSUAL':'EXTINÇÃO SOLICITADA','CANCELAMENTO':'CANCELAMENTO SOLICITADO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO':'REEQUILÍBRIO SOLICITADO','SUBSTITUIÇÃO DE PRODUTO':'SUBSTITUIÇÃO SOLICITADA','NOTIFICAÇÃO':'NOTIFICAÇÃO RECEBIDA','PRORROGAÇÃO':'PRORROGAÇÃO EM ANÁLISE','SUSPENSÃO':'SUSPENSÃO'})[t.tipo] || t.tipo;
+    return ({'EXTINÇÃO CONSENSUAL':'CANCELAMENTO SOLICITADO','CANCELAMENTO':'CANCELAMENTO SOLICITADO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO':'REEQUILÍBRIO SOLICITADO','SUBSTITUIÇÃO DE PRODUTO':'SUBSTITUIÇÃO SOLICITADA','NOTIFICAÇÃO':'NOTIFICAÇÃO RECEBIDA','PRORROGAÇÃO':'PRORROGAÇÃO EM ANÁLISE','SUSPENSÃO':'SUSPENSÃO'})[t.tipo] || t.tipo;
   }
   function followup(t) {
     if (!active(t) || !t.acompanhar_em) return null;
@@ -38,7 +40,7 @@
   function badge(t,pedido=false) { return `<span class="trat-badge trat-${tone(t)}" title="${esc(t.situacao)}">⚑ ${esc(label(t,pedido))}</span>`; }
   function badges(c) {
     const list=forContract(c.id).filter(active); if (!list.length) return '';
-    return `<div class="trat-badges"><span class="trat-badge trat-neutral">${esc(c.status || 'Vigente')}</span>${list.map(t=>badge(t)).join('')}</div>`;
+    return `<div class="trat-badges">${list.map(t=>badge(t)).join('')}</div>`;
   }
   function empBadges(e) {
     const list=rows.filter(t=>active(t) && t.contrato_id===String(e.contratoId) && (t.empenho_ids||[]).includes(String(e.id)));
@@ -49,9 +51,9 @@
     const list=forContract(c.id);
     if (tipo==='sem') return !list.length && !status;
     if (!tipo && !status) return true;
-    return list.some(t=>(tipo==='ativa' ? active(t) : !tipo || t.tipo===tipo) && (!status || t.situacao===status));
+    return list.some(t=>(tipo==='ativa' ? active(t) : !tipo || tipoAtual(t.tipo)===tipo) && (!status || t.situacao===status));
   }
-  function options(values,selected) { return values.map(v=>`<option value="${esc(v)}" ${v===selected?'selected':''}>${esc(v)}</option>`).join(''); }
+  function options(values,selected) { return values.map(v=>`<option value="${esc(v)}" ${v===selected?'selected':''}>${esc(tipoNome(v))}</option>`).join(''); }
   function installFilters() {
     for (const [scope,id] of [['A','contratos-ativos'],['E','contratos-encerrados']]) {
       const section=el(id); if (!section || el('tratFiltros'+scope)) continue;
@@ -97,7 +99,7 @@
   }
   function card(t) {
     const f=followup(t);const selected=(t.empenho_ids||[]).map(id=>empenhos.find(e=>String(e.id)===id)).filter(Boolean);
-    return `<article class="trat-card"><div class="trat-card-heading"><strong>${esc(t.tipo)}</strong>${badge(t)}</div><div class="trat-info"><span>Situação: <b>${esc(t.situacao)}</b></span><span>Solicitada/ocorrida em: ${date(t.data_ocorrencia)}</span><span>Última atualização: ${esc(datetime(t.atualizado_em))}</span><span>Abrangência: ${esc({'contrato':'Somente contrato','empenhos':'Empenhos/pedidos','contrato_empenhos':'Contrato + empenhos/pedidos'}[t.abrangencia])}</span></div><p class="trat-text">${esc(t.descricao)}</p>${selected.length?`<p class="trat-note">Empenhos: ${selected.map(e=>`${esc(e.numero || 'Sem número')} · ${formatCurrency(e.valor)}`).join('; ')}</p>`:''}${t.observacoes?`<p class="trat-text"><b>Observações:</b> ${esc(t.observacoes)}</p>`:''}<p class="trat-text"><b>Próxima ação:</b> ${esc(t.proxima_acao || 'Não informada')}</p>${t.acompanhar_em?`<p><b>Acompanhar em:</b> ${date(t.acompanhar_em)} ${f?`<span class="trat-badge trat-${f.days<0?'red':'blue'}">◷ ${esc(f.text)}</span>`:''}</p>`:''}${t.encerrada_em?`<p><b>Encerrada em:</b> ${date(t.encerrada_em)}</p><p class="trat-text"><b>Desfecho:</b> ${esc(t.resultado)}</p>`:''}<div class="trat-actions">${link(t.link_gmail,'Abrir e-mail')}${link(t.link_documento,'Abrir documento')}${link(t.link_externo,'Abrir link')}<button class="btn btn-light btn-sm" data-trat-action="edit" data-id="${esc(t.id)}">Editar</button><button class="btn btn-light btn-sm" data-trat-action="update" data-id="${esc(t.id)}">Registrar atualização</button>${active(t)?`<button class="btn btn-light btn-sm" data-trat-action="close" data-id="${esc(t.id)}">Concluir tratativa</button>`:''}<button class="btn btn-light btn-sm" data-trat-action="history" data-id="${esc(t.id)}">Ver histórico</button></div><div id="tratHistory-${esc(t.id)}" class="trat-history" hidden></div></article>`;
+    return `<article class="trat-card"><div class="trat-card-heading"><strong>${esc(tipoNome(t.tipo))}</strong>${badge(t)}</div><div class="trat-info"><span>Situação: <b>${esc(t.situacao)}</b></span><span>Solicitada/ocorrida em: ${date(t.data_ocorrencia)}</span><span>Última atualização: ${esc(datetime(t.atualizado_em))}</span><span>Abrangência: ${esc({'contrato':'Somente contrato','empenhos':'Empenhos/pedidos','contrato_empenhos':'Contrato + empenhos/pedidos'}[t.abrangencia])}</span></div><p class="trat-text">${esc(t.descricao)}</p>${selected.length?`<p class="trat-note">Empenhos: ${selected.map(e=>`${esc(e.numero || 'Sem número')} · ${formatCurrency(e.valor)}`).join('; ')}</p>`:''}${t.observacoes?`<p class="trat-text"><b>Observações:</b> ${esc(t.observacoes)}</p>`:''}<p class="trat-text"><b>Próxima ação:</b> ${esc(t.proxima_acao || 'Não informada')}</p>${t.acompanhar_em?`<p><b>Acompanhar em:</b> ${date(t.acompanhar_em)} ${f?`<span class="trat-badge trat-${f.days<0?'red':'blue'}">◷ ${esc(f.text)}</span>`:''}</p>`:''}${t.encerrada_em?`<p><b>Encerrada em:</b> ${date(t.encerrada_em)}</p><p class="trat-text"><b>Desfecho:</b> ${esc(t.resultado)}</p>`:''}<div class="trat-actions">${link(t.link_gmail,'Abrir e-mail')}${link(t.link_documento,'Abrir documento')}${link(t.link_externo,'Abrir link')}<button class="btn btn-light btn-sm" data-trat-action="edit" data-id="${esc(t.id)}">Editar</button><button class="btn btn-light btn-sm" data-trat-action="update" data-id="${esc(t.id)}">Registrar atualização</button>${active(t)?`<button class="btn btn-light btn-sm" data-trat-action="close" data-id="${esc(t.id)}">Concluir tratativa</button>`:''}<button class="btn btn-light btn-sm" data-trat-action="history" data-id="${esc(t.id)}">Ver histórico</button></div><div id="tratHistory-${esc(t.id)}" class="trat-history" hidden></div></article>`;
   }
   async function history(id) {
     const host=el('tratHistory-'+id);if(!host)return;
@@ -114,7 +116,7 @@
     if(!ready)return;
     const c=contract(contractId),t=id?rows.find(t=>t.id===id):null;if(!c || (id&&!t))return;
     editor={contractId:String(c.id),id,version:t?.versao,mode,opener:document.activeElement};
-    const data=t || {tipo:TIPOS[0],situacao:STATUS[0],data_ocorrencia:today(),abrangencia:'contrato',empenho_ids:[]};
+    const data=t ? {...t,tipo:tipoAtual(t.tipo)} : {tipo:TIPOS[0],situacao:STATUS[0],data_ocorrencia:today(),abrangencia:'contrato',empenho_ids:[]};
     const kinds=TIPOS.includes(data.tipo)?TIPOS:[...TIPOS,data.tipo];
     const dialog=el('tratEditor');
     dialog.innerHTML=`<form id="tratForm"><header><div><h3>${id?(mode==='close'?'Concluir tratativa':mode==='update'?'Registrar atualização':'Editar tratativa'):'Nova tratativa administrativa'}</h3><p>${esc(c.orgao)} · ${esc(c.contrato)} · ${esc(c.empresa)}</p></div><button type="button" class="modal-close" data-trat-action="cancel" aria-label="Fechar">×</button></header><div class="trat-form-body"><p class="trat-note">O status jurídico permanece ${esc(c.status || 'Vigente')}. Nenhum empenho será cancelado automaticamente.</p><div class="trat-form-grid"><label>Tipo *<select name="tipo" required>${options(kinds,data.tipo)}</select></label><label>Situação *<select name="situacao" required>${options(STATUS,mode==='close'?'CONCLUÍDO':data.situacao)}</select></label>${field('data_ocorrencia','date',data.data_ocorrencia,true)}<label>Abrangência *<select name="abrangencia"><option value="contrato" ${data.abrangencia==='contrato'?'selected':''}>Somente contrato</option><option value="empenhos" ${data.abrangencia==='empenhos'?'selected':''}>Somente empenhos/pedidos</option><option value="contrato_empenhos" ${data.abrangencia==='contrato_empenhos'?'selected':''}>Contrato + empenhos/pedidos</option></select></label></div><fieldset id="tratEmpenhos"><legend>Empenhos/pedidos vinculados *</legend>${empenhos.filter(e=>String(e.contratoId)===String(c.id)).map(e=>`<label class="trat-check"><input type="checkbox" name="empenho_ids" value="${esc(e.id)}" ${(data.empenho_ids||[]).includes(String(e.id))?'checked':''}>${esc(e.numero || 'Sem número')} · ${formatCurrency(e.valor)} · ${esc(e.status)} · ${(e.itensEmpenhados||[]).reduce((s,i)=>s+(Number(i.qtdEmp)||0),0)} unidades</label>`).join('') || '<p>Nenhum empenho vinculado a este contrato.</p>'}</fieldset>${field('descricao','textarea',data.descricao,true)}${field('observacoes','textarea',data.observacoes)}<div class="trat-form-grid">${field('link_gmail','url',data.link_gmail)}${field('link_documento','url',data.link_documento)}${field('link_externo','url',data.link_externo)}${field('acompanhar_em','date',data.acompanhar_em)}</div>${field('proxima_acao','textarea',data.proxima_acao)}<div id="tratClosing">${field('resultado','textarea',data.resultado)}${field('encerrada_em','date',data.encerrada_em || (mode==='close'?today():''))}</div>${id?'<label>Descrição desta atualização *<textarea name="nota_atualizacao" required placeholder="Descreva o que mudou ou a providência realizada"></textarea></label>':''}<p id="tratFormError" class="trat-error" role="alert"></p></div><footer><button type="button" class="btn btn-light" data-trat-action="cancel">Cancelar</button><button type="submit" class="btn btn-primary">Salvar tratativa</button></footer></form>`;
