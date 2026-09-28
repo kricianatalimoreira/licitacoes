@@ -4,7 +4,11 @@
   const text=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
   const list=v=>Array.isArray(v)?v:(v?[v]:[]);
   const mid=v=>String(v||'').trim().replace(/^<|>$/g,'');
-  const number=v=>text(v).replace(/\b0+(?=\d)/g,'').replace(/\s*\/\s*/g,'/');
+  const number=v=>{
+    const raw=text(v), numbered=raw.match(/\d+\s*\/\s*\d+/g);
+    const candidate=numbered?.length===1?numbered[0]:raw;
+    return candidate.replace(/\b0+(?=\d)/g,'').replace(/\s*\/\s*/g,'/');
+  };
   function normalize(raw) {
     const link=String(raw.link||'').trim();if(link&&!/^https?:\/\/[^\s]+$/i.test(link))throw Error('Use um link http:// ou https:// válido.');
     return {provider:String(raw.provider||'manual'),account:String(raw.account||''),providerId:String(raw.providerId||''),threadId:String(raw.threadId||''),messageId:mid(raw.messageId),references:list(raw.references).flatMap(v=>String(v).match(/<[^>]+>|[^\s,]+/g)||[]).map(mid),subject:String(raw.subject||'').trim(),date:raw.date && Number.isFinite(Date.parse(raw.date))?new Date(raw.date).toISOString():null,link,identifiers:raw.identifiers&&typeof raw.identifiers==='object'?raw.identifiers:{}};
