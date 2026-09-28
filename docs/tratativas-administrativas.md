@@ -27,11 +27,11 @@ As permissões mantêm o modelo de acesso atual do projeto (sem login). Não con
 
 `test-ui.cjs` usa Chrome/Playwright e API simulada: criação, atualização, histórico, links, empenhos, filtros, fechamento, falha de gravação, conflito de versão, datas de acompanhamento e layout móvel. As escritas de teste não atingem produção.
 
-`test-database.sql` executa os testes de banco em transação desfeita ao final, incluindo comparação dos dados de contratos, empenhos e compras antes/depois. `seed-abare.sql` é o cadastro inicial idempotente autorizado, selecionado por órgão, empresa, contrato, pregão, valor e quantidade. Não cria contratos ou empenhos fictícios e não altera seus status.
+`test-database.sql` executa os testes de banco em transação desfeita ao final, incluindo comparação dos dados de contratos, empenhos e compras antes/depois. O cadastro inicial é feito diretamente no banco, com seleção inequívoca por órgão, empresa, contrato, pregão, valor e quantidade, sem criar contratos ou empenhos fictícios nem alterar seus status.
 
-## Caso inicial
+## Cadastro inicial
 
-ABARÉ/BA, GADITA, contrato 58/2026, pregão 27/2025: extinção consensual aguardando resposta, em 28/09/2026, abrangendo contrato e pedido de R$ 6.026,40 / 8 unidades. O contrato continua Vigente e o pedido Pendente. Links e data de acompanhamento ficam vazios até a usuária informar os dados reais.
+Os dados reais são cadastrados somente no banco de produção e não são distribuídos neste repositório. Links e datas de acompanhamento devem corresponder às informações fornecidas pela usuária.
 
 ## Publicação
 
