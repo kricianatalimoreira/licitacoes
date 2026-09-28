@@ -1,0 +1,34 @@
+.trat-filters { display:flex; align-items:end; gap:10px; flex-wrap:wrap; margin:0 0 10px; flex-shrink:0; }
+.trat-filters label { font-size:10px; font-weight:600; display:flex; flex-direction:column; gap:4px; }
+.trat-filters select { max-width:280px; background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:7px; padding:5px; font:inherit; }
+.trat-load-status { font-size:10px; color:var(--muted); flex:1; }
+.trat-badges { display:flex; flex-wrap:wrap; gap:3px; margin-top:4px; white-space:normal; }
+.trat-badge { display:inline-block; font-size:9px; font-weight:600; border-radius:5px; padding:3px 5px; line-height:1.4; white-space:normal; }
+.trat-neutral { color:var(--text); background:var(--primary-soft); }
+.trat-orange { color:#823600; background:#fff0dd; }.trat-yellow {color:#705000;background:#fff7cf;}
+.trat-red {color:#a12020;background:#ffe7e7;}.trat-blue {color:#234d87;background:#e5efff;}
+.trat-purple {color:#663b8c;background:#f0e6ff;}.trat-green {color:#176438;background:#e1f5e9;}
+.trat-section { margin:18px 0; }
+.trat-section-heading,.trat-card-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.trat-section-heading h3 {margin:0;font-size:14px;}
+.trat-card {border:1px solid var(--line);border-radius:10px;padding:14px;margin:10px 0;background:var(--card);font-size:12px;}
+.trat-card p {margin:9px 0;}.trat-text {white-space:pre-wrap;overflow-wrap:anywhere;}
+.trat-info {display:flex;flex-wrap:wrap;gap:8px 18px;font-size:11px;color:var(--muted);margin-top:10px;}
+.trat-actions {display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}.trat-note {font-size:11px;color:var(--muted);line-height:1.5;}
+.trat-history {border-top:1px solid var(--line);margin-top:12px;}.trat-history-entry {border-left:3px solid var(--primary-border);padding:10px 12px;margin:12px 0;}
+.trat-history-entry dt {font-weight:700;margin-top:8px;}.trat-history-entry dd {margin:2px 0;}.trat-history-entry summary {cursor:pointer;}
+.trat-bell-heading {padding:10px 16px;font-size:11px;font-weight:700;border-top:1px solid var(--line);}.trat-bell-item {width:100%;text-align:left;background:var(--card);color:var(--text);border:0;font:inherit;cursor:pointer;}.trat-notice {padding:12px;font-size:11px;}
+.trat-dialog {width:min(850px,94vw);max-height:90dvh;padding:0;border:1px solid var(--line);border-radius:16px;color:var(--text);background:var(--card);box-shadow:0 16px 60px #0005;}
+.trat-dialog::backdrop {background:#0006;backdrop-filter:blur(3px);}
+.trat-dialog form {display:flex;flex-direction:column;max-height:90dvh;}
+.trat-dialog header,.trat-dialog footer {padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--primary-soft);flex-shrink:0;}
+.trat-dialog header h3 {margin:0;font-size:16px;}.trat-dialog header p {font-size:11px;margin:6px 0 0;}.trat-dialog footer {justify-content:flex-end;}
+.trat-form-body {padding:18px 20px;overflow:auto;min-height:0;}
+.trat-form-body label {display:flex;flex-direction:column;gap:5px;margin-bottom:12px;font-size:12px;font-weight:600;}
+.trat-form-body input,.trat-form-body select,.trat-form-body textarea {box-sizing:border-box;width:100%;padding:9px;border:1px solid var(--line);border-radius:7px;background:var(--card);color:var(--text);font:inherit;}
+.trat-form-body textarea {min-height:75px;resize:vertical;}.trat-form-grid {display:grid;grid-template-columns:1fr 1fr;gap:0 14px;}
+.trat-form-body input[type=url] {text-transform:none !important;}.trat-form-body input:focus,.trat-form-body textarea:focus,.trat-form-body select:focus {outline:2px solid var(--primary);outline-offset:1px;}
+.trat-form-body fieldset {border:1px solid var(--line);border-radius:8px;margin:0 0 12px;padding:12px;}.trat-form-body .trat-check {flex-direction:row;align-items:center;font-weight:400;}.trat-check input {width:auto;}
+.trat-error {color:#b42318;font-size:12px;}.trat-dialog [hidden] {display:none !important;}
+@media(max-width:650px){.trat-form-grid{grid-template-columns:1fr;}.trat-filters label{flex:1;min-width:140px;}.trat-filters select{max-width:100%;width:100%;}.trat-dialog header,.trat-dialog footer,.trat-form-body{padding:12px;}.trat-actions .btn{flex:1;}.trat-info{flex-direction:column;}}
+
