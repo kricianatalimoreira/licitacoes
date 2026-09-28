@@ -1,9 +1,9 @@
 /* Tratativas administrativas: módulo independente dos status e cálculos financeiros. */
 (() => {
   'use strict';
-  const TIPOS = ['CANCELAMENTO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO','SUBSTITUIÇÃO DE PRODUTO','NOTIFICAÇÃO','DEFESA ADMINISTRATIVA'];
-  const tipoAtual = tipo => tipo === 'EXTINÇÃO CONSENSUAL' ? 'CANCELAMENTO' : tipo;
-  const tipoNome = tipo => ({'CANCELAMENTO':'PEDIDO DE CANCELAMENTO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO':'PEDIDO DE REEQUILÍBRIO ECONÔMICO-FINANCEIRO','SUBSTITUIÇÃO DE PRODUTO':'PEDIDO DE SUBSTITUIÇÃO DE PRODUTO','NOTIFICAÇÃO':'NOTIFICAÇÃO RECEBIDA','DEFESA ADMINISTRATIVA':'DEFESA ADMINISTRATIVA'})[tipoAtual(tipo)] || tipo;
+  const TIPOS = ['EXTINÇÃO CONSENSUAL','CANCELAMENTO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO','SUBSTITUIÇÃO DE PRODUTO','PRORROGAÇÃO','NOTIFICAÇÃO','DEFESA ADMINISTRATIVA','SUSPENSÃO','OUTROS'];
+  const tipoAtual = tipo => tipo;
+  const tipoNome = tipo => tipo;
   const STATUS = ['AGUARDANDO ENVIO','ENVIADO','AGUARDANDO RESPOSTA','EM ANÁLISE PELO ÓRGÃO','DOCUMENTAÇÃO COMPLEMENTAR SOLICITADA','DEFERIDO','INDEFERIDO','PARCIALMENTE DEFERIDO','CANCELADO','CONCLUÍDO'];
   const FINAIS = new Set(['DEFERIDO','INDEFERIDO','PARCIALMENTE DEFERIDO','CANCELADO','CONCLUÍDO']);
   const TABLE = 'tratativas_administrativas';
@@ -30,7 +30,7 @@
     if (!active(t)) return `${tipoNome(t.tipo)} · ${t.situacao}`;
     if (t.situacao === 'AGUARDANDO ENVIO') return `${tipoNome(t.tipo)} · AGUARDANDO ENVIO`;
     if (pedido && t.tipo === 'EXTINÇÃO CONSENSUAL') return 'CANCELAMENTO SOLICITADO';
-    return ({'EXTINÇÃO CONSENSUAL':'CANCELAMENTO SOLICITADO','CANCELAMENTO':'CANCELAMENTO SOLICITADO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO':'REEQUILÍBRIO SOLICITADO','SUBSTITUIÇÃO DE PRODUTO':'SUBSTITUIÇÃO SOLICITADA','NOTIFICAÇÃO':'NOTIFICAÇÃO RECEBIDA','PRORROGAÇÃO':'PRORROGAÇÃO EM ANÁLISE','SUSPENSÃO':'SUSPENSÃO'})[t.tipo] || t.tipo;
+    return ({'EXTINÇÃO CONSENSUAL':'EXTINÇÃO SOLICITADA','CANCELAMENTO':'CANCELAMENTO SOLICITADO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO':'REEQUILÍBRIO SOLICITADO','SUBSTITUIÇÃO DE PRODUTO':'SUBSTITUIÇÃO SOLICITADA','NOTIFICAÇÃO':'NOTIFICAÇÃO RECEBIDA','PRORROGAÇÃO':'PRORROGAÇÃO EM ANÁLISE','SUSPENSÃO':'SUSPENSÃO'})[t.tipo] || t.tipo;
   }
   function followup(t) {
     if (!active(t) || !t.acompanhar_em) return null;
@@ -110,7 +110,7 @@
       host.innerHTML=list.map(h=>`<div class="trat-history-entry"><b>${esc(datetime(h.data_hora))}</b><p class="trat-text">${esc(h.descricao)}</p><p>${esc(h.status_anterior || 'Cadastro')} → ${esc(h.novo_status)}</p>${h.usuario_id?`<p>Responsável: ${esc(h.usuario_id)}</p>`:'<p class="trat-note">Responsável não identificado (sistema sem sessão individual).</p>'}${h.observacao?`<p class="trat-text">${esc(h.observacao)}</p>`:''}${link(h.link_documento,'Documento da atualização')}<details><summary>Dados registrados nesta atualização</summary><dl>${Object.entries(h.depois||{}).filter(([k])=>!['id','contrato_id','nota_atualizacao'].includes(k)).map(([k,v])=>`<dt>${esc(fieldName(k))}</dt><dd class="trat-text">${esc(Array.isArray(v)?v.join(', '):v??'—')}</dd>`).join('')}</dl></details></div>`).join('') || 'Nenhuma atualização registrada.';
     } catch {host.textContent='Não foi possível carregar o histórico. Feche e tente novamente.';}
   }
-  const fieldName = k => ({tipo:'Tipo',situacao:'Situação',data_ocorrencia:'Data da ocorrência',descricao:'Descrição',abrangencia:'Abrangência',empenho_ids:'Empenhos vinculados (IDs)',observacoes:'Observações',link_externo:'Link externo',link_gmail:'Link do Gmail',link_documento:'Documento',proxima_acao:'Próxima ação',acompanhar_em:'Acompanhar em',resultado:'Desfecho',encerrada_em:'Encerramento',atualizado_em:'Última atualização',criado_em:'Cadastro',versao:'Versão'}[k]||k);
+  const fieldName = k => ({tipo:'Tipo',situacao:'Situação',data_ocorrencia:'Data da solicitação/ocorrência',descricao:'Descrição',abrangencia:'Abrangência',empenho_ids:'Empenhos vinculados (IDs)',observacoes:'Observações',link_externo:'Link externo',link_gmail:'Link do Gmail',link_documento:'Documento',proxima_acao:'Próxima ação',acompanhar_em:'Acompanhar em',resultado:'Desfecho',encerrada_em:'Encerramento',atualizado_em:'Última atualização',criado_em:'Cadastro',versao:'Versão'}[k]||k);
   function field(k,type,value,required=false) { return `<label>${esc(fieldName(k))}${required?' *':''}${type==='textarea'?`<textarea name="${k}" ${required?'required':''}>${esc(value ?? '')}</textarea>`:`<input name="${k}" type="${type}" value="${esc(value)}" ${required?'required':''} ${type==='url'?'placeholder="https://…"':''}>`}</label>`; }
   function openEditor(contractId,id=null,mode='edit') {
     if(!ready)return;
