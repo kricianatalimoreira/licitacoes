@@ -1,10 +1,10 @@
 /* Tratativas administrativas: módulo independente dos status e cálculos financeiros. */
 (() => {
   'use strict';
-  const TIPOS = ['EXTINÇÃO CONSENSUAL','CANCELAMENTO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO','SUBSTITUIÇÃO DE PRODUTO','PRORROGAÇÃO','NOTIFICAÇÃO','DEFESA ADMINISTRATIVA','SUSPENSÃO','OUTROS'];
-  const tipoAtual = tipo => tipo;
+  const TIPOS = ['CANCELAMENTO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO','SUBSTITUIÇÃO DE PRODUTO','NOTIFICAÇÃO','DEFESA ADMINISTRATIVA'];
+  const tipoAtual = tipo => tipo === 'EXTINÇÃO CONSENSUAL' ? 'CANCELAMENTO' : tipo;
   const tipoNome = tipo => tipo;
-  const STATUS = ['AGUARDANDO ENVIO','ENVIADO','AGUARDANDO RESPOSTA','EM ANÁLISE PELO ÓRGÃO','DOCUMENTAÇÃO COMPLEMENTAR SOLICITADA','DEFERIDO','INDEFERIDO','PARCIALMENTE DEFERIDO','CANCELADO','CONCLUÍDO'];
+  const STATUS = ['AGUARDANDO RESPOSTA','DEFERIDO','INDEFERIDO','CANCELADO','CONCLUÍDO'];
   const FINAIS = new Set(['DEFERIDO','INDEFERIDO','PARCIALMENTE DEFERIDO','CANCELADO','CONCLUÍDO']);
   const TABLE = 'tratativas_administrativas';
   let rows = [], ready = false, loadError = '', loading = null, editor = null;
@@ -30,7 +30,7 @@
     if (!active(t)) return `${tipoNome(t.tipo)} · ${t.situacao}`;
     if (t.situacao === 'AGUARDANDO ENVIO') return `${tipoNome(t.tipo)} · AGUARDANDO ENVIO`;
     if (pedido && t.tipo === 'EXTINÇÃO CONSENSUAL') return 'CANCELAMENTO SOLICITADO';
-    return ({'EXTINÇÃO CONSENSUAL':'EXTINÇÃO SOLICITADA','CANCELAMENTO':'CANCELAMENTO SOLICITADO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO':'REEQUILÍBRIO SOLICITADO','SUBSTITUIÇÃO DE PRODUTO':'SUBSTITUIÇÃO SOLICITADA','NOTIFICAÇÃO':'NOTIFICAÇÃO RECEBIDA','PRORROGAÇÃO':'PRORROGAÇÃO EM ANÁLISE','SUSPENSÃO':'SUSPENSÃO'})[t.tipo] || t.tipo;
+    return ({'EXTINÇÃO CONSENSUAL':'CANCELAMENTO SOLICITADO','CANCELAMENTO':'CANCELAMENTO SOLICITADO','REEQUILÍBRIO ECONÔMICO-FINANCEIRO':'REEQUILÍBRIO SOLICITADO','SUBSTITUIÇÃO DE PRODUTO':'SUBSTITUIÇÃO SOLICITADA','NOTIFICAÇÃO':'NOTIFICAÇÃO RECEBIDA','PRORROGAÇÃO':'PRORROGAÇÃO EM ANÁLISE','SUSPENSÃO':'SUSPENSÃO'})[t.tipo] || t.tipo;
   }
   function followup(t) {
     if (!active(t) || !t.acompanhar_em) return null;
