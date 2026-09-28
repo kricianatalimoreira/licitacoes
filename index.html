@@ -6037,7 +6037,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         : null;
       const dataDisputa = disputa?.data || c.dataDisputa || '';
       const linha = (rotulo, data) => `<div class="dt-etapa"><span class="dt-lbl">${rotulo}</span><span class="dt-val">${data ? formatDateCurta(data.slice(0, 10)) : '—'}</span></div>`;
-      return `<div class="dt-wrap">${linha('Disputa em', dataDisputa)}${linha('Contrato em', c.data)}${alerta}</div>`;
+      return `<div class="dt-wrap">${linha('Vigente desde', c.data)}${alerta}</div>`;
     }
 
     function orgaoInfoHtml(c) {
