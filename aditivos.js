@@ -122,11 +122,16 @@
   try{await write(id,a.versao,{excluido:true});await load();showToast('Aditivo excluído. Dados recalculados e histórico preservado.','success');}
   catch(e){showToast(e.message,'error');button.disabled=false;}
  }
+ function historySnapshot(value){
+  if(!value)return '<p class="trat-note">Sem registro anterior.</p>';
+  const names={tipo:'Tipo',numero_aditivo:'Número do aditivo',status:'Status',data_aditivo:'Data do aditivo',vigencia_anterior:'Vigência anterior',nova_vigencia:'Nova vigência',valor_anterior:'Valor anterior',valor_acrescimo:'Acréscimo',valor_supressao:'Supressão',novo_valor:'Novo valor',protocolo:'Protocolo / Processo',observacoes:'Observações'};
+  return Object.entries(names).filter(([k])=>value[k]!==null&&value[k]!==undefined&&value[k]!=='').map(([k,name])=>'<p class="trat-note trat-text"><b>'+name+':</b> '+esc(['data_aditivo','vigencia_anterior','nova_vigencia'].includes(k)?date(value[k]):['valor_anterior','valor_acrescimo','valor_supressao','novo_valor'].includes(k)?money(value[k]):value[k])+'</p>').join('')+(value.excluido?'<p class="trat-note">Registro excluído da lista.</p>':'')+documentLink(value.link_documento);
+ }
  async function history(cId) {
   const host=$('adHistory');if(!host)return;host.textContent='Carregando histórico…';
   try{
    const hist=[];for(let offset=0;;offset+=500){const p=await sbFetch('contrato_aditivos_historico','contrato_id=eq.'+encodeURIComponent(cId)+'&order=criado_em.asc,id.asc&limit=500&offset='+offset);hist.push(...p);if(p.length<500)break;}
-   host.innerHTML=hist.map(h=>'<div class="trat-history-entry"><b>'+esc(h.acao)+' · '+esc(new Date(h.criado_em).toLocaleString('pt-BR'))+'</b><p>'+esc(h.depois.numero_aditivo||h.depois.tipo)+' · '+esc(h.depois.status)+'</p><p class="trat-note">'+date(h.depois.vigencia_anterior)+' → '+date(h.depois.nova_vigencia)+' · '+money(h.depois.valor_anterior)+' → '+money(h.depois.novo_valor)+'</p><details><summary>Dados desta versão</summary><pre class="trat-text">'+esc(JSON.stringify({antes:h.antes,depois:h.depois},null,2))+'</pre></details></div>').join('')||'Nenhuma alteração registrada.';
+   host.innerHTML=hist.map(h=>'<div class="trat-history-entry"><b>'+esc(h.acao)+' · '+esc(new Date(h.criado_em).toLocaleString('pt-BR'))+'</b><p>'+esc(h.depois.numero_aditivo||h.depois.tipo)+' · '+esc(h.depois.status)+'</p><p class="trat-note">'+date(h.depois.vigencia_anterior)+' → '+date(h.depois.nova_vigencia)+' · '+money(h.depois.valor_anterior)+' → '+money(h.depois.novo_valor)+'</p><details><summary>Dados desta versão</summary><b>Antes</b>'+historySnapshot(h.antes)+'<b>Depois</b>'+historySnapshot(h.depois)+'</details></div>').join('')||'Nenhuma alteração registrada.';
   }catch{host.textContent='Não foi possível carregar o histórico. Tente novamente.';}
  }
  document.addEventListener('click',ev=>{
