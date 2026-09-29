@@ -3568,8 +3568,39 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 </div>
 <!-- ══ FIM COLUNA ESQUERDA ══ -->
 
-<!-- ══ COLUNA DIREITA: Contratos + Disputas ══ -->
+<!-- ══ COLUNA DIREITA: Disputas + Contratos ══ -->
 <div id="dashColunaDireita" style="flex:1;display:flex;flex-direction:column;gap:14px;min-width:0;">
+
+<!-- DISPUTAS -->
+<div id="dashBlocoDisputas">
+<div style="font-size:10px;font-weight:800;color:var(--primary);letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--primary-border);">⚡ DISPUTAS</div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+<div class="dash-kpi-card" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">
+  <div class="dash-kpi-label">Participadas no Mês</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashDisputaMesLabel"></div>
+  <div class="dash-kpi-value" id="dashKpiDisputasMes" style="color:var(--primary);">0</div>
+  <div class="dash-kpi-sub" id="dashKpiDisputasMesSub"></div>
+</div>
+<div class="dash-kpi-card" onclick="showSection('disputa-encerradas',document.querySelector('[data-section-target=disputa-encerradas]'))">
+  <div class="dash-kpi-label">Participadas no Ano</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashDisputaAnoLabel"></div>
+  <div class="dash-kpi-value" id="dashKpiDisputasAno" style="color:#2563eb;">0</div>
+  <div class="dash-kpi-sub" id="dashKpiDisputasAnoSub"></div>
+</div>
+<div class="dash-kpi-card">
+  <div class="dash-kpi-label">Taxa de Conversão no Ano</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Vencidas ÷ (Vencidas + Perdidas)</div>
+  <div class="dash-kpi-value" id="dashKpiTaxaConversao" style="color:#1f8a4c;">0%</div>
+  <div class="dash-kpi-sub" id="dashKpiTaxaConversaoSub"></div>
+</div>
+<div class="dash-kpi-card" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">
+  <div class="dash-kpi-label">Disputas Ativas</div>
+  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashDisputaAtivaLabel"></div>
+  <div class="dash-kpi-value" id="dashKpiDisputasAtivas" style="color:var(--primary);">0</div>
+  <div class="dash-kpi-sub" id="dashKpiDisputasSub"></div>
+</div>
+</div>
+</div>
 
 <!-- CONTRATOS -->
 <div>
@@ -3598,37 +3629,6 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
   <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Contratos ativos próximos do fim</div>
   <div class="dash-kpi-value" id="dashKpiConVencer" style="color:#b76a00;">0</div>
   <div class="dash-kpi-sub" id="dashKpiConVencerSub"></div>
-</div>
-</div>
-</div>
-
-<!-- DISPUTAS -->
-<div>
-<div style="font-size:10px;font-weight:800;color:var(--primary);letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--primary-border);">⚡ DISPUTAS</div>
-<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
-<div class="dash-kpi-card" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">
-  <div class="dash-kpi-label">Participadas no Mês</div>
-  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashDisputaMesLabel"></div>
-  <div class="dash-kpi-value" id="dashKpiDisputasMes" style="color:var(--primary);">0</div>
-  <div class="dash-kpi-sub" id="dashKpiDisputasMesSub"></div>
-</div>
-<div class="dash-kpi-card" onclick="showSection('disputa-encerradas',document.querySelector('[data-section-target=disputa-encerradas]'))">
-  <div class="dash-kpi-label">Participadas no Ano</div>
-  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashDisputaAnoLabel"></div>
-  <div class="dash-kpi-value" id="dashKpiDisputasAno" style="color:#2563eb;">0</div>
-  <div class="dash-kpi-sub" id="dashKpiDisputasAnoSub"></div>
-</div>
-<div class="dash-kpi-card">
-  <div class="dash-kpi-label">Taxa de Conversão no Ano</div>
-  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;">Vencidas ÷ (Vencidas + Perdidas)</div>
-  <div class="dash-kpi-value" id="dashKpiTaxaConversao" style="color:#1f8a4c;">0%</div>
-  <div class="dash-kpi-sub" id="dashKpiTaxaConversaoSub"></div>
-</div>
-<div class="dash-kpi-card" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">
-  <div class="dash-kpi-label">Disputas Ativas</div>
-  <div style="font-size:9px;color:var(--muted);margin-bottom:4px;" id="dashDisputaAtivaLabel"></div>
-  <div class="dash-kpi-value" id="dashKpiDisputasAtivas" style="color:var(--primary);">0</div>
-  <div class="dash-kpi-sub" id="dashKpiDisputasSub"></div>
 </div>
 </div>
 </div>
@@ -9949,9 +9949,9 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         { label:'Perdidas',     val: todos.filter(d=>d.status==='Perdida').length,      cor:'#b42318' },
         { label:'Frac./Susp.',  val: todos.filter(d=>d.status==='Fracassado/Suspenso'||d.status==='Revogada').length, cor:'#6b7280' },
       ].filter(d => d.val > 0);
-      // ── Iguala altura da coluna esquerda com a direita ──
+      // ── Iguala a altura da tabela com o bloco de KPIs de Disputas ──
       requestAnimationFrame(() => {
-        const colDir = document.getElementById('dashColunaDireita');
+        const colDir = document.getElementById('dashBlocoDisputas');
         const cardEsq = document.getElementById('dashDisputasAndamentoList')?.closest('.meta-card');
         if (colDir && cardEsq) {
           const alturaDir = colDir.getBoundingClientRect().height;
