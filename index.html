@@ -6047,6 +6047,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         <div class="emp-orgao-company">${companyBadge(c.empresa)}</div>
         ${info ? `<span class="con-orgao-info">${info}</span>` : ''}
         ${window.KMTratativas?.badges(c) || ''}
+        ${window.KMAditivos?.badges(c) || ''}
       </div>`;
     }
 
@@ -6070,6 +6071,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     function renderContratosAtivos() {
+      window.KMAditivos?.projectAll();
       const body = qs('conAtivosBody');
       const fData  = qs('fConAData')?.value   || '';
       const fMes   = qs('fConAMes')?.value    || '';
@@ -6164,6 +6166,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 
     // ── Render Encerrados ────────────────────────────
     function renderContratosEncerrados() {
+      window.KMAditivos?.projectAll();
       const body = qs('conEncerradosBody');
       const fData  = qs('fConEData')?.value   || '';
       const fMes   = qs('fConEMes')?.value    || '';
@@ -7045,6 +7048,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       if (!c) return;
       _conViewId = id;
       _conViewType = tipo;
+      window.KMAditivos?.project(c);
       window.KMTratativas?.details(c);
       closeAllMenus();
 
@@ -7058,7 +7062,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       if (c.contrato) infoPartes.push(`CONTRATO Nº ${c.contrato} assinado em ${formatDate(c.data)}`);
       if (c.processo) infoPartes.push(c.processo);
       if (c.sistema)  infoPartes.push(c.sistema);
-      qs('conViewInfo').textContent = infoPartes.join(' | ') || '—';
+      qs('conViewInfo').textContent = (infoPartes.join(' | ') || '—') + (window.KMAditivos?.header(c) || '');
 
       // Vencimento
       const hoje = new Date(); hoje.setHours(0,0,0,0);
@@ -7081,7 +7085,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       // Métricas linha 1
       qs('conViewMetrics1').innerHTML = `
         <div class="con-view-metric-card"><div class="con-view-metric-label">DT. Contrato</div><div class="con-view-metric-value">${formatDate(c.data)}</div></div>
-        <div class="con-view-metric-card"><div class="con-view-metric-label">Vencimento</div><div class="con-view-metric-value" style="color:${diasVenc!==null&&diasVenc<=30?'#b42318':diasVenc!==null&&diasVenc<=60?'#b76a00':'inherit'}">${vencHtml}</div>${vencSub?`<div class="con-view-metric-sub">${vencSub}</div>`:''}</div>
+        <div class="con-view-metric-card"><div class="con-view-metric-label">Vencimento</div><div class="con-view-metric-value" style="color:${diasVenc!==null&&diasVenc<=30?'#b42318':diasVenc!==null&&diasVenc<=60?'#b76a00':'inherit'}">${vencHtml}</div>${vencSub?`<div class="con-view-metric-sub">${vencSub}</div>`:''}${window.KMAditivos?.expiry(c)||''}${window.KMAditivos?.badges(c)||''}</div>
         <div class="con-view-metric-card"><div class="con-view-metric-label">Empresa</div><div class="con-view-metric-value">${c.empresa || '—'}</div></div>
         <div class="con-view-metric-card"><div class="con-view-metric-label">Status</div><div class="con-view-metric-value">${c.status || '—'}</div></div>
         <div class="con-view-metric-card"><div class="con-view-metric-label">Link do Drive</div><div class="con-view-metric-value">${driveBadge}</div></div>`;
@@ -7220,6 +7224,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
           </table>`;
       }
 
+      window.KMAditivos?.details(c);
       qs('conViewWrap').classList.remove('hidden');
     }
 
@@ -8741,7 +8746,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           <span class="bell-item-dot ${dotCls}"></span>
           <div class="bell-item-body">
             <div class="bell-item-orgao">${escapeHTML(c.orgao) || '—'}</div>
-            <div class="bell-item-info">${num} · ${empresa}</div>
+            <div class="bell-item-info">${num} · ${empresa}</div>${window.KMAditivos?.badges(c)||''}
           </div>
           <span class="bell-item-tag ${tagCls}">${tagTxt}</span>
         </div>`;
@@ -10370,6 +10375,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       };
     }
     function mapContratoAtivo(c) {
+      window.KMAditivos?.project(c);
       return {
         id: c.id, data: c.data||null, data_fim: c.dataFim||null,
         contrato: c.contrato||null, orgao: c.orgao||null,
@@ -10386,6 +10392,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       };
     }
     function mapContratoEnc(c) {
+      window.KMAditivos?.project(c);
       return {
         id: c.id, data: c.data||null, data_fim: c.dataFim||null,
         contrato: c.contrato||null, orgao: c.orgao||null,
@@ -11048,6 +11055,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           if (typeof aplicarTema==='function') aplicarTema(temaRow.valor);
         }
         window.KMTratativas?.load();
+        window.KMAditivos?.load();
         showSync('ok', '✓ dados atualizados');
         return true;
       } catch(e) {
@@ -11407,6 +11415,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 <div class="con-view-section-title">📦 EMPENHOS</div>
 <div class="con-view-emp-grid" id="conViewEmpGrid" style="grid-template-columns:repeat(3,minmax(0,1fr));"></div>
 </div>
+<section id="conViewAditivos" class="trat-section" aria-label="Aditivos e prorrogações"></section>
 <section id="conViewTratativas" class="trat-section" aria-label="Tratativas administrativas"></section>
 <!-- Itens / Lotes -->
 <div style="margin-bottom:22px;">
@@ -11884,5 +11893,6 @@ function showToast(msg, type = 'info', duration = 3500) {
 </script>
 <script src="email-matching.js"></script>
 <script src="tratativas.js"></script>
+<script src="aditivos.js"></script>
 </body>
 </html>
