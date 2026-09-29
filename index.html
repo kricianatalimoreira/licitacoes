@@ -3495,6 +3495,29 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 </button>
 </div>
 </div>
+<div class="menu-group" id="menuGroupTratativas">
+<button class="menu-parent" onclick="toggleMenuGroup('menuGroupTratativas')">
+<span class="menu-parent-main">
+<span class="menu-icon">💬</span>
+<span class="menu-label">Tratativas</span>
+</span>
+<span class="menu-parent-caret">⌃</span>
+</button>
+<div class="menu-children">
+<button class="menu-child" data-section-target="tratativas-visao-geral" onclick="showSection('tratativas-visao-geral', this)">
+<span class="menu-child-dot"></span>
+<span class="menu-label">Visão geral</span>
+</button>
+<button class="menu-child" data-section-target="tratativas-todas" onclick="showSection('tratativas-todas', this)">
+<span class="menu-child-dot"></span>
+<span class="menu-label">Todas as tratativas</span>
+</button>
+<button class="menu-child" data-section-target="tratativas-caixa-entrada" onclick="showSection('tratativas-caixa-entrada', this)">
+<span class="menu-child-dot"></span>
+<span class="menu-label">Caixa de entrada</span>
+</button>
+</div>
+</div>
 <button class="menu-parent" onclick="abrirLimpezaDuplicados()" style="margin-top:8px;border-top:1px solid var(--line);padding-top:14px;">
 <span class="menu-parent-main">
 <span class="menu-icon">🧹</span>
@@ -11657,6 +11680,42 @@ function showToast(msg, type = 'info', duration = 3500) {
   el.addEventListener('click', dismiss);
 }
 </script>
+<section class="page-section hidden" id="tratativas-visao-geral">
+<div class="topbar">
+<div>
+<h2>💬 Visão geral</h2>
+<p>Tratativas</p>
+</div>
+</div>
+<div class="dash-card">
+<div class="dash-card-title">Visão geral</div>
+<p>Esta página está em preparação.</p>
+</div>
+</section>
+<section class="page-section hidden" id="tratativas-todas">
+<div class="topbar">
+<div>
+<h2>💬 Todas as tratativas</h2>
+<p>Tratativas</p>
+</div>
+</div>
+<div class="dash-card">
+<div class="dash-card-title">Todas as tratativas</div>
+<p>Esta página está em preparação.</p>
+</div>
+</section>
+<section class="page-section hidden" id="tratativas-caixa-entrada">
+<div class="topbar">
+<div>
+<h2>💬 Caixa de entrada</h2>
+<p>Tratativas</p>
+</div>
+</div>
+<div class="dash-card">
+<div class="dash-card-title">Caixa de entrada</div>
+<p>Esta página está em preparação.</p>
+</div>
+</section>
 </main></div>
   <!-- ── Modal: Data de Pagamento ── -->
   <div class="modal-overlay hidden" id="modalPagamentoWrap" onclick="if(event.target===this)fecharModalPagamento()">
