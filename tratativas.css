@@ -55,4 +55,26 @@
 .trat-summary-orgao {font-weight:700;}
 .trat-summary-secondary {display:block;color:var(--muted);font-size:9px;margin-top:3px;}
 .trat-gmail-placeholder {font-size:10px;cursor:not-allowed;opacity:.55;white-space:nowrap;}
+.trat-detail-link {border:0;background:none;padding:0;font:inherit;font-weight:700;color:inherit;text-align:left;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+.trat-detail-link:focus-visible {outline:2px solid var(--primary);outline-offset:3px;}
+.trat-detail-header,.trat-detail-section {margin-bottom:14px;}
+#tratativas-detalhes .topbar {flex-wrap:wrap;gap:12px;}
+#tratativas-detalhes .topbar .actions {flex-wrap:wrap;}
+.trat-detail-section .trat-panel-header {flex-wrap:wrap;}
+.trat-detail-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0;}
+.trat-detail-grid dt {font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.04em;margin-bottom:5px;}
+.trat-detail-grid dd {margin:0;font-size:12px;overflow-wrap:anywhere;}
+.trat-detail-columns {display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.trat-detail-section h3 {margin:0 0 12px;font-size:11px;font-weight:800;color:var(--primary);letter-spacing:.08em;}
+.trat-detail-section p {font-size:12px;line-height:1.5;}
+.trat-timeline {list-style:none;padding:0;margin:12px 0 0;}
+.trat-timeline-event {position:relative;border-left:2px solid var(--primary-border);margin-left:7px;padding:0 0 22px 20px;}
+.trat-timeline-event:last-child {padding-bottom:0;}
+.trat-timeline-event::before {content:'';position:absolute;left:-5px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--primary);}
+.trat-timeline-top {display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;}
+.trat-timeline-top time {font-size:10px;color:var(--muted);}
+.trat-timeline-event p {margin:8px 0;}
+.trat-movement-note {font-size:11px;color:var(--muted);}
+@media(max-width:900px){.trat-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:650px){.trat-detail-columns{grid-template-columns:1fr;}.trat-detail-grid{grid-template-columns:1fr;}}
 @media(max-width:650px){.trat-form-grid{grid-template-columns:1fr;}.trat-filters label{flex:1;min-width:140px;}.trat-filters select{max-width:100%;width:100%;}.trat-dialog header,.trat-dialog footer,.trat-form-body{padding:12px;}.trat-actions .btn{flex:1;}.trat-info{flex-direction:column;}}
