@@ -9,6 +9,9 @@
   const TABLE = 'tratativas_administrativas';
   let rows = [], ready = false, loadError = '', loading = null, editor = null;
   let lastMovements = new Map(), movementError = '';
+  let detailId=null,detailEvents=[],detailLoading=false,detailError='',detailRequest=0,movementDraft=null;
+  const MOVEMENT_TYPES={email_enviado:'E-mail enviado',email_recebido:'E-mail recebido',documento:'Documento',ligacao:'Ligação',whatsapp:'WhatsApp',protocolo:'Protocolo',observacao:'Observação',alteracao_status:'Alteração de status',follow_up:'Follow-up'};
+  const DETAIL_STATUSES=['Em andamento','Aguardando órgão','Resposta recebida','Follow-up','Em análise','Deferido','Indeferido','Encerrado'];
   const esc = value => escapeHTML(String(value ?? ''));
   const el = id => document.getElementById(id);
   const contracts = () => [...contratosAtivos,...contratosEncerrados];
@@ -84,10 +87,11 @@
     try {
       const found=new Map();let offset=0;
       while(true) {
-        const page=await sbFetch('tratativas_historico',`select=tratativa_id,data_hora,antes,depois&order=data_hora.asc,id.asc&limit=500&offset=${offset}`);
-        for(const h of page) if(relevantMovement(h.antes,h.depois)) {
+        const page=await sbFetch('tratativas_historico',`select=tratativa_id,data_hora,ocorrida_em,origem,antes,depois&order=data_hora.asc,id.asc&limit=500&offset=${offset}`);
+        for(const h of page) if(h.origem==='manual'||relevantMovement(h.antes,h.depois)) {
           const previous=found.get(h.tratativa_id);
-          if(Number.isFinite(Date.parse(h.data_hora)) && (!previous || Date.parse(h.data_hora)>Date.parse(previous))) found.set(h.tratativa_id,h.data_hora);
+          const when=h.ocorrida_em||h.data_hora;
+          if(Number.isFinite(Date.parse(when)) && (!previous || Date.parse(when)>Date.parse(previous))) found.set(h.tratativa_id,when);
         }
         if(page.length<500)break;offset+=500;
       }
@@ -115,7 +119,7 @@
       const color={'Em andamento':'blue','Aguardando órgão':'orange','Resposta recebida':'green','Follow-up':'yellow','Em análise':'purple','Deferido':'green','Indeferido':'red','Encerrado':'neutral'}[status]||'neutral';
       const linked=(t.empenho_ids||[]).map(id=>empenhos.find(e=>String(e.id)===String(id)));
       const empenhoText=linked.map(e=>e?.numero||'Número indisponível').join(', ');
-      return `<tr data-tratativa-id="${esc(t.id)}"><td class="trat-summary-orgao">${esc(c?.orgao||'Órgão indisponível')}</td><td>${empenhoText?`<span>Empenho: ${esc(empenhoText)}</span>`:''}<span class="${empenhoText?'trat-summary-secondary':''}">Contrato: ${esc(c?.contrato||'Não informado')}</span></td><td>${esc(t.tipo_tratativa||tipoNome(t.tipo))}</td><td>${moment?esc(datetime(moment)):'—'}</td><td>${esc(t.proxima_acao||'Não informada')}${t.data_proxima_acao||t.acompanhar_em?`<span class="trat-summary-secondary">${esc(date(t.data_proxima_acao||t.acompanhar_em))}</span>`:''}</td><td><span class="trat-badge trat-${color}">${esc(status)}</span></td><td title="Dias corridos desde a última movimentação administrativa relevante">${days===null?'—':days}</td><td><button type="button" class="btn btn-light btn-sm trat-gmail-placeholder" disabled aria-label="Gmail indisponível nesta etapa" title="Gmail: disponível em uma próxima etapa">Gmail</button></td></tr>`;
+      return `<tr data-tratativa-id="${esc(t.id)}"><td class="trat-summary-orgao"><button type="button" class="trat-detail-link" data-trat-action="detail" data-id="${esc(t.id)}" aria-label="Abrir detalhes: ${esc(c?.orgao||'tratativa')}">${esc(c?.orgao||'Órgão indisponível')}</button></td><td>${empenhoText?`<span>Empenho: ${esc(empenhoText)}</span>`:''}<span class="${empenhoText?'trat-summary-secondary':''}">Contrato: ${esc(c?.contrato||'Não informado')}</span></td><td>${esc(t.tipo_tratativa||tipoNome(t.tipo))}</td><td>${moment?esc(datetime(moment)):'—'}</td><td>${esc(t.proxima_acao||'Não informada')}${t.data_proxima_acao||t.acompanhar_em?`<span class="trat-summary-secondary">${esc(date(t.data_proxima_acao||t.acompanhar_em))}</span>`:''}</td><td><span class="trat-badge trat-${color}">${esc(status)}</span></td><td title="Dias corridos desde a última movimentação administrativa relevante">${days===null?'—':days}</td><td><button type="button" class="btn btn-light btn-sm trat-gmail-placeholder" disabled aria-label="Gmail indisponível nesta etapa" title="Gmail: disponível em uma próxima etapa">Gmail</button></td></tr>`;
     }).join('')}</tbody></table>`;
   }
   function renderSummaries() {
@@ -136,8 +140,94 @@
     });
     dialog.querySelector('select')?.focus();
   }
+  function detailStatusBadge(t) {
+    const status=summaryStatus(t),color={'Em andamento':'blue','Aguardando órgão':'orange','Resposta recebida':'green','Follow-up':'yellow','Em análise':'purple','Deferido':'green','Indeferido':'red','Encerrado':'neutral'}[status]||'neutral';
+    return `<span class="trat-badge trat-${color}">${esc(status)}</span>`;
+  }
+  function renderDetailPage() {
+    const host=el('tratDetailContent');if(!host||!detailId)return;
+    const t=rows.find(t=>t.id===detailId&&!t.excluida);
+    if(detailError&&!t){host.innerHTML=`<div class="meta-card"><p class="trat-error" role="alert">${esc(detailError)}</p><button type="button" class="btn btn-light btn-sm" data-trat-action="reload-detail">Tentar novamente</button></div>`;return;}
+    if(!t){host.innerHTML='<div class="meta-card"><p class="trat-note" role="status">Carregando tratativa…</p></div>';return;}
+    const c=contract(t.contrato_id)||{},selected=(t.empenho_ids||[]).map(id=>empenhos.find(e=>String(e.id)===String(id))?.numero||'Número indisponível');
+    const priority=t.prioridade||'Normal',priorityColor={Baixa:'neutral',Normal:'blue',Alta:'orange',Urgente:'red'}[priority]||'neutral';
+    const entry=(label,value)=>`<div><dt>${label}</dt><dd>${value}</dd></div>`;
+    const events=[...detailEvents].sort((a,b)=>Date.parse(a.ocorrida_em||a.data_hora)-Date.parse(b.ocorrida_em||b.data_hora)||Date.parse(a.data_hora)-Date.parse(b.data_hora)||a.id.localeCompare(b.id));
+    const timeline=detailLoading?'<p class="trat-note" role="status">Carregando histórico…</p>':detailError?`<p class="trat-error" role="alert">${esc(detailError)}</p><button type="button" class="btn btn-light btn-sm" data-trat-action="reload-detail">Tentar novamente</button>`:events.length?`<ol class="trat-timeline">${events.map(h=>{
+      const type=h.tipo_movimentacao||(h.status_anterior&&h.status_anterior!==h.novo_status?'alteracao_status':'observacao');
+      const when=h.ocorrida_em||h.data_hora;
+      const from=h.status_anterior?summaryStatus({status:h.antes?.status,situacao:h.status_anterior}):null;
+      const to=summaryStatus({status:h.depois?.status,situacao:h.novo_status});
+      const reference=url(h.link_referencia||h.link_documento);
+      return `<li class="trat-timeline-event" data-event-id="${esc(h.id)}"><div class="trat-timeline-top"><span class="trat-badge trat-${type==='alteracao_status'?'purple':type==='follow_up'?'orange':'blue'}">${esc(MOVEMENT_TYPES[type]||'Observação')}</span><time datetime="${esc(when)}">${esc(datetime(when))}</time></div><p class="trat-text">${esc(h.descricao)}</p>${from&&h.status_anterior!==h.novo_status?`<p class="trat-note">${esc(from)} → ${esc(to)}</p>`:''}${reference?`<p><a class="venc-banner-link" href="${esc(reference)}" target="_blank" rel="noopener noreferrer">Abrir referência ↗</a></p>`:''}<p class="trat-note">${h.origem==='manual'?'Registro manual':'Registro do sistema'} · ${h.usuario_id?`Usuário ${esc(h.usuario_id)}`:'Autor não identificado'}${Date.parse(when)!==Date.parse(h.data_hora)?` · Registrado em ${esc(datetime(h.data_hora))}`:''}</p></li>`;
+    }).join('')}</ol>`:'<p class="trat-note">Nenhuma movimentação registrada.</p>';
+    host.innerHTML=`<div class="meta-card trat-detail-header"><dl class="trat-detail-grid">${entry('EMPRESA',esc(c.empresa||'Não informada'))}${entry('ÓRGÃO',esc(c.orgao||'Não informado'))}${entry('PROCESSO',esc(c.processo||'Não informado'))}${entry('CONTRATO/ATA',esc(c.contrato||'Não informado'))}${entry('EMPENHO(S)',esc(selected.join(', ')||'Nenhum vinculado'))}${entry('RESPONSÁVEL',esc(t.responsavel_id?`Usuário ${t.responsavel_id}`:'Não atribuído'))}${entry('STATUS',detailStatusBadge(t))}${entry('PRIORIDADE',`<span class="trat-badge trat-${priorityColor}">${esc(priority)}</span>`)}</dl></div><div class="trat-detail-columns"><section class="meta-card trat-detail-section"><h3>SITUAÇÃO ATUAL</h3><p><strong>${esc(t.tipo_tratativa||tipoNome(t.tipo))}</strong></p><p class="trat-text">${esc(t.descricao||'Não informada')}</p>${t.observacoes?`<p class="trat-text"><strong>Observações:</strong> ${esc(t.observacoes)}</p>`:''}${t.resultado?`<p class="trat-text"><strong>Resultado:</strong> ${esc(t.resultado)}</p>`:''}</section><section class="meta-card trat-detail-section"><h3>PRÓXIMA AÇÃO</h3><p class="trat-text">${esc(t.proxima_acao||'Não informada')}</p><p><strong>Data prevista:</strong> ${esc(date(t.data_proxima_acao||t.acompanhar_em))}</p></section></div><section class="meta-card trat-detail-section"><div class="trat-panel-header"><h3>TIMELINE</h3><button type="button" class="btn btn-primary btn-sm" id="tratDetailAdd" data-trat-action="new-movement" ${detailLoading||detailError?'disabled':''}>+ Adicionar movimentação</button></div>${timeline}</section>`;
+  }
+  async function loadDetail(id) {
+    const request=++detailRequest;detailId=id;detailLoading=true;detailError='';detailEvents=[];renderDetailPage();
+    try {
+      const result=await sbFetch(TABLE,`id=eq.${encodeURIComponent(id)}&excluida=eq.false&limit=1`);
+      if(request!==detailRequest)return;
+      if(!result.length){rows=rows.filter(t=>t.id!==id);throw Error('Tratativa não encontrada ou indisponível.');}
+      const current=rows.find(t=>t.id===id);
+      if(!current||result[0].versao>=current.versao)rows=rows.filter(t=>t.id!==id).concat(result);
+      const events=[];let offset=0;
+      while(true){const page=await sbFetch('tratativas_historico',`tratativa_id=eq.${encodeURIComponent(id)}&order=ocorrida_em.asc,data_hora.asc,id.asc&limit=500&offset=${offset}`);events.push(...page);if(page.length<500)break;offset+=500;}
+      if(request!==detailRequest)return;detailEvents=events;
+    } catch(e){if(request===detailRequest)detailError=e.message==='Tratativa não encontrada ou indisponível.'?e.message:'Não foi possível carregar o histórico. Tente novamente.';}
+    finally{if(request===detailRequest){detailLoading=false;renderDetailPage();}}
+  }
+  function openDetail(id) {
+    el('menuGroupTratativas')?.classList.add('is-open');
+    showSection('tratativas-detalhes',document.querySelector('[data-section-target="tratativas-todas"]'));
+    void loadDetail(id);
+  }
+  function localDatetime(value=new Date()) {
+    const d=new Date(value);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+  function closeMovement() {
+    if(movementDraft?.saving)return;
+    el('tratMovementDialog').close();const opener=movementDraft?.opener;movementDraft=null;
+    (opener?.isConnected?opener:el('tratDetailAdd'))?.focus();
+  }
+  function movementFormState() {
+    const f=el('tratMovementForm');if(!f)return;
+    const status=f.elements.tipo.value==='alteracao_status',closed=status&&['Deferido','Indeferido','Encerrado'].includes(f.elements.status.value);
+    el('tratMovementStatus').hidden=!status;f.elements.status.required=status;
+    el('tratMovementClosing').hidden=!closed;f.elements.resultado.required=closed;f.elements.encerrada_em.required=closed;
+    el('tratMovementEmailNote').hidden=!['email_enviado','email_recebido'].includes(f.elements.tipo.value);
+  }
+  function openMovement() {
+    const t=rows.find(t=>t.id===detailId);if(!t||detailLoading||detailError)return;
+    movementDraft={tratativaId:t.id,version:t.versao,requestId:crypto.randomUUID(),payload:null,saving:false,opener:document.activeElement};
+    const dialog=el('tratMovementDialog');
+    dialog.innerHTML=`<form id="tratMovementForm"><header><h3>Adicionar movimentação</h3><button type="button" class="modal-close" data-trat-action="cancel-movement" aria-label="Fechar">×</button></header><div class="trat-form-body"><div class="trat-form-grid"><label>Tipo *<select name="tipo" required>${Object.entries(MOVEMENT_TYPES).map(([value,label])=>`<option value="${value}" ${value==='observacao'?'selected':''}>${label}</option>`).join('')}</select></label><label>Data e hora da movimentação *<input type="datetime-local" name="ocorrida_em" value="${localDatetime()}" required></label></div><p class="trat-movement-note" id="tratMovementEmailNote" hidden>Registre um e-mail já enviado ou recebido. Este formulário não envia e-mails.</p><label>Descrição *<textarea name="descricao" required></textarea></label><label>Link de referência (opcional)<input type="url" name="link_referencia" placeholder="https://…"></label><div id="tratMovementStatus" hidden><label>Novo status *<select name="status"><option value="">Selecione…</option>${DETAIL_STATUSES.filter(s=>s!==summaryStatus(t)).map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('')}</select></label></div><div id="tratMovementClosing" hidden><label>Resultado *<textarea name="resultado"></textarea></label><label>Data de encerramento *<input type="date" name="encerrada_em" min="${esc(t.data_ocorrencia)}" value="${today()}"></label></div><p class="trat-error" id="tratMovementError" role="alert"></p></div><footer><button type="button" class="btn btn-light" data-trat-action="cancel-movement">Cancelar</button><button type="submit" class="btn btn-primary">Salvar movimentação</button></footer></form>`;
+    dialog.showModal();el('tratMovementForm').addEventListener('change',movementFormState);el('tratMovementForm').addEventListener('submit',saveMovement);el('tratMovementForm').elements.descricao.focus();
+  }
+  async function saveMovement(event) {
+    event.preventDefault();const draft=movementDraft,f=event.currentTarget;if(!draft||draft.saving)return;
+    const fail=message=>el('tratMovementError').textContent=message;
+    const occurred=new Date(f.elements.ocorrida_em.value),type=f.elements.tipo.value,description=f.elements.descricao.value.trim(),reference=f.elements.link_referencia.value.trim();
+    if(!description)return fail('Descreva a movimentação.');
+    if(!Number.isFinite(occurred.getTime())||occurred>new Date())return fail('Informe uma data e hora válida, sem estar no futuro.');
+    if(reference&&!url(reference))return fail('Informe um link HTTP ou HTTPS válido.');
+    const changedStatus=type==='alteracao_status',status=changedStatus?f.elements.status.value:null,closed=changedStatus&&['Deferido','Indeferido','Encerrado'].includes(status);
+    const payload={p_tratativa_id:draft.tratativaId,p_versao:draft.version,p_tipo:type,p_descricao:description,p_ocorrida_em:occurred.toISOString(),p_link_referencia:reference,p_status:status,p_resultado:closed?f.elements.resultado.value.trim():null,p_encerrada_em:closed?f.elements.encerrada_em.value:null};
+    const signature=JSON.stringify(payload);if(draft.payload&&draft.payload!==signature)draft.requestId=crypto.randomUUID();draft.payload=signature;
+    draft.saving=true;f.querySelectorAll('button,input,select,textarea').forEach(b=>b.disabled=true);fail('');
+    try {
+      const response=await fetch(`${SUPA_URL}/rest/v1/rpc/registrar_movimentacao_tratativa`,{method:'POST',headers:supaHeaders(),body:JSON.stringify({...payload,p_requisicao_id:draft.requestId})});
+      if(!response.ok){const problem=await response.json().catch(()=>({}));throw Error(problem.code==='40001'?'A tratativa foi alterada por outra pessoa. Feche este formulário, atualize os detalhes e tente novamente.':problem.message||'Não foi possível salvar. Tente novamente; o mesmo registro não será duplicado.');}
+      const eventId=await response.json();if(!eventId)throw Error('O banco não confirmou a movimentação. Tente novamente.');
+      draft.saving=false;closeMovement();showToast('Movimentação registrada. Histórico preservado.','success');
+      await load();await loadDetail(draft.tratativaId);
+    } catch(e){fail(e.message);}
+    finally {draft.saving=false;if(f.isConnected)f.querySelectorAll('button,input,select,textarea').forEach(b=>b.disabled=false);}
+  }
+
   function refreshUI() {
     renderSummaries();
+    renderDetailPage();
     document.querySelectorAll('.trat-load-status').forEach(n=>{ n.textContent=loadError || (ready?'':'Carregando tratativas…'); });
     document.querySelectorAll('.trat-filters select').forEach(n=>n.disabled=!ready);
     renderContratosAtivos();renderContratosEncerrados();renderEmpenhos();atualizarSino();
@@ -303,6 +393,10 @@
     const b=event.target.closest('[data-trat-action]');if(!b)return;
     event.preventDefault();event.stopPropagation();const action=b.dataset.tratAction;
     if(action==='reload')return void load();if(action==='cancel')return cancel();
+    if(action==='detail')return openDetail(b.dataset.id);
+    if(action==='reload-detail')return void loadDetail(detailId);
+    if(action==='new-movement')return openMovement();
+    if(action==='cancel-movement')return closeMovement();
     if(action==='new-global')return openNew();
     if(action==='view-all') {
       el('menuGroupTratativas')?.classList.add('is-open');
@@ -317,6 +411,7 @@
     const t=rows.find(t=>t.id===b.dataset.id);if(t)openEditor(t.contrato_id,t.id,action);
   });
   const dialog=document.createElement('dialog');dialog.id='tratEditor';dialog.className='trat-dialog';dialog.setAttribute('aria-label','Tratativa administrativa');dialog.addEventListener('cancel',e=>{e.preventDefault();cancel();});document.body.append(dialog);
+  const movementDialog=document.createElement('dialog');movementDialog.id='tratMovementDialog';movementDialog.className='trat-dialog';movementDialog.setAttribute('aria-label','Adicionar movimentação');movementDialog.addEventListener('cancel',e=>{e.preventDefault();closeMovement();});document.body.append(movementDialog);
   const emailDialog=document.createElement('dialog');emailDialog.id='tratEmailDialog';emailDialog.className='trat-dialog';emailDialog.setAttribute('aria-label','Vincular e-mail');emailDialog.addEventListener('cancel',e=>{if(emailDialog.querySelector('form')?.dataset.saving)e.preventDefault();});document.body.append(emailDialog);
   window.KMTratativasEmail={suggest:email=>KMEmailMatching.suggest(email,emailTargets()),receive:receiveEmail};
   window.KMTratativas={load,badges,empBadges,matches,clearFilters,details,appendBell,active,followup};
