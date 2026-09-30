@@ -8,6 +8,7 @@
   const FINAIS = new Set(['DEFERIDO','INDEFERIDO','PARCIALMENTE DEFERIDO','CANCELADO','CONCLUÍDO']);
   const TABLE = 'tratativas_administrativas';
   let rows = [], ready = false, loadError = '', loading = null, editor = null;
+  let lastMovements = new Map(), movementError = '';
   const esc = value => escapeHTML(String(value ?? ''));
   const el = id => document.getElementById(id);
   const contracts = () => [...contratosAtivos,...contratosEncerrados];
@@ -69,7 +70,74 @@
     }
   }
   function clearFilters(scope) { for(const name of ['Tipo','Status']) if(el('tratFiltro'+name+scope)) el('tratFiltro'+name+scope).value=''; }
+  // Campos administrativos; timestamps técnicos e metadados de e-mail não reiniciam DIAS.
+  const movementFields = ['tipo','situacao','data_ocorrencia','descricao','abrangencia','empenho_ids','observacoes','proxima_acao','acompanhar_em','resultado','encerrada_em','responsavel_id','prioridade','prazo'];
+  function relevantMovement(before,after) {
+    if (!before) return true;
+    const value=(row,key)=>key==='empenho_ids' ? [...(row?.[key]||[])].sort() : row?.[key] ?? (key==='prioridade'?'Normal':'');
+    if(movementFields.some(key=>JSON.stringify(value(before,key))!==JSON.stringify(value(after,key))))return true;
+    const linksChanged=['link_gmail','link_externo','link_documento','emails_vinculados','email_referencias'].some(key=>JSON.stringify(before?.[key]??'')!==JSON.stringify(after?.[key]??''));
+    // Registrar uma providência somente em texto também é uma movimentação relevante.
+    return !linksChanged && Boolean(after?.nota_atualizacao?.trim());
+  }
+  async function loadMovements() {
+    try {
+      const found=new Map();let offset=0;
+      while(true) {
+        const page=await sbFetch('tratativas_historico',`select=tratativa_id,data_hora,antes,depois&order=data_hora.asc,id.asc&limit=500&offset=${offset}`);
+        for(const h of page) if(relevantMovement(h.antes,h.depois)) {
+          const previous=found.get(h.tratativa_id);
+          if(Number.isFinite(Date.parse(h.data_hora)) && (!previous || Date.parse(h.data_hora)>Date.parse(previous))) found.set(h.tratativa_id,h.data_hora);
+        }
+        if(page.length<500)break;offset+=500;
+      }
+      // Mantém uma atualização local mais recente que a leitura iniciada antes do salvamento.
+      for(const [id,time] of lastMovements) if(!found.has(id)||Date.parse(time)>Date.parse(found.get(id)))found.set(id,time);
+      lastMovements=found;movementError='';
+    } catch {movementError='Não foi possível carregar o histórico. Última movimentação e dias estão indisponíveis.';}
+  }
+  function movementDate(t) {return movementError ? null : lastMovements.get(t.id)||t.created_at||t.criado_em||t.data_ocorrencia;}
+  function daysSince(value,now=new Date()) {
+    if(!value)return null;const start=new Date(value);
+    if(!Number.isFinite(start.getTime()))return null;
+    const day=d=>Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());
+    return Math.max(0,Math.round((day(now)-day(start))/86400000));
+  }
+  function summaryStatus(t) {
+    return t.status||({'AGUARDANDO ENVIO':'Em andamento','ENVIADO':'Aguardando órgão','AGUARDANDO RESPOSTA':'Aguardando órgão','EM ANÁLISE PELO ÓRGÃO':'Em análise','DOCUMENTAÇÃO COMPLEMENTAR SOLICITADA':'Em análise','RESPOSTA RECEBIDA':'Resposta recebida','FOLLOW-UP':'Follow-up','DEFERIDO':'Deferido','PARCIALMENTE DEFERIDO':'Deferido','INDEFERIDO':'Indeferido','CANCELADO':'Encerrado','CONCLUÍDO':'Encerrado'}[t.situacao]||t.situacao);
+  }
+  function summaryTable() {
+    if(!ready)return `<p class="trat-note" role="status">${esc(loadError||'Carregando tratativas…')}</p>${loadError?'<button type="button" class="btn btn-light btn-sm" data-trat-action="reload">Tentar novamente</button>':''}`;
+    if(!rows.length)return '<p class="trat-note">Nenhuma tratativa cadastrada.</p>';
+    const list=[...rows].sort((a,b)=>Number(active(b))-Number(active(a))||(Date.parse(movementDate(b))||0)-(Date.parse(movementDate(a))||0)||a.id.localeCompare(b.id));
+    return `${movementError?`<p class="trat-note" role="status">${esc(movementError)} <button type="button" class="btn btn-light btn-sm" data-trat-action="reload">Tentar novamente</button></p>`:''}<table class="trat-summary-table" aria-label="Tratativas administrativas"><thead><tr>${['Órgão','Empenho / Contrato','Tipo de tratativa','Última<br>movimentação','Próxima ação','Status','Dias','E-mail'].map(h=>`<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${list.map(t=>{
+      const c=contract(t.contrato_id),moment=movementDate(t),days=daysSince(moment),status=summaryStatus(t);
+      const color={'Em andamento':'blue','Aguardando órgão':'orange','Resposta recebida':'green','Follow-up':'yellow','Em análise':'purple','Deferido':'green','Indeferido':'red','Encerrado':'neutral'}[status]||'neutral';
+      const linked=(t.empenho_ids||[]).map(id=>empenhos.find(e=>String(e.id)===String(id)));
+      const empenhoText=linked.map(e=>e?.numero||'Número indisponível').join(', ');
+      return `<tr data-tratativa-id="${esc(t.id)}"><td class="trat-summary-orgao">${esc(c?.orgao||'Órgão indisponível')}</td><td>${empenhoText?`<span>Empenho: ${esc(empenhoText)}</span>`:''}<span class="${empenhoText?'trat-summary-secondary':''}">Contrato: ${esc(c?.contrato||'Não informado')}</span></td><td>${esc(t.tipo_tratativa||tipoNome(t.tipo))}</td><td>${moment?esc(datetime(moment)):'—'}</td><td>${esc(t.proxima_acao||'Não informada')}${t.data_proxima_acao||t.acompanhar_em?`<span class="trat-summary-secondary">${esc(date(t.data_proxima_acao||t.acompanhar_em))}</span>`:''}</td><td><span class="trat-badge trat-${color}">${esc(status)}</span></td><td title="Dias corridos desde a última movimentação administrativa relevante">${days===null?'—':days}</td><td><button type="button" class="btn btn-light btn-sm trat-gmail-placeholder" disabled aria-label="Gmail indisponível nesta etapa" title="Gmail: disponível em uma próxima etapa">Gmail</button></td></tr>`;
+    }).join('')}</tbody></table>`;
+  }
+  function renderSummaries() {
+    const html=summaryTable();
+    for(const id of ['dashTratativasList','tratTodasLista']) {const host=el(id);if(host&&host.innerHTML!==html)host.innerHTML=html;}
+    document.querySelectorAll('[data-trat-action="new-global"]').forEach(b=>b.disabled=!ready);
+  }
+  function openNew() {
+    if(!ready)return;
+    const available=[...new Map(contracts().map(c=>[String(c.id),contract(c.id)])).values()].sort((a,b)=>(a.orgao||'').localeCompare(b.orgao||''));
+    editor={opener:document.activeElement};
+    const dialog=el('tratEditor');
+    dialog.innerHTML=`<form id="tratChooseContract"><header><div><h3>Nova tratativa administrativa</h3><p>Selecione a ata/contrato para iniciar o cadastro.</p></div><button type="button" class="modal-close" data-trat-action="cancel" aria-label="Fechar">×</button></header><div class="trat-form-body">${available.length?`<label>Ata/contrato *<select name="contrato_id" required><option value="">Selecione…</option>${available.map(c=>`<option value="${esc(c.id)}">${esc(c.orgao)} · ${esc(c.contrato||'Sem número')} · ${esc(c.empresa)}</option>`).join('')}</select></label>`:'<p class="trat-note">Nenhuma ata/contrato disponível para cadastrar a tratativa.</p>'}</div><footer><button type="button" class="btn btn-light" data-trat-action="cancel">Cancelar</button><button type="submit" class="btn btn-primary" ${!available.length?'disabled':''}>Continuar</button></footer></form>`;
+    dialog.showModal();
+    el('tratChooseContract').addEventListener('submit',event=>{
+      event.preventDefault();const id=event.currentTarget.elements.contrato_id.value;if(!id)return;
+      const opener=editor.opener;dialog.close();openEditor(id);if(editor)editor.opener=opener;
+    });
+    dialog.querySelector('select')?.focus();
+  }
   function refreshUI() {
+    renderSummaries();
     document.querySelectorAll('.trat-load-status').forEach(n=>{ n.textContent=loadError || (ready?'':'Carregando tratativas…'); });
     document.querySelectorAll('.trat-filters select').forEach(n=>n.disabled=!ready);
     renderContratosAtivos();renderContratosEncerrados();renderEmpenhos();atualizarSino();
@@ -83,6 +151,7 @@
         // Paginação evita truncar silenciosamente bases acima do limite REST.
         while(true) {const page=await sbFetch(TABLE,`select=*&order=criado_em.asc,id.asc&limit=500&offset=${offset}`);all.push(...page);if(page.length<500)break;offset+=500;}
         rows=all.filter(t=>!t.excluida).map(t=>{const local=rows.find(x=>x.id===t.id);return local && local.versao>t.versao ? local : t;});ready=true;loadError='';
+        await loadMovements();
       } catch(e) {ready=false;loadError='Não foi possível carregar as tratativas. Tente atualizar.';console.warn('[Tratativas]',e.message);}
       finally {loading=null;refreshUI();}
     })();return loading;
@@ -215,6 +284,7 @@
       const res=await fetch(`${SUPA_URL}/rest/v1/${TABLE}${query}`,{method:current.id?'PATCH':'POST',headers:supaHeaders({'Prefer':'return=representation'}),body:JSON.stringify(data)});
       if(!res.ok)throw new Error(res.status===409?'Este cadastro já existe ou foi alterado. Atualize as tratativas antes de tentar novamente.':'O banco não confirmou o salvamento. Verifique a conexão, os vínculos e as permissões.');
       const saved=await res.json();if(!saved.length)throw new Error('Outra pessoa alterou esta tratativa. Cancele, atualize e abra novamente para preservar o histórico.');
+      if(relevantMovement(rows.find(t=>t.id===saved[0].id),saved[0]))lastMovements.set(saved[0].id,saved[0].atualizado_em);
       rows=rows.filter(t=>t.id!==saved[0].id).concat(saved);delete form.dataset.saving;cancel();refreshUI();showToast('Tratativa salva com histórico.','success');
     }catch(e){fail(e.message);}finally{delete form.dataset.saving;form.querySelectorAll('button').forEach(b=>b.disabled=false);}
   }
@@ -233,6 +303,12 @@
     const b=event.target.closest('[data-trat-action]');if(!b)return;
     event.preventDefault();event.stopPropagation();const action=b.dataset.tratAction;
     if(action==='reload')return void load();if(action==='cancel')return cancel();
+    if(action==='new-global')return openNew();
+    if(action==='view-all') {
+      el('menuGroupTratativas')?.classList.add('is-open');
+      showSection('tratativas-todas',document.querySelector('[data-section-target="tratativas-todas"]'));
+      renderSummaries();return;
+    }
     if(action==='history')return void history(b.dataset.id);
     if(action==='delete')return void removeTreatment(b.dataset.id,b);
     if(action==='link-email')return openEmailLink(b.dataset.id);
@@ -247,6 +323,5 @@
   installFilters();load();
   // Datas de acompanhamento são recalculadas ao retornar à tela e durante o uso.
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
-  setInterval(()=>{if(!document.hidden)atualizarSino();},60000);
+  setInterval(()=>{if(!document.hidden){atualizarSino();renderSummaries();}},60000);
 })();
-
