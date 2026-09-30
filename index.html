@@ -11729,6 +11729,13 @@ function showToast(msg, type = 'info', duration = 3500) {
 <p>Esta página está em preparação.</p>
 </div>
 </section>
+<section class="page-section hidden" id="tratativas-detalhes">
+<div class="topbar">
+<div><h2>💬 Tratativa administrativa</h2><p>Detalhes e histórico de movimentações</p></div>
+<div class="actions"><button type="button" class="btn btn-light btn-sm" data-trat-action="reload-detail">↻ Atualizar</button><button type="button" class="btn btn-light btn-sm" data-trat-action="view-all">← Todas as tratativas</button></div>
+</div>
+<div id="tratDetailContent" aria-live="polite"></div>
+</section>
 </main></div>
   <!-- ── Modal: Data de Pagamento ── -->
   <div class="modal-overlay hidden" id="modalPagamentoWrap" onclick="if(event.target===this)fecharModalPagamento()">
