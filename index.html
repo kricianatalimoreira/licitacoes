@@ -3662,6 +3662,16 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 </div>
 <!-- ══ FIM LAYOUT 2 COLUNAS ══ -->
 
+<div class="meta-card trat-dashboard-card" id="dashTratativasCard">
+<div class="trat-panel-header">
+<div class="trat-panel-title">💬 TRATATIVAS ADMINISTRATIVAS</div>
+<div class="trat-panel-actions">
+<button type="button" class="btn btn-primary btn-sm" data-trat-action="new-global">+ Nova tratativa</button>
+<button type="button" class="venc-banner-link" data-trat-action="view-all">Ver todas →</button>
+</div>
+</div>
+<div class="trat-summary-scroll" id="dashTratativasList" aria-live="polite"><p class="trat-note">Carregando tratativas…</p></div>
+</div>
 
 
 </section>
@@ -11699,9 +11709,12 @@ function showToast(msg, type = 'info', duration = 3500) {
 <p>Tratativas</p>
 </div>
 </div>
-<div class="dash-card">
-<div class="dash-card-title">Todas as tratativas</div>
-<p>Esta página está em preparação.</p>
+<div class="meta-card">
+<div class="trat-panel-header">
+<div class="trat-panel-title">💬 TRATATIVAS ADMINISTRATIVAS</div>
+<button type="button" class="btn btn-primary btn-sm" data-trat-action="new-global">+ Nova tratativa</button>
+</div>
+<div class="trat-summary-scroll trat-summary-all" id="tratTodasLista" aria-live="polite"><p class="trat-note">Carregando tratativas…</p></div>
 </div>
 </section>
 <section class="page-section hidden" id="tratativas-caixa-entrada">
