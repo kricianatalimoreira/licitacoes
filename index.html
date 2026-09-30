@@ -3395,6 +3395,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 #cadastroContratoWrap table.site-table-7 td { padding:8px 5px !important; }
 </style>
 <link rel="stylesheet" href="tratativas.css">
+<link rel="stylesheet" href="caixa-entrada.css">
 </head>
 <body>
 
@@ -3662,6 +3663,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 </div>
 <!-- ══ FIM LAYOUT 2 COLUNAS ══ -->
 
+<div class="dash-tratativas-inbox">
 <div class="meta-card trat-dashboard-card" id="dashTratativasCard">
 <div class="trat-panel-header">
 <div class="trat-panel-title">💬 TRATATIVAS ADMINISTRATIVAS</div>
@@ -3671,6 +3673,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 </div>
 </div>
 <div class="trat-summary-scroll" id="dashTratativasList" aria-live="polite"><p class="trat-note">Carregando tratativas…</p></div>
+</div>
+<section class="meta-card inbox-card" aria-label="Caixa de entrada de e-mails" data-inbox="dashboard"></section>
 </div>
 
 
@@ -11724,10 +11728,7 @@ function showToast(msg, type = 'info', duration = 3500) {
 <p>Tratativas</p>
 </div>
 </div>
-<div class="dash-card">
-<div class="dash-card-title">Caixa de entrada</div>
-<p>Esta página está em preparação.</p>
-</div>
+<section class="meta-card inbox-card inbox-page" aria-label="Caixa de entrada de e-mails" data-inbox="page"></section>
 </section>
 <section class="page-section hidden" id="tratativas-detalhes">
 <div class="topbar">
@@ -11972,6 +11973,7 @@ function showToast(msg, type = 'info', duration = 3500) {
 </script>
 <script src="email-matching.js"></script>
 <script src="tratativas.js"></script>
+<script src="caixa-entrada.js"></script>
 <script src="aditivos.js"></script>
 </body>
 </html>
