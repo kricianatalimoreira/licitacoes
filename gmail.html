@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src https://inaunswiwxfonhhdznkh.supabase.co; base-uri 'none'; form-action 'self'; object-src 'none'">
+<title>Conexões de e-mail | KM Licitações</title><link rel="stylesheet" href="gmail.css"><script src="gmail.js" defer></script></head>
+<body><main><header><a href="/">← Voltar ao site</a><h1>Conexões de e-mail</h1><p>Conecte cada empresa separadamente. O acesso ao Gmail é somente para leitura.</p></header>
+<p id="notice" role="status" aria-live="polite"></p>
+<section id="login"><h2>Acesso administrativo</h2><p>Entre com sua conta de acesso ao sistema. Não use a senha das caixas de e-mail das empresas.</p>
+<form id="login-form"><label>E-mail de acesso<input id="email" type="email" value="kricianatalimoreira@gmail.com" autocomplete="username" required></label>
+<label>Senha de acesso ao sistema<input id="password" type="password" autocomplete="current-password" required></label><button type="submit">Entrar</button></form>
+<p class="muted">No primeiro acesso, o administrador deve cadastrar este usuário em Authentication → Users no Supabase.</p></section>
+<section id="connections" hidden><div class="toolbar"><h2>Contas das empresas</h2><button id="logout" type="button">Sair</button></div><div id="accounts"></div>
+<p class="muted">Conectar a conta não inicia a importação de mensagens. Cada caixa exige sua própria autorização no Google.</p></section>
+</main></body></html>

@@ -1,0 +1,9 @@
+[functions.gmail-accounts]
+# Auth getUser + live session + company permissions are checked in code/database.
+verify_jwt = false
+import_map = "./functions/deno.json"
+
+[functions.gmail-oauth-callback]
+# Google returns a code, not a Supabase JWT. Single-use state authenticates callback.
+verify_jwt = false
+import_map = "./functions/deno.json"

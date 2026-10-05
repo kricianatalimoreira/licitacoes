@@ -38,7 +38,7 @@
     }
   }
   document.querySelectorAll('[data-inbox]').forEach(host=>{
-    host.innerHTML=`<div class="trat-panel-header"><div class="trat-panel-title">✉ CAIXA DE ENTRADA (E-MAILS)</div></div>
+    host.innerHTML=`<div class="trat-panel-header"><div class="trat-panel-title">✉ CAIXA DE ENTRADA (E-MAILS)</div><a class="btn btn-light btn-sm" href="gmail.html">CONECTAR CONTAS DE E-MAIL</a></div>
       <div class="inbox-tools"><div class="inbox-filters" role="group" aria-label="Filtrar e-mails">${['TODOS','HAMATE','GADITA','NÃO VINCULADOS'].map((name,i)=>`<button type="button" class="btn btn-light btn-sm inbox-filter" aria-pressed="${i===0}" data-filter="${name}">${name}</button>`).join('')}</div>
       <label class="inbox-search-label">Pesquisar e-mails<input type="search" class="inbox-search" placeholder="Remetente, assunto ou conteúdo…" autocomplete="off"></label></div>
       <div class="inbox-list" role="list" aria-label="Mensagens" aria-live="polite"></div>`;
@@ -53,3 +53,4 @@
   // Modelo: {lido, remetente, assunto, preview, dataHora, empresa, tratativaId, tratativaTitulo}.
   window.KMCaixaEntrada={setMessages(data){messages=Array.isArray(data)?data:[];views.forEach(render);}};
 })();
+
