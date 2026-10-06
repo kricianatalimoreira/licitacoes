@@ -7,7 +7,7 @@ const serviceKey=keys?JSON.parse(keys).default:env('SUPABASE_SERVICE_ROLE_KEY');
 const config={origin:env('APP_ORIGIN').replace(/\/$/,''),clientId:env('GOOGLE_CLIENT_ID'),clientSecret:env('GOOGLE_CLIENT_SECRET'),redirectUri:env('GOOGLE_REDIRECT_URI')};
 if(new URL(config.origin).protocol!=='https:' || config.redirectUri!==`${supabaseURL}/functions/v1/gmail-oauth-callback`) throw new Error('Invalid OAuth configuration');
 const jwks=createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
-export const app=handlers({config,fetch,
+export const deps={config,fetch,
  async authenticate(req) {
    const bearer=req.headers.get('Authorization');
    if(!bearer?.startsWith('Bearer '))throw new Failure('login_required',401);
@@ -20,8 +20,8 @@ export const app=handlers({config,fetch,
    if(claims.sub!==user.id || typeof claims.session_id!=='string')throw new Failure('login_required',401);
    return {id:user.id,session_id:claims.session_id};
  },
- async rpc(action,user,company,data) {
-   const response=await fetch(`${supabaseURL}/rest/v1/rpc/gmail_backend`,{method:'POST',headers:{apikey:serviceKey,Authorization:`Bearer ${serviceKey}`,'Content-Type':'application/json'},
+ async rpc(action,user,company,data,procedure='gmail_backend') {
+   const response=await fetch(`${supabaseURL}/rest/v1/rpc/${procedure}`,{method:'POST',headers:{apikey:serviceKey,Authorization:`Bearer ${serviceKey}`,'Content-Type':'application/json'},
     body:JSON.stringify({p_action:action,p_user_id:user?.id??null,p_session_id:user?.session_id??null,p_company:company,p_data:data}),signal:AbortSignal.timeout(15000)});
    if(!response.ok)throw new Failure('storage_unavailable',503);
    return response.json();
@@ -32,4 +32,5 @@ export const app=handlers({config,fetch,
    if(payload.azp && payload.azp!==audience)throw new Failure('invalid_identity');
    return payload;
  }
-});
+};
+export const app=handlers(deps);

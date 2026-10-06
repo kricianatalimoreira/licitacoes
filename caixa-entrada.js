@@ -18,8 +18,8 @@
     if(!visible.length){
       const empty=document.createElement('div');empty.className='inbox-empty';empty.setAttribute('role','status');
       const heading=document.createElement('strong'),note=document.createElement('p');
-      heading.textContent=messages.length?'Nenhuma mensagem encontrada':'Nenhuma conta conectada';
-      note.textContent=messages.length?'Tente outra pesquisa ou altere os filtros.':'Os e-mails aparecerão aqui quando a integração estiver disponível. Gmail ainda não conectado.';
+      heading.textContent=messages.length?'Nenhuma mensagem encontrada':'Caixa de entrada protegida';
+      note.textContent=messages.length?'Tente outra pesquisa ou altere os filtros.':'Entre em Abrir caixas de e-mail para sincronizar e consultar as mensagens de cada empresa.';
       empty.append(heading,note);view.list.append(empty);return;
     }
     for(const m of visible){
@@ -38,7 +38,7 @@
     }
   }
   document.querySelectorAll('[data-inbox]').forEach(host=>{
-    host.innerHTML=`<div class="trat-panel-header"><div class="trat-panel-title">✉ CAIXA DE ENTRADA (E-MAILS)</div><a class="btn btn-light btn-sm" href="gmail.html">CONECTAR CONTAS DE E-MAIL</a></div>
+    host.innerHTML=`<div class="trat-panel-header"><div class="trat-panel-title">✉ CAIXA DE ENTRADA (E-MAILS)</div><a class="btn btn-light btn-sm" href="gmail.html">ABRIR CAIXAS DE E-MAIL</a></div>
       <div class="inbox-tools"><div class="inbox-filters" role="group" aria-label="Filtrar e-mails">${['TODOS','HAMATE','GADITA','NÃO VINCULADOS'].map((name,i)=>`<button type="button" class="btn btn-light btn-sm inbox-filter" aria-pressed="${i===0}" data-filter="${name}">${name}</button>`).join('')}</div>
       <label class="inbox-search-label">Pesquisar e-mails<input type="search" class="inbox-search" placeholder="Remetente, assunto ou conteúdo…" autocomplete="off"></label></div>
       <div class="inbox-list" role="list" aria-label="Mensagens" aria-live="polite"></div>`;

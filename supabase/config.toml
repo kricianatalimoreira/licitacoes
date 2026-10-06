@@ -3,6 +3,11 @@
 verify_jwt = false
 import_map = "./functions/deno.json"
 
+[functions.gmail-sync]
+# Auth getUser + live session + company authorization in the private RPC.
+verify_jwt = false
+import_map = "./functions/deno.json"
+
 [functions.gmail-oauth-callback]
 # Google returns a code, not a Supabase JWT. Single-use state authenticates callback.
 verify_jwt = false

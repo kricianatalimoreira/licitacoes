@@ -1,3 +1,7 @@
+# Atualização: sincronização disponível
+
+A conexão abaixo foi ampliada com sincronização e listagem protegidas. Consulte [gmail-sync.md](gmail-sync.md) para o escopo atual. As seções abaixo registram a entrega inicial do OAuth.
+
 # Gmail OAuth: conexão individual das empresas
 
 ## Escopo entregue

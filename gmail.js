@@ -3,18 +3,61 @@
  const base='https://inaunswiwxfonhhdznkh.supabase.co';
  const key='sb_publishable_65qYNb-AKxd6UksFJRD5GQ_ZRLTsug2';
  // Only the short-lived SITE session is kept in memory. Never Google credentials.
- let session=null;
+ let session=null,syncing=false,stopSync=false,messageCursor=null,viewRevision=0;
  const el=id=>document.getElementById(id),notice=text=>{el('notice').textContent=text;};
  const errors={login_required:'Sua sessão expirou. Entre novamente.',not_authorized:'Sua conta não tem permissão para administrar estas conexões.',account_mismatch:'A conta escolhida não corresponde ao e-mail desta empresa. Tente novamente com a conta indicada.',reauthorize:'A autorização expirou ou foi revogada. Conecte a empresa novamente.',not_connected:'Esta empresa ainda não está conectada.',superseded:'Uma conexão mais recente foi iniciada. Atualize a página.',storage_unavailable:'Não foi possível acessar o armazenamento. Tente novamente.',google_unavailable:'Não foi possível consultar o Google agora. Tente novamente.'};
  function showError(error){notice(errors[error.message]||'Não foi possível concluir. Confira seus dados de acesso ou tente novamente.');}
- async function api(action,company){
+ async function api(action,company,extra={},endpoint='gmail-accounts'){
    if(!session)throw new Error('login_required');
-   const res=await fetch(`${base}/functions/v1/gmail-accounts`,{method:'POST',headers:{apikey:key,Authorization:`Bearer ${session}`,'Content-Type':'application/json'},body:JSON.stringify({action,company})});
+   const res=await fetch(`${base}/functions/v1/${endpoint}`,{method:'POST',headers:{apikey:key,Authorization:`Bearer ${session}`,'Content-Type':'application/json'},body:JSON.stringify({action,company,...extra})});
    const data=await res.json();
-   if(!res.ok){if(res.status===401)logout();throw new Error(data.error);}
+   if(!res.ok){if(data.error==='login_required')logout();throw new Error(data.error);}
    return data;
  }
- function logout(){session=null;el('connections').hidden=true;el('login').hidden=false;el('accounts').replaceChildren();}
+ function logout(){session=null;stopSync=true;viewRevision++;el('connections').hidden=true;el('login').hidden=false;el('accounts').replaceChildren();el('message-list').replaceChildren();}
+ Object.assign(errors,{sync_busy:'Esta caixa já está sincronizando. Aguarde um pouco e tente novamente.',stale_sync:'O lote expirou. Clique em sincronizar para retomar.',rate_limited:'O Google limitou as consultas. Aguarde alguns minutos e retome a sincronização.',sync_failed:'A sincronização foi interrompida. O progresso foi salvo; clique em sincronizar para retomar.'});
+ async function loadMessages(append=false){
+  const revision=++viewRevision,co=el('inbox-company').value;
+  if(!append){messageCursor=null;el('message-list').replaceChildren();el('more-messages').hidden=true;}
+  el('more-messages').disabled=true;
+  try{
+   const data=await api('messages',co,append&&messageCursor?messageCursor:{},'gmail-sync');
+   if(revision!==viewRevision||!session)return;
+   const rows=data.messages.slice(0,50);
+   el('inbox-summary').textContent=`${co} · ${data.total} mensagens na caixa de entrada${data.in_progress?' · Importação em andamento':''}`;
+   if(!rows.length&&!append){const p=document.createElement('p');p.textContent='Nenhuma mensagem importada nesta caixa. Clique em Sincronizar.';el('message-list').append(p);}
+   for(const m of rows){
+    const article=document.createElement('article');article.className='mail-message';article.setAttribute('role','listitem');
+    const state=document.createElement('span');state.className='muted';state.textContent=m.is_read?'LIDO':'NÃO LIDO';
+    const subject=document.createElement('h3');subject.textContent=m.subject||'(Sem assunto)';
+    const sender=document.createElement('p');sender.textContent=m.sender||'Remetente não informado';
+    const preview=document.createElement('p');preview.textContent=m.preview||'';
+    const info=document.createElement('p');info.className='muted';info.textContent=`${new Date(m.message_date).toLocaleString('pt-BR')} · ${co} · Sem tratativa vinculada`;
+    const recipients=document.createElement('p');recipients.className='muted';recipients.textContent='Para: '+(m.recipients||[]).join('; ');
+    const open=document.createElement('a');open.textContent='Abrir no Gmail ↗';open.target='_blank';open.rel='noopener noreferrer';
+    open.href=`https://mail.google.com/mail/?authuser=${encodeURIComponent(data.email)}#inbox/${encodeURIComponent(m.gmail_thread_id||m.gmail_message_id)}`;
+    article.append(state,subject,sender,recipients,preview,info,open);el('message-list').append(article);
+   }
+   const last=rows.at(-1);messageCursor=last?{before_date:last.internal_date,before_id:last.gmail_message_id}:null;
+   el('more-messages').hidden=data.messages.length<=50;
+  }catch(error){if(revision===viewRevision)showError(error);}finally{el('more-messages').disabled=false;}
+ }
+ async function synchronize(co){
+  if(syncing)return;syncing=true;stopSync=false;el('stop-sync').hidden=false;
+  document.querySelectorAll('[data-sync]').forEach(b=>b.disabled=true);
+  let processed=0,complete=false;
+  try{
+   do{
+    el('sync-progress').textContent=`Sincronizando ${co}… ${processed} mensagens verificadas. Você pode pausar após o lote atual.`;
+    const result=await api('sync',co,{},'gmail-sync');processed+=result.processed||0;complete=result.done;
+   }while(!complete&&!stopSync&&session);
+   if(session){el('sync-progress').textContent=complete?`${co}: sincronização concluída.`:`${co}: sincronização pausada. O próximo clique retoma o progresso.`;render((await api('list')).accounts);if(el('inbox-company').value===co)await loadMessages();}
+  }catch(error){el('sync-progress').textContent=`${co}: sincronização interrompida. O progresso confirmado foi preservado.`;showError(error);}
+  finally{syncing=false;el('stop-sync').hidden=true;document.querySelectorAll('[data-sync]').forEach(b=>b.disabled=false);}
+ }
+ el('inbox-company').onchange=()=>loadMessages();
+ el('more-messages').onclick=()=>loadMessages(true);
+ el('stop-sync').onclick=()=>{stopSync=true;el('stop-sync').hidden=true;};
  function render(accounts){
    el('accounts').replaceChildren();
    const statuses={connected:'Conectada',disconnected:'Não conectada',reconnect_required:'Reconexão necessária'};
@@ -31,7 +74,8 @@
     if(account.status==='connected'){
       const check=document.createElement('button');check.textContent='Verificar conexão';
       check.onclick=async()=>{check.disabled=true;try{const data=await api('check',account.company);render(data.accounts);notice('Conexão verificada. Nenhuma mensagem foi importada.');}catch(error){showError(error);check.disabled=false;}};
-      card.append(check);
+      const syncButton=document.createElement('button');syncButton.textContent=`Sincronizar ${account.company}`;syncButton.dataset.sync=account.company;syncButton.disabled=syncing;syncButton.onclick=()=>synchronize(account.company);
+      card.append(check,syncButton);
     }
     el('accounts').append(card);
    }
@@ -41,7 +85,7 @@
    try{
     const response=await fetch(`${base}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:JSON.stringify({email:el('email').value.trim(),password:el('password').value})});
     el('password').value='';if(!response.ok)throw new Error('login_failed');const data=await response.json();session=data.access_token;
-    const result=await api('list');render(result.accounts);el('login').hidden=true;el('connections').hidden=false;notice('Selecione a empresa que deseja conectar.');
+    const result=await api('list');render(result.accounts);el('login').hidden=true;el('connections').hidden=false;notice('Selecione a empresa para sincronizar ou consultar as mensagens.');await loadMessages();
    }catch(error){session=null;showError(error);}finally{button.disabled=false;el('password').value='';}
  };
  el('logout').onclick=async()=>{const token=session;logout();if(token)await fetch(`${base}/auth/v1/logout?scope=local`,{method:'POST',headers:{apikey:key,Authorization:`Bearer ${token}`}}).catch(()=>{});notice('Você saiu do acesso administrativo.');};
