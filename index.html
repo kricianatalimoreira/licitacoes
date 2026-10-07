@@ -3395,6 +3395,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 #cadastroContratoWrap table.site-table-7 td { padding:8px 5px !important; }
 </style>
 <link rel="stylesheet" href="tratativas.css">
+
+<style>.dash-tratativas-inbox{display:block!important}.dash-tratativas-inbox .trat-dashboard-card{width:100%;min-width:0}</style>
 <link rel="stylesheet" href="caixa-entrada.css">
 </head>
 <body>
@@ -3512,10 +3514,6 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <button class="menu-child" data-section-target="tratativas-todas" onclick="showSection('tratativas-todas', this)">
 <span class="menu-child-dot"></span>
 <span class="menu-label">Todas as tratativas</span>
-</button>
-<button class="menu-child" data-section-target="tratativas-caixa-entrada" onclick="showSection('tratativas-caixa-entrada', this)">
-<span class="menu-child-dot"></span>
-<span class="menu-label">Caixa de entrada</span>
 </button>
 </div>
 </div>
@@ -3674,7 +3672,6 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 </div>
 <div class="trat-summary-scroll" id="dashTratativasList" aria-live="polite"><p class="trat-note">Carregando tratativas…</p></div>
 </div>
-<section class="meta-card inbox-card" aria-label="Caixa de entrada de e-mails" data-inbox="dashboard"></section>
 </div>
 
 
@@ -11721,15 +11718,7 @@ function showToast(msg, type = 'info', duration = 3500) {
 <div class="trat-summary-scroll trat-summary-all" id="tratTodasLista" aria-live="polite"><p class="trat-note">Carregando tratativas…</p></div>
 </div>
 </section>
-<section class="page-section hidden" id="tratativas-caixa-entrada">
-<div class="topbar">
-<div>
-<h2>💬 Caixa de entrada</h2>
-<p>Tratativas</p>
-</div>
-</div>
-<section class="meta-card inbox-card inbox-page" aria-label="Caixa de entrada de e-mails" data-inbox="page"></section>
-</section>
+
 <section class="page-section hidden" id="tratativas-detalhes">
 <div class="topbar">
 <div><h2>💬 Tratativa administrativa</h2><p>Detalhes e histórico de movimentações</p></div>
@@ -11973,7 +11962,7 @@ function showToast(msg, type = 'info', duration = 3500) {
 </script>
 <script src="email-matching.js"></script>
 <script src="tratativas.js"></script>
-<script src="caixa-entrada.js"></script>
+
 <script src="aditivos.js"></script>
 </body>
 </html>

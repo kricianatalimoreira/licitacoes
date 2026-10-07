@@ -1,0 +1,3 @@
+# Email integration disabled
+
+At user request, the inbox, suggestions pages and dashboard email controls were removed. The two cron jobs are inactive, robot_settings.enabled is false, and service_role EXECUTE on gmail_backend, gmail_sync_backend and gmail_contract_backend is revoked. This blocks manual sync, OAuth connection and suggestion operations too. No mailbox was modified. Private imported messages, decisions and encrypted credentials are retained for a possible future restart; Google consent itself was not revoked. Restoring requires explicit user instruction, restoring the UI from Git history, appropriate function grants, connection validation, then reenabling jobs. Previous implementation commit: 9699b1831b5862509075011d5a8fb749677955bb.
