@@ -4,7 +4,7 @@ insert into auth.sessions(id,user_id,created_at,updated_at) values('00000000-000
 insert into gmail_private.operators values('contract-fixture@example.invalid','HAMATE');
 insert into public.contratos_ativos(id,empresa,contrato,orgao) values('fixture-h-contract','Hamate','987654/2099','Órgão de teste'),('fixture-g-contract','Gadita','987654/2099','Outra empresa');
 insert into gmail_private.messages(company,gmail_message_id,subject,internal_date,is_read,in_inbox,eligible,labels)
-values('HAMATE','fixture-contract-mail','Contrato 987654/2099',1,false,false,true,array['SENT']),('GADITA','fixture-contract-mail','Contrato 987654/2099',1,false,true,true,array['INBOX']);
+values('HAMATE','fixture-contract-mail','Contrato 987654/2099 Órgão de teste',1,false,false,true,array['SENT']),('GADITA','fixture-contract-mail','Contrato 987654/2099 Órgão de teste',1,false,true,true,array['INBOX']);
 set local role service_role;
 do $$
 declare u uuid:='00000000-0000-4000-8000-000000000501';s uuid:='00000000-0000-4000-8000-000000000601';r jsonb;d jsonb:='{"message_id":"fixture-contract-mail","contract_id":"fixture-h-contract"}';
