@@ -30,3 +30,5 @@
 .inbox-page {min-height:420px;}
 .inbox-page .inbox-list {max-height:65vh;}
 @media(max-width:1000px){.dash-tratativas-inbox{grid-template-columns:minmax(0,1fr);}.dash-tratativas-inbox > .meta-card{height:420px;}}
+
+.inbox-login{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0}.inbox-login label{display:flex;flex-direction:column;gap:5px}.inbox-login input{width:100%;min-width:0;padding:8px;border:1px solid #cbd1d8;border-radius:6px}.inbox-login button{grid-column:1/-1}.inbox-access [hidden]{display:none!important}.inbox-notice{color:#56616e;font-size:12px}.inbox-session{padding:8px 0}@media(max-width:600px){.inbox-login{grid-template-columns:1fr}}

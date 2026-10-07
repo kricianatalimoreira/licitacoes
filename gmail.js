@@ -2,17 +2,13 @@
  'use strict';
  const base='https://inaunswiwxfonhhdznkh.supabase.co';
  const key='sb_publishable_65qYNb-AKxd6UksFJRD5GQ_ZRLTsug2';
- // Only the short-lived SITE session is kept in memory. Never Google credentials.
+ const auth=window.KMEmailSession;
  let session=null,syncing=false,stopSync=false,messageCursor=null,viewRevision=0;
  const el=id=>document.getElementById(id),notice=text=>{el('notice').textContent=text;};
  const errors={login_required:'Sua sessão expirou. Entre novamente.',not_authorized:'Sua conta não tem permissão para administrar estas conexões.',account_mismatch:'A conta escolhida não corresponde ao e-mail desta empresa. Tente novamente com a conta indicada.',reauthorize:'A autorização expirou ou foi revogada. Conecte a empresa novamente.',not_connected:'Esta empresa ainda não está conectada.',superseded:'Uma conexão mais recente foi iniciada. Atualize a página.',storage_unavailable:'Não foi possível acessar o armazenamento. Tente novamente.',google_unavailable:'Não foi possível consultar o Google agora. Tente novamente.'};
  function showError(error){notice(errors[error.message]||'Não foi possível concluir. Confira seus dados de acesso ou tente novamente.');}
  async function api(action,company,extra={},endpoint='gmail-accounts'){
-   if(!session)throw new Error('login_required');
-   const res=await fetch(`${base}/functions/v1/${endpoint}`,{method:'POST',headers:{apikey:key,Authorization:`Bearer ${session}`,'Content-Type':'application/json'},body:JSON.stringify({action,company,...extra})});
-   const data=await res.json();
-   if(!res.ok){if(data.error==='login_required')logout();throw new Error(data.error);}
-   return data;
+   return auth.api(action,company,extra,endpoint);
  }
  function logout(){session=null;stopSync=true;viewRevision++;el('connections').hidden=true;el('login').hidden=false;el('accounts').replaceChildren();el('message-list').replaceChildren();}
  Object.assign(errors,{sync_busy:'Esta caixa já está sincronizando. Aguarde um pouco e tente novamente.',stale_sync:'O lote expirou. Clique em sincronizar para retomar.',rate_limited:'O Google limitou as consultas. Aguarde alguns minutos e retome a sincronização.',sync_failed:'A sincronização foi interrompida. O progresso foi salvo; clique em sincronizar para retomar.'});
@@ -83,12 +79,15 @@
  el('login-form').onsubmit=async event=>{
    event.preventDefault();const button=event.submitter;button.disabled=true;notice('Entrando…');
    try{
-    const response=await fetch(`${base}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:JSON.stringify({email:el('email').value.trim(),password:el('password').value})});
-    el('password').value='';if(!response.ok)throw new Error('login_failed');const data=await response.json();session=data.access_token;
+    await auth.signIn(el('email').value.trim(),el('password').value);
+    el('password').value='';session=true;
     const result=await api('list');render(result.accounts);el('login').hidden=true;el('connections').hidden=false;notice('Selecione a empresa para sincronizar ou consultar as mensagens.');await loadMessages();
    }catch(error){session=null;showError(error);}finally{button.disabled=false;el('password').value='';}
  };
- el('logout').onclick=async()=>{const token=session;logout();if(token)await fetch(`${base}/auth/v1/logout?scope=local`,{method:'POST',headers:{apikey:key,Authorization:`Bearer ${token}`}}).catch(()=>{});notice('Você saiu do acesso administrativo.');};
+ el('logout').onclick=async()=>{logout();await auth.signOut();notice('Você saiu do acesso administrativo.');};
+ async function restore(){try{session=true;const result=await api('list');render(result.accounts);el('login').hidden=true;el('connections').hidden=false;await loadMessages();}catch(error){logout();showError(error);}}
+ auth.onChange(active=>{if(!active)logout();});
+ if(auth.has())restore();
  const code=new URLSearchParams(location.search).get('oauth');
  if(code){history.replaceState(null,'',location.pathname);const messages={connected:'Conta conectada com sucesso. Entre novamente para conferir o status.',consent_denied:'Autorização cancelada. Nenhuma conexão foi alterada.',missing_scope:'A permissão de leitura do Gmail não foi concedida.',missing_refresh_token:'O Google não forneceu autorização contínua. Tente conectar novamente.',expired_state:'A solicitação expirou. Entre e inicie uma nova conexão.',invalid_state:'A solicitação é inválida ou já foi utilizada.'};notice(messages[code]||errors[code]||'Não foi possível concluir a conexão. Entre e tente novamente.');}
 })();
