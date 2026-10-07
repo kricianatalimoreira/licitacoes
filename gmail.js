@@ -20,7 +20,7 @@
    const data=await api('messages',co,append&&messageCursor?messageCursor:{},'gmail-sync');
    if(revision!==viewRevision||!session)return;
    const rows=data.messages.slice(0,50);
-   el('inbox-summary').textContent=`${co} · ${data.total} mensagens na caixa de entrada${data.in_progress?' · Importação em andamento':''}`;
+   el('inbox-summary').textContent=`${co} · ${data.total} mensagens importadas (exceto spam e lixeira)${data.in_progress?' · Importação em andamento':''}`;
    if(!rows.length&&!append){const p=document.createElement('p');p.textContent='Nenhuma mensagem importada nesta caixa. Clique em Sincronizar.';el('message-list').append(p);}
    for(const m of rows){
     const article=document.createElement('article');article.className='mail-message';article.setAttribute('role','listitem');
@@ -28,11 +28,11 @@
     const subject=document.createElement('h3');subject.textContent=m.subject||'(Sem assunto)';
     const sender=document.createElement('p');sender.textContent=m.sender||'Remetente não informado';
     const preview=document.createElement('p');preview.textContent=m.preview||'';
-    const info=document.createElement('p');info.className='muted';info.textContent=`${new Date(m.message_date).toLocaleString('pt-BR')} · ${co} · Sem tratativa vinculada`;
+    const info=document.createElement('p');info.className='muted';info.textContent=`${new Date(m.message_date).toLocaleString('pt-BR')} · ${co} · ${m.contract_id?'Contrato vinculado':'Sem contrato vinculado'}`;
     const recipients=document.createElement('p');recipients.className='muted';recipients.textContent='Para: '+(m.recipients||[]).join('; ');
     const open=document.createElement('a');open.textContent='Abrir no Gmail ↗';open.target='_blank';open.rel='noopener noreferrer';
-    open.href=`https://mail.google.com/mail/?authuser=${encodeURIComponent(data.email)}#inbox/${encodeURIComponent(m.gmail_thread_id||m.gmail_message_id)}`;
-    article.append(state,subject,sender,recipients,preview,info,open);el('message-list').append(article);
+    open.href=`https://mail.google.com/mail/?authuser=${encodeURIComponent(data.email)}#all/${encodeURIComponent(m.gmail_thread_id||m.gmail_message_id)}`;
+    const link=document.createElement('a');link.textContent=m.contract_id?'VER VÍNCULO':'VINCULAR AO CONTRATO';link.href=`vinculos.html?empresa=${encodeURIComponent(co)}&mensagem=${encodeURIComponent(m.gmail_message_id)}`;article.append(state,subject,sender,recipients,preview,info,open,document.createTextNode(' · '),link);el('message-list').append(article);
    }
    const last=rows.at(-1);messageCursor=last?{before_date:last.internal_date,before_id:last.gmail_message_id}:null;
    el('more-messages').hidden=data.messages.length<=50;

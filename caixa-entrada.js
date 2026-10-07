@@ -15,7 +15,7 @@
   </article>`;
   function render(view) {
     const query=normalize(view.search.value);
-    const visible=messages.filter(m=>(view.filter==='TODOS'||(view.filter==='NÃO VINCULADOS'?!m.tratativaId:normalize(m.empresa)===normalize(view.filter)))&&normalize([m.remetente,m.assunto,m.preview,m.empresa,m.tratativaTitulo].join(' ')).includes(query));
+    const visible=messages.filter(m=>(view.filter==='TODOS'||(view.filter==='NÃO VINCULADOS'?!m.contractId:normalize(m.empresa)===normalize(view.filter)))&&normalize([m.remetente,m.assunto,m.preview,m.empresa,m.tratativaTitulo].join(' ')).includes(query));
     view.list.replaceChildren();
     if(!visible.length){
       const empty=document.createElement('div');empty.className='inbox-empty';empty.setAttribute('role','status');
@@ -33,17 +33,18 @@
       text('.inbox-subject',m.assunto||'(Sem assunto)');
       text('.inbox-preview',m.preview||'');
       text('.inbox-company','Para: '+(m.empresa||'Empresa não informada'));
-      text('.inbox-link-label',m.tratativaId?'Tratativa: '+(m.tratativaTitulo||m.tratativaId):'Não vinculado a uma tratativa');
+      text('.inbox-link-label',m.contractId?'Contrato vinculado':'Sem contrato vinculado');
       const open=document.createElement('a');open.className='btn btn-light btn-sm';open.textContent='Gmail ↗';open.target='_blank';open.rel='noopener noreferrer';
-      open.href=`https://mail.google.com/mail/?authuser=${encodeURIComponent(m.account||'')}#inbox/${encodeURIComponent(m.threadId||m.id||'')}`;
+      open.href=`https://mail.google.com/mail/?authuser=${encodeURIComponent(m.account||'')}#all/${encodeURIComponent(m.threadId||m.id||'')}`;
       item.querySelector('.inbox-message-actions button').replaceWith(open);
+      const link=document.createElement('a');link.className='btn btn-light btn-sm';link.textContent=m.contractId?'VER VÍNCULO':'VINCULAR AO CONTRATO';link.href=`vinculos.html?empresa=${encodeURIComponent(m.empresa)}&mensagem=${encodeURIComponent(m.id)}`;item.querySelector('.inbox-message-actions button').replaceWith(link);
       const date=new Date(m.dataHora),time=item.querySelector('time');
       if(Number.isFinite(date.getTime())){time.dateTime=date.toISOString();time.textContent=date.toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});}else time.textContent='Data não informada';
       view.list.append(item);
     }
   }
   document.querySelectorAll('[data-inbox]').forEach(host=>{
-    host.innerHTML=`<div class="trat-panel-header"><div class="trat-panel-title">✉ CAIXA DE ENTRADA (E-MAILS)</div><a class="btn btn-light btn-sm" href="gmail.html">GERENCIAR CONTAS</a></div>
+    host.innerHTML=`<div class="trat-panel-header"><div class="trat-panel-title">✉ E-MAILS DAS EMPRESAS</div><a class="btn btn-light btn-sm" href="gmail.html">GERENCIAR CONTAS</a><a class="btn btn-light btn-sm" href="vinculos.html">SUGESTÕES DO ROBÔ</a></div>
       <div class="inbox-access"><form class="inbox-login"><label>E-mail do sistema<input type="email" name="email" autocomplete="username" value="kricianatalimoreira@gmail.com" required></label><label>Senha do sistema<input type="password" name="password" autocomplete="current-password" required></label><button class="btn btn-light btn-sm" type="submit">ENTRAR E MANTER CONECTADO</button></form><div class="inbox-session" hidden><button type="button" class="btn btn-light btn-sm inbox-reload">ATUALIZAR</button> <button type="button" class="btn btn-light btn-sm inbox-logout">SAIR</button></div><p class="inbox-notice" role="status"></p></div>
       <div class="inbox-tools"><div class="inbox-filters" role="group" aria-label="Filtrar e-mails">${['TODOS','HAMATE','GADITA','NÃO VINCULADOS'].map((name,i)=>`<button type="button" class="btn btn-light btn-sm inbox-filter" aria-pressed="${i===0}" data-filter="${name}">${name}</button>`).join('')}</div>
       <label class="inbox-search-label">Pesquisar e-mails<input type="search" class="inbox-search" placeholder="Remetente, assunto ou conteúdo…" autocomplete="off"></label></div>
@@ -73,7 +74,7 @@
         if(version!==generation||!auth.has())return;
         const rows=data.messages.slice(0,50),last=rows.at(-1);
         pages.set(a.company,{more:data.messages.length>50,cursor:last?{before_date:last.internal_date,before_id:last.gmail_message_id}:{}});
-        for(const m of rows){const value={id:m.gmail_message_id,threadId:m.gmail_thread_id,account:data.email,empresa:a.company,lido:m.is_read,remetente:m.sender,assunto:m.subject,preview:m.preview,dataHora:m.message_date,tratativaId:m.tratativa_id};const index=messages.findIndex(x=>x.id===value.id&&x.empresa===value.empresa);if(index<0)messages.push(value);else messages[index]=value;}
+        for(const m of rows){const value={id:m.gmail_message_id,threadId:m.gmail_thread_id,account:data.email,empresa:a.company,lido:m.is_read,remetente:m.sender,assunto:m.subject,preview:m.preview,dataHora:m.message_date,tratativaId:m.tratativa_id,contractId:m.contract_id};const index=messages.findIndex(x=>x.id===value.id&&x.empresa===value.empresa);if(index<0)messages.push(value);else messages[index]=value;}
       }
       messages.sort((a,b)=>new Date(b.dataHora)-new Date(a.dataHora));ready=true;
     }catch(e){if(version===generation){errorText=e.message==='not_authorized'?'Seu usuário não tem acesso a estas caixas.':'Não foi possível carregar os e-mails. Entre novamente se a sessão expirou ou clique em Atualizar.';}}

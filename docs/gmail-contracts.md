@@ -1,0 +1,15 @@
+# Contract suggestions and automatic Gmail import
+
+The backend imports all messages except SPAM and TRASH in 20-message durable batches. Inbox, sent, and archived messages are eligible. Google scope remains gmail.readonly; no messages are sent, deleted or marked read. Message bodies and attachments are not downloaded.
+
+A backend cron job runs every two minutes per company, staggered by one minute. gmail-robot requires a random 256-bit bearer credential stored only in Vault (gmail_robot_key). The Edge Function validates it through a service-role-only RPC, then invokes the existing sync logic. The robot cannot approve links or impersonate a user. To pause both jobs set gmail_private.robot_settings.enabled=false; cron also skips disconnected accounts. No frontend credential changes or new environment variables are required.
+
+The contract catalog normalizes the company name and deduplicates active/closed copies by ID, preferring active. Suggestions compare explicit number/year references in subject and preview with contract/process numbers. Dates are excluded. Matches are suggestions only, not proof. There is no AI provider or external transmission of message contents. Up to 100 eligible messages are evaluated per tick, prioritizing new/changed messages and reevaluating daily. Rejected candidate pairs remain rejected.
+
+Private tables: contract_suggestions (company, message, contract, reason, status, created/decision times, actor), contract_links (one current contract per company/message, actor, time), contract_link_events (audit), robot_settings. Every table has RLS and no anon/authenticated privileges. User operations verify a live Auth session and company operator access, and recheck current contract ownership and message eligibility at confirmation. No mail metadata is copied into public contracts or legacy tratativas. Links are per message, not implicit conversation-wide links.
+
+UI: /vinculos.html shows pending suggestions and asks for a separate confirmation before linking. Each email in the dashboard and /gmail.html also links to a manual contract picker. Ignore suppresses that pair; unlink is available for an existing link. The page displays up to 100 pending candidates, refreshed after decisions. It uses textContent, not email HTML. Users can still open messages in Gmail.
+
+Validation: node --test tests/gmail-oauth.test.mjs tests/gmail-sync.test.mjs tests/gmail-contracts.test.mjs tests/email-session.test.cjs. SQL tests/gmail-contract-storage.sql runs synthetic fixtures and rolls back (consent guard, cross-company denial, repeat rejection, unlink, direct-client denial). Production cron should be checked for HTTP success plus cursor progression. No real email-contract association is created by deployment or tests.
+
+References: https://supabase.com/docs/guides/functions/schedule-functions ; https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list

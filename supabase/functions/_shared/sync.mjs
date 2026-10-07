@@ -10,7 +10,7 @@ export function metadata(message) {
   message_id:first('message-id'),in_reply_to:first('in-reply-to'),reference_ids:(all('references').join(' ').match(/<[^>]+>/g)||[]),
   sender:first('from'),recipients:all('to'),cc:all('cc'),subject:first('subject'),internal_date:String(date),
   message_date:new Date(date).toISOString(),preview:String(message.snippet||'').slice(0,8000),is_read:!labels.includes('UNREAD'),
-  in_inbox:labels.includes('INBOX')&&!labels.includes('TRASH')&&!labels.includes('SPAM'),labels};
+  eligible:!labels.includes('TRASH')&&!labels.includes('SPAM'),in_inbox:labels.includes('INBOX')&&!labels.includes('TRASH')&&!labels.includes('SPAM'),labels};
 }
 export function historyIDs(page) {
  const ids=new Set();
@@ -68,7 +68,7 @@ export function syncHandler(deps) {
    let ids=[];
    if(state.phase==='full'){
     let page;
-    try{page=await gmail(`messages?labelIds=INBOX&maxResults=20${state.page_token?'&pageToken='+encodeURIComponent(state.page_token):''}`);}
+    try{page=await gmail(`messages?includeSpamTrash=false&maxResults=20${state.page_token?'&pageToken='+encodeURIComponent(state.page_token):''}`);}
     catch(e){if(e.code==='invalid_page'&&state.page_token){const result=await db('commit',{lease_id:lease,state:{phase:'full'},messages:[]});lease=null;return response({...result,restarting:true});}throw e;}
     ids=(page.messages||[]).map(m=>m.id);
     if(page.nextPageToken)state.page_token=page.nextPageToken;
@@ -87,7 +87,7 @@ export function syncHandler(deps) {
    for(let i=0;i<ids.length;i+=5){
     const batch=await Promise.all(ids.slice(i,i+5).map(async id=>{
      const m=await gmail(`messages/${encodeURIComponent(id)}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Cc&metadataHeaders=Subject&metadataHeaders=Message-ID&metadataHeaders=In-Reply-To&metadataHeaders=References&metadataHeaders=Date`,true);
-     return m?metadata(m):{gmail_message_id:id,in_inbox:false};
+     return m?metadata(m):{gmail_message_id:id,in_inbox:false,eligible:false};
     }));messages.push(...batch);
    }
    const result=await db('commit',{lease_id:lease,state,messages,full_complete,generation});lease=null;

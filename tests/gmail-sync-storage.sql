@@ -9,7 +9,7 @@ begin
  m:=jsonb_build_object('gmail_message_id','sync-test-shared-id','gmail_thread_id','test-thread','history_id','90071992547409999',
  'message_id','<test>','reference_ids',jsonb_build_array('<parent>'),'sender','sender@example.invalid','recipients',jsonb_build_array('recipient@example.invalid'),
  'cc','[]'::jsonb,'subject','sync fixture','internal_date','1760000000000','message_date','2025-10-09T08:53:20Z','preview','plain preview',
- 'is_read',false,'in_inbox',true,'labels',jsonb_build_array('INBOX','UNREAD'));
+ 'is_read',false,'eligible',true,'in_inbox',true,'labels',jsonb_build_array('INBOX','UNREAD'));
  foreach co in array array['HAMATE','GADITA'] loop
   r:=public.gmail_sync_backend('claim',u,s,co);l:=r->>'lease_id';
   r:=public.gmail_sync_backend('claim',u,s,co);if r->>'error'<>'sync_busy' then raise exception 'lease overlap';end if;
