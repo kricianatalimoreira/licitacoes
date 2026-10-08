@@ -3546,14 +3546,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 </div>
 
 <div style="font-size:10px;font-weight:800;color:var(--primary);letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--primary-border);">⚡ DISPUTAS</div>
-<!-- LAYOUT 2 COLUNAS -->
-<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:14px;">
-
-<!-- ══ COLUNA ESQUERDA: Disputas em Andamento ══ -->
-<div style="flex:1.15;display:flex;flex-direction:column;gap:14px;min-width:0;">
-
-<!-- DISPUTAS EM ANDAMENTO (lista, destaque) -->
-<div class="meta-card" style="display:flex;flex-direction:column;box-sizing:border-box;max-height:260px;overflow:hidden;">
+<!-- Dashboard grouped by subject -->
+<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:14px;"><div style="flex:1.15;min-width:0;"><div class="meta-card" style="display:flex;flex-direction:column;box-sizing:border-box;max-height:260px;overflow:hidden;">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
 <div style="font-size:11px;font-weight:800;color:var(--primary);letter-spacing:.08em;">📋 DISPUTAS EM ANDAMENTO</div>
 <div style="display:flex;align-items:center;gap:10px;">
@@ -3569,33 +3563,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <div style="text-align:center;">Link</div>
 </div>
 <div class="dash-disputas-list" id="dashDisputasAndamentoList" style="flex:1;overflow-y:auto;"></div>
-</div>
-
-<!-- EMPENHOS EM ANDAMENTO (lista) -->
-<div class="meta-card" style="display:flex;flex-direction:column;box-sizing:border-box;max-height:320px;overflow:hidden;">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-<div style="font-size:11px;font-weight:800;color:var(--primary);letter-spacing:.08em;">📦 EMPENHOS EM ANDAMENTO</div>
-<button class="venc-banner-link" style="font-size:10px;background:none;border:none;cursor:pointer;" onclick="showSection('empenhos-andamento',document.querySelector('[data-section-target=empenhos-andamento]'))">Ver todos →</button>
-</div>
-<div class="dash-emp-row dash-emp-row-head">
-<div>Data</div>
-<div>Órgão / Contrato</div>
-<div>Nº Empenho</div>
-<div>Valor</div>
-<div>Status</div>
-</div>
-<div class="dash-emp-list" id="dashEmpAndamentoList" style="flex:1;overflow-y:auto;"></div>
-</div>
-
-
-</div>
-<!-- ══ FIM COLUNA ESQUERDA ══ -->
-
-<!-- ══ COLUNA DIREITA: Disputas + Contratos ══ -->
-<div id="dashColunaDireita" style="flex:1;display:flex;flex-direction:column;gap:14px;min-width:0;">
-
-<!-- DISPUTAS -->
-<div id="dashBlocoDisputas">
+</div></div><div id="dashColunaDireita" style="flex:1;min-width:0;"><div id="dashBlocoDisputas">
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
 <div class="dash-kpi-card" onclick="showSection('disputa-andamento',document.querySelector('[data-section-target=disputa-andamento]'))">
   <div class="dash-kpi-label">Participadas no Mês</div>
@@ -3622,11 +3590,22 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
   <div class="dash-kpi-sub" id="dashKpiDisputasSub"></div>
 </div>
 </div>
-</div>
-
-<!-- CONTRATOS -->
-<div>
+</div></div></div>
 <div style="font-size:10px;font-weight:800;color:#2563eb;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #dbeafe;">📝 CONTRATOS</div>
+<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:14px;"><div style="flex:1.15;min-width:0;"><div class="meta-card" style="display:flex;flex-direction:column;box-sizing:border-box;max-height:320px;overflow:hidden;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+<div style="font-size:11px;font-weight:800;color:var(--primary);letter-spacing:.08em;">📦 EMPENHOS EM ANDAMENTO</div>
+<button class="venc-banner-link" style="font-size:10px;background:none;border:none;cursor:pointer;" onclick="showSection('empenhos-andamento',document.querySelector('[data-section-target=empenhos-andamento]'))">Ver todos →</button>
+</div>
+<div class="dash-emp-row dash-emp-row-head">
+<div>Data</div>
+<div>Órgão / Contrato</div>
+<div>Nº Empenho</div>
+<div>Valor</div>
+<div>Status</div>
+</div>
+<div class="dash-emp-list" id="dashEmpAndamentoList" style="flex:1;overflow-y:auto;"></div>
+</div></div><div id="dashBlocoContratos" style="flex:1;min-width:0;"><div>
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
 <div class="dash-kpi-card" style="min-height:96px;" onclick="showSection('contratos-ativos',document.querySelector('[data-section-target=contratos-ativos]'))">
   <div class="dash-kpi-label">Gerados no Mês</div>
@@ -3653,13 +3632,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
   <div class="dash-kpi-sub" id="dashKpiConVencerSub"></div>
 </div>
 </div>
-</div>
-
-</div>
-<!-- ══ FIM COLUNA DIREITA ══ -->
-
-</div>
-<!-- ══ FIM LAYOUT 2 COLUNAS ══ -->
+</div></div></div>
 
 <div class="dash-tratativas-inbox">
 <div class="meta-card trat-dashboard-card" id="dashTratativasCard">
