@@ -26,10 +26,11 @@
     try { const u = new URL(value); return ['http:','https:'].includes(u.protocol) ? u.href : ''; } catch { return ''; }
   }
   function link(value,label) { const u=url(value); return u ? `<a class="btn btn-light btn-sm" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>` : ''; }
-  function gmailLink(value) {
+  function gmailLink(value, compact = false) {
     const u=url(value);
     const icon='<svg width="18" height="14" viewBox="0 0 24 18" aria-hidden="true" focusable="false" style="vertical-align:middle;margin-right:6px"><path fill="#4285f4" d="M0 4v12a2 2 0 0 0 2 2h3V7z"/><path fill="#34a853" d="M19 7v11h3a2 2 0 0 0 2-2V4z"/><path fill="#ea4335" d="M5 7l7 5 7-5V2l-7 5-7-5z"/><path fill="#c5221f" d="M0 4V2a2 2 0 0 1 3-1l2 1v5z"/><path fill="#fbbc04" d="M19 2l2-1a2 2 0 0 1 3 1v2l-5 3z"/></svg>';
-    return u ? `<a class="btn btn-light btn-sm" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${icon}Abrir e-mail</a>` : `<button type="button" class="btn btn-light btn-sm" disabled title="Adicione o link do Gmail em Editar para abrir o e-mail.">${icon}Abrir e-mail</button>`;
+    const content=compact?icon.replace("margin-right:6px","margin-right:0"):icon+"Abrir e-mail";
+    return u ? `<a class="btn btn-light btn-sm" href="${esc(u)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir e-mail no Gmail" title="Abrir e-mail no Gmail">${content}</a>` : `<button type="button" class="btn btn-light btn-sm" disabled aria-label="E-mail sem link cadastrado" title="Adicione o link do Gmail em Editar para abrir o e-mail.">${content}</button>`;
   }
   function tone(t) {
     if (FINAIS.has(t.situacao)) return ['DEFERIDO','CONCLUÍDO'].includes(t.situacao) ? 'green' : 'neutral';
@@ -114,12 +115,12 @@
     if(!ready)return `<p class="trat-note" role="status">${esc(loadError||'Carregando tratativas…')}</p>${loadError?'<button type="button" class="btn btn-light btn-sm" data-trat-action="reload">Tentar novamente</button>':''}`;
     if(!rows.length)return '<p class="trat-note">Nenhuma tratativa cadastrada.</p>';
     const list=[...rows].sort((a,b)=>Number(active(b))-Number(active(a))||(Date.parse(movementDate(b))||0)-(Date.parse(movementDate(a))||0)||a.id.localeCompare(b.id));
-    return `${movementError?`<p class="trat-note" role="status">${esc(movementError)} <button type="button" class="btn btn-light btn-sm" data-trat-action="reload">Tentar novamente</button></p>`:''}<table class="trat-summary-table" aria-label="Tratativas administrativas"><thead><tr>${['Órgão','Empenho / Contrato','Tipo de tratativa','Última<br>movimentação','Próxima ação','Status','Dias'].map(h=>`<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${list.map(t=>{
+    return `${movementError?`<p class="trat-note" role="status">${esc(movementError)} <button type="button" class="btn btn-light btn-sm" data-trat-action="reload">Tentar novamente</button></p>`:''}<table class="trat-summary-table" aria-label="Tratativas administrativas"><thead><tr>${['Órgão','Empenho / Contrato','Tipo de tratativa','Última<br>movimentação','E-mail','Status','Dias'].map(h=>`<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${list.map(t=>{
       const c=contract(t.contrato_id),moment=movementDate(t),days=daysSince(moment),status=summaryStatus(t);
       const color={'Em andamento':'blue','Aguardando órgão':'orange','Resposta recebida':'green','Follow-up':'yellow','Em análise':'purple','Deferido':'green','Indeferido':'red','Encerrado':'neutral'}[status]||'neutral';
       const linked=(t.empenho_ids||[]).map(id=>empenhos.find(e=>String(e.id)===String(id)));
       const empenhoText=linked.map(e=>e?.numero||'Número indisponível').join(', ');
-      return `<tr data-tratativa-id="${esc(t.id)}"><td class="trat-summary-orgao"><button type="button" class="trat-detail-link" data-trat-action="detail" data-id="${esc(t.id)}" aria-label="Abrir detalhes: ${esc(c?.orgao||'tratativa')}">${esc(c?.orgao||'Órgão indisponível')}</button></td><td>${empenhoText?`<span>Empenho: ${esc(empenhoText)}</span>`:''}<span class="${empenhoText?'trat-summary-secondary':''}">Contrato: ${esc(c?.contrato||'Não informado')}</span></td><td>${esc(t.tipo_tratativa||tipoNome(t.tipo))}</td><td>${moment?esc(datetime(moment)):'—'}</td><td>${esc(t.proxima_acao||'Não informada')}${t.data_proxima_acao||t.acompanhar_em?`<span class="trat-summary-secondary">${esc(date(t.data_proxima_acao||t.acompanhar_em))}</span>`:''}</td><td><span class="trat-badge trat-${color}">${esc(status)}</span></td><td title="Dias corridos desde a última movimentação administrativa relevante">${days===null?'—':days}</td></tr>`;
+      return `<tr data-tratativa-id="${esc(t.id)}"><td class="trat-summary-orgao"><button type="button" class="trat-detail-link" data-trat-action="detail" data-id="${esc(t.id)}" aria-label="Abrir detalhes: ${esc(c?.orgao||'tratativa')}">${esc(c?.orgao||'Órgão indisponível')}</button></td><td>${empenhoText?`<span>Empenho: ${esc(empenhoText)}</span>`:''}<span class="${empenhoText?'trat-summary-secondary':''}">Contrato: ${esc(c?.contrato||'Não informado')}</span></td><td>${esc(t.tipo_tratativa||tipoNome(t.tipo))}</td><td>${moment?esc(datetime(moment)):'—'}</td><td style="text-align:center">${gmailLink(t.link_gmail||(t.emails_vinculados||[]).find(m=>url(m.link))?.link,true)}</td><td><span class="trat-badge trat-${color}">${esc(status)}</span></td><td title="Dias corridos desde a última movimentação administrativa relevante">${days===null?'—':days}</td></tr>`;
     }).join('')}</tbody></table>`;
   }
   function renderSummaries() {
