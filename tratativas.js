@@ -123,6 +123,21 @@
       return `<tr data-tratativa-id="${esc(t.id)}"><td class="trat-summary-orgao"><button type="button" class="trat-detail-link" data-trat-action="detail" data-id="${esc(t.id)}" aria-label="Abrir detalhes: ${esc(c?.orgao||'tratativa')}">${esc(c?.orgao||'Órgão indisponível')}</button></td><td>${empenhoText?`<span>Empenho: ${esc(empenhoText)}</span>`:''}<span class="${empenhoText?'trat-summary-secondary':''}">Contrato: ${esc(c?.contrato||'Não informado')}</span></td><td>${esc(t.tipo_tratativa||tipoNome(t.tipo))}</td><td>${moment?esc(datetime(moment)):'—'}</td><td style="text-align:center">${gmailLink(t.link_gmail||(t.emails_vinculados||[]).find(m=>url(m.link))?.link,true)}</td><td><span class="trat-badge trat-${color}">${esc(status)}</span></td><td title="Dias corridos desde a última movimentação administrativa relevante">${days===null?'—':days}</td></tr>`;
     }).join('')}</tbody></table>`;
   }
+  function acompanharTodasTratativas(button) {
+    const panel=button.closest('.meta-card, .page-section');
+    const links=[...new Set([...panel.querySelectorAll('.trat-summary-table a[aria-label="Abrir e-mail no Gmail"]')].map(a=>a.href).filter(href=>{
+      try { const u=new URL(href);return u.protocol==='https:'&&u.hostname==='mail.google.com'; } catch { return false; }
+    }))];
+    if(!links.length){showToast('Nenhum link do Gmail cadastrado nas tratativas desta lista.','error');return;}
+    let opened=0;
+    for(const href of links){
+      const tab=window.open('','_blank');
+      if(!tab)continue;
+      tab.opener=null;tab.location.replace(href);opened++;
+    }
+    if(opened<links.length)showToast('O navegador bloqueou algumas abas. Permita pop-ups para este site e tente novamente.','error');
+    else showToast(opened+' e-mail(s) aberto(s) no Gmail.','success');
+  }
   function renderSummaries() {
     const html=summaryTable();
     for(const id of ['dashTratativasList','tratTodasLista']) {const host=el(id);if(host&&host.innerHTML!==html)host.innerHTML=html;}
@@ -398,6 +413,7 @@
     if(action==='reload-detail')return void loadDetail(detailId);
     if(action==='new-movement')return openMovement();
     if(action==='cancel-movement')return closeMovement();
+    if(action==='follow-all')return acompanharTodasTratativas(b);
     if(action==='new-global')return openNew();
     if(action==='view-all') {
       el('menuGroupTratativas')?.classList.add('is-open');
