@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {classifyReply} from '../supabase/functions/_shared/reply-classifier.mjs';
+const binding={threadId:'abc',ownAddresses:['company@example.com'],counterpartAddresses:['orgao@example.gov']};
+const message=(id,from,at,labels=[],headers=[])=>({id,threadId:'abc',internalDate:String(at),labelIds:labels,payload:{headers:[{name:'From',value:from},...headers]}});
+const outgoing=message('s','company@example.com',100,['SENT']);
+const incoming=message('r','Orgao <orgao@example.gov>',200,['INBOX']);
+const classify=messages=>classifyReply({id:'abc',messages},binding);
+test('received after sent requires reply; read status is irrelevant',()=>{assert.equal(classify([outgoing,incoming]).pending,true);assert.equal(classify([outgoing,{...incoming,labelIds:['INBOX','UNREAD']}]).pending,true);});
+test('later sent reply clears alert',()=>assert.equal(classify([outgoing,incoming,message('s2','company@example.com',300,['SENT'])]).pending,false));
+test('draft is not a reply',()=>assert.equal(classify([outgoing,incoming,message('d','company@example.com',300,['DRAFT','SENT'])]).pending,true));
+test('unknown senders do not produce false alerts',()=>assert.equal(classify([outgoing,message('x','other@example.com',200)]).pending,false));
+test('spam trash and automatic replies ignored',()=>{for(const label of ['SPAM','TRASH'])assert.equal(classify([outgoing,{...incoming,labelIds:[label]}]).pending,false);assert.equal(classify([outgoing,message('a','orgao@example.gov',200,[],[{name:'Auto-Submitted',value:'auto-replied'}])]).pending,false);});
+test('pending duration starts at first unanswered message',()=>assert.equal(classify([outgoing,incoming,message('r2','orgao@example.gov',300)]).pendingSince,200));
+test('different threads fail closed',()=>assert.throws(()=>classify([{...incoming,threadId:'different'}]),/invalid_message/));
+test('company addresses cannot be counterpart addresses',()=>assert.throws(()=>classifyReply({id:'abc',messages:[incoming]},{...binding,counterpartAddresses:binding.ownAddresses}),/invalid_participants/));
