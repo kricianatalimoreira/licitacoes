@@ -1,18 +1,17 @@
-# Gmail reply monitor — preparation
+# Gmail replies — implemented
+Protected UI: /respostas.html; dashboard banner links to setup. HAMATE and GADITA OAuth were renewed and verified individually. The worker is deployed as gmail-replies with verify_jwt=true plus application Auth/session/operator checks. Scheduler uses the legacy public anon JWT only for gateway verification, and a separate secret X-Monitor-Key validated against Vault. No Google token reaches the browser.
 
-User authorized a new integration on 2026-10-20 to detect replies to existing treatment conversations. Restored connection-only UI and service_role EXECUTE on gmail_backend. Automatic contract matching, sync RPC and old cron jobs remain disabled.
+## Exact bindings
+Users search their selected company Gmail, inspect a conversation, then explicitly select counterpart sender addresses and confirm it for an existing open treatment. API verifies company ownership and sender presence. Opaque Gmail web links are not treated as API IDs. Bindings are private and are invalidated when the saved source link changes. Closed/deleted treatments are omitted. No fuzzy matching, no email sending, no body or attachment import.
 
-## Existing architecture
-Static frontend on Vercel; Supabase Auth, Edge Functions and private gmail_private schema. OAuth tokens encrypted in Vault. Companies and operators already separate HAMATE and GADITA. Public treatment tables currently admit anonymous access: never copy email metadata or alerts there.
+## State and access
+gmail_private.reply_watches stores company, treatment, thread ID, approved counterpart addresses, source link, operator, binding revision, last outgoing/incoming IDs/times, pending flag/time, last successful check/attempt/error. RLS and no client grants; only service-role RPC with session/operator validation. Public treatment records and their history are unchanged. Dashboard reads alerts through the authenticated endpoint and overlays red rows/sorts pending first. Session loss clears private UI.
 
-## Configuration
-Reuse GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI and APP_ORIGIN. Supabase supplies backend credentials. No new secret required for connection validation. OAuth uses openid email gmail.readonly, state, nonce, PKCE and exact mailbox identity validation. User must reauthorize each company if expired.
+## Polling
+Separate reply_settings and reply_robot_allowed; original robot_settings remains false, gmail-robot-* jobs remain inactive and old sync/matching RPC grants remain revoked. New gmail-reply-hamate and gmail-reply-gadita cron jobs run every five minutes, staggered, only if connected and bindings exist. Maximum 10 oldest-attempt bindings per run; larger queues need additional cycles. Independent failures are recorded and stale state displayed after 15 minutes. Reading mail does not clear a pending reply. Later SENT from the company clears pending. Only confirmed counterpart incoming messages count. Draft, spam, trash, Auto-Submitted and autoreply markers are excluded. Replies sent from aliases not registered as the company's main account are not automatically recognized.
 
-## Next implementation after validating connections
-Private treatment_threads keyed by company + treatment + Gmail API thread ID; record approved sender addresses, source link fingerprint, binding confirmation, last received/sent message IDs and times, last checked time, error and pending reply state. Private events record transitions. Protected API validates operator/session and company ownership from treatment contract. No anonymous alert endpoint.
-
-Only exact API thread bindings, confirmed by user when not unambiguously resolvable. Modern opaque Gmail web links and /u/2 account indexes must not be assumed to be API thread IDs or company identities. No fuzzy contract matching. Monitor excludes drafts, spam, trash and automatic replies; incoming messages from confirmed counterpart after last outgoing trigger pending reply. Read/unread does not clear alert. Later outgoing reply or explicit resolved action clears it. Closed treatments remain closed. Outage displays stale/connection-needed rather than a false all-clear.
-
-Proposed scheduled polling every 5 minutes, bounded batches and retry/backoff. Enable only after company authorization and exact thread bindings are validated. UI shows red-soft pending rows, first in order, pending count and elapsed days. No sending email.
-
-References: https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.threads/get and https://supabase.com/docs/guides/database/vault
+## Validation
+8 pure classifier tests pass (received/sent ordering, unread independence, draft exclusion, sender restrictions, automatic/spam/trash exclusion, pending duration, exact thread, participant separation).
+SQL tests with ROLLBACK verified cross-company rejection, bind/save, anonymous rejection and no test bindings retained. Real protected UI listed 4 HAMATE and 11 GADITA open treatments and Gmail search returned real HAMATE conversations. Initial bindings require user confirmation; no unrelated conversation was silently linked.
+Existing security advisor warnings for public.set_updated_at search_path and leaked-password protection were not introduced by this feature. Private tables deliberately have no client policies.
+Reference: https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.threads/get

@@ -32,7 +32,7 @@ el('search').onsubmit=async e=>{
   const link=document.createElement('a');link.textContent='Abrir conversa para conferir ↗';link.href=t.gmail_url;link.target='_blank';link.rel='noopener noreferrer';card.append(link);
   for(const sender of t.senders){const label=document.createElement('label'),box=document.createElement('input');box.type='checkbox';box.value=sender;label.append(box,document.createTextNode(' '+sender));card.append(label);}
   const button=document.createElement('button');button.textContent='Confirmar esta conversa e os remetentes selecionados';button.disabled=!t.senders.length;
-  button.onclick=async()=>{button.disabled=true;try{await api('bind',{tratativa_id:id,thread_id:t.id,counterparts:[...card.querySelectorAll('input:checked')].map(i=>i.value)});el('binding').close();await api('poll');await load();notice('Conversa confirmada. Acompanhamento automático habilitado para esta tratativa.');}catch(err){el('search-notice').textContent=fail(err);}finally{button.disabled=false;}};
+  button.onclick=async()=>{button.disabled=true;try{await api('bind',{tratativa_id:id,thread_id:t.id,counterparts:[...card.querySelectorAll('input:checked')].map(i=>i.value)});el('binding').close();await load();notice('Conversa confirmada. A primeira verificação ocorrerá no próximo ciclo automático.');}catch(err){el('search-notice').textContent=fail(err);}finally{button.disabled=false;}};
   card.append(button);el('results').append(card);
  }
  }catch(err){el('search-notice').textContent=fail(err);}finally{e.submitter.disabled=false;}
