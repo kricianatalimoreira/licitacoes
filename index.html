@@ -3398,7 +3398,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 
 <style>.dash-tratativas-inbox{display:block!important}.dash-tratativas-inbox .trat-dashboard-card{width:100%;min-width:0}</style>
 <link rel="stylesheet" href="caixa-entrada.css">
-<style>.reply-notice{padding:12px;margin:8px 0;background:#f1f5f9;border-radius:8px;font-size:12px}.reply-notice a{font-weight:bold;color:inherit}.reply-pending,.reply-row-pending td{background:#fff1f2!important;color:#991b1b!important}.reply-row-pending td:first-child{border-left:4px solid #b91c1c}.reply-label{color:#b91c1c;font-size:10px}</style></head>
+<style>.reply-notice{padding:12px;margin:8px 0;background:#f1f5f9;border-radius:8px;font-size:12px}.reply-notice a{font-weight:bold;color:inherit}.reply-pending,.reply-row-pending td{background:#fff1f2!important;color:#991b1b!important}.reply-row-pending td:first-child{border-left:4px solid #b91c1c}.reply-label{color:#b91c1c;font-size:10px}</style><script src="contract-close.js"></script></head>
 <body>
 
 <!-- ═══ OVERLAY: bloqueia a tela até os dados chegarem do Supabase ═══ -->
@@ -6154,7 +6154,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
             <td>${formatCurrency(c.compra)}</td>
             <td style="color:#b76a00;font-weight:700;">${formatCurrency(custo)}</td>
             <td>${lucroHtml(lucro)}</td>
-            <td>${execucaoHtml(c)}</td>
+            <td>${execucaoHtml(c)}${window.KMContractCompletion?.ready(c,empenhos)?`<button class="btn btn-light btn-sm" onclick="event.stopPropagation();sugerirEncerramentoContrato('${c.id}')">CONFIRMAR ENCERRAMENTO</button>`:''}</td>
             <td>${linksHtml(c)}</td>
             <td>
               <div class="row-menu-wrap">
@@ -6785,20 +6785,42 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     // ── Encerrar / Reativar ──────────────────────────
-    function encerrarContrato(id) {
-      const idx = contratosAtivos.findIndex(c => c.id === id);
-      if (idx < 0) return;
-      const item = contratosAtivos.splice(idx, 1)[0];
-      item.status = item.status || 'Encerrado';
-      contratosEncerrados.unshift(item);
-      persistAll();
-      // Mesmo motivo de encerrarDisputa: persistAll() só faz upsert, então
-      // sem excluir a linha antiga de "contratos_ativos" na nuvem, o
-      // contrato voltaria a aparecer como ativo no próximo carregamento.
-      sbDelete('contratos_ativos', item.id).catch(e => console.error('[KM] Erro ao remover contrato de "contratos_ativos" na nuvem:', e));
-      renderContratosAtivos();
-      renderContratosEncerrados();
-      closeAllMenus();
+    function sugerirEncerramentoContrato(id) {
+      const c=contratosAtivos.find(c=>c.id===id);
+      if (!window.KMContractCompletion?.ready(c,empenhos)) return;
+      void encerrarContrato(id, true);
+    }
+
+    const _contratosEncerrando = new Set();
+    async function encerrarContrato(id, porConclusao = false) {
+      const item=contratosAtivos.find(c=>c.id===id);
+      if (!item || _contratosEncerrando.has(id)) return;
+      if (porConclusao && !window.KMContractCompletion?.ready(item,empenhos)) return;
+      const motivo=porConclusao
+        ? 'TODOS OS ITENS FORAM INTEGRALMENTE EMPENHADOS E TODOS OS EMPENHOS ESTÃO PAGOS.\n\n'
+        : '';
+      if (!confirm(motivo+'DESEJA ENCERRAR ESTE CONTRATO?\n\n'+(item.orgao||'')+'\nCONTRATO: '+(item.contrato||item.processo||'—')+'\nEMPRESA: '+(item.empresa||'')+'\n\nCANCELAR MANTÉM O CONTRATO ATIVO.')) return;
+      if (porConclusao && !window.KMContractCompletion?.ready(item,empenhos)) return;
+      _contratosEncerrando.add(id);
+      try {
+        // Save the destination before deleting the original so a network error cannot lose the contract.
+        const closed={...item,status:'Encerrado'};
+        await sbUpsert('empenhos',empenhos.filter(e=>e.contratoId===id).map(mapEmpenho));
+        await sbUpsert('contratos_encerrados',[mapContratoEnc(closed)]);
+        await sbDelete('contratos_ativos',id);
+        contratosAtivos=contratosAtivos.filter(c=>c.id!==id);
+        contratosEncerrados=contratosEncerrados.filter(c=>c.id!==id);
+        contratosEncerrados.unshift(closed);
+        persistAll();
+        renderContratosAtivos();
+        renderContratosEncerrados();
+        if(typeof renderDashboard==='function')renderDashboard();
+        closeAllMenus();
+        showToast('Contrato encerrado após sua confirmação.','success');
+      } catch(e) {
+        console.error('[KM] Encerramento não concluído:',e);
+        showToast('Não foi possível concluir o encerramento. O contrato foi mantido na lista de ativos; tente novamente.','error');
+      } finally { _contratosEncerrando.delete(id); }
     }
 
     function reativarContrato(id) {
@@ -7483,6 +7505,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       renderEmpenhos();
       renderContratosAtivos();
       mostrarToast('📄 Empenho registrado!', `${numero} — ${formatCurrency(valorTotal)}`);
+      setTimeout(()=>sugerirEncerramentoContrato(c.id),0);
     }
 
     function fecharCadastroEmpenho() {
@@ -7555,6 +7578,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         mostrarToast('✅ Empenho pago!', 'Empenho movido para Pagos.');
       }
       fecharModalPagamento();
+      if (emp) setTimeout(()=>sugerirEncerramentoContrato(emp.contratoId),0);
     }
 
     function fecharModalPagamento() {
@@ -7817,7 +7841,9 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       const emp = empenhos.find(e => e.id === _entregaEmpId);
       if (emp) {
         emp.dataEntrega = val;
+        if (emp.status !== 'Paga') emp.status = 'Ag. Liquidação';
         persistEmpenhos();
+        renderEmpPendentes();
         renderEmpAndamento();
         renderEmpEncerrados();
         mostrarToast('📦 Entrega registrada', `Data de entrega: ${formatDate(val)}.`);
@@ -8397,6 +8423,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       renderEmpenhos();
       qs('editEmpenhoWrap').classList.add('hidden');
       editingEmpenhoId = null;
+      setTimeout(()=>sugerirEncerramentoContrato(empenhos.find(e=>e.id===id)?.contratoId),0);
     }
 
     // ══════════════════════════════════════════════════════════
