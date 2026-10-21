@@ -3398,7 +3398,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 
 <style>.dash-tratativas-inbox{display:block!important}.dash-tratativas-inbox .trat-dashboard-card{width:100%;min-width:0}</style>
 <link rel="stylesheet" href="caixa-entrada.css">
-<style>.reply-notice{padding:12px;margin:8px 0;background:#f1f5f9;border-radius:8px;font-size:12px}.reply-notice a{font-weight:bold;color:inherit}.reply-pending,.reply-row-pending td{background:#fff1f2!important;color:#991b1b!important}.reply-row-pending td:first-child{border-left:4px solid #b91c1c}.reply-label{color:#b91c1c;font-size:10px}</style><script src="contract-close.js"></script></head>
+<style>.reply-notice{padding:12px;margin:8px 0;background:#f1f5f9;border-radius:8px;font-size:12px}.reply-notice a{font-weight:bold;color:inherit}.reply-pending,.reply-row-pending td{background:#fff1f2!important;color:#991b1b!important}.reply-row-pending td:first-child{border-left:4px solid #b91c1c}.reply-label{color:#b91c1c;font-size:10px}</style><script src="contract-close.js"></script><script src="gadita-tax.js"></script>
+</head>
 <body>
 
 <!-- ═══ OVERLAY: bloqueia a tela até os dados chegarem do Supabase ═══ -->
@@ -4714,8 +4715,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 </div>
 <div class="con-form-grid-4">
 <div class="con-form-field"><label>Número do Contrato</label><input id="conContrato" placeholder="Ex: CT 001/2026" type="text"/></div>
-<div class="con-form-field"><label>Órgão *</label><input autocomplete="new-password" id="conOrgao" type="text"/></div>
-<div class="con-form-field"><label>UF</label><select id="conUF"></select></div>
+<div class="con-form-field"><label>Órgão *</label><input autocomplete="new-password" id="conOrgao" onchange="ajustarImpostoPorEmpresa('con')" type="text"/></div>
+<div class="con-form-field"><label>UF</label><select id="conUF" onchange="ajustarImpostoPorEmpresa('con')"></select></div>
 <div class="con-form-field"><label>Empresa</label><select id="conEmpresa" onchange="ajustarImpostoPorEmpresa('con')"><option value="">Selecione</option><option>Gadita</option><option>Hamate</option></select></div>
 </div>
 <div class="con-form-grid-3" style="margin-bottom:14px;">
@@ -4895,7 +4896,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <div class="modal-body">
 <div class="modal-grid-4">
 <div class="modal-field"><label>Data da Assinatura</label><input class="field-box" id="eConEData" type="date"/></div>
-<div class="modal-field"><label>Órgão</label><input autocomplete="new-password" class="field-box" id="eConEOrgao" type="text"/></div>
+<div class="modal-field"><label>Órgão</label><input autocomplete="new-password" class="field-box" id="eConEOrgao" onchange="ajustarImpostoEditModal('E')" type="text"/></div>
+<div class="modal-field"><label>UF</label><select class="field-box" id="eConEUF" onchange="ajustarImpostoEditModal('E')"></select></div>
 <div class="modal-field"><label>Empresa</label><select class="field-box" id="eConEEmpresa" onchange="ajustarImpostoEditModal('E')"><option value="">Selecione</option><option>Gadita</option><option>Hamate</option></select></div>
 <div class="modal-field"><label>Status</label><input class="field-box" id="eConEStatus" type="text"/></div>
 <div class="modal-field"><label>Valor do Contrato (R$)</label><input class="field-box" id="eConEValor" min="0" oninput="calcularCustoModalEdit('E')" step="0.01" type="number"/></div>
@@ -5986,6 +5988,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     function calcularCustoModalEdit(tipo) {
+      if (tipo === 'E') atualizarImpostoEncerrado();
       const pfx = tipo === 'A' ? 'eConA' : 'eConE';
       const v = Number(qs(`${pfx}Valor`)?.value||0);
       const c = Number(qs(`${pfx}Compra`)?.value||0);
@@ -6054,6 +6057,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         <span class="con-orgao-nome">${escapeHTML(c.orgao) || '—'}</span>
         <div class="emp-orgao-company">${companyBadge(c.empresa)}</div>
         ${info ? `<span class="con-orgao-info">${info}</span>` : ''}
+        ${KMGaditaTax.isGadita(c) && KMGaditaTax.rate(c) === null ? '<span class="con-orgao-info">IMPOSTO: INFORME A UF</span>' : ''}
         ${window.KMTratativas?.badges(c) || ''}
         ${window.KMAditivos?.badges(c) || ''}
       </div>`;
@@ -6080,6 +6084,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 
     function renderContratosAtivos() {
       window.KMAditivos?.projectAll();
+      aplicarEstimativasGadita();
       const body = qs('conAtivosBody');
       const fData  = qs('fConAData')?.value   || '';
       const fMes   = qs('fConAMes')?.value    || '';
@@ -6175,6 +6180,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     // ── Render Encerrados ────────────────────────────
     function renderContratosEncerrados() {
       window.KMAditivos?.projectAll();
+      aplicarEstimativasGadita();
       const body = qs('conEncerradosBody');
       const fData  = qs('fConEData')?.value   || '';
       const fMes   = qs('fConEMes')?.value    || '';
@@ -6344,7 +6350,69 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     // ── Tabela de itens do contrato ──────────────────
     let _conItens = [];
 
+
+    // Estimativa gerencial da GADITA: origem MG, destino identificado pela UF.
+    function aplicarEstimativasGadita() {
+      let alterou = false;
+      [...contratosAtivos, ...contratosEncerrados].forEach(c => {
+        if (KMGaditaTax.apply(c)) alterou = true;
+      });
+      return alterou;
+    }
+    function contratoFiscalFormulario(pfx) {
+      return {empresa:qs(pfx+'Empresa')?.value, uf:qs(pfx+'UF')?.value,
+        orgao:qs(pfx+'Orgao')?.value};
+    }
+    function validarUFGadita(pfx) {
+      const c = contratoFiscalFormulario(pfx);
+      if (KMGaditaTax.isGadita(c) && KMGaditaTax.rate(c) === null) {
+        showToast('Informe a UF do órgão para calcular o imposto estimado da GADITA.', 'error');
+        qs(pfx+'UF')?.focus();
+        return false;
+      }
+      return true;
+    }
+    function atualizarCampoImpostoGadita() {
+      const c = contratoFiscalFormulario('con');
+      const input = qs('conImpostoPct'), badge = qs('conImpostoBadge');
+      if (!input) return;
+      const gadita = KMGaditaTax.isGadita(c), pct = KMGaditaTax.rate(c);
+      input.readOnly = true;
+      input.style.background = 'var(--bg)';
+      input.style.color = 'var(--text)';
+      input.style.cursor = 'default';
+      if (!gadita) input.value = 6;
+      else if (pct !== null) input.value = pct;
+      input.title = gadita ? 'Estimativa gerencial por UF, com origem em MG. Não substitui a apuração fiscal.' : 'Simples Nacional — fixo em 6%';
+      if (badge) {
+        badge.textContent = !gadita ? 'Simples Nacional' : pct === null ? 'INFORME A UF' :
+          'ESTIMATIVA MG → '+KMGaditaTax.state(c)+' · '+pct.toFixed(2).replace('.',',')+'%';
+        badge.style.background = 'var(--bg)';
+        badge.style.color = 'var(--muted)';
+      }
+    }
+    function atualizarImpostoEncerrado() {
+      const c = contratoFiscalFormulario('eConE');
+      const input = qs('eConEImposto'), badge = qs('eConEImpostoBadge');
+      if (!input) return;
+      const pct = KMGaditaTax.rate(c);
+      input.readOnly = KMGaditaTax.isGadita(c);
+      if (!KMGaditaTax.isGadita(c)) return;
+      if (pct !== null) input.value = KMGaditaTax.money(Number(qs('eConEValor')?.value||0)*pct/100);
+      if (badge) badge.textContent = pct === null ? 'INFORME A UF' :
+        'ESTIMADO · '+KMGaditaTax.state(c)+' · '+pct.toFixed(2).replace('.',',')+'%';
+      input.title = 'Estimativa gerencial por UF, com origem em MG.';
+    }
+    function impostoPctCompraAtual() {
+      const compra = compras.find(c=>c.id===_cmpEditId);
+      const emp = empenhos.find(e=>e.id===_cmpEmpenhoId || e.id===compra?.empenhoId);
+      const contratoId = emp?.contratoId || compra?.contratoId;
+      const c = contratosAtivos.find(c=>c.id===contratoId) || contratosEncerrados.find(c=>c.id===contratoId);
+      return KMGaditaTax.percentage(c || emp || compra);
+    }
+
     function getPct(pfx) {
+      if (pfx === "con") atualizarCampoImpostoGadita();
       const r = Number(qs(`${pfx}RoyaltiesPct`)?.value ?? 1);
       const i = Number(qs(`${pfx}ImpostoPct`)?.value  ?? 5);
       return { r: isNaN(r) ? 1 : r, i: isNaN(i) ? 5 : i };
@@ -6536,43 +6604,16 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     // ── Ajuste de imposto por regime tributário ──────────
-    // Gadita = Lucro Presumido (campo livre)
-    // Hamate = Simples Nacional (fixo 5%, campo bloqueado)
+    // Gadita = estimativa gerencial automática por UF (origem MG)
+    // Hamate = Simples Nacional (fixo 6%, campo bloqueado)
     function ajustarImpostoPorEmpresa(pfx) {
-      const empresa = qs('conEmpresa')?.value || '';
-      const isGadita = empresa === 'Gadita';
-      const inputPct  = qs('conImpostoPct');
-      const badge     = qs('conImpostoBadge');
-      if (!inputPct) return;
-      if (isGadita) {
-        inputPct.readOnly = false;
-        inputPct.style.background = '';
-        inputPct.style.color = '';
-        inputPct.style.cursor = '';
-        inputPct.title = 'Lucro Presumido — insira o percentual de imposto';
-        if (badge) {
-          badge.textContent = 'Lucro Presumido';
-          badge.style.background = '#0d1e3a';
-          badge.style.color = '#5b9cf6';
-        }
-      } else {
-        inputPct.readOnly = true;
-        inputPct.value = 6;
-        inputPct.style.background = 'var(--bg)';
-        inputPct.style.color = 'var(--muted)';
-        inputPct.style.cursor = 'not-allowed';
-        inputPct.title = 'Simples Nacional — fixo em 6%';
-        if (badge) {
-          badge.textContent = 'Simples Nacional';
-          badge.style.background = '#0a2018';
-          badge.style.color = '#2dd47a';
-        }
-      }
+      atualizarCampoImpostoGadita();
       reRenderItens('con');
       atualizarCalcRow();
     }
 
     function ajustarImpostoEditModal(tipo) {
+      if (tipo === 'E') { calcularCustoModalEdit('E'); if(KMGaditaTax.isGadita(contratoFiscalFormulario('eConE'))) return; }
       // tipo: 'A' (ativo via stepper) ou 'E' (encerrado)
       const empresaId = tipo === 'E' ? 'eConEEmpresa' : 'eConAEmpresa';
       const empresa   = qs(empresaId)?.value || '';
@@ -6649,6 +6690,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 
     function stepperAvancar() {
       if (_stepperAtual === 1) {
+        if (!validarUFGadita('con')) return;
         const orgao = qs('conOrgao')?.value?.trim();
         if (!orgao) { showToast('Preencha pelo menos o Órgão.', 'error'); return; }
       }
@@ -6664,6 +6706,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     function atualizarCalcRow() {
+      atualizarCampoImpostoGadita();
       const valor  = parseCurrency(qs('conValor')?.value  || '0');
       const compra = parseCurrency(qs('conCompra')?.value || '0');
       const rPct   = Number(qs('conRoyaltiesPct')?.value || 1);
@@ -6746,6 +6789,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     function salvarContrato() {
+      if (!validarUFGadita('con')) return;
       const orgao = qs('conOrgao')?.value?.trim().toUpperCase() || '';
       if (!orgao) { showToast('Preencha pelo menos o Órgão.', 'error'); return; }
       if (!_conItens.length) { showToast('Adicione pelo menos 1 item para salvar o contrato.', 'error'); return; }
@@ -6761,6 +6805,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         data:            qs('conData')?.value || '',
         dataFim:         qs('conDataFim')?.value || '',
         orgao,
+        uf: KMGaditaTax.state(contratoFiscalFormulario('con')) || qs('conUF')?.value || '',
         contrato:        qs('conContrato')?.value?.trim() || '',
         processo:        qs('conProcesso')?.value?.trim() || '',
         sistema:         qs('conSistema')?.value  || '',
@@ -6922,6 +6967,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     function salvarEdicaoViaModal() {
+      if (!validarUFGadita('con')) return;
       const idx = contratosAtivos.findIndex(c => c.id === editingContratoAtivoId);
       if (idx < 0) { salvarContrato(); return; } // fallback para novo contrato
 
@@ -6947,7 +6993,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         dataFim:      qs('conDataFim')?.value  || contratosAtivos[idx].dataFim,
         contrato:     qs('conContrato')?.value?.trim() || contratosAtivos[idx].contrato,
         orgao:        (qs('conOrgao')?.value || '').trim().toUpperCase() || contratosAtivos[idx].orgao,
-        uf:           qs('conUF')?.value       || contratosAtivos[idx].uf,
+        uf:           KMGaditaTax.state(contratoFiscalFormulario('con')) || qs('conUF')?.value || '',
         empresa:      qs('conEmpresa')?.value  || contratosAtivos[idx].empresa,
         sistema:      qs('conSistema')?.value  || contratosAtivos[idx].sistema,
         processo:     qs('conProcesso')?.value?.trim() || contratosAtivos[idx].processo,
@@ -7011,6 +7057,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       editingContratoEncId = id;
       qs('eConEData').value      = c.data       || '';
       qs('eConEOrgao').value     = c.orgao      || '';
+      qs('eConEUF').value = KMGaditaTax.state(c) || '';
       qs('eConEEmpresa').value   = c.empresa    || '';
       qs('eConEStatus').value    = c.status     || '';
       qs('eConEValor').value     = c.valor      || 0;
@@ -7032,6 +7079,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       editingContratoEncId = null;
     }
     function salvarEditContratoEnc() {
+      if (!validarUFGadita('eConE')) return;
+      calcularCustoModalEdit('E');
       const idx = contratosEncerrados.findIndex(c => c.id === editingContratoEncId);
       if (idx < 0) return;
       const valor     = Number(qs('eConEValor')?.value     || 0);
@@ -7043,6 +7092,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       contratosEncerrados[idx] = { ...contratosEncerrados[idx],
         data: qs('eConEData').value, orgao: qs('eConEOrgao').value.trim().toUpperCase(),
         empresa: qs('eConEEmpresa').value, status: qs('eConEStatus').value.trim(),
+        uf: KMGaditaTax.state(contratoFiscalFormulario('eConE')) || qs('eConEUF').value,
         valor, compra, royalties, imposto,
         sala: qs('eConESala').value.trim(), drive: qs('eConEDrive').value.trim(),
         obs: qs('eConEObs').value.trim()
@@ -7079,6 +7129,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       _conViewId = id;
       _conViewType = tipo;
       window.KMAditivos?.project(c);
+      KMGaditaTax.apply(c);
       window.KMTratativas?.details(c);
       closeAllMenus();
 
@@ -7092,6 +7143,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       if (c.contrato) infoPartes.push(`CONTRATO Nº ${c.contrato} assinado em ${formatDate(c.data)}`);
       if (c.processo) infoPartes.push(c.processo);
       if (c.sistema)  infoPartes.push(c.sistema);
+      if(KMGaditaTax.isGadita(c)) infoPartes.push(KMGaditaTax.rate(c) === null ? 'IMPOSTO ESTIMADO PENDENTE: INFORME A UF' : 'IMPOSTO ESTIMADO: '+KMGaditaTax.rate(c).toFixed(2).replace('.',',')+'% · MG → '+KMGaditaTax.state(c));
       qs('conViewInfo').textContent = (infoPartes.join(' | ') || '—') + (window.KMAditivos?.header(c) || '');
 
       // Vencimento
@@ -7614,6 +7666,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     function calcEmpFinanceiro(e) {
       const contrato = contratosAtivos.find(c => c.id === e.contratoId)
                     || contratosEncerrados.find(c => c.id === e.contratoId);
+      if (contrato) KMGaditaTax.apply(contrato);
       const itensEmp = e.itensEmpenhados || [];
 
       // Se não há itens detalhados nem contrato, retorna zeros
@@ -7622,7 +7675,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       }
 
       const royaltiesPct = Number(contrato?.royaltiesPct ?? contrato?.royalties ?? 1);
-      const impostoPct   = Number(contrato?.impostoPct   ?? contrato?.imposto   ?? 6);
+      const impostoPct   = KMGaditaTax.percentage(contrato);
 
       let vlEmpTotal  = 0; // Vl. Empenho = soma(qtdEmp × vlUnit do item empenhado)
       let vlCompraEmp = 0; // Compra Prev. = soma(qtdEmp × compraUnit do item no contrato)
@@ -8988,7 +9041,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
 
       const impostoUnitEl   = document.getElementById(`${id}_impostoUnit`);
       const royaltiesUnitEl = document.getElementById(`${id}_royaltiesUnit`);
-      if (impostoUnitEl   && impostoUnitEl.readOnly)   impostoUnitEl.value   = (vlUnitEmp * 0.06).toFixed(2);
+      if (impostoUnitEl   && impostoUnitEl.readOnly)   impostoUnitEl.value   = (vlUnitEmp * impostoPctCompraAtual() / 100).toFixed(2);
       if (royaltiesUnitEl && royaltiesUnitEl.readOnly) royaltiesUnitEl.value = (vlUnitEmp * 0.01).toFixed(2);
       recalcCmp(idx);
     }
@@ -9012,7 +9065,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       // Imposto Unit: default 5% do vlUnitEmp, mas editável
       const impostoUnitEl = document.getElementById(`${id}_impostoUnit`);
       // Só recalcula auto se estiver em modo readonly (automático)
-      if (impostoUnitEl && impostoUnitEl.readOnly) impostoUnitEl.value = (vlUnitEmp * 0.06).toFixed(2);
+      if (impostoUnitEl && impostoUnitEl.readOnly) impostoUnitEl.value = (vlUnitEmp * impostoPctCompraAtual() / 100).toFixed(2);
       const impostoUnit = Math.max(0, Number(impostoUnitEl?.value||0));
       const impostoTotal = impostoUnit * qtd;
 
@@ -9048,7 +9101,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const impostoUnitEl   = document.getElementById(`${id}_impostoUnit`);
       const royaltiesUnitEl = document.getElementById(`${id}_royaltiesUnit`);
       // Campos começam em auto (readonly), define valores padrão
-      if (impostoUnitEl)   impostoUnitEl.value   = (vlUnitEmp * 0.06).toFixed(2);
+      if (impostoUnitEl)   impostoUnitEl.value   = (vlUnitEmp * impostoPctCompraAtual() / 100).toFixed(2);
       if (royaltiesUnitEl) royaltiesUnitEl.value = (vlUnitEmp * 0.01).toFixed(2);
       recalcCmp(idx);
     }
@@ -9211,7 +9264,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       // Contrato para pegar % imposto e royalties
       const contrato = contratosAtivos.find(c => c.id === emp.contratoId)
                     || contratosEncerrados.find(c => c.id === emp.contratoId);
-      const impostoPct   = Number(contrato?.impostoPct   ?? contrato?.imposto   ?? 6);
+      const impostoPct   = KMGaditaTax.percentage(contrato);
       const royaltiesPct = Number(contrato?.royaltiesPct ?? contrato?.royalties ?? 1);
       const imposto   = vlEmp * (impostoPct   / 100);
       const royalties = vlEmp * (royaltiesPct / 100);
@@ -9263,7 +9316,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         const vlEmp = Number(emp?.valor || 0);
         const contrato = contratosAtivos.find(c => c.id === emp?.contratoId)
                       || contratosEncerrados.find(c => c.id === emp?.contratoId);
-        const impostoPct   = Number(contrato?.impostoPct   ?? contrato?.imposto   ?? 6);
+        const impostoPct   = KMGaditaTax.percentage(contrato);
         const royaltiesPct = Number(contrato?.royaltiesPct ?? contrato?.royalties ?? 1);
         if (inputId === 'cg_imposto')   input.value = (vlEmp * impostoPct   / 100).toFixed(2);
         if (inputId === 'cg_royalties') input.value = (vlEmp * royaltiesPct / 100).toFixed(2);
@@ -9918,7 +9971,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
           const fin = calcEmpFinanceiro(e);
           vlEmp   += fin.vlEmpTotal;
           vlCompra += fin.vlCompraEmp;
-          custo   += Number(e.valor||0) * ((Number(contratosAtivos.find(c=>c.id===e.contratoId)?.royaltiesPct||1) + Number(contratosAtivos.find(c=>c.id===e.contratoId)?.impostoPct||6))/100);
+          custo   += Number(e.valor||0) * ((Number(contratosAtivos.find(c=>c.id===e.contratoId)?.royaltiesPct||1) + KMGaditaTax.percentage(contratosAtivos.find(c=>c.id===e.contratoId) || contratosEncerrados.find(c=>c.id===e.contratoId)))/100);
           lucro   += fin.vlEmpTotal - fin.vlCompraEmp - custo;
         });
         const pct = vlEmp > 0 ? ((vlEmp - vlCompra) / vlEmp * 100) : 0;
@@ -10110,7 +10163,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     // Utilitário de debug/console — recarrega tudo direto do Supabase
     // (nunca do localStorage, mesmo aqui).
     window.reinitApp = async function() {
-      populateUFs('conUF'); populateUFs('disputaUF'); populateUFs('encUF');
+      populateUFs('conUF'); populateUFs('eConEUF'); populateUFs('disputaUF'); populateUFs('encUF');
       movePopoversToBody(); carregarTema();
       await syncFromCloud();
       _reRenderAll();
@@ -10122,7 +10175,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     // dispositivo (celular, Lenovo, Dell) os dados de negócio só
     // podem vir do Supabase — isso acontece no DOMContentLoaded,
     // via syncFromCloud(), antes de qualquer render.
-    populateUFs('conUF');
+    populateUFs('conUF'); populateUFs('eConEUF');
     populateUFs('disputaUF');
     populateUFs('encUF');
     initAutocompleteOrgao();
@@ -10411,6 +10464,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
     function mapContratoAtivo(c) {
       window.KMAditivos?.project(c);
+      KMGaditaTax.apply(c);
       return {
         id: c.id, data: c.data||null, data_fim: c.dataFim||null,
         contrato: c.contrato||null, orgao: c.orgao||null,
@@ -10428,6 +10482,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
     function mapContratoEnc(c) {
       window.KMAditivos?.project(c);
+      KMGaditaTax.apply(c);
       return {
         id: c.id, data: c.data||null, data_fim: c.dataFim||null,
         contrato: c.contrato||null, orgao: c.orgao||null,
@@ -10756,6 +10811,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     function persistAll() {
+      aplicarEstimativasGadita();
       disputas             = dedupeById(disputas);
       disputasEncerradas   = dedupeById(disputasEncerradas);
       contratosAtivos      = dedupeById(contratosAtivos);
@@ -11101,6 +11157,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     async function _persistAllImmediate() {
+      aplicarEstimativasGadita();
       disputas             = dedupeById(disputas);
       disputasEncerradas   = dedupeById(disputasEncerradas);
       contratosAtivos      = dedupeById(contratosAtivos);
@@ -11199,6 +11256,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     }
 
     function _reRenderAll() {
+      aplicarEstimativasGadita();
       if (typeof renderDisputas             === 'function') renderDisputas();
       if (typeof renderHistoricoDisputas    === 'function') renderHistoricoDisputas();
       if (typeof atualizarListaOrgaos       === 'function') atualizarListaOrgaos();
@@ -11259,7 +11317,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       const _reparouA = repararContratosZerados(contratosAtivos);
       const _reparouE = repararContratosZerados(contratosEncerrados);
       const _reparouDisp = repararDisputasOrfas();
-      if (_reparouA || _reparouE || _reparouDisp) { if (typeof persistAll === 'function') persistAll(); }
+      const _ajustouImposto = aplicarEstimativasGadita();
+      if (_reparouA || _reparouE || _reparouDisp || _ajustouImposto) { if (typeof persistAll === 'function') persistAll(); }
 
       _reRenderAll();
       _kmOverlayEsconder();
