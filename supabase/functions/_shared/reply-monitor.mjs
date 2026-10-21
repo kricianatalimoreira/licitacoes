@@ -44,9 +44,10 @@ export function replyHandler(deps){return async req=>{
   const profile=await gmail('profile');
   if(profile.emailAddress?.toLowerCase()!==MAILBOXES[co])throw new Failure('account_mismatch',403);
   const threadId=id=>{if(typeof id!=='string'||!(/^[a-f0-9]{1,64}$/).test(id))throw new Failure('invalid_thread');return id;};
-  const getThread=id=>gmail('threads/'+threadId(id)+'?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date&metadataHeaders=Auto-Submitted&metadataHeaders=X-Autoreply&metadataHeaders=X-Autorespond');
+  const getThread=id=>gmail('threads/'+threadId(id)+'?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Cc&metadataHeaders=Subject&metadataHeaders=Date&metadataHeaders=Auto-Submitted&metadataHeaders=X-Autoreply&metadataHeaders=X-Autorespond');
   const header=(m,n)=>(m.payload?.headers||[]).find(h=>h.name.toLowerCase()===n)?.value||'';
   const addr=s=>{const v=String(s).trim().toLowerCase();const a=v.match(/<([^<>]+)>\s*$/)?.[1]||v;return /^[^\s<>@,;]+@[^\s<>@,;]+$/.test(a)?a:null;};
+  const participants=m=>['from','to','cc'].flatMap(n=>(header(m,n).toLowerCase().match(/[a-z0-9.!#$%&'*+\/=?^_\x60{|}~-]+@[a-z0-9.-]+\.[a-z]{2,}/g)||[]));
   const usable=m=>!['SPAM','TRASH','DRAFT'].some(l=>m.labelIds?.includes(l));
   if(b.action==='search'){
    if(typeof b.query!=='string'||!b.query.trim()||b.query.length>300)throw new Failure('invalid_query');
@@ -55,7 +56,7 @@ export function replyHandler(deps){return async req=>{
    for(const entry of page.threads||[]){
     const t=await getThread(entry.id),ms=(t.messages||[]).filter(usable).sort((a,b)=>Number(a.internalDate)-Number(b.internalDate));
     if(!ms.length)continue;
-    const senders=[...new Set(ms.map(m=>addr(header(m,'from'))).filter(a=>a&&a!==MAILBOXES[co]))];
+    const senders=[...new Set(ms.flatMap(participants).filter(a=>a&&a!==MAILBOXES[co]))];
     threads.push({id:t.id,subject:header(ms[0],'subject'),date:new Date(Number(ms.at(-1).internalDate)).toISOString(),senders,
       gmail_url:'https://mail.google.com/mail/?authuser='+encodeURIComponent(MAILBOXES[co])+'#all/'+t.id});
    }
@@ -66,7 +67,7 @@ export function replyHandler(deps){return async req=>{
    if(!Array.isArray(b.counterparts)||!b.counterparts.length||b.counterparts.length>20)throw new Failure('invalid_participants');
    const counterparts=[...new Set(b.counterparts.map(addr))];
    if(counterparts.includes(null)||counterparts.includes(MAILBOXES[co]))throw new Failure('invalid_participants');
-   const actual=new Set((t.messages||[]).filter(usable).map(m=>addr(header(m,'from'))));
+   const actual=new Set((t.messages||[]).filter(usable).flatMap(participants));
    if(counterparts.some(a=>!actual.has(a)))throw new Failure('invalid_participants');
    classifyReply(t,{threadId:t.id,ownAddresses:[MAILBOXES[co]],counterpartAddresses:counterparts});
    await db('bind',{tratativa_id:treatment.id,thread_id:t.id,counterparts});

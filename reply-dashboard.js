@@ -25,7 +25,7 @@ async function load(){
    if(w.stale)stale++;data.set(t.id,w);
   }
   const count=[...data.values()].filter(w=>w.pending).length;
-  banner((count?'🔔 '+count+' TRATATIVA(S) AGUARDANDO MINHA RESPOSTA.':'NENHUMA RESPOSTA PENDENTE NAS CONVERSAS VERIFICADAS.')+(unconfigured?' '+unconfigured+' SEM ACOMPANHAMENTO.':'')+(stale?' '+stale+' VERIFICAÇÃO(ÕES) DESATUALIZADA(S).':''));
+  banner((count?'🔔 '+count+' TRATATIVA(S) AGUARDANDO MINHA RESPOSTA.':!data.size?'CONFIRME AS CONVERSAS PARA INICIAR OS ALERTAS.':'NENHUMA RESPOSTA PENDENTE NAS CONVERSAS VERIFICADAS.')+(unconfigured?' '+unconfigured+' SEM ACOMPANHAMENTO.':'')+(stale?' '+stale+' VERIFICAÇÃO(ÕES) DESATUALIZADA(S).':''));
   publish();
  }catch{if(v===generation)banner('NÃO FOI POSSÍVEL ATUALIZAR OS ALERTAS. CONFIRA A CONEXÃO.');}finally{busy=false;}
 }
