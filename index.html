@@ -11896,6 +11896,13 @@ function showToast(msg, type = 'info', duration = 3500) {
   schedule();
 })();
 </script>
+<style id="table-scroll-stability">
+/* Atualizações das linhas não devem arrastar a posição de leitura. */
+.table-wrap, .dash-disputas-list, .dash-emp-list {
+  overflow-anchor: none;
+  scroll-behavior: auto;
+}
+</style>
 <script id="site-tables-fit-width">
 // Ajusta a escala de cada tabela ao espaço disponível, preservando todas as colunas.
 (() => {
@@ -11951,6 +11958,15 @@ function showToast(msg, type = 'info', duration = 3500) {
   function fit() {
     scheduled = false;
     observer.disconnect();
+    // O zoom temporário altera a altura das linhas. Preserve a posição
+    // antes dessas medições, inclusive nos painéis ancestrais.
+    const positions = new Map();
+    document.querySelectorAll('table.site-table').forEach(table => {
+      for (let el = table.parentElement; el; el = el.parentElement) {
+        if (!positions.has(el)) positions.set(el, [el.scrollLeft, el.scrollTop]);
+      }
+    });
+    try {
     originals.forEach((style, el) => {
       if (style === null) el.removeAttribute('style'); else el.setAttribute('style',style);
       delete el.dataset.tableBaseFont;
@@ -11971,7 +11987,13 @@ function showToast(msg, type = 'info', duration = 3500) {
       table.style.zoom = String(scale);
       improveText(table);
     });
-    observer.observe(document.body, observerOptions);
+    } finally {
+      positions.forEach(([left, top], el) => {
+        if (el.scrollLeft !== left) el.scrollLeft = left;
+        if (el.scrollTop !== top) el.scrollTop = top;
+      });
+      observer.observe(document.body, observerOptions);
+    }
   }
   function schedule() {
     if (!scheduled) { scheduled = true; requestAnimationFrame(fit); }
