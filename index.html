@@ -3398,7 +3398,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 
 <style>.dash-tratativas-inbox{display:block!important}.dash-tratativas-inbox .trat-dashboard-card{width:100%;min-width:0}</style>
 <link rel="stylesheet" href="caixa-entrada.css">
-<style>.reply-notice{padding:12px;margin:8px 0;background:#f1f5f9;border-radius:8px;font-size:12px}.reply-notice a{font-weight:bold;color:inherit}.reply-pending,.reply-row-pending td{background:#fff1f2!important;color:#991b1b!important}.reply-row-pending td:first-child{border-left:4px solid #b91c1c}.reply-label{color:#b91c1c;font-size:10px}</style><script src="contract-close.js"></script><script src="gadita-tax.js"></script>
+<style>.reply-notice{padding:12px;margin:8px 0;background:#f1f5f9;border-radius:8px;font-size:12px}.reply-notice a{font-weight:bold;color:inherit}.reply-pending,.reply-row-pending td{background:#fff1f2!important;color:#991b1b!important}.reply-row-pending td:first-child{border-left:4px solid #b91c1c}.reply-label{color:#b91c1c;font-size:10px}</style><script src="contract-close.js"></script><script src="gadita-tax.js"></script><script src="proposal-estimate.js"></script>
 </head>
 <body>
 
@@ -4360,7 +4360,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <section class="page-section hidden" id="empenhos-andamento">
 <div class="topbar">
 <div>
-<h2>📄 Empenhos em andamento</h2>
+<h2>📄 Empenhos em andamento</h2><div style="font-size:10px;color:var(--muted)">Totais incluem valores da proposta nas linhas marcadas PREVISTO.</div>
 </div>
 </div>
 <div class="disputa-stats" style="grid-template-columns:repeat(6,minmax(0,1fr));">
@@ -4497,7 +4497,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <section class="page-section hidden" id="empenhos-encerrados">
 <div class="topbar">
 <div>
-<h2>✅ Empenhos pagos</h2>
+<h2>✅ Empenhos pagos</h2><div style="font-size:10px;color:var(--muted)">Totais incluem valores da proposta nas linhas marcadas PREVISTO.</div>
 </div>
 </div>
 <div class="disputa-stats" style="grid-template-columns:repeat(6,minmax(0,1fr));">
@@ -7722,7 +7722,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       cmpDoEmp.forEach(c => {
         if (c.data && (!dataCompra || c.data > dataCompra)) dataCompra = c.data;
       });
-      return { vlCompraReal, custoReal, lucroReal, vlEmpTotal, dataCompra, temCompra: cmpDoEmp.length > 0 };
+      const previsto = cmpDoEmp.length ? null : KMProposalEstimate.estimate(e, [...contratosAtivos, ...contratosEncerrados]);
+      return { vlCompraReal, custoReal, lucroReal, vlEmpTotal, ...previsto, dataCompra, temCompra: cmpDoEmp.length > 0, temValores: cmpDoEmp.length > 0 || !!previsto, estimado: !!previsto };
     }
 
     // ── Alerta de notificação recebida (🔔) ──
@@ -7925,10 +7926,10 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       </div>`;
 
       // Datas por etapa (Pedido / Compra / Entrega) com contador de dias
-      const { vlCompraReal, custoReal, lucroReal, vlEmpTotal, dataCompra, temCompra } = calcEmpFinanceiroRealizado(e);
+      const { vlCompraReal, custoReal, lucroReal, vlEmpTotal, dataCompra, temValores, estimado } = calcEmpFinanceiroRealizado(e);
 
       // Valores realizados
-      const hasR = temCompra;
+      const hasR = temValores;
       let vlCompraHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let custoHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let lucroHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
@@ -7954,7 +7955,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         </td>
         <td class="cell-wrap">${itensDesc || '—'}</td>
         <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
-        <td>${vlCompraHtml}</td>
+        <td>${vlCompraHtml}${estimado ? '<div style="font-size:9px;color:var(--muted)" title="Compra, impostos, royalties e lucro calculados pela proposta cadastrada">PREVISTO</div>' : ''}</td>
         <td>${custoHtml}</td>
         <td><div class="emp-lucro-valor">${lucroHtml}</div><div class="emp-lucro-percentual" title="Percentual de lucro">${pctHtml}</div></td>
         <td>${statusHtml}</td>
@@ -8210,8 +8211,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       </div>`;
 
       // Valores realizados
-      const { vlCompraReal, custoReal, lucroReal, vlEmpTotal, dataCompra, temCompra } = calcEmpFinanceiroRealizado(e);
-      const hasR = temCompra;
+      const { vlCompraReal, custoReal, lucroReal, vlEmpTotal, dataCompra, temValores, estimado } = calcEmpFinanceiroRealizado(e);
+      const hasR = temValores;
       let vlCompraHtml = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let custoHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
       let lucroHtml    = '<span style="color:var(--muted);font-size:10px;">—</span>';
@@ -8237,7 +8238,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         </td>
         <td class="cell-wrap">${itensDesc || '—'}</td>
         <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
-        <td>${vlCompraHtml}</td>
+        <td>${vlCompraHtml}${estimado ? '<div style="font-size:9px;color:var(--muted)" title="Compra, impostos, royalties e lucro calculados pela proposta cadastrada">PREVISTO</div>' : ''}</td>
         <td>${custoHtml}</td>
         <td><div class="emp-lucro-valor">${lucroHtml}</div><div class="emp-lucro-percentual" title="Percentual de lucro">${pctHtml}</div></td>
         <td>${statusHtml}</td>
@@ -10567,8 +10568,8 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         orgao:r.orgao, uf:r.uf, empresa:r.empresa, sistema:r.sistema,
         processo:r.processo, drive:r.drive, sala:r.sala, obs:r.obs, status:r.status,
         valor:Number(r.valor)||0, compra:Number(r.compra)||0,
-        royalties:Number(r.royalties)||0, royaltiesPct:Number(r.royalties_pct)||1,
-        imposto:Number(r.imposto)||0, impostoPct:Number(r.imposto_pct)||6,
+        royalties:Number(r.royalties)||0, royaltiesPct:r.royalties_pct == null ? null : Number(r.royalties_pct),
+        imposto:Number(r.imposto)||0, impostoPct:r.imposto_pct == null ? null : Number(r.imposto_pct),
         custo:Number(r.custo)||0, lucro:Number(r.lucro)||0,
         empenhado:Number(r.empenhado)||0, valorEmpenhado:Number(r.valor_empenhado)||0,
         totalItens:Number(r.total_itens)||0, itensLotes:r.itens_lotes||[],
