@@ -14,9 +14,9 @@
   if(loading)return;loading=true;const version=epoch;$('orMessage').textContent='Carregando cadastro…';
   try{if(!S.has())throw Error('login_required');const result=await request('list');if(version!==epoch)return;orgs=result.orgaos;links=result.links;companies=result.companies;ready=true;$('orMessage').textContent='';adapter.changed();}
   catch(e){if(version===epoch){ready=false;orgs=[];links=[];$('orMessage').textContent=error(e);}}
-  finally{loading=false;render();}
+  finally{loading=false;render();document.dispatchEvent(new Event('km-org-registry-change'));}
  }
- function clear(){epoch++;ready=false;orgs=[];links=[];companies=[];selected=null;editing=null;binding=null;for(const id of ['orEditor','orBind']){const el=$(id);if(el?.open)el.close();}if($('orEditForm'))$('orEditForm').reset();render();adapter.changed();}
+ function clear(){epoch++;ready=false;orgs=[];links=[];companies=[];selected=null;editing=null;binding=null;for(const id of ['orEditor','orBind']){const el=$(id);if(el?.open)el.close();}if($('orEditForm'))$('orEditForm').reset();render();adapter.changed();document.dispatchEvent(new Event('km-org-registry-change'));}
  const activeCompany=()=>$('orCompany').value;
  const sources=()=>M.sources(adapter.contracts(),adapter.entries());
  function stats(id){return M.summary(id,links,adapter.contracts(),adapter.entries(),adapter.finance,activeCompany());}
@@ -89,6 +89,6 @@
   $('orSearch').oninput=render;$('orCompany').onchange=render;$('orPending').onchange=render;
   S.onChange(has=>{if(!has)clear();else refresh();});render();if(S.has())refresh();
  }
- window.KMOrgaos={mount,render,refresh,identity,open(){if(!ready)refresh();else render();}};
+ window.KMOrgaos={mount,render,refresh,identity,options:()=>ready?orgs.map(({id,nome,cnpj,municipio,uf})=>({id,nome,cnpj,municipio,uf})):null,open(){if(!ready)refresh();else render();}};
 })();
 

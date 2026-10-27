@@ -5201,6 +5201,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       qs('disputaBruto').value   = item.bruto   || 0;
       qs('disputaObs').value     = item.obs     || '';
       qs('cadastroDisputaTitulo').textContent = 'Editar Disputa';
+      KMOrgPicker.start('disputa', false);
       qs('cadastroDisputaWrap').classList.remove('hidden');
       closeAllMenus();
     }
@@ -5409,6 +5410,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     function showCadastroDisputa() {
+      editingAndamentoId = null;
+      KMOrgPicker.start('disputa', true);
       qs('cadastroDisputaWrap').classList.remove('hidden');
     }
 
@@ -5419,6 +5422,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     function salvarDisputa() {
+      if (!editingAndamentoId && !KMOrgPicker.validate('disputa')) return;
       const dados = {
         data:     qs('disputaData').value,
         orgao:    qs('disputaOrgao').value.trim().toUpperCase(),
@@ -5528,6 +5532,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       atualizarCalcRow();
       stepperIr(1);
       qs('cadastroContratoTitulo').textContent = 'Novo Contrato - Disputa Vencida';
+      KMOrgPicker.start('con', true);
       qs('cadastroContratoWrap').classList.remove('hidden');
 
       // Navega para Contratos Ativos em segundo plano
@@ -6660,6 +6665,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       atualizarCalcRow();
       stepperIr(1);
       qs('cadastroContratoTitulo').textContent = 'Novo Contrato';
+      KMOrgPicker.start('con', true);
       qs('cadastroContratoWrap').classList.remove('hidden');
     }
 
@@ -6700,6 +6706,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 
     function stepperAvancar() {
       if (_stepperAtual === 1) {
+        if (!KMOrgPicker.validate('con')) return;
         if (!validarUFGadita('con')) return;
         const orgao = qs('conOrgao')?.value?.trim();
         if (!orgao) { showToast('Preencha pelo menos o Órgão.', 'error'); return; }
@@ -6799,6 +6806,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     function salvarContrato() {
+      if (!KMOrgPicker.validate('con')) return;
       if (!validarUFGadita('con')) return;
       const orgao = qs('conOrgao')?.value?.trim().toUpperCase() || '';
       if (!orgao) { showToast('Preencha pelo menos o Órgão.', 'error'); return; }
@@ -6938,6 +6946,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 
       // Muda título e botão salvar para modo edição
       qs('cadastroContratoTitulo').textContent = '✏️ Editar Contrato Ativo';
+      KMOrgPicker.start('con', false);
       const btnSalvar = qs('btnStepSave');
       if (btnSalvar) {
         btnSalvar.textContent = '✅ Salvar alterações';
@@ -12083,6 +12092,7 @@ _sectionRenders['payment-intelligence'] = () => KMPaymentUI.render();
 <script>KMPayerBadges.mount();</script>
 <script src="org-registry-model.js"></script>
 <script src="org-registry-ui.js"></script>
+<script src="org-registry-picker.js"></script>
 <script>
 KMOrgaos.mount({
  contracts:()=>[...contratosAtivos,...contratosEncerrados],entries:()=>empenhos,finance:calcEmpFinanceiroRealizado,
