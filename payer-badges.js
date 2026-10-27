@@ -33,7 +33,7 @@
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let current=build([]),closePopup=()=>{};
   function prepare(entries,contracts){closePopup();current=build(entries,contracts);}
-  function html(e){const s=current.get(e);return `<button type="button" class="payer-classification" aria-haspopup="true" aria-expanded="false" aria-controls="payer-stats-popover" data-payer-stats="${esc(JSON.stringify({n:s.n,mean:s.mean,min:s.min,max:s.max}))}">${s.label}</button>`;}
+  function html(e){const s=current.get(e);if(s.n<3)return '';return `<button type="button" class="payer-classification" aria-haspopup="true" aria-expanded="false" aria-controls="payer-stats-popover" data-payer-stats="${esc(JSON.stringify({n:s.n,mean:s.mean,min:s.min,max:s.max}))}">${s.label}</button>`;}
   function mount(){
     if(document.getElementById('payer-stats-popover'))return;
     const popup=document.createElement('div');popup.id='payer-stats-popover';popup.setAttribute('role','tooltip');popup.hidden=true;document.body.append(popup);
