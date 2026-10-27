@@ -2,7 +2,7 @@
  'use strict';
  const norm=v=>String(v??'').normalize('NFC').trim().replace(/\s+/g,' ').replace(/\s*\/\s*/g,'/').toLocaleUpperCase('pt-BR');
  const states='AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');
- const types=['Prefeitura','Câmara','Fundo','Secretaria','Autarquia','Consórcio','Outro'];
+ const types=['A confirmar','Prefeitura','Câmara','Fundo','Secretaria','Autarquia','Consórcio','Outro'];
  function cnpj(v){return String(v||'').toUpperCase().replace(/[.\/\s-]/g,'');}
  function validCnpj(v){const s=cnpj(v);if(!/^[A-Z0-9]{12}[0-9]{2}$/.test(s)||/^(.)\1+$/.test(s))return false;const dv=a=>{let sum=0,w=2;for(let i=a.length-1;i>=0;i--){sum+=(a.charCodeAt(i)-48)*w;w=w===9?2:w+1;}const r=sum%11;return r<2?0:11-r;};return dv(s.slice(0,12))===Number(s[12])&&dv(s.slice(0,13))===Number(s[13]);}
  function validate(v){
