@@ -3400,6 +3400,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <link rel="stylesheet" href="caixa-entrada.css">
 <style>.reply-notice{padding:12px;margin:8px 0;background:#f1f5f9;border-radius:8px;font-size:12px}.reply-notice a{font-weight:bold;color:inherit}.reply-pending,.reply-row-pending td{background:#fff1f2!important;color:#991b1b!important}.reply-row-pending td:first-child{border-left:4px solid #b91c1c}.reply-label{color:#b91c1c;font-size:10px}</style><script src="contract-close.js"></script><script src="gadita-tax.js"></script><script src="proposal-estimate.js"></script>
 <script src="paid-kpis.js"></script>
+<script src="payment-intelligence.js"></script>
 <style id="paid-kpi-layout">
 #empenhos-encerrados .paid-kpi-filters{display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin:0 0 8px;flex-shrink:0}
 #empenhos-encerrados .paid-kpi-filters label{display:grid;gap:3px;font-size:10px;min-width:100px}
@@ -3412,7 +3413,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 #empenhos-encerrados .paid-kpi-note{font-size:10px;line-height:13px;color:var(--muted);margin:0;min-height:39px;overflow-wrap:anywhere}
 @media(max-width:1000px){#empenhos-encerrados .paid-kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(max-width:600px){#empenhos-encerrados .paid-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-</style></head>
+</style><link rel="stylesheet" href="payment-intelligence.css"/>
+</head>
 <body>
 
 <!-- ═══ OVERLAY: bloqueia a tela até os dados chegarem do Supabase ═══ -->
@@ -7423,6 +7425,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         qs('empSaldoContratoInfo').textContent = '';
       }
 
+      window.KMPaymentUI?.warn(_empContratoSelecionado);
       qs('cadastroEmpenhoWrap').classList.remove('hidden');
     }
 
@@ -7446,6 +7449,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     function renderEmpItensPicker(c) {
+      window.KMPaymentUI?.warn(c);
       const body = qs('empItensPickerBody');
       if (!c || !Array.isArray(c.itensLotes) || !c.itensLotes.length) {
         body.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px 0;">Este contrato não possui itens cadastrados.</div>';
@@ -10578,7 +10582,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
         _editado:r.editado||false };
     }
     function fromDbEmpenho(r) {
-      return { id:r.id, contratoId:r.contrato_id, numero:r.numero, data:r.data,
+      return { ...KMPaymentIntelligence.fromDb(r), paymentIntelligenceVersion:r.updated_at, id:r.id, contratoId:r.contrato_id, numero:r.numero, data:r.data,
         dataPagamento:r.data_pagamento, dataEntrega:r.data_entrega, orgao:r.orgao, empresa:r.empresa,
         contrato:r.contrato, sistema:r.sistema, valor:Number(r.valor)||0,
         status:r.status, responsavel:r.responsavel,
@@ -12050,5 +12054,25 @@ function showToast(msg, type = 'info', duration = 3500) {
 <script src="tratativas.js"></script>
 
 <script src="aditivos.js"></script>
-<script src="email-session.js"></script><script src="reply-dashboard.js"></script></body>
+<script src="email-session.js"></script><script src="reply-dashboard.js"></script><script src="payment-intelligence-ui.js"></script>
+<script>
+KMPaymentUI.mount({
+  getRows: () => empenhos,
+  open: button => showSection('payment-intelligence', button),
+  save: async (id, payload) => {
+    const e = empenhos.find(x => x.id === id);
+    if (!e) throw new Error('Empenho não encontrado. Atualize a página.');
+    const guard = e.paymentIntelligenceVersion ? '&updated_at=eq.' + encodeURIComponent(e.paymentIntelligenceVersion) : '';
+    const response = await fetch(SUPA_URL + '/rest/v1/empenhos?id=eq.' + encodeURIComponent(id) + guard, {
+      method:'PATCH', headers:supaHeaders({'Prefer':'return=representation'}), body:JSON.stringify(payload)
+    });
+    if(!response.ok) throw new Error('Não foi possível salvar na nuvem. Nenhum dado local foi alterado.');
+    const rows=await response.json();
+    if(rows.length!==1) throw new Error('O empenho mudou em outra sessão. Atualize a página antes de editar.');
+    Object.assign(e,KMPaymentIntelligence.fromDb(rows[0]),{paymentIntelligenceVersion:rows[0].updated_at});
+  }
+});
+_sectionRenders['payment-intelligence'] = () => KMPaymentUI.render();
+</script>
+</body>
 </html>

@@ -1,0 +1,21 @@
+#payment-intelligence{min-height:0;display:flex;flex-direction:column;height:calc(100dvh - 40px);gap:8px;overflow:hidden}
+#payment-intelligence.hidden{display:none}
+#payment-intelligence .topbar{flex:0 0 auto;margin:0;height:auto!important;min-height:44px;padding:8px;align-items:flex-start}
+#payment-intelligence .topbar h2{white-space:normal;line-height:1.3}
+#payment-intelligence p{margin:0;font-size:11px;line-height:1.4;color:var(--muted)}
+#payment-intelligence label,#piEditor label{display:flex;flex-direction:column;gap:4px;font-size:11px;min-width:0}
+#payment-intelligence input,#payment-intelligence select,#piEditor input{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:7px;padding:7px;width:100%;box-sizing:border-box;min-width:0}
+.pi-controls{display:grid;grid-template-columns:1fr 1.4fr .8fr .7fr 1.5fr 1.2fr;gap:8px;flex-shrink:0}
+.pi-settings{font-size:11px;flex-shrink:0}.pi-settings summary{cursor:pointer}.pi-settings form{display:flex;flex-wrap:wrap;align-items:end;gap:8px;padding:8px;background:var(--card)}.pi-settings label{width:120px}
+.pi-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;flex-shrink:0}.pi-kpis>div{display:grid;grid-template-rows:28px 25px auto;gap:4px;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--card)}.pi-kpis span{font-size:11px}.pi-kpis strong{font-size:18px}.pi-kpis small{font-size:10px;color:var(--muted);line-height:1.4}
+.pi-tabs{display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0}.pi-tabs [aria-pressed=true]{font-weight:800;outline:2px solid var(--muted)}
+.pi-table-wrap{flex:1 1 auto;min-height:120px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow-anchor:none}
+.pi-table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:11px}.pi-table th,.pi-table td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}.pi-table th{position:sticky;top:0;background:var(--bg);z-index:1}.pi-table th:first-child{width:19%}.pi-table small{display:block;margin-top:5px;font-size:10px;color:var(--muted);line-height:1.4}.pi-link{border:0;background:none;color:var(--text);font:inherit;text-align:left;text-decoration:underline;cursor:pointer;padding:0}.pi-table .btn{white-space:normal}
+#payment-intelligence .pi-table th,#payment-intelligence .pi-table td,#payment-intelligence .pi-table td *{white-space:normal!important;text-overflow:clip!important;overflow:visible;min-width:0;max-width:100%;height:auto;overflow-wrap:anywhere}
+#payment-intelligence .pi-table th:first-child{width:19%!important}
+#payment-intelligence .pi-table tr{display:table-row!important}
+#piEditor{width:min(760px,90vw);max-height:85dvh;overflow:auto;border:1px solid var(--line);border-radius:14px;padding:20px;background:var(--card);color:var(--text)}#piEditor::backdrop{background:#0007}#piEditor h3{font-size:15px;margin:0 0 12px}#piEditor p{font-size:12px;line-height:1.5}.pi-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pi-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}#piEditError{color:#c62828}.pi-warning{padding:10px;margin:8px 0;border:1px solid var(--line);border-left:3px solid #977126;background:var(--bg);font-size:12px;line-height:1.5}
+@media(max-width:900px){.pi-controls{grid-template-columns:repeat(3,minmax(0,1fr))}.pi-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.pi-table{font-size:10px}.pi-table td,.pi-table th{padding:6px 4px}}
+@media(max-width:900px){#payment-intelligence .pi-table,#payment-intelligence .pi-table tbody{display:block;width:100%}#payment-intelligence .pi-table thead{display:none}#payment-intelligence .pi-table tr{display:block!important;border-bottom:2px solid var(--line)}#payment-intelligence .pi-table td{display:block!important;width:auto!important;border:0;padding:7px 10px}#payment-intelligence .pi-table td:before{content:attr(data-label);display:block;font-size:10px;font-weight:700;color:var(--muted);margin-bottom:4px}}
+@media(max-width:600px){#payment-intelligence{overflow:auto}.pi-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.pi-edit-grid,.pi-kpis{grid-template-columns:1fr}.pi-table-wrap{flex:none;max-height:60vh}.pi-kpis strong{font-size:15px}}
+
