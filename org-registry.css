@@ -44,3 +44,10 @@
 @media(max-width:1000px){.or-summary{grid-template-columns:repeat(4,minmax(0,1fr))}.or-summary>div{grid-template-rows:auto auto auto;padding:8px}.or-summary strong{font-size:12px}#orBody .or-number{white-space:normal!important}}
 @media(max-width:600px){#org-registry:not(.hidden){height:calc(100dvh - 24px);gap:6px}.or-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.or-summary>div{padding:6px}.or-summary span,.or-summary small{font-size:8px}#orFooter{padding:5px;gap:5px}#orFooterTotals{margin-left:0}#orBody .or-table td{font-size:9px!important;padding:5px 3px!important}}
 
+/* Header filters and selection share the contract table's compact treatment. */
+#orBody[data-tab=entities] th:nth-child(1){width:3%}#orBody[data-tab=entities] th:nth-child(2){width:23%}#orBody[data-tab=entities] th:nth-child(3){width:13%}#orBody[data-tab=entities] th:nth-child(4){width:10%}#orBody[data-tab=entities] th:nth-child(5){width:12%}#orBody[data-tab=entities] th:nth-child(6),#orBody[data-tab=entities] th:nth-child(7),#orBody[data-tab=entities] th:nth-child(8){width:11%}#orBody[data-tab=entities] th:nth-child(9){width:6%}
+#orBody .or-head-button{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:4px;padding:1px 3px;cursor:pointer;vertical-align:middle;font-size:11px}
+#orBody .or-head-button[data-active],#orBody th[aria-sort=ascending] button,#orBody th[aria-sort=descending] button{background:var(--muted);color:var(--card)}
+#orBody input[type=checkbox]{width:12px;height:12px;cursor:pointer;accent-color:#525e6b}#orBody .or-selected{box-shadow:inset 3px 0 #525e6b;background:var(--primary-hover)!important}
+#orFilter{max-width:390px}#orFilter input{width:100%}#orFilter .or-actions{margin-top:16px}
+
