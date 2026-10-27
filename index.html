@@ -3401,6 +3401,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <style>.reply-notice{padding:12px;margin:8px 0;background:#f1f5f9;border-radius:8px;font-size:12px}.reply-notice a{font-weight:bold;color:inherit}.reply-pending,.reply-row-pending td{background:#fff1f2!important;color:#991b1b!important}.reply-row-pending td:first-child{border-left:4px solid #b91c1c}.reply-label{color:#b91c1c;font-size:10px}</style><script src="contract-close.js"></script><script src="gadita-tax.js"></script><script src="proposal-estimate.js"></script>
 <script src="paid-kpis.js"></script>
 <script src="payment-intelligence.js"></script>
+<script src="payer-badges.js"></script>
 <style id="paid-kpi-layout">
 #empenhos-encerrados .paid-kpi-filters{display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin:0 0 8px;flex-shrink:0}
 #empenhos-encerrados .paid-kpi-filters label{display:grid;gap:3px;font-size:10px;min-width:100px}
@@ -3414,6 +3415,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 @media(max-width:1000px){#empenhos-encerrados .paid-kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(max-width:600px){#empenhos-encerrados .paid-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 </style><link rel="stylesheet" href="payment-intelligence.css"/>
+<link rel="stylesheet" href="payer-badges.css"/>
 </head>
 <body>
 
@@ -7958,7 +7960,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         <td>${empDatasHtml(e, 'andamento', dataCompra)}</td>
         <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}${notifBellHtml(e)}</td>
         <td class="cell-wrap">
-          <div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>
+          <div class="payer-orgao-heading"><div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>${KMPayerBadges.html(e)}</div>
           <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>${window.KMTratativas?.empBadges(e) || ''}
           <div class="con-orgao-info">${e.contrato || ''}</div>
         </td>
@@ -7985,6 +7987,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 
     // ── Empenhos em andamento (tudo que NÃO é Paga) ──
     function renderEmpAndamento() {
+      KMPayerBadges.prepare(empenhos, [...contratosAtivos,...contratosEncerrados]);
       const body = qs('empAndTableBody');
       if (!body) return;
 
@@ -8090,6 +8093,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     function renderEmpPendentes() {
+      KMPayerBadges.prepare(empenhos, [...contratosAtivos,...contratosEncerrados]);
       const body = qs('empPendTableBody');
       if (!body) return;
       const pendentes = empenhos.filter(e => e.status === 'Pendente');
@@ -8180,7 +8184,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
               <td>${empDatasHtml(e, 'pendente', calcEmpFinanceiroRealizado(e).dataCompra)}</td>
               <td style="font-weight:700;font-size:10px;">${e.numero||'—'}${notifBellHtml(e)}</td>
               <td class="cell-wrap">
-                <div class="con-orgao-nome">${e.orgao||'—'}</div>
+                <div class="payer-orgao-heading"><div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>${KMPayerBadges.html(e)}</div>
           <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>${window.KMTratativas?.empBadges(e) || ''}
                 <div class="con-orgao-info">${e.contrato||''}</div>
               </td>
@@ -8241,7 +8245,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         <td>${empDatasHtml(e, 'pago', dataCompra)}</td>
         <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}${notifBellHtml(e)}</td>
         <td class="cell-wrap">
-          <div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>
+          <div class="payer-orgao-heading"><div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>${KMPayerBadges.html(e)}</div>
           <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>${window.KMTratativas?.empBadges(e) || ''}
           <div class="con-orgao-info">${e.contrato || ''}</div>
         </td>
@@ -8267,6 +8271,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
     function renderEmpEncerrados() {
+      KMPayerBadges.prepare(empenhos, [...contratosAtivos,...contratosEncerrados]);
       const body = qs('empEncTableBody');
       if (!body) return;
 
@@ -12074,5 +12079,6 @@ KMPaymentUI.mount({
 });
 _sectionRenders['payment-intelligence'] = () => KMPaymentUI.render();
 </script>
+<script>KMPayerBadges.mount();</script>
 </body>
 </html>

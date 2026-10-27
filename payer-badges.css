@@ -1,0 +1,7 @@
+.emp-table .payer-orgao-heading{display:flex;flex-wrap:wrap;align-items:center;gap:3px 6px;min-width:0}
+.emp-table .payer-orgao-heading .con-orgao-nome{flex:0 1 auto}
+.emp-table .payer-classification{display:inline-block;max-width:100%;padding:1px 5px;margin:0;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--muted);font-family:inherit;font-size:9px!important;font-weight:500;line-height:1.4;white-space:normal!important;text-align:left;cursor:help}
+.emp-table .payer-classification:hover,.emp-table .payer-classification:focus-visible{border-color:var(--muted);outline:1px solid var(--muted);outline-offset:1px}
+#payer-stats-popover{position:fixed;z-index:2147483000;width:max-content;max-width:calc(100vw - 16px);box-sizing:border-box;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);box-shadow:0 4px 18px #0002;font-family:inherit;font-size:12px;line-height:1.7;text-align:left;white-space:normal}
+#payer-stats-popover[hidden]{display:none!important}
+
