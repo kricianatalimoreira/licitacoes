@@ -14,4 +14,33 @@
 .or-note,.or-table small,.or-kpis small{color:var(--muted,#586574)}
 .or-link{color:var(--text,#243e57)}
 .or-table th{background:var(--primary-th1,#edf0f3)}
+/* Registry uses the same fixed-panel rhythm as Contracts. */
+#org-registry:not(.hidden){display:flex;flex-direction:column;gap:12px;height:calc(100dvh - 40px);max-height:none;min-height:0;padding-bottom:0;overflow:hidden}
+#org-registry>.topbar,#orControls,#orSummary,#orLogin{flex-shrink:0;margin:0}
+#orMessage{margin:0}#orMessage:empty{display:none}
+.or-summary{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.or-summary>div{display:grid;grid-template-rows:28px 25px auto;gap:5px;min-width:0;padding:12px 10px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);font-size:10px}
+.or-summary span,.or-summary small{color:var(--muted);font-size:9px;line-height:1.4}.or-summary strong{font-size:14px;align-self:center;white-space:nowrap}
+#orControls .or-toolbar{margin:0;gap:8px}#orControls label{font-size:10px}#orControls input,#orControls select{padding:7px;font-size:10px;height:31px}#orControls input[type=checkbox]{height:auto}
+#orControls .or-search{min-width:160px}#orControls .btn{font-size:9px;padding:7px 9px}
+#orPanel{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:0 0 14px 14px;overflow:hidden;box-shadow:var(--shadow)}
+#orBody{display:flex;flex-direction:column;min-height:0;flex:1;overflow:hidden}
+#orBody>.or-note{flex-shrink:0;margin:0;padding:7px 10px;font-size:10px}
+#orBody>.or-table-wrap{flex:1;min-height:0;max-height:none;border:0;border-radius:0;overflow:auto}
+#orBody .or-table th{height:42px;text-align:center;font-size:9px!important;color:var(--muted);vertical-align:middle}
+#orBody .or-table td{padding:9px 7px!important;font-size:10px!important;vertical-align:top;border-right:1px solid var(--line)}
+#orBody .or-table tbody tr:nth-child(even){background:var(--primary-hover)}
+#orBody .or-table small{font-size:9px;line-height:1.5}#orBody .or-link{font-weight:700;text-decoration:none}
+#orBody .or-number{text-align:right;white-space:nowrap!important}#orBody .or-number small{white-space:normal}
+#orBody[data-tab=entities] th:nth-child(1){width:26%}#orBody[data-tab=entities] th:nth-child(2){width:13%}#orBody[data-tab=entities] th:nth-child(3){width:10%}#orBody[data-tab=entities] th:nth-child(4){width:12%}#orBody[data-tab=entities] th:nth-child(5),#orBody[data-tab=entities] th:nth-child(6),#orBody[data-tab=entities] th:nth-child(7){width:11%}#orBody[data-tab=entities] th:nth-child(8){width:6%}
+#orBody .btn{font-size:9px;padding:5px;max-width:100%;white-space:normal}
+#orBody .or-table{display:table!important;width:100%!important;min-width:0!important;table-layout:fixed!important}
+#orBody .or-table thead{display:table-header-group!important;width:auto!important}
+#orBody .or-table tbody{display:table-row-group!important;width:auto!important;height:auto!important;max-height:none!important;overflow:visible!important}
+#orBody .or-table tr{display:table-row!important;width:auto!important;table-layout:auto!important}
+#orFooter{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--primary-th1);border-top:1px solid var(--line);font-size:9px;color:var(--muted);flex-wrap:wrap}
+#orFooter label{display:flex;gap:6px;align-items:center}#orFooter select{font-size:10px;border:1px solid var(--line);border-radius:6px;padding:3px 8px}#orFooterTotals{margin-left:auto;font-weight:600}
+#orDetail{flex-shrink:0;max-height:35vh;overflow:auto;margin:0;padding:12px}#orDetail .or-table-wrap{max-height:20vh}
+@media(max-width:1000px){.or-summary{grid-template-columns:repeat(4,minmax(0,1fr))}.or-summary>div{grid-template-rows:auto auto auto;padding:8px}.or-summary strong{font-size:12px}#orBody .or-number{white-space:normal!important}}
+@media(max-width:600px){#org-registry:not(.hidden){height:calc(100dvh - 24px);gap:6px}.or-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.or-summary>div{padding:6px}.or-summary span,.or-summary small{font-size:8px}#orFooter{padding:5px;gap:5px}#orFooterTotals{margin-left:0}#orBody .or-table td{font-size:9px!important;padding:5px 3px!important}}
 
