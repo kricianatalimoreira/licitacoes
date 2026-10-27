@@ -3405,10 +3405,11 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 #empenhos-encerrados .paid-kpi-filters label{display:grid;gap:3px;font-size:10px;min-width:100px}
 #empenhos-encerrados .paid-kpi-filters select{height:30px;padding:4px 8px}
 #paidKpiScope{font-size:10px;color:var(--muted);align-self:center}
-#empenhos-encerrados .paid-kpi-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:10px;flex-shrink:0}
-#empenhos-encerrados .paid-kpi-grid .disputa-stat-card{min-width:0;padding:10px}
-#empenhos-encerrados .paid-kpi-grid .disputa-stat-value{font-size:16px;overflow-wrap:anywhere}
-#empenhos-encerrados .paid-kpi-note{font-size:10px;line-height:1.3;color:var(--muted);margin-top:5px}
+#empenhos-encerrados .paid-kpi-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:10px;flex:0 0 auto!important;height:auto!important;min-height:0;align-items:stretch;grid-auto-rows:1fr}
+#empenhos-encerrados .paid-kpi-grid .disputa-stat-card{min-width:0;padding:10px;box-sizing:border-box;height:auto!important;min-height:122px;display:grid;grid-template-rows:28px 22px minmax(39px,auto);gap:5px;align-content:start}
+#empenhos-encerrados .paid-kpi-grid .disputa-stat-label{height:28px;min-height:28px;line-height:14px;margin:0}
+#empenhos-encerrados .paid-kpi-grid .disputa-stat-value{font-size:16px;line-height:22px;height:auto;min-height:22px;margin:0;align-self:start;overflow-wrap:anywhere}
+#empenhos-encerrados .paid-kpi-note{font-size:10px;line-height:13px;color:var(--muted);margin:0;min-height:39px;overflow-wrap:anywhere}
 @media(max-width:1000px){#empenhos-encerrados .paid-kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(max-width:600px){#empenhos-encerrados .paid-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 </style></head>
