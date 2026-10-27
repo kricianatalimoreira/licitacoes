@@ -23,3 +23,21 @@ for(const id of ['fEmpEncMes','fEmpEncAno','fEmpEncEmpresa','empEncStatValor','e
 assert.ok(s.includes('<script src="paid-kpis.js"></script>'));
 console.log('20 cenários financeiros/datas/filtros aprovados; IDs únicos; '+scripts+' scripts válidos.');
 
+
+const finance=()=>({temValores:true,vlCompraReal:200,custoReal:50,lucroReal:150});
+let k=calculate([e],{},finance);
+assert.equal(k.purchase,200);assert.equal(k.cost,50);assert.equal(k.roi,60);
+assert.equal(calculate([e],{},()=>({...finance(),lucroReal:-50})).roi,-20);
+assert.equal(calculate([e],{},()=>({...finance(),lucroReal:0})).roi,0);
+assert.equal(calculate([e],{},()=>({...finance(),vlCompraReal:0,custoReal:0})).roi,null);
+assert.equal(calculate([e],{},()=>({...finance(),temValores:false})).roi,null);
+assert.equal(calculate([e],{},()=>({...finance(),estimado:true})).estimated,1);
+assert.equal(calculate([e],{mes:'07'},finance).purchase,0);
+assert.equal(calculate([e],{empresa:'Hamate'},finance).cost,0);
+assert.equal(calculate([e,{...e,valor:800}],{},(_,i)=>finance()).roi,60);
+assert.equal(calculate([e],{},()=>({...finance(),custoReal:undefined})).roi,null);
+assert.equal(calculate([],{},finance).roi,null);
+assert.ok(!s.includes('id="empEncStatReceber"'));
+assert.ok(!s.includes('id="empEncStatAtrasados"'));
+for(const id of ['empEncStatCompra','empEncStatCusto','empEncStatROI'])assert.equal(s.split('id="'+id+'"').length-1,1);
+console.log('Compra, custo e ROI: agregação, filtros, negativos, zero e dados incompletos aprovados.');
