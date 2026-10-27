@@ -1,0 +1,94 @@
+(function(){
+ 'use strict';
+ const M=window.KMOrgRegistryModel,S=window.KMEmailSession,$=id=>document.getElementById(id);
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const money=v=>Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),days=v=>v===null?'—':v.toLocaleString('pt-BR',{maximumFractionDigits:1})+' dias';
+ let adapter,orgs=[],links=[],companies=[],ready=false,loading=false,epoch=0,tab='entities',selected=null,editing=null,binding=null;
+ const messages={login_required:'Entre com seu acesso do sistema.',login_failed:'Não foi possível entrar. Confira e-mail e senha.',forbidden:'Seu usuário não tem permissão para esta ação.',duplicate_cnpj:'Este CNPJ já está cadastrado. Use o cadastro existente.',conflict:'Este registro mudou em outra sessão. Atualize e confira novamente.',source_changed:'O registro original mudou ou ainda não foi salvo na nuvem. Atualize e confira antes de vincular.',network_error:'Não foi possível conectar. Tente novamente.',storage_error:'Não foi possível salvar no servidor. Tente novamente.'};
+ const error=e=>messages[e.message]||'Não foi possível concluir. Confira os dados e tente novamente.';
+ const data=()=>({contracts:adapter.contracts(),entries:adapter.entries()});
+ function resolved(row,kind){return ready?M.resolve(row,kind,links,adapter.contracts()):null;}
+ function identity(row){const r=resolved(row,'empenho');return r?JSON.stringify([M.norm(row.empresa),'registry',r.id]):null;}
+ async function request(action,body={}){return S.api(action,null,{data:body},'org-registry');}
+ async function refresh(){
+  if(loading)return;loading=true;const version=epoch;$('orMessage').textContent='Carregando cadastro…';
+  try{if(!S.has())throw Error('login_required');const result=await request('list');if(version!==epoch)return;orgs=result.orgaos;links=result.links;companies=result.companies;ready=true;$('orMessage').textContent='';adapter.changed();}
+  catch(e){if(version===epoch){ready=false;orgs=[];links=[];$('orMessage').textContent=error(e);}}
+  finally{loading=false;render();}
+ }
+ function clear(){epoch++;ready=false;orgs=[];links=[];companies=[];selected=null;editing=null;binding=null;for(const id of ['orEditor','orBind']){const el=$(id);if(el?.open)el.close();}if($('orEditForm'))$('orEditForm').reset();render();adapter.changed();}
+ const activeCompany=()=>$('orCompany').value;
+ const sources=()=>M.sources(adapter.contracts(),adapter.entries());
+ function stats(id){return M.summary(id,links,adapter.contracts(),adapter.entries(),adapter.finance,activeCompany());}
+ function table(headers,body){return '<div class="or-table-wrap"><table class="or-table"><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+body+'</tbody></table></div>';}
+ function render(){
+  if(!$('org-registry'))return;
+  $('orLogin').hidden=S.has();$('orControls').hidden=!ready;$('orNew').disabled=!ready;
+  if(!ready){$('orDetail').hidden=true;$('orDetail').replaceChildren();$('orBody').innerHTML='<div class="or-empty">'+(S.has()?'Atualize para carregar o cadastro protegido.':'Entre para consultar órgãos, contatos e vínculos. Use o acesso do sistema; não é a senha do Gmail.')+'</div>';return;}
+  const q=M.norm($('orSearch').value),match=o=>!q||M.norm([o.nome,o.cnpj,o.municipio,o.uf].join(' ')).includes(q);
+  document.querySelectorAll('[data-or-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.orTab===tab)));
+  const list=orgs.filter(match);
+  if(tab==='entities'){
+   $('orBody').innerHTML=list.length?table(['Órgão / CNPJ','Município / UF','Tipo','Contratos','Empenhos pagos','Ações'],list.map(o=>{const s=stats(o.id);return `<tr><td><button class="or-link" data-open="${o.id}">${esc(o.nome)}</button><small>${esc(o.cnpj||'CNPJ não informado')}</small></td><td>${esc(o.municipio)} / ${o.uf}</td><td>${esc(o.tipo)}</td><td>${s.contracts}<small>${money(s.contractValue)}</small></td><td>${s.paid}<small>${money(s.paidValue)}</small></td><td><button class="btn btn-light" data-edit-org="${o.id}">Editar</button></td></tr>`;}).join('')):'<div class="or-empty">Nenhum órgão cadastrado nesta seleção. Comece em “Registros para vincular” ou “Novo órgão”.</div>';
+  }else if(tab==='municipalities'){
+   const groups=new Map();for(const o of list){const k=JSON.stringify([M.norm(o.municipio),o.uf]);if(!groups.has(k))groups.set(k,{name:o.municipio,uf:o.uf,orgs:[],contracts:0,paid:0,compra:0,custo:0,lucro:0,covered:0,estimated:0});const g=groups.get(k),s=stats(o.id);g.orgs.push(o);for(const field of ['contracts','paid','compra','custo','lucro','covered','estimated'])g[field]+=s[field];}
+   $('orBody').innerHTML='<p class="or-note">Consolidação por município. Prefeitura, Câmara e fundos mantêm cadastros e classificações separados. Valores de compra, custo e lucro abaixo são dos empenhos pagos vinculados.</p>'+table(['Município / UF','Entidades','Contratos / pagos','Compras','Custo','Lucro / cobertura'],[...groups.values()].map(g=>`<tr><td>${esc(g.name)} / ${g.uf}</td><td>${g.orgs.map(o=>`<button class="or-link" data-open="${o.id}">${esc(o.nome)}</button>`).join('<br>')}</td><td>${g.contracts} contratos · ${g.paid} pagos</td><td>${money(g.compra)}</td><td>${money(g.custo)}</td><td class="${g.lucro<0?'or-negative':g.lucro>0?'or-positive':''}">${money(g.lucro)}<small>${g.covered}/${g.paid} com valores · ${g.estimated} previstos</small></td></tr>`).join('')||'<tr><td colspan="6">Nenhuma entidade nesta seleção.</td></tr>');
+  }else if(tab==='records'){
+   const rows=sources().filter(r=>(!activeCompany()||M.norm(r.empresa)===activeCompany())&&(!q||M.norm([r.orgao,r.numero,r.contrato,r.empresa].join(' ')).includes(q))&&(!$('orPending').checked||!resolved(r,r.kind)));
+   $('orBody').innerHTML='<p class="or-note">Confira a entidade antes de confirmar. Contratos vinculados transmitem a identificação aos empenhos compatíveis da mesma empresa. Os nomes originais são preservados.</p>'+table(['Registro / empresa','Nome original','Órgão vinculado','Ação'],rows.map((r)=>{const ref=resolved(r,r.kind),o=orgs.find(o=>o.id===ref?.id);return `<tr><td>${r.kind==='contrato'?'Contrato':'Empenho'} ${esc(r.kind==='contrato'?r.contrato:r.numero)}<small>${esc(r.empresa)} · ${esc(r.processo||r.contrato||'')}</small></td><td>${esc(r.orgao)}</td><td>${o?esc(o.nome)+'<small>'+esc(o.cnpj||'Sem CNPJ')+(ref.inherited?' · herdado do contrato':' · confirmado')+'</small>':'Não vinculado'}</td><td><button class="btn btn-light" data-bind-kind="${r.kind}" data-bind-id="${esc(r.id)}" data-bind-company="${esc(M.norm(r.empresa))}">${ref?'Conferir vínculo':'Vincular'}</button></td></tr>`;}).join('')||'<tr><td colspan="4">Nenhum registro nesta seleção.</td></tr>');
+  }
+  if(selected)detail(selected);
+ }
+ function detail(id){
+  const o=orgs.find(o=>o.id===id);if(!o){selected=null;$('orDetail').hidden=true;return;}selected=id;const s=stats(id);$('orDetail').hidden=false;
+  const classification=s.n<3?'Sem histórico suficiente':s.mean<=15?'Pagador rápido':s.mean<=30?'Pagador regular':s.mean<=60?'Pagador lento':'Pagador crítico';
+  // Do not assign a cross-company payer classification in the combined financial view.
+  const payment=activeCompany()?`${classification} · média ${days(s.mean)} · ${s.n} pagamentos válidos · menor ${days(s.min)} / maior ${days(s.max)}`:'Selecione HAMATE ou GADITA para consultar a classificação de pagamento.';
+  $('orDetail').innerHTML=`<div class="or-toolbar"><h3>${esc(o.nome)}</h3><button class="btn btn-light" data-close-detail>Fechar detalhes</button><button class="btn btn-light" data-edit-org="${o.id}">Editar cadastro</button></div><p>${esc(o.cnpj||'CNPJ não informado')} · ${esc(o.municipio)} / ${o.uf} · ${esc(o.tipo)}</p><div class="or-kpis"><div>Contratos<strong>${s.contracts}</strong><small>${money(s.contractValue)}</small></div><div>Empenhos pagos<strong>${money(s.paidValue)}</strong><small>${s.paid} pagamentos</small></div><div>Compra dos pagos<strong>${s.covered?money(s.compra):'—'}</strong></div><div>Custo dos pagos<strong>${s.covered?money(s.custo):'—'}</strong></div><div>Lucro dos pagos<strong class="${s.lucro<0?'or-negative':s.lucro>0?'or-positive':''}">${s.covered?money(s.lucro):'—'}</strong></div></div><p class="or-note">${s.covered} de ${s.paid} pagos com valores disponíveis · ${s.estimated} previstos. Fórmulas existentes preservadas. Totais de contratos não são somados aos empenhos.</p><p>${esc(payment)}</p><p class="or-note">Entrega física → pagamento. Velocidade histórica, não descumprimento contratual. Apenas datas válidas de pagamentos realizados.</p><div class="or-contacts">${o.contatos.map(c=>`<div><b>${esc(c.setor)}</b><br>${esc(c.nome)}<br>${esc(c.email)}<br>${esc(c.telefone)}</div>`).join('')||'Nenhum contato cadastrado.'}</div><p>${['site','portal'].filter(k=>o[k]).map(k=>`<a href="${esc(o[k])}" target="_blank" rel="noopener noreferrer">${k==='site'?'Site oficial':'Portal de transparência'}</a>`).join(' · ')}</p>`+table(['Registro','Nome original','Empresa','Valor'],s.rows.map(r=>`<tr><td>${r.kind==='contrato'?'Contrato':'Empenho'} ${esc(r.kind==='contrato'?r.contrato:r.numero)}</td><td>${esc(r.orgao)}</td><td>${esc(r.empresa)}</td><td>${money(r.valor||0)}</td></tr>`).join('')||'<tr><td colspan="4">Nenhum registro vinculado nesta seleção.</td></tr>');
+ }
+ function edit(id=null,prefill={}){
+  editing=orgs.find(o=>o.id===id)||null;const o=editing||prefill;
+  $('orEditForm').reset();for(const k of ['nome','cnpj','municipio','uf','tipo','site','portal'])$('or_'+k).value=o[k]||'';
+  ['Compras','Financeiro','Recebimento'].forEach((setor,i)=>{const c=(o.contatos||[]).find(c=>c.setor===setor)||{};for(const k of ['nome','email','telefone'])$('orContact'+i+k).value=c[k]||'';});
+  $('orEditTitle').textContent=editing?'Editar órgão':'Novo órgão';$('orEditError').textContent='';$('orEditor').showModal();
+ }
+ async function save(ev){ev.preventDefault();const b=$('orSave');b.disabled=true;
+  try{const v=Object.fromEntries(['nome','cnpj','municipio','uf','tipo','site','portal'].map(k=>[k,$('or_'+k).value]));v.contatos=['Compras','Financeiro','Recebimento'].map((setor,i)=>({setor,...Object.fromEntries(['nome','email','telefone'].map(k=>[k,$('orContact'+i+k).value]))}));let clean;try{clean=M.validate(v);}catch(e){$('orEditError').textContent=e.message;return;}
+   const result=await request('save',{...clean,id:editing?.id,revision:editing?.revision});$('orEditor').close();selected=result.orgao.id;await refresh();
+  }catch(e){$('orEditError').textContent=error(e);}finally{b.disabled=false;}
+ }
+ function bind(kind,id,company){
+  const row=sources().find(r=>r.kind===kind&&String(r.id)===id&&M.norm(r.empresa)===company);if(!row)return;binding=row;const ref=resolved(row,kind),direct=links.find(l=>l.kind===kind&&l.record_id===id&&l.company===company);
+  $('orBindTitle').textContent=`${kind==='contrato'?'Contrato':'Empenho'} ${kind==='contrato'?row.contrato:row.numero} · ${company}`;
+  $('orBindSource').textContent='Nome original: '+row.orgao;
+  $('orBindSelect').innerHTML='<option value="">Selecione a entidade correta</option>'+orgs.map(o=>`<option value="${o.id}">${esc(o.nome)} · ${esc(o.cnpj||'sem CNPJ')} · ${esc(o.municipio)}/${o.uf}</option>`).join('');$('orBindSelect').value=ref?.id||'';
+  $('orBindConfirm').checked=false;$('orBindError').textContent='';$('orUnbind').hidden=!direct;
+  $('orBindNote').textContent=ref?.inherited?'Este vínculo vem do contrato. Para mudar todos os empenhos compatíveis, altere o vínculo do contrato. Aqui você cria uma exceção para este empenho.':'Ao vincular um contrato, seus empenhos compatíveis da mesma empresa também serão identificados. Confira o CNPJ e a unidade: Prefeitura, Câmara e fundos podem ser entidades distintas.';
+  $('orBind').showModal();
+ }
+ async function confirmBind(action){
+  if(!$('orBindConfirm').checked){$('orBindError').textContent='Confirme que conferiu a entidade e o registro.';return;}
+  const row=binding;if(!row)return;const direct=links.find(l=>l.kind===row.kind&&l.record_id===String(row.id)&&l.company===M.norm(row.empresa));
+  const buttons=$('orBind').querySelectorAll('button');buttons.forEach(b=>b.disabled=true);
+  try{await request(action,{kind:row.kind,record_id:String(row.id),company:M.norm(row.empresa),source_name:row.orgao,orgao_id:$('orBindSelect').value,revision:direct?.revision||0,confirmed:true});$('orBind').close();await refresh();}
+  catch(e){$('orBindError').textContent=error(e);}finally{buttons.forEach(b=>b.disabled=false);}
+ }
+ function mount(a){
+  adapter=a;const section=document.createElement('section');section.id='org-registry';section.className='page-section hidden';
+  section.innerHTML=`<div class="topbar"><h2>Órgãos públicos</h2><div><button class="btn btn-light" id="orRefresh">Atualizar</button> <button class="btn" id="orNew" disabled>Novo órgão</button></div></div><p id="orMessage" role="status"></p><form id="orLogin" class="or-login"><p>Acesso protegido aos cadastros e contatos</p><label>E-mail do sistema<input type="email" id="orLoginEmail" autocomplete="username" required></label><label>Senha do sistema<input type="password" id="orLoginPassword" autocomplete="current-password" required></label><button class="btn" type="submit">Entrar</button></form><div id="orControls" hidden><div class="or-toolbar"><label>Empresa<select id="orCompany"><option value="">Todas</option><option>HAMATE</option><option>GADITA</option></select></label><label class="or-search">Pesquisar<input type="search" id="orSearch" placeholder="Órgão, CNPJ, município ou registro"></label><button class="btn btn-light" data-or-tab="entities">Órgãos</button><button class="btn btn-light" data-or-tab="municipalities">Por município</button><button class="btn btn-light" data-or-tab="records">Registros para vincular</button><label><input type="checkbox" id="orPending" checked> Somente não vinculados</label></div></div><div id="orDetail" hidden></div><div id="orBody"></div>`;
+  document.querySelector('main.content').append(section);
+  const menu=document.createElement('button');menu.className='menu-child';menu.dataset.sectionTarget='org-registry';menu.innerHTML='<span class="menu-child-dot"></span><span class="menu-label">Órgãos públicos</span>';menu.addEventListener('click',()=>a.open(menu));document.querySelector('[data-section-target="contratos-ativos"]').insertAdjacentElement('beforebegin',menu);
+  const dialog=document.createElement('dialog');dialog.id='orEditor';dialog.className='or-dialog';dialog.innerHTML=`<form id="orEditForm"><h3 id="orEditTitle"></h3><p>Cadastre a entidade, mantendo Prefeitura, Câmara e fundos separados. CNPJ pode ficar em branco quando não conhecido.</p><div class="or-form-grid"><label>Nome oficial<input id="or_nome" maxlength="250" required></label><label>CNPJ<input id="or_cnpj" maxlength="18" placeholder="Opcional"></label><label>Município<input id="or_municipio" maxlength="120" required></label><label>UF<select id="or_uf" required><option value="">Selecione</option>${M.states.map(s=>'<option>'+s+'</option>').join('')}</select></label><label>Tipo<select id="or_tipo" required><option value="">Selecione</option>${M.types.map(s=>'<option>'+s+'</option>').join('')}</select></label><label>Site oficial<input id="or_site" type="url" maxlength="1000" placeholder="https://"></label><label>Portal de transparência<input id="or_portal" type="url" maxlength="1000" placeholder="https://"></label></div>${['Compras','Financeiro','Recebimento'].map((s,i)=>`<fieldset><legend>${s}</legend><div class="or-form-grid"><label>Contato<input id="orContact${i}nome" maxlength="120"></label><label>E-mail<input id="orContact${i}email" type="email" maxlength="254"></label><label>Telefone<input id="orContact${i}telefone" maxlength="60"></label></div></fieldset>`).join('')}<p id="orEditError" role="alert"></p><div class="or-actions"><button class="btn btn-light" type="button" data-close="orEditor">Cancelar</button><button class="btn" id="orSave" type="submit">Salvar cadastro</button></div></form>`;document.body.append(dialog);
+  const bd=document.createElement('dialog');bd.id='orBind';bd.className='or-dialog';bd.innerHTML=`<h3 id="orBindTitle"></h3><p id="orBindSource"></p><p class="or-note" id="orBindNote"></p><label>Órgão do cadastro<select id="orBindSelect"></select></label><button class="btn btn-light" id="orCreateFromSource">Cadastrar este órgão</button><p><label><input type="checkbox" id="orBindConfirm"> Conferi a entidade e confirmo esta alteração de vínculo.</label></p><p id="orBindError" role="alert"></p><div class="or-actions"><button class="btn btn-light" data-close="orBind">Cancelar</button><button class="btn btn-light" id="orUnbind">Remover vínculo direto</button><button class="btn" id="orConfirmBind">Confirmar vínculo</button></div>`;document.body.append(bd);
+  $('orRefresh').onclick=refresh;$('orNew').onclick=()=>edit();$('orEditForm').onsubmit=save;
+  $('orLogin').onsubmit=async ev=>{ev.preventDefault();const b=ev.target.querySelector('button');b.disabled=true;try{await S.signIn($('orLoginEmail').value,$('orLoginPassword').value);$('orLoginPassword').value='';await refresh();}catch(e){$('orMessage').textContent=error(e);}finally{b.disabled=false;}};
+  $('orConfirmBind').onclick=()=>confirmBind('bind');$('orUnbind').onclick=()=>confirmBind('unbind');
+  $('orCreateFromSource').onclick=()=>{const row=binding;$('orBind').close();edit(null,{nome:row.orgao,uf:row.uf||''});};
+  for(const dialog of [bd,$('orEditor')])dialog.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).close());
+  section.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;if(b.dataset.orTab){tab=b.dataset.orTab;render();}if(b.dataset.editOrg)edit(b.dataset.editOrg);if(b.dataset.open)detail(b.dataset.open);if(b.hasAttribute('data-close-detail')){selected=null;$('orDetail').hidden=true;}if(b.dataset.bindId)bind(b.dataset.bindKind,b.dataset.bindId,b.dataset.bindCompany);});
+  $('orSearch').oninput=render;$('orCompany').onchange=render;$('orPending').onchange=render;
+  S.onChange(has=>{if(!has)clear();else refresh();});render();if(S.has())refresh();
+ }
+ window.KMOrgaos={mount,render,refresh,identity,open(){if(!ready)refresh();else render();}};
+})();
+

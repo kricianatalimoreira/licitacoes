@@ -9,7 +9,7 @@
   }
   function today(){return new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Sao_Paulo'}).format(new Date());}
   const norm=s=>String(s||'').normalize('NFC').trim().replace(/\s+/g,' ').replace(/\s*\/\s*/g,'/').toLocaleUpperCase('pt-BR');
-  function key(e){return norm(e.empresa)&&norm(e.orgao)?JSON.stringify([norm(e.empresa),norm(e.orgao)]):null;}
+  function key(e){const registered=root.KMOrgaos?.identity(e);if(registered)return registered;return norm(e.empresa)&&norm(e.orgao)?JSON.stringify([norm(e.empresa),norm(e.orgao)]):null;}
   const paid=e=>norm(e.status)==='PAGA';
   const active=e=>['PENDENTE','COMPRA FEITA','AG. LIQUIDAÇÃO'].includes(norm(e.status));
   function config(c={}){
@@ -71,7 +71,7 @@
     return {groups:out,ranked,basis,config:c,ungrouped,overdue,overdueValue:overdue.reduce((s,f)=>s+Math.round(f.balance*100),0)/100,unassessed:pending.filter(f=>f.balance===null||f.balance>0&&!f.deadline).length};
   }
   function warning(entries,orgao,empresa,options={}){
-    const result=analyze(entries,{...options,orgao:'',empresa}),g=result.groups.find(g=>g.key===key({orgao,empresa}));
+    const result=analyze(entries,{...options,orgao:'',empresa}),g=result.groups.find(g=>g.key===key(options.record||{orgao,empresa}));
     if(!g||!g.sufficient)return 'Histórico insuficiente deste órgão e empresa para estimar prazo. Nenhuma previsão de atraso.';
     return `Atenção: este órgão apresenta média histórica de ${g.sample.mean.toLocaleString('pt-BR',{maximumFractionDigits:1})} dias entre ${bases[result.basis].label.toLowerCase()} e pagamento (${g.sample.n} pagamentos). Considere o impacto no capital de giro. Histórico não garante o próximo prazo nem comprova atraso contratual.`;
   }

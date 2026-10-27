@@ -5,6 +5,7 @@
   function day(v){if(!/^\d{4}-\d{2}-\d{2}$/.test(v||''))return null;const [y,m,d]=v.split('-').map(Number),t=Date.UTC(y,m-1,d);return new Date(t).toISOString().slice(0,10)===v?t/86400000:null;}
   function today(){return new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Sao_Paulo'}).format(new Date());}
   function identity(e,contracts=[]){
+    const registered=root.KMOrgaos?.identity(e);if(registered)return registered;
     const name=norm(e.orgao),company=norm(e.empresa);if(!name||!company)return null;
     const stated=[...name.matchAll(/\/([A-Z]{2})(?=$|[\s(])/g)].map(m=>m[1]).filter(uf=>UFS.has(uf));
     const related=contracts.filter(c=>c.id===e.contratoId&&norm(c.empresa)===company&&norm(c.orgao)===name);

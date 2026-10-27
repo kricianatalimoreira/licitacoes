@@ -3416,6 +3416,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 @media(max-width:600px){#empenhos-encerrados .paid-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 </style><link rel="stylesheet" href="payment-intelligence.css"/>
 <link rel="stylesheet" href="payer-badges.css"/>
+<link rel="stylesheet" href="org-registry.css"/>
 </head>
 <body>
 
@@ -12080,5 +12081,15 @@ KMPaymentUI.mount({
 _sectionRenders['payment-intelligence'] = () => KMPaymentUI.render();
 </script>
 <script>KMPayerBadges.mount();</script>
+<script src="org-registry-model.js"></script>
+<script src="org-registry-ui.js"></script>
+<script>
+KMOrgaos.mount({
+ contracts:()=>[...contratosAtivos,...contratosEncerrados],entries:()=>empenhos,finance:calcEmpFinanceiroRealizado,
+ open:button=>showSection('org-registry',button),
+ changed:()=>{const section=document.querySelector('.page-section:not(.hidden)');if(section&&section.id!=='org-registry')_sectionRenders[section.id]?.();}
+});
+_sectionRenders['org-registry']=()=>KMOrgaos.open();
+</script>
 </body>
 </html>

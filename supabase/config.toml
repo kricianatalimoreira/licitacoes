@@ -12,3 +12,7 @@ import_map = "./functions/deno.json"
 # Google returns a code, not a Supabase JWT. Single-use state authenticates callback.
 verify_jwt = false
 import_map = "./functions/deno.json"
+
+[functions.org-registry]
+# Auth getUser and live-session/company authorization are checked in backend and RPC.
+verify_jwt = false

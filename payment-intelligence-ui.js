@@ -63,7 +63,7 @@
     let box=$('piNewWarning');const anchor=$('empSaldoContratoInfo');if(!anchor)return;
     if(!box){box=document.createElement('div');box.id='piNewWarning';box.className='pi-warning';box.setAttribute('role','status');anchor.insertAdjacentElement('afterend',box);}
     box.hidden=!contract;if(!contract)return;
-    loadSettings();box.textContent=model.warning(adapter.getRows(),contract.orgao,contract.empresa,{basis:'physical',config:settings});
+    loadSettings();box.textContent=model.warning(adapter.getRows(),contract.orgao,contract.empresa,{basis:'physical',config:settings,record:{contratoId:contract.id,orgao:contract.orgao,empresa:contract.empresa}});
   }
   function mount(a){
     adapter=a;loadSettings();
