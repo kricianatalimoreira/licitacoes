@@ -12196,5 +12196,26 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card
   ):nth-child(5n) { --kpi-bg:#392630; --kpi-border:#5a3d4a; --kpi-accent:#bd718d; }
 </style>
+<style id="kpi-specificity-fix">
+  /* Win against older light-theme rules that reset inline backgrounds to white. */
+  :root[data-mode="light"] body :is(
+    .disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card
+  ) {
+    background:var(--kpi-bg)!important;
+    border-color:var(--kpi-border)!important;
+    border-left:4px solid var(--kpi-accent)!important;
+  }
+  :root:not([data-mode="light"]) body :is(
+    .disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card
+  ) {
+    background:var(--kpi-bg)!important;
+    border-color:var(--kpi-border)!important;
+    border-left:4px solid var(--kpi-accent)!important;
+  }
+</style>
 </body>
 </html>
