@@ -3302,8 +3302,7 @@ table.site-table.site-table-2 th:nth-child(5) { width:100px !important; }
 table.site-table.site-table-2 th:nth-child(6) { width:100px !important; }
 table.site-table.site-table-2 th:nth-child(7) { width:100px !important; }
 table.site-table.site-table-2 th:nth-child(8) { width:206px !important; }
-table.site-table.site-table-2 th:nth-child(9) { width:70px !important; }
-table.site-table.site-table-2 th:nth-child(10) { width:44px !important; }
+table.site-table.site-table-2 th:nth-child(9) { width:44px !important; }
 table.site-table.site-table-2 td:nth-child(n+4) { text-align:left !important; white-space:normal; }
 table.site-table.site-table-2 td:nth-child(n+4):nth-child(-n+7) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
 table.site-table.site-table-3 { table-layout:fixed !important; min-width:max(var(--emp-table-width,1224px),var(--con-closed-width,1028px)) !important; }
@@ -4009,7 +4008,6 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 </div>
 </th>
 <th>Retorno</th>
-<th>Links</th>
 <th>Ações</th>
 </tr>
 </thead>
@@ -6173,7 +6171,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       });
 
       if (!sortedConA.length) {
-        body.innerHTML = `<tr><td colspan="10"><div class="empty-state">Nenhum contrato ativo encontrado.</div></td></tr>`;
+        body.innerHTML = `<tr><td colspan="9"><div class="empty-state">Nenhum contrato ativo encontrado.</div></td></tr>`;
         return;
       }
 
@@ -6193,7 +6191,6 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
             <td style="color:#b76a00;font-weight:700;">${formatCurrency(custo)}</td>
             <td>${lucroHtml(lucro)}</td>
             <td>${execucaoHtml(c)}${window.KMContractCompletion?.ready(c,empenhos)?`<button class="btn btn-light btn-sm" onclick="event.stopPropagation();sugerirEncerramentoContrato('${c.id}')">CONFIRMAR ENCERRAMENTO</button>`:''}</td>
-            <td>${linksHtml(c)}</td>
             <td>
               <div class="row-menu-wrap">
                 <button class="row-menu-btn" onclick="toggleRowMenu(event,'conAmenu-${c.id}')">⋯</button>
@@ -11919,7 +11916,7 @@ function showToast(msg, type = 'info', duration = 3500) {
     }));
     const style = document.documentElement.style;
     style.setProperty('--con-orgao-width', contratoOrgao + 'px');
-    style.setProperty('--con-active-width', (964 + contratoOrgao) + 'px');
+    style.setProperty('--con-active-width', (894 + contratoOrgao) + 'px');
     style.setProperty('--con-closed-width', (768 + contratoOrgao) + 'px');
     style.setProperty('--disputa-orgao-width', disputaOrgao + 'px');
     style.setProperty('--disputa-table-width', (854 + disputaOrgao) + 'px');
