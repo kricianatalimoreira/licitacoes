@@ -3475,14 +3475,14 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <!-- Dashboard -->
 <button class="menu-parent is-active" id="menuDashboard" onclick="showSection('dashboard', this)" style="margin-bottom:4px;">
 <span class="menu-parent-main">
-<span class="menu-icon">🏠</span>
+<span class="menu-icon" aria-hidden="true"></span>
 <span class="menu-label">Dashboard</span>
 </span>
 </button>
 <div class="menu-group" id="menuGroupDisputa">
 <button class="menu-parent" onclick="toggleMenuGroup('menuGroupDisputa')">
 <span class="menu-parent-main">
-<span class="menu-icon">📊</span>
+<span class="menu-icon" aria-hidden="true"></span>
 <span class="menu-label">Disputas</span>
 </span>
 <span class="menu-parent-caret">⌃</span>
@@ -3501,7 +3501,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <div class="menu-group" id="menuGroupContratos">
 <button class="menu-parent" onclick="toggleMenuGroup('menuGroupContratos')">
 <span class="menu-parent-main">
-<span class="menu-icon">📝</span>
+<span class="menu-icon" aria-hidden="true"></span>
 <span class="menu-label">Contratos</span>
 </span>
 <span class="menu-parent-caret">⌃</span>
@@ -3520,7 +3520,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <div class="menu-group" id="menuGroupEmpenhos">
 <button class="menu-parent" onclick="toggleMenuGroup('menuGroupEmpenhos')">
 <span class="menu-parent-main">
-<span class="menu-icon">📄</span>
+<span class="menu-icon" aria-hidden="true"></span>
 <span class="menu-label">Empenhos</span>
 </span>
 <span class="menu-parent-caret">⌃</span>
@@ -3543,7 +3543,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <div class="menu-group" id="menuGroupTratativas">
 <button class="menu-parent" onclick="toggleMenuGroup('menuGroupTratativas')">
 <span class="menu-parent-main">
-<span class="menu-icon">💬</span>
+<span class="menu-icon" aria-hidden="true"></span>
 <span class="menu-label">Tratativas</span>
 </span>
 <span class="menu-parent-caret">⌃</span>
@@ -12543,6 +12543,56 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   :root body.sidebar-auto-hover .sidebar .menu-child:hover,
   :root body.sidebar-auto-hover .sidebar .menu-child.active {
     color: #fff !important;
+  }
+</style>
+<style id="sidebar-gradient-module-emphasis">
+  :root body.sidebar-auto-hover .sidebar {
+    background: linear-gradient(180deg, #0b5b73 0%, #08465c 100%) !important;
+  }
+  html body.sidebar-auto-hover .sidebar .menu-parent:not(#__keep-case):not(#__keep-case-2),
+  html body .page-section > .topbar h2:not(#__keep-case):not(#__keep-case-2) {
+    text-transform: uppercase !important;
+    font-weight: 700 !important;
+  }
+  html body.sidebar-auto-hover .sidebar .menu-parent,
+  html body.sidebar-auto-hover .sidebar .menu-parent .menu-label,
+  html body.sidebar-auto-hover .sidebar .menu-parent-caret,
+  html body.sidebar-auto-hover .sidebar .menu-child,
+  html body.sidebar-auto-hover .sidebar .menu-child .menu-label {
+    color: #fff !important;
+  }
+  body.sidebar-auto-hover .sidebar .menu-icon {
+    display: inline-block;
+    width: 22px;
+    min-width: 22px;
+    height: 22px;
+    overflow: hidden;
+    color: transparent !important;
+    font-size: 0 !important;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+    filter: none !important;
+  }
+  #menuDashboard .menu-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z'/%3E%3C/svg%3E");
+  }
+  #menuGroupDisputa .menu-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19V5m0 14h17'/%3E%3Cpath d='M8 15v-4m5 4V7m5 8V3'/%3E%3C/svg%3E");
+  }
+  #menuGroupContratos .menu-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 3h8l5 5v13H6z'/%3E%3Cpath d='M14 3v6h5M9 13h7m-7 4h7'/%3E%3C/svg%3E");
+  }
+  #menuGroupEmpenhos .menu-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 3h8l5 5v13H6z'/%3E%3Cpath d='M14 3v6h5M9 13h7m-7 4h7'/%3E%3C/svg%3E");
+  }
+  #menuGroupTratativas .menu-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 11.5a7.5 7.5 0 0 1-7.5 7.5H7l-4 2 1.5-4A7.5 7.5 0 1 1 21 11.5Z'/%3E%3C/svg%3E");
+  }
+  body.sidebar-auto-hover .sidebar .menu-child:hover {
+    background: rgba(255, 255, 255, .15) !important;
+    color: #fff !important;
+    border-radius: 5px !important;
   }
 </style>
 </body>
