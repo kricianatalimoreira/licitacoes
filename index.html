@@ -4008,7 +4008,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 </div>
 </div>
 </th>
-<th>Retorno</th>
+
 <th>Ações</th>
 </tr>
 </thead>
@@ -5378,13 +5378,12 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       });
 
       if (!sorted.length) {
-        body.innerHTML = `<tr><td colspan="11"><div class="empty-state">Nenhuma disputa encerrada encontrada.</div></td></tr>`;
+        body.innerHTML = `<tr><td colspan="9"><div class="empty-state">Nenhuma disputa encerrada encontrada.</div></td></tr>`;
         return;
       }
 
       body.innerHTML = sorted.map(item => {
         const data = formatDateTime(item.data);
-        const retorno = formatDateTime(item.retorno);
         return `
           <tr>
             ${bulkCheckboxTd('encDisp', item.id)}
@@ -5395,8 +5394,6 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
             <td>${companyBadge(item.empresa)}</td>
             <td>${item.sistema || '—'}</td>
             <td>${statusBadge(item.status)}</td>
-            <td><div class="cell-data-hora"><span class="data-dia">${retorno.date}</span><span class="data-hora">${retorno.time || ''}</span></div></td>
-            <td>${linksHtml(item)}</td>
             <td>${rowMenuEncerrada(item)}</td>
           </tr>`;
       }).join('');
@@ -12593,6 +12590,12 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     background: rgba(255, 255, 255, .15) !important;
     color: #fff !important;
     border-radius: 5px !important;
+  }
+</style>
+<style id="closed-dispute-column-cleanup">
+  table.enc-table.site-table-1 th:nth-child(9),
+  table.enc-table.site-table-1 td:nth-child(9) {
+    width: 44px !important;
   }
 </style>
 </body>
