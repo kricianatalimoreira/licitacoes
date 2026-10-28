@@ -6183,7 +6183,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         const rascunho = isRascunho(c);
         const rascunhoBadge = '';
         return `
-          <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','ativo')" title="Clique para ver detalhes" style="">
+          <tr class="contract-summary-row" onclick="toggleContractRow(event,this,'conAtDetails-${c.id}')" title="Clique para ver detalhes" style="">
             ${bulkCheckboxTd('conAt', c.id)}
             <td>${contratoDatasHtml(c, alerta)}</td>
             <td>${orgaoInfoHtml(c)}${rascunhoBadge}</td>
@@ -6202,6 +6202,18 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
                   <button onclick="encerrarContrato('${c.id}')">📁 Encerrar</button>
                   <button onclick="excluirContratoAtivo('${c.id}')" style="color:#b42318;">🗑️ Excluir</button>
                 </div>
+              </div>
+            </td>
+          </tr>
+          <tr class="contract-details-row hidden" id="conAtDetails-${c.id}">
+            <td colspan="9">
+              <div class="contract-inline-details">
+                <div><span>Contrato</span><strong>${escapeHTML(c.contrato) || '—'}</strong></div>
+                <div><span>Processo</span><strong>${escapeHTML(c.processo) || '—'}</strong></div>
+                <div><span>Sistema</span><strong>${escapeHTML(c.sistema) || '—'}</strong></div>
+                <div><span>Vigência</span><strong>${c.dataFim ? formatDate(c.data) + ' até ' + formatDate(c.dataFim) : (c.data ? formatDate(c.data) : '—')}</strong></div>
+                <div class="contract-detail-notes"><span>Observações</span><strong>${escapeHTML(c.obs) || '—'}</strong></div>
+                <button class="btn btn-light btn-sm" onclick="event.stopPropagation();abrirConView('${c.id}','ativo')">Abrir ficha completa</button>
               </div>
             </td>
           </tr>`;
@@ -6317,7 +6329,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
           </div>`;
 
         return `
-          <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','enc')" title="Clique para ver detalhes" style="cursor:pointer;">
+          <tr class="contract-summary-row" onclick="toggleContractRow(event,this,'conEncDetails-${c.id}')" title="Clique para ver detalhes" style="cursor:pointer;">
             ${bulkCheckboxTd('conEnc', c.id)}
             <td>${contratoDatasHtml(c)}</td>
             <td>${orgaoInfoHtml(c)}</td>
@@ -6334,6 +6346,18 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
                   <button onclick="reativarContrato('${c.id}')">↩️ Reativar</button>
                   <button onclick="excluirContratoEnc('${c.id}')" style="color:#b42318;">🗑️ Excluir</button>
                 </div>
+              </div>
+            </td>
+          </tr>
+          <tr class="contract-details-row hidden" id="conEncDetails-${c.id}">
+            <td colspan="8">
+              <div class="contract-inline-details">
+                <div><span>Contrato</span><strong>${escapeHTML(c.contrato) || '—'}</strong></div>
+                <div><span>Processo</span><strong>${escapeHTML(c.processo) || '—'}</strong></div>
+                <div><span>Sistema</span><strong>${escapeHTML(c.sistema) || '—'}</strong></div>
+                <div><span>Vigência</span><strong>${c.dataFim ? formatDate(c.data) + ' até ' + formatDate(c.dataFim) : (c.data ? formatDate(c.data) : '—')}</strong></div>
+                <div class="contract-detail-notes"><span>Observações</span><strong>${escapeHTML(c.obs) || '—'}</strong></div>
+                <button class="btn btn-light btn-sm" onclick="event.stopPropagation();abrirConView('${c.id}','enc')">Abrir ficha completa</button>
               </div>
             </td>
           </tr>`;
@@ -12595,5 +12619,117 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     border-radius: 5px !important;
   }
 </style>
+<style id="contracts-compact-expandable">
+  :root body table:is(.con-table,.con-enc-table) tbody tr.contract-summary-row {
+    height: 50px !important;
+    max-height: 50px;
+    cursor: pointer;
+  }
+  :root body table:is(.con-table,.con-enc-table) tbody tr.contract-summary-row > td {
+    height: 50px !important;
+    max-height: 50px;
+    box-sizing: border-box;
+    overflow: hidden !important;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  :root body table:is(.con-table,.con-enc-table) tbody tr.contract-summary-row:hover {
+    background: #eef8f6 !important;
+  }
+  :root body table:is(.con-table,.con-enc-table) .contract-summary-row .dt-wrap {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  :root body table:is(.con-table,.con-enc-table) .contract-summary-row .dt-etapa {
+    display: inline;
+  }
+  :root body table:is(.con-table,.con-enc-table) .contract-summary-row .dt-lbl {
+    display: none;
+  }
+  :root body table:is(.con-table,.con-enc-table) .contract-summary-row .con-venc-badge,
+  :root body table:is(.con-table,.con-enc-table) .contract-summary-row .con-orgao-info,
+  :root body table:is(.con-table,.con-enc-table) .contract-summary-row .con-orgao-wrap > .emp-orgao-company,
+  :root body table:is(.con-table,.con-enc-table) .contract-summary-row .con-orgao-wrap > .company-badge {
+    display: none !important;
+  }
+  :root body table:is(.con-table,.con-enc-table) .contract-summary-row .con-orgao-wrap {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  :root body table:is(.con-table,.con-enc-table) .contract-summary-row .con-orgao-nome {
+    display: inline-block;
+    max-width: calc(100% - 25px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+  }
+  :root body table:is(.con-table,.con-enc-table) .contract-summary-row .con-orgao-wrap::after {
+    content: '+';
+    float: right;
+    color: #0b6d8b;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  :root body table:is(.con-table,.con-enc-table) .contract-summary-row.expanded .con-orgao-wrap::after {
+    content: '−';
+  }
+  :root body table:is(.con-table,.con-enc-table) tbody tr.contract-details-row > td {
+    height: auto !important;
+    max-height: none !important;
+    padding: 12px 16px !important;
+    white-space: normal;
+    background: #f5fafb !important;
+  }
+  .contract-inline-details {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(130px, 1fr));
+    gap: 10px 18px;
+    align-items: start;
+    padding: 4px 0;
+  }
+  .contract-inline-details > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+  .contract-inline-details span {
+    color: #657e8c;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .contract-inline-details strong {
+    color: #173d50;
+    font-size: 12px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .contract-inline-details .contract-detail-notes { grid-column: span 2; }
+  .contract-inline-details button { justify-self: end; align-self: center; }
+  @media (max-width: 760px) {
+    .contract-inline-details { grid-template-columns: repeat(2, minmax(110px, 1fr)); }
+    .contract-inline-details .contract-detail-notes { grid-column: 1 / -1; }
+    .contract-inline-details button { justify-self: start; }
+  }
+</style>
+<script id="contract-row-expansion">
+  window.toggleContractRow = function (event, row, detailsId) {
+    if (event.target.closest('button, a, input, select, textarea, .row-menu-wrap')) return;
+    const details = document.getElementById(detailsId);
+    if (!details) return;
+    const wasOpen = !details.classList.contains('hidden');
+    document.querySelectorAll('.contract-details-row').forEach(item => {
+      item.classList.add('hidden');
+      item.previousElementSibling?.classList.remove('expanded');
+    });
+    if (!wasOpen) {
+      details.classList.remove('hidden');
+      row.classList.add('expanded');
+    }
+  };
+</script>
 </body>
 </html>
