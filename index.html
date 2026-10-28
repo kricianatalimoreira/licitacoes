@@ -11964,10 +11964,11 @@ function showToast(msg, type = 'info', duration = 3500) {
       const style = getComputedStyle(el);
       return { el, size:parseFloat(style.fontSize), line:style.lineHeight };
     });
+    const fontScale = table.classList.contains('site-table-2') ? 1.25 : 1.15;
     metrics.forEach(({el,size,line}) => {
       save(el);
       el.dataset.tableBaseFont = String(size);
-      el.style.setProperty('font-size', (size * 1.15) + 'px', 'important');
+      el.style.setProperty('font-size', (size * fontScale) + 'px', 'important');
       el.style.setProperty('line-height', line === 'normal' ? (size * 1.3) + 'px' : line, 'important');
     });
     // Nomes e descrições continuam inteiros dentro das larguras aprovadas.
