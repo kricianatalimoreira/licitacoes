@@ -12410,5 +12410,48 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     });
   })();
 </script>
+<style id="kpi-reference-style">
+  :root body :is(
+    .disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis > div,.or-summary > div,.or-kpis > div,.paid-kpi-grid > div,.emp-saldo-card
+  ):not(#__preserve-kpi-style) {
+    box-sizing: border-box;
+    background: #fff !important;
+    border: 1px solid #d9e5e8 !important;
+    border-left: 1px solid #d9e5e8 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 4px rgba(29, 61, 75, .12) !important;
+  }
+  :root body :is(
+    .disputa-stat-label,.dash-kpi-label,.con-view-metric-label,
+    .emp-saldo-label,.kpi-label,.review-card-label
+  ) {
+    color: #526a7d !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+  :root body :is(
+    .disputa-stat-value,.dash-kpi-value,.con-view-metric-value,
+    .emp-saldo-value,.kpi-value,.review-card-value
+  ) {
+    color: #075f7e !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    line-height: 1.25;
+  }
+  :root body :is(
+    .dash-kpi-sub,.con-view-metric-sub,.review-card-sub
+  ) {
+    color: #61798a !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    line-height: 1.4;
+  }
+  :root body .disputa-stat-card { padding: 15px 16px !important; }
+</style>
 </body>
 </html>
