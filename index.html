@@ -12624,5 +12624,11 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     width: 44px !important;
   }
 </style>
+<style id="uppercase-all-table-headers">
+  html body table thead th:not(#__preserve-case):not(#__preserve-case-too),
+  html body table thead th *:not(#__preserve-case):not(#__preserve-case-too):not(.historico-inline-popover):not(.historico-inline-popover *) {
+    text-transform: uppercase !important;
+  }
+</style>
 </body>
 </html>
