@@ -271,7 +271,24 @@
     :root[data-mode="light"] .ios-switch input:checked + .ios-slider { background: var(--primary); }
     /* Topbar / sidebar no claro */
     :root[data-mode="light"] .topbar { background: var(--card); border-bottom: 1px solid var(--line); }
-    :root[data-mode="light"] .sidebar { background: var(--card); border-right: 1px solid var(--line); }
+    :root[data-mode="light"] .sidebar {
+      background: linear-gradient(180deg, #fff4f7 0%, #f7f1f5 48%, #eef3f8 100%);
+      border-right: 1px solid #e4d8df;
+    }
+    :root[data-mode="light"] .sidebar .menu-parent:hover,
+    :root[data-mode="light"] .sidebar .menu-parent.is-active {
+      background: #f3e6ec;
+      color: #693d50;
+    }
+    :root[data-mode="light"] .sidebar .menu-child:hover {
+      background: rgba(173, 61, 98, .08);
+      color: #693d50;
+    }
+    :root[data-mode="light"] .sidebar .menu-child.active {
+      background: #f5e2e9;
+      color: #8f3453;
+      box-shadow: inset 3px 0 #ae4768;
+    }
     :root[data-mode="light"] .sidebar nav a,
     :root[data-mode="light"] .sidebar nav span { color: var(--text) !important; }
     :root[data-mode="light"] .sidebar nav a.active,
