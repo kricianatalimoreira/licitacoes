@@ -12341,5 +12341,11 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     };
   })();
 </script>
+<style id="normal-case-interface">
+  /* Keep UI labels in their original sentence case instead of forcing uppercase. */
+  html body *:not(#__keep-original-text-case) {
+    text-transform: none !important;
+  }
+</style>
 </body>
 </html>
