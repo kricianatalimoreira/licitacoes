@@ -3301,7 +3301,7 @@ table.site-table.site-table-2 th:nth-child(4) { width:100px !important; }
 table.site-table.site-table-2 th:nth-child(5) { width:100px !important; }
 table.site-table.site-table-2 th:nth-child(6) { width:100px !important; }
 table.site-table.site-table-2 th:nth-child(7) { width:100px !important; }
-table.site-table.site-table-2 th:nth-child(8) { width:206px !important; }
+table.site-table.site-table-2 th:nth-child(8) { width:128px !important; }
 table.site-table.site-table-2 th:nth-child(9) { width:44px !important; }
 table.site-table.site-table-2 td:nth-child(n+4) { text-align:left !important; white-space:normal; }
 table.site-table.site-table-2 td:nth-child(n+4):nth-child(-n+7) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
@@ -6051,12 +6051,13 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       const e = empenhUnid;
       const pct = t > 0 ? Math.min(100, (e / t) * 100) : 0;
       const pctStr = pct.toFixed(1);
+      const execColor = pct >= 75 ? '#328565' : pct >= 40 ? '#c18a2c' : pct > 0 ? '#47798a' : '#9aa3ad';
       return `
-        <div class="exec-wrap">
+        <div class="exec-wrap" style="--exec-color:${execColor}">
           <div class="exec-bar-bg">
-            <div class="exec-bar-fill" style="width:${pct}%"></div>
+            <div class="exec-bar-fill" style="width:${pct}%;background:var(--exec-color)"></div>
           </div>
-          <span class="exec-label">${e}/${t} un • <span class="exec-pct">${pctStr}%</span></span>
+          <span class="exec-label">${e}/${t} un • <span class="exec-pct" style="color:var(--exec-color)">${pctStr}%</span></span>
         </div>`;
     }
 
@@ -11915,7 +11916,7 @@ function showToast(msg, type = 'info', duration = 3500) {
     }));
     const style = document.documentElement.style;
     style.setProperty('--con-orgao-width', contratoOrgao + 'px');
-    style.setProperty('--con-active-width', (894 + contratoOrgao) + 'px');
+    style.setProperty('--con-active-width', (816 + contratoOrgao) + 'px');
     style.setProperty('--con-closed-width', (768 + contratoOrgao) + 'px');
     style.setProperty('--disputa-orgao-width', disputaOrgao + 'px');
     style.setProperty('--disputa-table-width', (854 + disputaOrgao) + 'px');
