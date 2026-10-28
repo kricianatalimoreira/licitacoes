@@ -12347,5 +12347,68 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     text-transform: none !important;
   }
 </style>
+<style id="blue-site-background-module-headings">
+  :root, :root[data-mode="light"] { --bg: #edf7f7 !important; }
+  html, body, .layout, .content, .page-section {
+    background-color: #edf7f7 !important;
+  }
+  .page-section > .topbar {
+    align-items: flex-start;
+    background: transparent !important;
+    border: 0 !important;
+    border-bottom: 1px solid #d4e8eb !important;
+    padding: 8px 0 12px;
+    margin-bottom: 12px;
+  }
+  .page-section > .topbar h2 {
+    color: #0c6684 !important;
+    font-size: 18px !important;
+    line-height: 1.35;
+    font-weight: 700;
+  }
+  .page-section > .topbar .module-subtitle,
+  .page-section > .topbar p {
+    display: block;
+    margin: 2px 0 0 !important;
+    color: #496777 !important;
+    font-size: 12px !important;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+</style>
+<script id="module-heading-format">
+  (function () {
+    const descriptions = {
+      dashboard: 'Visão geral operacional.',
+      'disputa-andamento': 'Acompanhe disputas em andamento e recursos.',
+      'disputa-encerradas': 'Consulte as disputas já encerradas.',
+      'contratos-ativos': 'Gerencie contratos ativos e acompanhe vigências e valores.',
+      'contratos-encerrados': 'Consulte contratos encerrados e seus resultados.',
+      'empenhos-pendentes': 'Acompanhe empenhos pendentes e valores previstos.',
+      'empenhos-andamento': 'Acompanhe os empenhos em execução.',
+      'empenhos-encerrados': 'Consulte os empenhos pagos.',
+      'tratativas-visao-geral': 'Acompanhe suas tratativas administrativas.',
+      'tratativas-todas': 'Consulte e organize todas as tratativas.',
+      'tratativas-detalhes': 'Acompanhe os detalhes da tratativa selecionada.'
+    };
+    document.querySelectorAll('.page-section').forEach(section => {
+      const title = section.querySelector(':scope > .topbar h2');
+      if (!title) return;
+      title.textContent = title.textContent
+        .replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const topbar = section.querySelector(':scope > .topbar > div:first-child');
+      if (!topbar) return;
+      let subtitle = topbar.querySelector('.module-subtitle');
+      if (!subtitle && section.id !== 'dashboard') {
+        subtitle = document.createElement('p');
+        subtitle.className = 'module-subtitle';
+        title.insertAdjacentElement('afterend', subtitle);
+      }
+      if (subtitle && descriptions[section.id]) subtitle.textContent = descriptions[section.id];
+    });
+  })();
+</script>
 </body>
 </html>
