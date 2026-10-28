@@ -12199,7 +12199,7 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
 <style id="kpi-specificity-fix">
   /* Win against older light-theme rules that reset inline backgrounds to white. */
   :root[data-mode="light"] body :is(
-    .disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .disputa-stat-card[style*="background"],.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
     .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
     .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card
   ) {
@@ -12208,7 +12208,7 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     border-left:4px solid var(--kpi-accent)!important;
   }
   :root:not([data-mode="light"]) body :is(
-    .disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .disputa-stat-card[style*="background"],.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
     .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
     .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card
   ) {
