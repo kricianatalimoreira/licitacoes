@@ -22,7 +22,7 @@
         organ: plainSummary(cells[3], '.con-orgao-nome'),
         company: plainSummary(cells[3], '.emp-orgao-company'),
         value: plainSummary(cells[5]),
-        status: plainSummary(cells[9], '.status-wrap')
+        status: plainSummary(cells[9], '.status-wrap > span, .status-badge')
       };
       const detail = document.createElement('tr');
       detail.className = 'emp-row-details';
