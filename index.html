@@ -3559,12 +3559,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 </button>
 </div>
 </div>
-<button class="menu-parent" onclick="abrirLimpezaDuplicados()" style="margin-top:8px;border-top:1px solid var(--line);padding-top:14px;">
-<span class="menu-parent-main">
-<span class="menu-icon">🧹</span>
-<span class="menu-label">Limpar Duplicados</span>
-</span>
-</button>
+
 </nav>
 </aside>
 <main class="content">
@@ -12529,6 +12524,25 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   }
   body.sidebar-auto-hover:not(.sidebar-hover-expanded) .menu-icon {
     font-size: 18px !important;
+  }
+</style>
+<style id="sidebar-white-labels-no-cleanup">
+  :root[data-mode="light"] body.sidebar-auto-hover .sidebar .menu-parent,
+  :root[data-mode="light"] body.sidebar-auto-hover .sidebar .menu-child,
+  :root[data-mode="light"] body.sidebar-auto-hover .sidebar .menu-parent-caret,
+  :root[data-mode="light"] body.sidebar-auto-hover .sidebar .menu-label {
+    color: #fff !important;
+  }
+  :root body.sidebar-auto-hover .sidebar .menu-icon {
+    filter: grayscale(1) brightness(0) invert(1) !important;
+  }
+  :root body.sidebar-auto-hover .sidebar .menu-parent:hover,
+  :root body.sidebar-auto-hover .sidebar .menu-parent.is-active,
+  :root body.sidebar-auto-hover .sidebar .menu-group.is-open > .menu-parent,
+  :root body.sidebar-auto-hover .sidebar .menu-group:has(.menu-child.active) > .menu-parent,
+  :root body.sidebar-auto-hover .sidebar .menu-child:hover,
+  :root body.sidebar-auto-hover .sidebar .menu-child.active {
+    color: #fff !important;
   }
 </style>
 </body>
