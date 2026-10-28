@@ -271,23 +271,24 @@
     :root[data-mode="light"] .ios-switch input:checked + .ios-slider { background: var(--primary); }
     /* Topbar / sidebar no claro */
     :root[data-mode="light"] .topbar { background: var(--card); border-bottom: 1px solid var(--line); }
+    .sidebar .brand { display: none !important; }
     :root[data-mode="light"] .sidebar {
-      background: linear-gradient(180deg, #fff4f7 0%, #f7f1f5 48%, #eef3f8 100%);
-      border-right: 1px solid #e4d8df;
+      background: linear-gradient(180deg, #e6bfd0 0%, #d4c2d1 48%, #b8c7d8 100%);
+      border-right: 1px solid #b9aeb9;
     }
     :root[data-mode="light"] .sidebar .menu-parent:hover,
     :root[data-mode="light"] .sidebar .menu-parent.is-active {
-      background: #f3e6ec;
-      color: #693d50;
+      background: #dcb0c2;
+      color: #54283d;
     }
     :root[data-mode="light"] .sidebar .menu-child:hover {
-      background: rgba(173, 61, 98, .08);
-      color: #693d50;
+      background: rgba(127, 38, 71, .15);
+      color: #54283d;
     }
     :root[data-mode="light"] .sidebar .menu-child.active {
-      background: #f5e2e9;
-      color: #8f3453;
-      box-shadow: inset 3px 0 #ae4768;
+      background: #c988a3;
+      color: #50243a;
+      box-shadow: inset 3px 0 #7f2647;
     }
     :root[data-mode="light"] .sidebar nav a,
     :root[data-mode="light"] .sidebar nav span { color: var(--text) !important; }
