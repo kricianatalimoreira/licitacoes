@@ -12453,5 +12453,83 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   }
   :root body .disputa-stat-card { padding: 15px 16px !important; }
 </style>
+<style id="sidebar-reference-typography">
+  body.sidebar-auto-hover .sidebar {
+    background: #0b5b73 !important;
+    color: #b5dce5 !important;
+  }
+  body.sidebar-auto-hover .menu {
+    gap: 5px;
+  }
+  body.sidebar-auto-hover .menu-parent {
+    min-height: 42px;
+    padding: 9px 12px !important;
+    border-radius: 5px !important;
+    color: #b5dce5 !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.35;
+  }
+  body.sidebar-auto-hover .menu-parent-main {
+    gap: 12px;
+  }
+  body.sidebar-auto-hover .menu-icon {
+    width: 22px;
+    min-width: 22px;
+    font-size: 18px !important;
+    filter: grayscale(1) brightness(1.55);
+  }
+  body.sidebar-auto-hover .menu-parent-caret {
+    color: #b5dce5 !important;
+    font-size: 14px !important;
+  }
+  body.sidebar-auto-hover .menu-parent:hover,
+  body.sidebar-auto-hover .menu-parent.is-active,
+  body.sidebar-auto-hover .menu-group.is-open > .menu-parent,
+  body.sidebar-auto-hover .menu-group:has(.menu-child.active) > .menu-parent {
+    background: #286f85 !important;
+    color: #fff !important;
+  }
+  body.sidebar-auto-hover .menu-parent.is-active,
+  body.sidebar-auto-hover .menu-group:has(.menu-child.active) > .menu-parent {
+    font-weight: 600 !important;
+  }
+  body.sidebar-auto-hover .menu-children {
+    gap: 2px;
+    padding: 2px 0 5px;
+  }
+  body.sidebar-auto-hover .menu-child {
+    min-height: 32px;
+    padding: 6px 10px 6px 48px !important;
+    border-radius: 0 !important;
+    color: #a8d5df !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 1.35;
+  }
+  body.sidebar-auto-hover .menu-child-dot {
+    display: none !important;
+  }
+  body.sidebar-auto-hover .menu-child.active {
+    background: transparent !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+  }
+  body.sidebar-auto-hover .menu-child:hover {
+    background: rgba(255,255,255,.07) !important;
+    color: #fff !important;
+  }
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .menu-parent {
+    min-height: 42px;
+    padding: 9px 4px !important;
+  }
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .menu-parent-main {
+    gap: 0;
+  }
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .menu-icon {
+    font-size: 18px !important;
+  }
+</style>
 </body>
 </html>
