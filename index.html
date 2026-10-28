@@ -5657,27 +5657,50 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       document.querySelectorAll('.row-submenu').forEach(s => s.classList.add('hidden'));
     }
 
+    function _restaurarMenuLinha(menu) {
+      const marcador = menu.__kmMenuMarker;
+      if (!marcador) return;
+      if (marcador.parentNode) {
+        marcador.parentNode.insertBefore(menu, marcador);
+        marcador.remove();
+      } else {
+        menu.remove();
+      }
+      delete menu.__kmMenuMarker;
+    }
+
     function toggleRowMenu(event, menuId) {
       event.stopPropagation();
       const menu = qs(menuId);
       if (!menu) return;
       const wasHidden = menu.classList.contains('hidden');
       closeAllMenus();
-      if (wasHidden) {
-        const btn = event.currentTarget;
-        const rect = btn.getBoundingClientRect();
-        const menuW = 195;
-        menu.classList.remove('hidden');
-        // Horizontal: alinha pela borda direita do botão, clamped ao viewport
-        const leftPos = Math.max(4, Math.min(rect.right - menuW, window.innerWidth - menuW - 4));
-        menu.style.left = leftPos + 'px';
-        // Vertical: abaixo do botão, clamped ao viewport
-        menu.style.top = (rect.bottom + 4) + 'px';
-      }
+      if (!wasHidden) return;
+
+      const btn = event.currentTarget;
+      const rect = btn.getBoundingClientRect();
+      const marker = document.createComment('row-menu-anchor');
+      menu.parentNode.insertBefore(marker, menu);
+      menu.__kmMenuMarker = marker;
+      document.body.appendChild(menu);
+      menu.classList.remove('hidden');
+
+      const menuW = Math.max(menu.offsetWidth, 195);
+      const menuH = menu.offsetHeight;
+      const left = Math.max(4, Math.min(rect.right - menuW, window.innerWidth - menuW - 4));
+      const below = rect.bottom + 4;
+      const top = below + menuH <= window.innerHeight - 4
+        ? below
+        : Math.max(4, rect.top - menuH - 4);
+      menu.style.left = left + 'px';
+      menu.style.top = top + 'px';
     }
 
     function closeAllMenus() {
-      document.querySelectorAll('.row-menu').forEach(menu => menu.classList.add('hidden'));
+      document.querySelectorAll('.row-menu').forEach(menu => {
+        menu.classList.add('hidden');
+        _restaurarMenuLinha(menu);
+      });
       closeAllSubMenus();
     }
 
@@ -5851,9 +5874,12 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     document.addEventListener('click', (e) => {
       // Não fecha se o clique foi dentro de qualquer overlay flutuante
       if (e.target.closest('.historico-inline-popover') ||
-          e.target.closest('.row-menu') ||
           e.target.closest('.row-submenu') ||
           e.target.closest('.status-dropdown')) return;
+      if (e.target.closest('.row-menu')) {
+        if (e.target.closest('.row-menu button:not(.row-menu-has-sub)')) closeAllMenus();
+        return;
+      }
       closeAllMenus();
       closeAllPopovers();
       closeAllStatusDropdowns();
