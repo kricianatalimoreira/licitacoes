@@ -12221,5 +12221,122 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     border-left:4px solid var(--kpi-accent)!important;
   }
 </style>
+<style id="sidebar-teal-hover-theme">
+  :root {
+    --sidebar-w: 248px;
+    --sidebar-collapsed-w: 58px;
+  }
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .layout {
+    grid-template-columns: var(--sidebar-collapsed-w) 1fr !important;
+  }
+  body.sidebar-auto-hover.sidebar-hover-expanded .layout {
+    grid-template-columns: var(--sidebar-w) 1fr !important;
+  }
+  body.sidebar-auto-hover .sidebar {
+    box-sizing: border-box;
+    width: 100%;
+    background: #0b5b73 !important;
+    border-right: 1px solid #084b60 !important;
+    color: #edf6f8 !important;
+    transition: background .2s ease, color .2s ease;
+  }
+  body.sidebar-auto-hover .toggle-sidebar {
+    background: #084e65 !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,.13);
+  }
+  body.sidebar-auto-hover .brand { color: #fff; }
+  body.sidebar-auto-hover .menu-parent,
+  body.sidebar-auto-hover .menu-child {
+    color: #d9edf2 !important;
+  }
+  body.sidebar-auto-hover .menu-icon,
+  body.sidebar-auto-hover .menu-parent-caret {
+    color: #ff7133 !important;
+  }
+  body.sidebar-auto-hover .menu-parent:hover,
+  body.sidebar-auto-hover .menu-parent.is-active,
+  body.sidebar-auto-hover .menu-child:hover {
+    background: #126b84 !important;
+    color: #fff !important;
+  }
+  body.sidebar-auto-hover .menu-child.active {
+    background: #1a7289 !important;
+    color: #fff !important;
+    box-shadow: inset 3px 0 #ff7133;
+  }
+  body.sidebar-auto-hover .menu-child-dot { background: #ff7133 !important; }
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .sidebar {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .toggle-sidebar {
+    width: 40px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .brand-logo,
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .menu-label,
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .menu-parent-caret,
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .menu-child {
+    display: none !important;
+  }
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .brand-logo-mini {
+    display: block !important;
+    width: 36px;
+    height: 36px;
+  }
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .brand {
+    justify-content: center;
+  }
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .menu-parent {
+    justify-content: center;
+    padding: 9px 4px;
+  }
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .menu-parent-main {
+    justify-content: center;
+  }
+  body.sidebar-auto-hover:not(.sidebar-hover-expanded) .menu-icon {
+    width: 20px;
+    min-width: 20px;
+    font-size: 15px;
+  }
+  @media (max-width: 700px) {
+    body.sidebar-auto-hover:not(.sidebar-hover-expanded) .layout {
+      grid-template-columns: var(--sidebar-collapsed-w) 1fr !important;
+    }
+    body.sidebar-auto-hover.sidebar-hover-expanded .layout {
+      grid-template-columns: minmax(0, var(--sidebar-w)) 1fr !important;
+    }
+  }
+</style>
+<script id="sidebar-hover-behavior">
+  (function () {
+    const body = document.body;
+    const sidebar = document.querySelector('.sidebar');
+    if (!sidebar) return;
+
+    body.classList.add('sidebar-auto-hover');
+    const expand = () => {
+      if (!body.classList.contains('sidebar-pinned-collapsed')) {
+        body.classList.add('sidebar-hover-expanded');
+      }
+    };
+    const collapse = () => body.classList.remove('sidebar-hover-expanded');
+
+    sidebar.addEventListener('pointerenter', expand);
+    sidebar.addEventListener('pointerleave', collapse);
+    sidebar.addEventListener('focusin', expand);
+    sidebar.addEventListener('focusout', event => {
+      if (!sidebar.contains(event.relatedTarget)) collapse();
+    });
+
+    window.toggleSidebar = function () {
+      const pinned = body.classList.toggle('sidebar-pinned-collapsed');
+      if (pinned) collapse();
+      else if (sidebar.matches(':hover') || sidebar.contains(document.activeElement)) expand();
+    };
+  })();
+</script>
 </body>
 </html>
