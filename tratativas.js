@@ -433,7 +433,7 @@
   const emailDialog=document.createElement('dialog');emailDialog.id='tratEmailDialog';emailDialog.className='trat-dialog';emailDialog.setAttribute('aria-label','Vincular e-mail');emailDialog.addEventListener('cancel',e=>{if(emailDialog.querySelector('form')?.dataset.saving)e.preventDefault();});document.body.append(emailDialog);
   window.KMTratativasEmail={suggest:email=>KMEmailMatching.suggest(email,emailTargets()),receive:receiveEmail};
   window.KMTratativas={load,badges,empBadges,matches,clearFilters,details,appendBell,active,followup};
-  installFilters();load();
+  load();
   // Datas de acompanhamento são recalculadas ao retornar à tela e durante o uso.
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
   setInterval(()=>{if(!document.hidden){atualizarSino();renderSummaries();}},60000);
