@@ -6109,7 +6109,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
             <td class="contract-number-cell">${escapeHTML(c.contrato) || '—'}</td>
             <td>${companyBadge(c.empresa)}</td>
             <td class="contract-value-cell">${formatCurrency(c.valor)}</td>
-            <td>${execucaoHtml(c)}${window.KMContractCompletion?.ready(c,empenhos)?`<button class="btn btn-light btn-sm" onclick="event.stopPropagation();sugerirEncerramentoContrato('${c.id}')">Confirmar encerramento</button>`:''}</td>
+            <td>${execucaoHtml(c)}</td>
             <td><div class="row-menu-wrap">
               <button class="row-menu-btn" onclick="toggleRowMenu(event,'conAmenu-${c.id}')">⋯</button>
               <div class="row-menu hidden" id="conAmenu-${c.id}">
