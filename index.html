@@ -4044,14 +4044,13 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <button class="btn btn-primary" onclick="showCadastroContrato()">+ Novo Contrato</button>
 </div>
 </div>
-<div class="disputa-stats" style="grid-template-columns:repeat(7,minmax(0,1fr));">
+<div class="disputa-stats" style="grid-template-columns:repeat(6,minmax(0,1fr));">
 <div class="disputa-stat-card"><div class="disputa-stat-label">Total ativos</div><div class="disputa-stat-value" id="conStatTotal">0</div></div>
-<div class="disputa-stat-card stat-alert" id="conStatAlertCard"><div class="disputa-stat-label">⚠️ A vencer em 60 dias</div><div class="disputa-stat-value" id="conStatAlert">0</div></div>
-<div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Valor total contratos</div><div class="disputa-stat-value" id="conStatValor" style="font-size:16px;color:#1f8a4c;">R$ 0,00</div></div>
-<div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Compra prevista total</div><div class="disputa-stat-value" id="conStatCompra" style="font-size:16px;color:#a16207;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#2a1e08;border-color:#7a4d0a;"><div class="disputa-stat-label">Custo previsto total</div><div class="disputa-stat-value" id="conStatCusto" style="font-size:16px;color:#b76a00;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">💰 Total empenhado</div><div class="disputa-stat-value" id="conStatEmpenhado" style="font-size:16px;color:#2563eb;">R$ 0,00</div></div>
-<div class="disputa-stat-card" style="background:#1a1530;border-color:#4a3a8a;"><div class="disputa-stat-label">Lucro previsto total</div><div class="disputa-stat-value" id="conStatLucro" style="font-size:16px;">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Valor total dos contratos</div><div class="disputa-stat-value" id="conStatValor">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Total empenhado</div><div class="disputa-stat-value" id="conStatEmpenhado">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">Taxa média de execução</div><div class="disputa-stat-value" id="conStatTaxaExecucao">0,0%</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">GADITA Valor total</div><div class="disputa-stat-value" id="conStatGadita">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">HAMATE Valor total</div><div class="disputa-stat-value" id="conStatHamate">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -6055,21 +6054,27 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       });
 
       // KPIs
-      const valorTotal    = contratosAtivos.reduce((s,c) => s + (Number(c.valor)||0), 0);
-      const compraTotal   = contratosAtivos.reduce((s,c) => s + (Number(c.compra)||0), 0);
-      const custoTotal    = contratosAtivos.reduce((s,c) => s + calcCusto(c.royalties, c.imposto), 0);
-      const lucroTotal    = contratosAtivos.reduce((s,c) => s + calcLucro(c.valor, c.compra, calcCusto(c.royalties, c.imposto)), 0);
-      const empenhadoTotal= contratosAtivos.reduce((s,c) => s + (Number(c.valorEmpenhado)||0), 0);
-      const aVencer60     = contratosAtivos.filter(c => { const d = Math.ceil((new Date(c.dataFim+'T00:00:00') - new Date()) / 86400000); return d >= 0 && d <= 60; }).length;
+      const valorTotal = contratosAtivos.reduce((s,c) => s + (Number(c.valor)||0), 0);
+      const empenhadoTotal = contratosAtivos.reduce((s,c) => s + (Number(c.valorEmpenhado)||0), 0);
+      const valorGadita = contratosAtivos
+        .filter(c => String(c.empresa || '').trim().toUpperCase() === 'GADITA')
+        .reduce((s,c) => s + (Number(c.valor)||0), 0);
+      const valorHamate = contratosAtivos
+        .filter(c => String(c.empresa || '').trim().toUpperCase() === 'HAMATE')
+        .reduce((s,c) => s + (Number(c.valor)||0), 0);
+      const execucoesComDados = contratosAtivos
+        .map(c => calcExecucaoContrato(c))
+        .filter(({totalUnid}) => totalUnid > 0);
+      const taxaMediaExecucao = execucoesComDados.length
+        ? execucoesComDados.reduce((s,{totalUnid,empenhUnid}) => s + Math.min(100, (empenhUnid / totalUnid) * 100), 0) / execucoesComDados.length
+        : 0;
 
-      qs('conStatTotal').textContent    = contratosAtivos.length;
-      qs('conStatAlert').textContent    = aVencer60;
-      qs('conStatValor').textContent    = formatCurrency(valorTotal);
-      qs('conStatCompra').textContent   = formatCurrency(compraTotal);
-      qs('conStatCusto').textContent    = formatCurrency(custoTotal);
-      qs('conStatLucro').textContent    = formatCurrency(lucroTotal);
-      qs('conStatLucro').style.color    = lucroTotal >= 0 ? '#1f8a4c' : '#b42318';
-      if (qs('conStatEmpenhado')) qs('conStatEmpenhado').textContent = formatCurrency(empenhadoTotal);
+      qs('conStatTotal').textContent = contratosAtivos.length;
+      qs('conStatValor').textContent = formatCurrency(valorTotal);
+      qs('conStatEmpenhado').textContent = formatCurrency(empenhadoTotal);
+      qs('conStatTaxaExecucao').textContent = taxaMediaExecucao.toFixed(1) + '%';
+      qs('conStatGadita').textContent = formatCurrency(valorGadita);
+      qs('conStatHamate').textContent = formatCurrency(valorHamate);
 
       // Subtotal filtrado
       const sfValor = filtrados.reduce((s,c) => s + (Number(c.valor)||0), 0);
