@@ -12830,15 +12830,21 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   document.body.appendChild(style);
 })();
 </script>
-    <style>
+   
+<style>
 /* Contratos ativos: manter o título Ações inteiro */
 #contratos-ativos .con-table th:last-child,
-#contratos-ativos .con-table td:last-child {
+#contratos-ativos .con-table td:last-child,
+
+/* Contratos encerrados: manter o título Ações inteiro */
+#contratos-encerrados .con-enc-table th:last-child,
+#contratos-encerrados .con-enc-table td:last-child {
   width: 76px !important;
   min-width: 76px !important;
   white-space: nowrap !important;
   text-align: center !important;
 }
 </style>
+
 </body>
 </html>
