@@ -12715,7 +12715,81 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) tbody td:nth-child(7) * { font-size: 6px !important; line-height: 1.3 !important; }
     html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) tbody td:nth-child(8),
     html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) tbody td:nth-child(8) * { font-size: 6px !important; line-height: 1.3 !important; }
-  `;
+
+    :root body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style) {
+      --kpi-bg:#fffceb; --kpi-border:#ffedb5; --kpi-accent:#ffb81c; --kpi-ink:#8f6700;
+    }
+    :root body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style):nth-child(5n+2) {
+      --kpi-bg:#fff0e8; --kpi-border:#ffd1ba; --kpi-accent:#ff6c2a; --kpi-ink:#b94708;
+    }
+    :root body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style):nth-child(5n+3) {
+      --kpi-bg:#e1f8f5; --kpi-border:#b2ece5; --kpi-accent:#1dc6b5; --kpi-ink:#00776f;
+    }
+    :root body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style):nth-child(5n+4) {
+      --kpi-bg:#e2f1f6; --kpi-border:#b9dbe5; --kpi-accent:#0b5b73; --kpi-ink:#07546e;
+    }
+    :root body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style):nth-child(5n) {
+      --kpi-bg:#e4fff1; --kpi-border:#b9f1d3; --kpi-accent:#48c78e; --kpi-ink:#21804f;
+    }
+    :root body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style) {
+      background:var(--kpi-bg)!important;
+      border:1px solid var(--kpi-border)!important;
+      border-left:4px solid var(--kpi-accent)!important;
+      border-radius:12px!important;
+      box-shadow:0 2px 6px rgba(29,61,75,.10)!important;
+      color:var(--kpi-ink)!important;
+    }
+    :root body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style) :is(
+      .disputa-stat-label,.dash-kpi-label,.con-view-metric-label,.emp-saldo-label,
+      .kpi-label,.review-card-label,.disputa-stat-value,.dash-kpi-value,
+      .con-view-metric-value,.emp-saldo-value,.kpi-value,.review-card-value
+    ) {
+      color:var(--kpi-ink)!important;
+    }
+    :root body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style) :is(.dash-kpi-sub,.con-view-metric-sub,.review-card-sub) {
+      color:#526a7d!important;
+    }
+    :root:not([data-mode="light"]) body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style) {
+      --kpi-bg:#303025; --kpi-border:#625326; --kpi-accent:#ffbf2f; --kpi-ink:#ffe08a;
+    }
+    :root:not([data-mode="light"]) body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style):nth-child(5n+2) {
+      --kpi-bg:#35271f; --kpi-border:#67432d; --kpi-accent:#ff7a3d; --kpi-ink:#ffb389;
+    }
+    :root:not([data-mode="light"]) body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style):nth-child(5n+3) {
+      --kpi-bg:#173633; --kpi-border:#2d655e; --kpi-accent:#21c9b1; --kpi-ink:#8ee9dc;
+    }
+    :root:not([data-mode="light"]) body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style):nth-child(5n+4) {
+      --kpi-bg:#153140; --kpi-border:#2a5b70; --kpi-accent:#1682a7; --kpi-ink:#9bdff0;
+    }
+    :root:not([data-mode="light"]) body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
+    .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
+    .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style):nth-child(5n) {
+      --kpi-bg:#173629; --kpi-border:#2d6548; --kpi-accent:#43c98a; --kpi-ink:#9bf0c4;
+    }  `;
   document.body.appendChild(style);
 })();
 </script>
