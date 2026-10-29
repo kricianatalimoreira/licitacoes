@@ -3440,6 +3440,48 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap" rel="stylesheet">
+<style id="contract-column-specific-font-sizes">
+  html body table.site-table:is(.site-table-2,.site-table-3) th:nth-child(4),
+  html body table.site-table:is(.site-table-2,.site-table-3) td:nth-child(4) {
+    width: 230px !important;
+    min-width: 230px !important;
+  }
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(2),
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(2) * {
+    font-size: 8px !important;
+    line-height: 1.3 !important;
+  }
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(3),
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(3) * {
+    font-size: 8px !important;
+    line-height: 1.3 !important;
+  }
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(4),
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(4) * {
+    font-size: 6px !important;
+    line-height: 1.3 !important;
+  }
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(5),
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(5) * {
+    font-size: 8px !important;
+    line-height: 1.3 !important;
+  }
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(6),
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(6) * {
+    font-size: 8px !important;
+    line-height: 1.3 !important;
+  }
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(7),
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(7) * {
+    font-size: 6px !important;
+    line-height: 1.3 !important;
+  }
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(8),
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(8) * {
+    font-size: 6px !important;
+    line-height: 1.3 !important;
+  }
+</style>
 </head>
 <body>
 
@@ -12689,72 +12731,6 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     .status-badge,.link-badge-sistema,.link-badge-drive
   ) {
     font-size: 10px !important;
-  }
-</style>
-<style id="contract-columns-match-orgao-type">
-  /* Mantém a tipografia do conteúdo nas colunas no mesmo tamanho da coluna Órgão. */
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(n+3):nth-child(-n+8),
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(n+3):nth-child(-n+8) :is(span,strong,a,div,p,small) {
-    font-size: 10px !important;
-    line-height: 1.35 !important;
-  }
-</style>
-<style id="contracts-all-columns-10px">
-  html body table.site-table:is(.site-table-2,.site-table-3) thead th:nth-child(n+2):nth-child(-n+8),
-  html body table.site-table:is(.site-table-2,.site-table-3) thead th:nth-child(n+2):nth-child(-n+8) *,
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(n+2):nth-child(-n+8),
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(n+2):nth-child(-n+8) * {
-    font-size: 10px !important;
-    line-height: 1.35 !important;
-  }
-</style>
-<style id="wider-contract-column-smaller-cell-text">
-  html body table.site-table:is(.site-table-2,.site-table-3) th:nth-child(4),
-  html body table.site-table:is(.site-table-2,.site-table-3) td:nth-child(4) {
-    width: 230px !important;
-    min-width: 230px !important;
-  }
-  html body table.site-table:is(.site-table-2,.site-table-3) td.contract-number-cell,
-  html body table.site-table:is(.site-table-2,.site-table-3) td.contract-number-cell * {
-    font-size: 8px !important;
-    line-height: 1.25 !important;
-  }
-</style>
-<style id="contract-column-specific-font-sizes">
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(2),
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(2) * {
-    font-size: 8px !important;
-    line-height: 1.3 !important;
-  }
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(3),
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(3) * {
-    font-size: 8px !important;
-    line-height: 1.3 !important;
-  }
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(4),
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(4) * {
-    font-size: 6px !important;
-    line-height: 1.3 !important;
-  }
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(5),
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(5) * {
-    font-size: 8px !important;
-    line-height: 1.3 !important;
-  }
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(6),
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(6) * {
-    font-size: 8px !important;
-    line-height: 1.3 !important;
-  }
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(7),
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(7) * {
-    font-size: 6px !important;
-    line-height: 1.3 !important;
-  }
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(8),
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(8) * {
-    font-size: 6px !important;
-    line-height: 1.3 !important;
   }
 </style>
 </body>
