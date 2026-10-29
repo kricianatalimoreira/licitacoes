@@ -4056,88 +4056,24 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <div class="disputa-table-card">
 <div class="table-wrap">
 <table class="con-table site-table site-table-2 site-list">
-<thead>
-<tr>
+<thead><tr>
 <th style="text-align:center;"><input type="checkbox" id="selAll_conAt" onchange="bulkToggleAll('conAt', this.checked)" title="Selecionar todos"/></th>
-<th class="historico-th">
-<div class="historico-header-cell"><span>Datas</span>
-<button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conAPopover-data')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
-<div class="historico-inline-popover hidden" id="conAPopover-data">
-<div class="historico-popover-title">Filtrar Data do Contrato</div>
+<th class="historico-th"><div class="historico-header-cell"><span>Vigência</span><button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conAPopover-data')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
+<div class="historico-inline-popover hidden" id="conAPopover-data"><div class="historico-popover-title">Filtrar vigência</div>
 <label>Data exata</label><input class="field-box" id="fConAData" oninput="renderContratosAtivos()" type="date"/>
-<div class="sort-month-grid" style="margin-top:5px;">
-<div><label>Mês</label><select class="field-box" id="fConAMes" onchange="renderContratosAtivos(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option>
-<option value="02">Fev</option>
-<option value="03">Mar</option>
-<option value="04">Abr</option>
-<option value="05">Mai</option>
-<option value="06">Jun</option>
-<option value="07">Jul</option>
-<option value="08">Ago</option>
-<option value="09">Set</option>
-<option value="10">Out</option>
-<option value="11">Nov</option>
-<option value="12">Dez</option></select></div>
-<div><label>Ano</label><select class="field-box" id="fConAAno" onchange="renderContratosAtivos(); saveSortPrefs()"><option value="">Todos</option><option value="2024">2024</option>
-<option value="2025">2025</option>
-<option value="2026">2026</option>
-<option value="2027">2027</option></select></div>
-</div>
-<div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltrosConAtivos()" type="button">Limpar</button></div>
-</div>
-</div>
-</th>
-<th class="historico-th">
-<div class="historico-header-cell"><span>Órgão / Contrato</span>
-<button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conAPopover-orgao')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
-<div class="historico-inline-popover hidden" id="conAPopover-orgao">
-<div class="historico-popover-title">Filtrar Órgão</div>
-<label>Buscar</label><input autocomplete="new-password" class="field-box" id="fConAOrgao" oninput="renderContratosAtivos()" placeholder="Digite parte do órgão" type="text"/>
-</div>
-</div>
-<div class="historico-header-cell emp-company-filter"><span>Empresa</span>
-<button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conAPopover-empresa')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
-<div class="historico-inline-popover hidden" id="conAPopover-empresa">
-<div class="historico-popover-title">Filtrar Empresa</div>
-<select class="field-box" id="fConAEmpresa" onchange="renderContratosAtivos(); saveSortPrefs()">
-<option value="">Todas</option><option value="Gadita">GADITA</option><option value="Hamate">HAMATE</option>
-</select>
-</div>
-</div>
-</th>
-<th class="historico-th">
-<div class="historico-header-cell">
-<span>Vl. Contrato</span>
-<button class="sort-col-btn" data-sort-select="sortConAtivos" data-sort-asc="valor_asc" data-sort-desc="valor_desc" title="Ordenar" onclick="sortByCol('sortConAtivos','valor_asc','valor_desc','renderContratosAtivos')">↕</button>
-</div>
-</th>
-<th class="historico-th">
-<div class="historico-header-cell">
-<span>Vl. Compra Prev.</span>
-<button class="sort-col-btn" data-sort-select="sortConAtivos" data-sort-asc="compra_asc" data-sort-desc="compra_desc" title="Ordenar" onclick="sortByCol('sortConAtivos','compra_asc','compra_desc','renderContratosAtivos')">↕</button>
-</div>
-</th>
-<th class="historico-th">
-<div class="historico-header-cell">
-<span>Custo Prev.</span>
-<button class="sort-col-btn" data-sort-select="sortConAtivos" data-sort-asc="custo_asc" data-sort-desc="custo_desc" title="Ordenar" onclick="sortByCol('sortConAtivos','custo_asc','custo_desc','renderContratosAtivos')">↕</button>
-</div>
-</th>
-<th class="historico-th">
-<div class="historico-header-cell">
-<span>Lucro Prev.</span>
-<button class="sort-col-btn" data-sort-select="sortConAtivos" data-sort-asc="lucro_asc" data-sort-desc="lucro_desc" title="Ordenar" onclick="sortByCol('sortConAtivos','lucro_asc','lucro_desc','renderContratosAtivos')">↕</button>
-</div>
-</th>
-<th class="historico-th">
-<div class="historico-header-cell">
-<span>Execução</span>
-<button class="sort-col-btn" data-sort-select="sortConAtivos" data-sort-asc="exec_asc" data-sort-desc="exec_desc" title="Ordenar" onclick="sortByCol('sortConAtivos','exec_asc','exec_desc','renderContratosAtivos')">↕</button>
-</div>
-</th>
+<div class="sort-month-grid" style="margin-top:5px;"><div><label>Mês</label><select class="field-box" id="fConAMes" onchange="renderContratosAtivos(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option><option value="02">Fev</option><option value="03">Mar</option><option value="04">Abr</option><option value="05">Mai</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Ago</option><option value="09">Set</option><option value="10">Out</option><option value="11">Nov</option><option value="12">Dez</option></select></div>
+<div><label>Ano</label><select class="field-box" id="fConAAno" onchange="renderContratosAtivos(); saveSortPrefs()"><option value="">Todos</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option></select></div></div>
+<div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltrosConAtivos()" type="button">Limpar</button></div></div></div></th>
+<th class="historico-th"><div class="historico-header-cell"><span>Órgão</span><button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conAPopover-orgao')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
+<div class="historico-inline-popover hidden" id="conAPopover-orgao"><div class="historico-popover-title">Filtrar órgão</div><label>Buscar por órgão</label><input autocomplete="new-password" class="field-box" id="fConAOrgao" oninput="renderContratosAtivos()" placeholder="Digite parte do órgão" type="text"/></div></div></th>
+<th class="historico-th"><div class="historico-header-cell"><span>Contrato</span><button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conAPopover-contrato')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
+<div class="historico-inline-popover hidden" id="conAPopover-contrato"><div class="historico-popover-title">Filtrar contrato</div><label>Número do contrato</label><input class="field-box" id="fConAContrato" oninput="renderContratosAtivos()" placeholder="Digite o número" type="text"/></div></div></th>
+<th class="historico-th"><div class="historico-header-cell"><span>Empresa</span><button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conAPopover-empresa')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
+<div class="historico-inline-popover hidden" id="conAPopover-empresa"><div class="historico-popover-title">Filtrar empresa</div><select class="field-box" id="fConAEmpresa" onchange="renderContratosAtivos(); saveSortPrefs()"><option value="">Todas</option><option value="Gadita">GADITA</option><option value="Hamate">HAMATE</option></select></div></div></th>
+<th class="historico-th"><div class="historico-header-cell"><span>Valor do contrato</span><button class="sort-col-btn" data-sort-select="sortConAtivos" data-sort-asc="valor_asc" data-sort-desc="valor_desc" title="Ordenar" onclick="sortByCol('sortConAtivos','valor_asc','valor_desc','renderContratosAtivos')">↕</button></div></th>
+<th class="historico-th"><div class="historico-header-cell"><span>Execução</span><button class="sort-col-btn" data-sort-select="sortConAtivos" data-sort-asc="exec_asc" data-sort-desc="exec_desc" title="Ordenar" onclick="sortByCol('sortConAtivos','exec_asc','exec_desc','renderContratosAtivos')">↕</button></div></th>
 <th>Ações</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody id="conAtivosBody"></tbody>
 </table>
 </div>
@@ -4175,72 +4111,24 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <div class="disputa-table-card">
 <div class="table-wrap">
 <table class="con-enc-table site-table site-table-3 site-list">
-<thead>
-<tr>
+<thead><tr>
 <th style="text-align:center;"><input type="checkbox" id="selAll_conEnc" onchange="bulkToggleAll('conEnc', this.checked)" title="Selecionar todos"/></th>
-<th class="historico-th">
-<div class="historico-header-cell"><span>Datas</span>
-<button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conEPopover-data')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
-<div class="historico-inline-popover hidden" id="conEPopover-data">
-<div class="historico-popover-title">Filtrar Data do Contrato</div>
-<input class="field-box" id="fConEData" oninput="renderContratosEncerrados()" type="date"/>
-<div class="sort-month-grid" style="margin-top:5px;">
-<div><label>Mês</label><select class="field-box" id="fConEMes" onchange="renderContratosEncerrados(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option>
-<option value="02">Fev</option>
-<option value="03">Mar</option>
-<option value="04">Abr</option>
-<option value="05">Mai</option>
-<option value="06">Jun</option>
-<option value="07">Jul</option>
-<option value="08">Ago</option>
-<option value="09">Set</option>
-<option value="10">Out</option>
-<option value="11">Nov</option>
-<option value="12">Dez</option></select></div>
-<div><label>Ano</label><select class="field-box" id="fConEAno" onchange="renderContratosEncerrados(); saveSortPrefs()"><option value="">Todos</option><option value="2024">2024</option>
-<option value="2025">2025</option>
-<option value="2026">2026</option>
-<option value="2027">2027</option></select></div>
-</div>
-<div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltrosConEncerrados()" type="button">Limpar</button></div>
-</div>
-</div>
-</th>
-<th class="historico-th">
-<div class="historico-header-cell"><span>Órgão / Contrato</span>
-<button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conEPopover-orgao')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
-<div class="historico-inline-popover hidden" id="conEPopover-orgao">
-<div class="historico-popover-title">Filtrar Órgão</div>
-<input autocomplete="new-password" class="field-box" id="fConEOrgao" oninput="renderContratosEncerrados()" placeholder="Digite parte do órgão" type="text"/>
-</div>
-</div>
-<div class="historico-header-cell emp-company-filter"><span>Empresa</span>
-<button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conEPopover-empresa')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
-<div class="historico-inline-popover hidden" id="conEPopover-empresa">
-<div class="historico-popover-title">Filtrar Empresa</div>
-<select class="field-box" id="fConEEmpresa" onchange="renderContratosEncerrados(); saveSortPrefs()">
-<option value="">Todas</option><option value="Gadita">GADITA</option><option value="Hamate">HAMATE</option>
-</select>
-</div>
-</div>
-</th>
-<th class="historico-th">
-<div class="historico-header-cell">
-<span>Vl. Contrato</span>
-<button class="sort-col-btn" data-sort-select="sortConEncerrados" data-sort-asc="valor_asc" data-sort-desc="valor_desc" title="Ordenar" onclick="sortByCol('sortConEncerrados','valor_asc','valor_desc','renderContratosEncerrados')">↕</button>
-</div>
-</th>
-<th>Vl. Empenhado</th>
-<th>Lucro Empenhos</th>
-<th class="historico-th">
-<div class="historico-header-cell">
-<span>Taxa de Execução</span>
-<button class="sort-col-btn" data-sort-select="sortConEncerrados" data-sort-asc="exec_asc" data-sort-desc="exec_desc" title="Ordenar" onclick="sortByCol('sortConEncerrados','exec_asc','exec_desc','renderContratosEncerrados')">↕</button>
-</div>
-</th>
+<th class="historico-th"><div class="historico-header-cell"><span>Vigência</span><button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conEPopover-data')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
+<div class="historico-inline-popover hidden" id="conEPopover-data"><div class="historico-popover-title">Filtrar vigência</div>
+<label>Data exata</label><input class="field-box" id="fConEData" oninput="renderContratosEncerrados()" type="date"/>
+<div class="sort-month-grid" style="margin-top:5px;"><div><label>Mês</label><select class="field-box" id="fConEMes" onchange="renderContratosEncerrados(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option><option value="02">Fev</option><option value="03">Mar</option><option value="04">Abr</option><option value="05">Mai</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Ago</option><option value="09">Set</option><option value="10">Out</option><option value="11">Nov</option><option value="12">Dez</option></select></div>
+<div><label>Ano</label><select class="field-box" id="fConEAno" onchange="renderContratosEncerrados(); saveSortPrefs()"><option value="">Todos</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option></select></div></div>
+<div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltrosConEncerrados()" type="button">Limpar</button></div></div></div></th>
+<th class="historico-th"><div class="historico-header-cell"><span>Órgão</span><button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conEPopover-orgao')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
+<div class="historico-inline-popover hidden" id="conEPopover-orgao"><div class="historico-popover-title">Filtrar órgão</div><label>Buscar por órgão</label><input autocomplete="new-password" class="field-box" id="fConEOrgao" oninput="renderContratosEncerrados()" placeholder="Digite parte do órgão" type="text"/></div></div></th>
+<th class="historico-th"><div class="historico-header-cell"><span>Contrato</span><button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conEPopover-contrato')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
+<div class="historico-inline-popover hidden" id="conEPopover-contrato"><div class="historico-popover-title">Filtrar contrato</div><label>Número do contrato</label><input class="field-box" id="fConEContrato" oninput="renderContratosEncerrados()" placeholder="Digite o número" type="text"/></div></div></th>
+<th class="historico-th"><div class="historico-header-cell"><span>Empresa</span><button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'conEPopover-empresa')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
+<div class="historico-inline-popover hidden" id="conEPopover-empresa"><div class="historico-popover-title">Filtrar empresa</div><select class="field-box" id="fConEEmpresa" onchange="renderContratosEncerrados(); saveSortPrefs()"><option value="">Todas</option><option value="Gadita">GADITA</option><option value="Hamate">HAMATE</option></select></div></div></th>
+<th class="historico-th"><div class="historico-header-cell"><span>Valor do contrato</span><button class="sort-col-btn" data-sort-select="sortConEncerrados" data-sort-asc="valor_asc" data-sort-desc="valor_desc" title="Ordenar" onclick="sortByCol('sortConEncerrados','valor_asc','valor_desc','renderContratosEncerrados')">↕</button></div></th>
+<th class="historico-th"><div class="historico-header-cell"><span>Execução</span><button class="sort-col-btn" data-sort-select="sortConEncerrados" data-sort-asc="exec_asc" data-sort-desc="exec_desc" title="Ordenar" onclick="sortByCol('sortConEncerrados','exec_asc','exec_desc','renderContratosEncerrados')">↕</button></div></th>
 <th>Ações</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody id="conEncerradosBody"></tbody>
 </table>
 </div>
@@ -6097,6 +5985,12 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
 
 
+    function contratoVigenciaTabelaHtml(c) {
+      const inicio = c.data ? formatDate(c.data) : '—';
+      const fim = c.dataFim ? formatDate(c.dataFim) : 'Prazo não informado';
+      return `<div class="cell-data-hora"><span class="data-dia">${inicio}</span><span class="data-hora">até ${fim}</span></div>`;
+    }
+
     function contratoDatasHtml(c, alerta = '') {
       const disputa = c.disputaId
         ? [...disputasEncerradas, ...disputas].find(d => d.id === c.disputaId)
@@ -6145,6 +6039,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       const fMes   = qs('fConAMes')?.value    || '';
       const fAno   = qs('fConAAno')?.value    || '';
       const fOrgao = (qs('fConAOrgao')?.value || '').trim().toLowerCase();
+      const fContrato = (qs('fConAContrato')?.value || '').trim().toLowerCase();
       const fEmp   = qs('fConAEmpresa')?.value || '';
 
       const filtrados = contratosAtivos.filter(c => {
@@ -6152,6 +6047,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         if (fData  && (c.data || '') !== fData)                                      return false;
         if (fMes   && (c.data || '').slice(5,7) !== fMes.padStart(2,'0'))               return false;
         if (fAno   && (c.data || '').slice(0,4) !== fAno)                                return false;
+        if (fContrato && !String(c.contrato || '').toLowerCase().includes(fContrato)) return false;
         if (fOrgao && !String(c.orgao || '').toLowerCase().includes(fOrgao))          return false;
         if (fEmp   && c.empresa !== fEmp)                                             return false;
         if (_filtroRascunhoAtivo && !isRascunho(c))                                   return false;
@@ -6195,7 +6091,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       });
 
       if (!sortedConA.length) {
-        body.innerHTML = `<tr><td colspan="9"><div class="empty-state">Nenhum contrato ativo encontrado.</div></td></tr>`;
+        body.innerHTML = `<tr><td colspan="8"><div class="empty-state">Nenhum contrato ativo encontrado.</div></td></tr>`;
         return;
       }
 
@@ -6206,27 +6102,24 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         const rascunho = isRascunho(c);
         const rascunhoBadge = '';
         return `
-          <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','ativo')" title="Clique para ver detalhes" style="">
+          <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','ativo')" title="Clique para ver detalhes" style="cursor:pointer;">
             ${bulkCheckboxTd('conAt', c.id)}
-            <td>${contratoDatasHtml(c, alerta)}</td>
-            <td>${orgaoInfoHtml(c)}${rascunhoBadge}</td>
-            <td style="font-weight:700;">${formatCurrency(c.valor)}</td>
-            <td>${formatCurrency(c.compra)}</td>
-            <td style="color:#b76a00;font-weight:700;">${formatCurrency(custo)}</td>
-            <td>${lucroHtml(lucro)}</td>
-            <td>${execucaoHtml(c)}${window.KMContractCompletion?.ready(c,empenhos)?`<button class="btn btn-light btn-sm" onclick="event.stopPropagation();sugerirEncerramentoContrato('${c.id}')">CONFIRMAR ENCERRAMENTO</button>`:''}</td>
-            <td>
-              <div class="row-menu-wrap">
-                <button class="row-menu-btn" onclick="toggleRowMenu(event,'conAmenu-${c.id}')">⋯</button>
-                <div class="row-menu hidden" id="conAmenu-${c.id}">
-                  <button onclick="abrirConView('${c.id}','ativo')">🔍 Detalhes</button>
-                  <button onclick="gerarEmpenho('${c.id}')">📄 Gerar Empenho</button>
-                  <button onclick="abrirEditContratoAtivo('${c.id}')">✏️ Editar</button>
-                  <button onclick="encerrarContrato('${c.id}')">📁 Encerrar</button>
-                  <button onclick="excluirContratoAtivo('${c.id}')" style="color:#b42318;">🗑️ Excluir</button>
-                </div>
+            <td>${contratoVigenciaTabelaHtml(c)}</td>
+            <td class="contract-orgao-cell">${escapeHTML(c.orgao) || '—'}</td>
+            <td class="contract-number-cell">${escapeHTML(c.contrato) || '—'}</td>
+            <td>${companyBadge(c.empresa)}</td>
+            <td class="contract-value-cell">${formatCurrency(c.valor)}</td>
+            <td>${execucaoHtml(c)}</td>
+            <td><div class="row-menu-wrap">
+              <button class="row-menu-btn" onclick="toggleRowMenu(event,'conAmenu-${c.id}')">⋯</button>
+              <div class="row-menu hidden" id="conAmenu-${c.id}">
+                <button onclick="abrirConView('${c.id}','ativo')">Detalhes</button>
+                <button onclick="gerarEmpenho('${c.id}')">Gerar empenho</button>
+                <button onclick="abrirEditContratoAtivo('${c.id}')">Editar</button>
+                <button onclick="encerrarContrato('${c.id}')">Encerrar</button>
+                <button onclick="excluirContratoAtivo('${c.id}')" style="color:#b42318;">Excluir</button>
               </div>
-            </td>
+            </div></td>
           </tr>`;
       }).join('');
     }
@@ -6240,6 +6133,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       const fMes   = qs('fConEMes')?.value    || '';
       const fAno   = qs('fConEAno')?.value    || '';
       const fOrgao = (qs('fConEOrgao')?.value || '').trim().toLowerCase();
+      const fContrato = (qs('fConEContrato')?.value || '').trim().toLowerCase();
       const fEmp   = qs('fConEEmpresa')?.value || '';
 
       const filtrados = contratosEncerrados.filter(c => {
@@ -6247,6 +6141,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         if (fData  && (c.data || '') !== fData)                         return false;
         if (fMes   && (c.data || '').slice(5,7) !== fMes.padStart(2,'0'))  return false;
         if (fAno   && (c.data || '').slice(0,4) !== fAno)                   return false;
+        if (fContrato && !String(c.contrato || '').toLowerCase().includes(fContrato)) return false;
         if (fOrgao && !String(c.orgao || '').toLowerCase().includes(fOrgao)) return false;
         if (fEmp   && c.empresa !== fEmp)                               return false;
         return true;
@@ -6342,23 +6237,21 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         return `
           <tr onclick="if(!event.target.closest('.row-menu-wrap'))abrirConView('${c.id}','enc')" title="Clique para ver detalhes" style="cursor:pointer;">
             ${bulkCheckboxTd('conEnc', c.id)}
-            <td>${contratoDatasHtml(c)}</td>
-            <td>${orgaoInfoHtml(c)}</td>
-            <td style="font-weight:700;">${formatCurrency(c.valor)}</td>
-            <td style="font-weight:700;color:#2563eb;">${valorEmp > 0 ? formatCurrency(valorEmp) : '<span style="color:var(--muted);font-size:10px;">Sem empenhos</span>'}</td>
-            <td>${lucroEmp !== 0 ? lucroHtml(lucroEmp) : '<span style="color:var(--muted);font-size:10px;">—</span>'}</td>
+            <td>${contratoVigenciaTabelaHtml(c)}</td>
+            <td class="contract-orgao-cell">${escapeHTML(c.orgao) || '—'}</td>
+            <td class="contract-number-cell">${escapeHTML(c.contrato) || '—'}</td>
+            <td>${companyBadge(c.empresa)}</td>
+            <td class="contract-value-cell">${formatCurrency(c.valor)}</td>
             <td>${execHtml}</td>
-            <td>
-              <div class="row-menu-wrap">
-                <button class="row-menu-btn" onclick="toggleRowMenu(event,'conEmenu-${c.id}')">⋯</button>
-                <div class="row-menu hidden" id="conEmenu-${c.id}">
-                  <button onclick="abrirConView('${c.id}','enc')">🔍 Detalhes</button>
-                  <button onclick="abrirEditContratoEnc('${c.id}')">✏️ Editar</button>
-                  <button onclick="reativarContrato('${c.id}')">↩️ Reativar</button>
-                  <button onclick="excluirContratoEnc('${c.id}')" style="color:#b42318;">🗑️ Excluir</button>
-                </div>
+            <td><div class="row-menu-wrap">
+              <button class="row-menu-btn" onclick="toggleRowMenu(event,'conEmenu-${c.id}')">⋯</button>
+              <div class="row-menu hidden" id="conEmenu-${c.id}">
+                <button onclick="abrirConView('${c.id}','enc')">Detalhes</button>
+                <button onclick="abrirEditContratoEnc('${c.id}')">Editar</button>
+                <button onclick="reativarContrato('${c.id}')">Reativar</button>
+                <button onclick="excluirContratoEnc('${c.id}')" style="color:#b42318;">Excluir</button>
               </div>
-            </td>
+            </div></td>
           </tr>`;
       }).join('');
     }
@@ -6366,7 +6259,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     // ── Filtros ──────────────────────────────────────
     function limparFiltrosConAtivos() {
       window.KMTratativas?.clearFilters('A');
-      ['fConAData','fConAOrgao','fConAEmpresa','fConAStatus'].forEach(id => { const el = qs(id); if(el) el.value=''; });
+      ['fConAData','fConAMes','fConAAno','fConAOrgao','fConAContrato','fConAEmpresa','fConAStatus'].forEach(id => { const el = qs(id); if(el) el.value=''; });
       _filtroRascunhoAtivo = false;
       const btn = qs('btnFiltroRascunho');
       if (btn) { btn.style.background='#0d1e3a'; btn.style.borderColor='#2a4d8a'; btn.style.boxShadow='none'; btn.textContent='📋 Só rascunhos'; }
@@ -6374,7 +6267,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
     }
     function limparFiltrosConEncerrados() {
       window.KMTratativas?.clearFilters('E');
-      ['fConEData','fConEOrgao','fConEEmpresa','fConEStatus'].forEach(id => { const el = qs(id); if(el) el.value=''; });
+      ['fConEData','fConEMes','fConEAno','fConEOrgao','fConEContrato','fConEEmpresa','fConEStatus'].forEach(id => { const el = qs(id); if(el) el.value=''; });
       renderContratosEncerrados(); closeAllPopovers();
     }
 
@@ -12691,6 +12584,34 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     padding-left: 5px !important;
     padding-right: 5px !important;
   }
+</style>
+<style id="contracts-dispute-table-layout">
+  table.site-table:is(.site-table-2,.site-table-3) {
+    width: 100% !important;
+    min-width: 100% !important;
+    table-layout: fixed !important;
+  }
+  table.site-table:is(.site-table-2,.site-table-3) th:nth-child(1),
+  table.site-table:is(.site-table-2,.site-table-3) td:nth-child(1) { width: 32px !important; }
+  table.site-table:is(.site-table-2,.site-table-3) th:nth-child(2),
+  table.site-table:is(.site-table-2,.site-table-3) td:nth-child(2) { width: 145px !important; }
+  table.site-table:is(.site-table-2,.site-table-3) th:nth-child(3),
+  table.site-table:is(.site-table-2,.site-table-3) td:nth-child(3) { width: auto !important; }
+  table.site-table:is(.site-table-2,.site-table-3) th:nth-child(4),
+  table.site-table:is(.site-table-2,.site-table-3) td:nth-child(4) { width: 130px !important; }
+  table.site-table:is(.site-table-2,.site-table-3) th:nth-child(5),
+  table.site-table:is(.site-table-2,.site-table-3) td:nth-child(5) { width: 110px !important; text-align: left !important; }
+  table.site-table:is(.site-table-2,.site-table-3) th:nth-child(6),
+  table.site-table:is(.site-table-2,.site-table-3) td:nth-child(6) { width: 145px !important; text-align: right !important; }
+  table.site-table:is(.site-table-2,.site-table-3) th:nth-child(7),
+  table.site-table:is(.site-table-2,.site-table-3) td:nth-child(7) { width: 190px !important; text-align: left !important; }
+  table.site-table:is(.site-table-2,.site-table-3) th:nth-child(8),
+  table.site-table:is(.site-table-2,.site-table-3) td:nth-child(8) { width: 48px !important; text-align: center !important; }
+  table.site-table:is(.site-table-2,.site-table-3) td.contract-orgao-cell { white-space: nowrap !important; text-overflow: ellipsis; }
+  table.site-table:is(.site-table-2,.site-table-3) td.contract-number-cell { white-space: nowrap !important; }
+  table.site-table:is(.site-table-2,.site-table-3) td.contract-value-cell { font-weight: 600 !important; font-variant-numeric: tabular-nums; }
+  table.site-table:is(.site-table-2,.site-table-3) td .exec-wrap,
+  table.site-table:is(.site-table-2,.site-table-3) td .exec-enc-wrap { min-width: 90px; }
 </style>
 </body>
 </html>
