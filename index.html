@@ -5979,8 +5979,11 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       if (Number.isNaN(fim.getTime())) return '';
       const dias = Math.ceil((fim - hoje) / 86400000);
       if (dias < 0) return `<div class="con-venc-badge con-venc-30">Vencido</div>`;
-      if (dias <= 30) return `<div class="con-venc-badge con-venc-30">Vence em 30 dias</div>`;
-      if (dias <= 60) return `<div class="con-venc-badge con-venc-60">Vence em 60 dias</div>`;
+      if (dias <= 60) {
+        const texto = dias === 0 ? 'Vence hoje' : `Vence em ${dias} ${dias === 1 ? 'dia' : 'dias'}`;
+        const classe = dias <= 30 ? 'con-venc-30' : 'con-venc-60';
+        return `<div class="con-venc-badge ${classe}">${texto}</div>`;
+      }
       return '';
     }
 
@@ -12710,6 +12713,7 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     }
     html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) tbody td:nth-child(2),
     html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) tbody td:nth-child(2) * { font-size: 10px !important; line-height: 1.3 !important; }
+    html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) tbody td:nth-child(2) .con-venc-badge { font-size: 6px !important; line-height: 1.25 !important; }
     html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) tbody td:nth-child(3),
     html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) tbody td:nth-child(3) * { font-size: 10px !important; line-height: 1.3 !important; }
     html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) tbody td:nth-child(4),
