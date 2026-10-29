@@ -5987,8 +5987,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 
     function contratoVigenciaTabelaHtml(c) {
       const inicio = c.data ? formatDate(c.data) : '—';
-      const fim = c.dataFim ? formatDate(c.dataFim) : 'Prazo não informado';
-      return `<div class="cell-data-hora"><span class="data-dia">${inicio}</span><span class="data-hora">até ${fim}</span></div>`;
+      return `<div class="cell-data-hora"><span class="data-dia">${inicio}</span></div>`;
     }
 
     function contratoDatasHtml(c, alerta = '') {
@@ -12690,6 +12689,14 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     .status-badge,.link-badge-sistema,.link-badge-drive
   ) {
     font-size: 10px !important;
+  }
+</style>
+<style id="contract-columns-match-orgao-type">
+  /* Mantém a tipografia do conteúdo nas colunas no mesmo tamanho da coluna Órgão. */
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(n+3):nth-child(-n+8),
+  html body table.site-table:is(.site-table-2,.site-table-3) tbody td:nth-child(n+3):nth-child(-n+8) :is(span,strong,a,div,p,small) {
+    font-size: 10px !important;
+    line-height: 1.35 !important;
   }
 </style>
 </body>
