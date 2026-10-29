@@ -12800,7 +12800,24 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
     .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style):nth-child(5n) {
       --kpi-bg:#173629; --kpi-border:#2d6548; --kpi-accent:#43c98a; --kpi-ink:#9bf0c4;
-    }  `;
+    }
+    :root[data-mode="light"] body .disputa-stat-card:has(#conStatGadita):not(#__preserve-kpi-style) {
+      background:#ddeaff!important; border:1px solid #c6d9fb!important; border-left:4px solid #1a4fb0!important;
+    }
+    :root[data-mode="light"] body .disputa-stat-card:has(#conStatGadita):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatGadita) { color:#1a4fb0!important; }
+    :root[data-mode="light"] body .disputa-stat-card:has(#conStatHamate):not(#__preserve-kpi-style) {
+      background:#d4f5e5!important; border:1px solid #b9e6cf!important; border-left:4px solid #0e6840!important;
+    }
+    :root[data-mode="light"] body .disputa-stat-card:has(#conStatHamate):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatHamate) { color:#0e6840!important; }
+    :root:not([data-mode="light"]) body .disputa-stat-card:has(#conStatGadita):not(#__preserve-kpi-style) {
+      background:#0d1e3a!important; border:1px solid #243e6b!important; border-left:4px solid #5b9cf6!important;
+    }
+    :root:not([data-mode="light"]) body .disputa-stat-card:has(#conStatGadita):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatGadita) { color:#5b9cf6!important; }
+    :root:not([data-mode="light"]) body .disputa-stat-card:has(#conStatHamate):not(#__preserve-kpi-style) {
+      background:#0a2018!important; border:1px solid #1d4a35!important; border-left:4px solid #2dd47a!important;
+    }
+    :root:not([data-mode="light"]) body .disputa-stat-card:has(#conStatHamate):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatHamate) { color:#2dd47a!important; }
+  `;
   document.body.appendChild(style);
 })();
 </script>
