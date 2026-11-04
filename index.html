@@ -12771,7 +12771,9 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   style.textContent = `
     html body table.site-table.site-list.emp-table:not(.emp-table-pend) thead th,
     html body table.site-table.site-list.emp-table:not(.emp-table-pend) thead th :is(.historico-header-cell, .historico-header-cell > span),
-    html body table.site-table.site-list.emp-table-pend thead th:nth-child(n+2) { font-size: 11px !important; }
+    /* Supera a regra geral cujo :is() inclui um ID, inclusive nos títulos sem span. */
+    :is(body, #empenhos-andamento) table.site-table.site-list.emp-table-pend thead th:nth-child(n+2),
+    :is(body, #empenhos-andamento) table.site-table.site-list.emp-table-pend thead th:nth-child(n+2) .historico-header-cell > span { font-size: 11px !important; }
     html body #org-registry table.or-table thead th,
     html body #org-registry table.or-table thead th :is(span, .or-head-button),
     html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) thead th:nth-child(n+2):nth-child(-n+7),
