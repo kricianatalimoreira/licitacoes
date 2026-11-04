@@ -7766,7 +7766,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
           { nome: 'Entrega', titulo: 'Entregue em', espera: 'Aguardando pagamento', data: e.dataEntrega, parsed: dEntrega }
         ];
         if (modo === 'pago' || dPago) etapas.push({ nome: 'Pagamento', titulo: 'Pago em', data: e.dataPagamento, parsed: dPago });
-        const ultima = [...etapas].reverse().find(etapa => etapa.parsed);
+        const ultima = modo === 'pendente' ? etapas.find(etapa => etapa.nome === 'Pedido' && etapa.parsed) : [...etapas].reverse().find(etapa => etapa.parsed);
         const dias = ultima ? diasEnt(ultima.parsed, hoje) : null;
         const acompanhamento = !ultima ? 'Nenhuma data registrada'
           : dPago ? ''
@@ -7778,12 +7778,12 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         return `<div class="emp-data-resumo">
           <strong>${ultima ? ultima.titulo + ' ' + formatDateCurta(ultima.data) : 'Sem data'}</strong>
           ${acompanhamento ? `<span class="emp-data-espera" data-espera="${!dPago && dias !== null && dias >= 0 ? (dias >= 60 ? 'vermelho' : dias >= 30 ? 'laranja' : 'verde') : ''}">${acompanhamento}</span>` : ''}
-          <details class="emp-data-historico">
+          ${modo === 'pendente' ? '' : `<details class="emp-data-historico">
             <summary>Ver histórico</summary>
             <div class="emp-historico-conteudo">${historico}
               <button type="button" class="emp-editar-entrega" onclick="abrirModalEntrega('${e.id}')">${dEntrega ? 'Editar' : 'Registrar'} entrega</button>
             </div>
-          </details>
+          </details>`}
         </div>`;
       }
 
