@@ -12697,7 +12697,7 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   html body table.site-table.site-list.emp-table-pend :is(thead th, tbody td):nth-child(n+2),
   html body table.site-table.site-list.emp-table-pend thead th:nth-child(n+2) .historico-header-cell > span,
   html body table.site-table.site-list.emp-table-pend tbody td:nth-child(n+2) :is(div, span, strong, small, a, button):not(.row-menu *, .emp-pend-tratativas *) {
-    font-size: 12px !important;
+    font-size: 11px !important;
   }
 
   html body table.site-table.site-list.emp-table-pend th:nth-child(n+7):nth-child(-n+10) {
@@ -12719,7 +12719,7 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   }
   html body table.site-table.site-list.emp-table-pend td:nth-child(n+7):nth-child(-n+10),
   html body table.site-table.site-list.emp-table-pend td:nth-child(n+7):nth-child(-n+10) :is(div, span, strong) {
-    font-size: 12px !important;
+    font-size: 11px !important;
   }
 
   html body table.site-table.emp-table-pend td .emp-pend-tratativas,
@@ -12729,7 +12729,7 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   }
   html body table.site-table.emp-table-pend td .emp-pend-tratativas:empty { display: none; }
   html body table.site-table.emp-table-pend td .con-orgao-nome {
-    font-size: 12px !important;
+    font-size: 11px !important;
     font-weight: 700 !important;
   }
   html body table.site-table.emp-table-pend td .emp-data-resumo strong,
@@ -12759,6 +12759,10 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   html body table.site-table.site-list.emp-table tbody tr:hover td {
     background-color: var(--primary-th1);
   }
+  html body table.site-table.site-list.emp-table-pend thead th:last-child {
+    width: 68px !important;
+    white-space: nowrap !important;
+  }
 </style>
 <script id="apply-contract-column-font-sizes">
 (() => {
@@ -12767,6 +12771,7 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   style.textContent = `
     html body table.site-table.site-list.emp-table:not(.emp-table-pend) thead th,
     html body table.site-table.site-list.emp-table:not(.emp-table-pend) thead th :is(.historico-header-cell, .historico-header-cell > span),
+    html body table.site-table.site-list.emp-table-pend thead th:nth-child(n+2) { font-size: 11px !important; }
     html body #org-registry table.or-table thead th,
     html body #org-registry table.or-table thead th :is(span, .or-head-button),
     html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) thead th:nth-child(n+2):nth-child(-n+7),
