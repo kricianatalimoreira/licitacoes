@@ -4472,7 +4472,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <section class="page-section hidden" id="empenhos-encerrados">
 <div class="topbar">
 <div>
-<h2>✅ Empenhos pagos</h2><div style="font-size:10px;color:var(--muted)">Recebimentos por data de pagamento. Status PAGA representa quitação integral no cadastro.</div>
+<h2>Empenhos pagos</h2><div style="font-size:10px;color:var(--muted)">Recebimentos por data de pagamento. Status PAGA representa quitação integral no cadastro.</div>
 </div>
 </div>
 <div class="paid-kpi-filters"><label>Mês<select class="field-box" id="fEmpEncMes" onchange="renderEmpEncerrados(); saveSortPrefs()"><option value="">Todos</option><option value="01">Jan</option>
@@ -4526,7 +4526,10 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <input autocomplete="new-password" class="field-box" id="fEmpEncOrgao" oninput="renderEmpEncerrados()" placeholder="Digite parte do órgão" type="text"/>
 </div>
 </div>
-<div class="historico-header-cell emp-company-filter">
+
+</th>
+<th>Itens Empenhados</th>
+<th class="historico-th"><div class="historico-header-cell emp-company-filter">
 <span>Empresa</span>
 <button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'empEncPopover-empresa')" type="button"><svg fill="none" height="9" viewbox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
 <div class="historico-inline-popover hidden" id="empEncPopover-empresa">
@@ -4534,9 +4537,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <label>Empresa</label>
 <span>Use o filtro acima dos indicadores.</span>
 </div>
-</div>
-</th>
-<th>Itens Empenhados</th>
+</div></th>
 <th class="historico-th" style="color:#2563eb;">
 <div class="historico-header-cell">
 <span>Vl. Empenho</span>
@@ -8248,14 +8249,15 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       return `<tr>
         ${bulkCheckboxTd('empEnc', e.id)}
         <td>${empDatasHtml(e, 'pago', dataCompra)}</td>
-        <td style="font-weight:700;font-size:10px;">${escapeHTML(e.numero) || '—'}${notifBellHtml(e)}</td>
+        <td>${escapeHTML(e.numero) || '—'}${notifBellHtml(e)}</td>
         <td class="cell-wrap">
           <div class="payer-orgao-heading"><div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>${KMPayerBadges.html(e)}</div>
-          <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>${window.KMTratativas?.empBadges(e) || ''}
           <div class="con-orgao-info">${e.contrato || ''}</div>
+          <div class="emp-pend-tratativas">${window.KMTratativas?.empBadges(e) || ''}</div>
         </td>
         <td class="cell-wrap">${itensDesc || '—'}</td>
-        <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
+        <td>${companyBadge(e.empresa)}</td>
+        <td class="emp-pend-valor">${formatCurrency(e.valor)}</td>
         <td>${vlCompraHtml}${estimado ? '<div style="font-size:9px;color:var(--muted)" title="Compra, impostos, royalties e lucro calculados pela proposta cadastrada">PREVISTO</div>' : ''}</td>
         <td>${custoHtml}</td>
         <td><div class="emp-lucro-valor">${lucroHtml}</div><div class="emp-lucro-percentual" title="Percentual de lucro">${pctHtml}</div></td>
@@ -11992,7 +11994,7 @@ function showToast(msg, type = 'info', duration = 3500) {
     originals.clear();
     document.querySelectorAll('table.site-table').forEach(table => {
       // Pendentes usa fontes fixas e colunas proporcionais, sem zoom automático.
-      if (table.matches('.emp-table-pend, .emp-table-and')) return;
+      if (table.matches('.emp-table-pend, .emp-table-and, .emp-table-pagos')) return;
       const parent = table.parentElement;
       if (!watched.has(parent)) { watched.set(parent, -1); resize.observe(parent); }
       if (!table.getClientRects().length || !parent.clientWidth) return;
@@ -13123,6 +13125,156 @@ html body #contratos-encerrados table.con-enc-table td:last-child {
 #empenhos-andamento table.site-table.emp-table-and thead th .historico-header-cell > span { font-size:11px!important; color:#5b7387!important; }
 #empenhos-andamento table.emp-table-and tbody td:nth-child(n+7):nth-child(-n+10) { text-align:right!important; }
 #empenhos-andamento table.emp-table-and tbody td:nth-child(3) { font-weight:400!important; }
+</style>
+<style id="paid-andamento-pending-typography">
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos :is(thead th, tbody td):nth-child(n+2),
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos thead th:nth-child(n+2) .historico-header-cell > span,
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos tbody td:nth-child(n+2) :is(div, span, strong, small, a, button):not(.row-menu *, .emp-pend-tratativas *) {
+    font-size: 11px !important;
+  }
+
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos tbody td:nth-child(n+7):nth-child(-n+10),
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos tbody td:nth-child(n+7):nth-child(-n+10) :is(div, span, strong) {
+    white-space: nowrap !important;
+    overflow-wrap: normal;
+  }
+
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos :is(th, td):nth-child(n+2):nth-child(-n+11),
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th .historico-header-cell > span {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+  }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos td:nth-child(n+7):nth-child(-n+10),
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos td:nth-child(n+7):nth-child(-n+10) :is(div, span, strong) {
+    font-size: 11px !important;
+  }
+
+  #empenhos-encerrados table.site-table.emp-table-pagos td .emp-pend-tratativas,
+  #empenhos-encerrados table.site-table.emp-table-pagos td .emp-pend-tratativas * {
+    font-size: 8px !important;
+    line-height: 1.25;
+  }
+  #empenhos-encerrados table.site-table.emp-table-pagos td .emp-pend-tratativas:empty { display: none; }
+  #empenhos-encerrados table.site-table.emp-table-pagos td .con-orgao-nome {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+  }
+  #empenhos-encerrados table.site-table.emp-table-pagos td .emp-data-resumo strong,
+  #empenhos-encerrados table.site-table.emp-table-pagos td .con-orgao-info {
+    font-weight: 400 !important;
+  }
+  #empenhos-encerrados table.site-table.emp-table-pagos td .emp-data-espera {
+    font-weight: 700 !important;
+  }
+  #empenhos-encerrados table.site-table.emp-table-pagos td :is(.payer-orgao-heading, .con-orgao-nome, .con-orgao-info) {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  #empenhos-encerrados table.site-table.emp-table-pagos td.emp-pend-valor {
+    font-weight: 800 !important;
+    color: var(--text) !important;
+    text-align: right;
+  }
+  #empenhos-encerrados table.site-table.site-list.emp-table thead th {
+    vertical-align: middle;
+  }
+  #empenhos-encerrados table.site-table.site-list.emp-table tbody td {
+    padding-block: 5px !important;
+    vertical-align: top;
+  }
+  #empenhos-encerrados table.site-table.site-list.emp-table tbody tr:hover td {
+    background-color: var(--primary-th1);
+  }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos thead th:last-child {
+    white-space: nowrap !important;
+  }
+</style>
+<style id="paid-andamento-fixed-type-fluid-columns">
+  #empenhos-encerrados table.site-table.emp-table-pagos {
+    width:100% !important; min-width:0 !important; max-width:100% !important;
+    table-layout:fixed !important; zoom:1 !important;
+  }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos :is(th,td) {
+    width:auto !important; min-width:0 !important; max-width:none !important;
+    white-space:normal !important; overflow-wrap:anywhere !important;
+    word-break:normal !important; text-overflow:clip !important;
+  }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos :is(th,td) :is(div,span,strong,small,a,button):not(.row-menu,.row-menu *, .historico-inline-popover,.historico-inline-popover *) {
+    min-width:0; max-width:100%; white-space:normal !important;
+    overflow-wrap:anywhere !important; text-overflow:clip !important;
+  }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos .historico-header-cell { flex-wrap:wrap; }
+  #empenhos-encerrados .subtotal-bar { flex-wrap:wrap; }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th:nth-child(1) { width:2% !important; }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th:nth-child(2) { width:6% !important; }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th:nth-child(3) { width:6% !important; }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th:nth-child(4) { width:16% !important; }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th:nth-child(5) { width:21% !important; }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th:nth-child(6) { width:6% !important; }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th:nth-child(7) { width:8% !important; }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th:nth-child(8) { width:8% !important; }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th:nth-child(9) { width:8% !important; }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th:nth-child(10) { width:8% !important; }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th:nth-child(11) { width:7% !important; }
+  #empenhos-encerrados table.site-table.site-list.emp-table-pagos th:nth-child(12) { width:4% !important; }
+</style>
+<style id="paid-empenho-date-history-readability">
+  html body #empenhos-encerrados table.emp-table.site-table.site-list.emp-table-pagos tbody td:nth-child(2) .emp-data-resumo > strong,
+  html body #empenhos-encerrados table.emp-table.site-table.site-list.emp-table-pagos tbody td:nth-child(2) .emp-data-resumo > .emp-data-espera {
+    font-size:11px !important;
+    line-height:1.35 !important;
+  }
+  html body #empenhos-encerrados table.emp-table.site-table.site-list.emp-table-pagos tbody td:nth-child(2) .emp-data-resumo .emp-data-historico summary,
+  html body #empenhos-encerrados table.emp-table.site-table.site-list.emp-table-pagos tbody td:nth-child(2) .emp-data-resumo .emp-editar-entrega {
+    font-size:9px !important;
+    line-height:1.35 !important;
+    overflow-wrap:normal !important;
+    word-break:normal !important;
+  }
+  html body #empenhos-encerrados table.emp-table.site-table.site-list.emp-table-pagos tbody td:nth-child(2) .emp-data-resumo .emp-historico-linha {
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:1px;
+    margin-bottom:6px;
+    font-size:9px !important;
+    line-height:1.3 !important;
+  }
+  html body #empenhos-encerrados table.emp-table.site-table.site-list.emp-table-pagos tbody td:nth-child(2) .emp-data-resumo .emp-historico-linha > span {
+    font-size:9px !important;
+    line-height:1.3 !important;
+    overflow-wrap:normal !important;
+    word-break:normal !important;
+  }
+  html body #empenhos-encerrados table.emp-table.site-table.site-list.emp-table-pagos tbody td:nth-child(2) .emp-data-resumo .emp-historico-linha > span:first-child { color:var(--muted); }
+  html body #empenhos-encerrados table.emp-table.site-table.site-list.emp-table-pagos tbody td:nth-child(2) .emp-data-resumo .emp-historico-linha > span:last-child { white-space:normal !important; }
+</style>
+<style id="paid-pending-kpi-dimensions">
+html body #empenhos-encerrados .paid-kpi-grid {
+ grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+ grid-auto-flow:row; grid-auto-rows:80px; gap:10px; margin-bottom:12px !important;
+}
+html body #empenhos-encerrados .paid-kpi-grid .disputa-stat-card {
+ height:80px !important; min-height:80px; display:flex; flex-direction:column;
+ padding:10px 12px !important; gap:2px; border-radius:13px; justify-content:flex-start;
+}
+html body #empenhos-encerrados .paid-kpi-grid .disputa-stat-label {
+ font-size:12px !important; line-height:14px; height:auto; min-height:14px; margin:0;
+}
+html body #empenhos-encerrados .paid-kpi-grid .disputa-stat-value {
+ font-size:18px !important; line-height:22px; min-height:22px; margin:0; font-weight:800;
+}
+html body #empenhos-encerrados .paid-kpi-grid .paid-kpi-note {
+ font-size:8px !important; line-height:10px; margin:0; min-height:0;
+}
+html body #empenhos-encerrados table.site-table.emp-table-pagos thead th,
+html body #empenhos-encerrados table.site-table.emp-table-pagos thead th .historico-header-cell > span {
+ font-size:11px!important; color:#5b7387!important;
+}
+html body #empenhos-encerrados table.emp-table-pagos tbody td:nth-child(n+7):nth-child(-n+10) {text-align:right!important;}
+html body #empenhos-encerrados table.emp-table-pagos tbody td:nth-child(3) {font-weight:400!important;}
 </style>
 </body>
 </html>
