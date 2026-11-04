@@ -44,11 +44,27 @@
   })().catch(error=>{capagImport=null;throw error;});
   return capagImport;
  }
+ function updateScoreReport(report){
+  const parts=['internal','capag','pncp'].map(key=>report.dataset[key]);
+  const available=parts.filter(value=>value!==undefined&&value!=='').length;
+  const consolidated=available===3;
+  const score=consolidated?Math.round(parts[0]*0.60+parts[1]*0.25+parts[2]*0.15):parts[0]===''?null:Number(parts[0]);
+  const label=score===null?'Pouco histórico':score>=85?'Muito bom':score>=70?'Bom':score>=50?'Atenção':'Risco elevado';
+  const color=score===null?'var(--muted)':score>=70?'#258258':score>=50?'#b47614':'#b42318';
+  const ring=report.querySelector('[data-score-ring]');
+  ring.style.background='conic-gradient('+color+' '+(score??0)+'%, var(--line) 0)';
+  ring.firstElementChild.textContent=score===null?'—':score+'/100';
+  report.querySelector('[data-score-label]').textContent=(consolidated?'Score consolidado':'Score interno')+' · '+label;
+  report.querySelector('[data-score-coverage]').textContent=available+'/3 componentes disponíveis · Histórico '+(parts[0]||'—')+' · Tesouro '+(parts[1]||'—')+' · PNCP '+(parts[2]===undefined?'—':Math.round(parts[2]));
+ }
  async function showCapag(org,target){
   try{
    const {municipalities,reference}=await loadCapag();
    const grade=municipalities.get(M.norm(org.municipio)+'|'+org.uf);
    const date=/^\d{8}$/.test(reference||'')?reference.slice(6)+'/'+reference.slice(4,6)+'/'+reference.slice(0,4):'';
+   const report=target.closest('[data-score-report]');
+   if(grade)report.dataset.capag={ 'A+':100,A:100,'B+':75,B:75,C:40,D:10 }[grade];
+   updateScoreReport(report);
    target.textContent=grade?'CAPAG do município: '+grade+(date?' · base de '+date:''):'CAPAG municipal sem nota identificada nesta base.';
   }catch{
    target.textContent='Base municipal da CAPAG indisponível. Reabra os detalhes para tentar novamente.';
@@ -124,7 +140,23 @@
   const classification=s.n<3?'Sem histórico suficiente':s.mean<=15?'Pagador rápido':s.mean<=30?'Pagador regular':s.mean<=60?'Pagador lento':'Pagador crítico';
   // Do not assign a cross-company payer classification in the combined financial view.
   const payment=activeCompany()?`${classification} · média ${days(s.mean)} · ${s.n} pagamentos válidos · menor ${days(s.min)} / maior ${days(s.max)}`:'Selecione HAMATE ou GADITA para consultar a classificação de pagamento.';
-  $('orDetail').innerHTML=`<div class="or-toolbar"><h3>${esc(o.nome)}</h3><button class="btn btn-light" data-close-detail>Fechar detalhes</button><button class="btn btn-light" data-edit-org="${o.id}">Editar cadastro</button></div><p>${esc(o.cnpj||'CNPJ não informado')} · ${esc(o.municipio)} / ${o.uf} · ${esc(o.tipo)}</p><div class="or-kpis"><div>Contratos<strong>${s.contracts}</strong><small>${money(s.contractValue)}</small></div><div>Empenhos pagos<strong>${money(s.paidValue)}</strong><small>${s.paid} pagamentos</small></div><div>Compra dos pagos<strong>${s.covered?money(s.compra):'—'}</strong></div><div>Custo dos pagos<strong>${s.covered?money(s.custo):'—'}</strong></div><div>Lucro dos pagos<strong class="${s.lucro<0?'or-negative':s.lucro>0?'or-positive':''}">${s.covered?money(s.lucro):'—'}</strong></div></div><p class="or-note">${s.covered} de ${s.paid} pagos com valores disponíveis · ${s.estimated} previstos. Fórmulas existentes preservadas. Totais de contratos não são somados aos empenhos.</p><p>${esc(payment)}</p><p><a href="https://www.tesourotransparente.gov.br/ckan/dataset/capag-municipios" target="_blank" rel="noopener noreferrer">CAPAG municipal no Tesouro</a> · <span data-org-capag role="status">Consultando base municipal…</span></p><button class="btn btn-light" data-org-pncp="${M.cnpj(o.cnpj)}" ${M.validCnpj(o.cnpj)?'':'disabled'}>Consultar PNCP</button><p data-org-pncp-result role="status"></p><p><strong>Score interno</strong> · ${s.paymentScore.score===null?'Pouco histórico':s.paymentScore.score+'/100 · '+s.paymentScore.label+' · mediana de '+s.paymentScore.median+' dias'} · ${s.paymentScore.n} pagamentos válidos</p><p class="or-note">${s.paymentScore.pending.length} entregues aguardando pagamento. </p><p class="or-note">Entrega física → pagamento. Velocidade histórica, não descumprimento contratual. Apenas datas válidas de pagamentos realizados.</p><div class="or-contacts">${o.contatos.map(c=>`<div><b>${esc(c.setor)}</b><br>${esc(c.nome)}<br>${esc(c.email)}<br>${esc(c.telefone)}</div>`).join('')||'Nenhum contato cadastrado.'}</div><p>${['site','portal'].filter(k=>o[k]).map(k=>`<a href="${esc(o[k])}" target="_blank" rel="noopener noreferrer">${k==='site'?'Site oficial':'Portal de transparência'}</a>`).join(' · ')}</p>`+table(['Registro','Nome original','Empresa','Valor'],s.rows.map(r=>`<tr><td>${r.kind==='contrato'?'Contrato':'Empenho'} ${esc(r.kind==='contrato'?r.contrato:r.numero)}</td><td>${esc(r.orgao)}</td><td>${esc(r.empresa)}</td><td>${money(r.valor||0)}</td></tr>`).join('')||'<tr><td colspan="4">Nenhum registro vinculado nesta seleção.</td></tr>');
+  $('orDetail').innerHTML=`<div class="or-toolbar"><h3>${esc(o.nome)}</h3><button class="btn btn-light" data-close-detail>Fechar detalhes</button><button class="btn btn-light" data-edit-org="${o.id}">Editar cadastro</button></div><p>${esc(o.cnpj||'CNPJ não informado')} · ${esc(o.municipio)} / ${o.uf} · ${esc(o.tipo)}</p><div class="or-kpis"><div>Contratos<strong>${s.contracts}</strong><small>${money(s.contractValue)}</small></div><div>Empenhos pagos<strong>${money(s.paidValue)}</strong><small>${s.paid} pagamentos</small></div><div>Compra dos pagos<strong>${s.covered?money(s.compra):'—'}</strong></div><div>Custo dos pagos<strong>${s.covered?money(s.custo):'—'}</strong></div><div>Lucro dos pagos<strong class="${s.lucro<0?'or-negative':s.lucro>0?'or-positive':''}">${s.covered?money(s.lucro):'—'}</strong></div></div><p class="or-note">${s.covered} de ${s.paid} pagos com valores disponíveis · ${s.estimated} previstos. Fórmulas existentes preservadas. Totais de contratos não são somados aos empenhos.</p><section data-score-report data-internal="${s.paymentScore.score??''}" aria-label="Relatório de score">
+  <div style="display:flex;align-items:center;gap:16px;margin:16px 0">
+   <div data-score-ring style="display:grid;place-items:center;width:84px;height:84px;flex:none;border-radius:50%"><strong style="display:grid;place-items:center;width:70px;height:70px;border-radius:50%;background:var(--card);font-size:17px">—</strong></div>
+   <div><h3 data-score-label></h3><p data-score-coverage role="status"></p></div>
+  </div>
+  <div style="padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--primary-th1)">
+   <strong>Resumo da nota</strong><p>${s.paymentScore.n} pagamentos válidos${s.paymentScore.median==null?'':' · mediana de '+s.paymentScore.median+' dias entre entrega e pagamento'}.</p>
+   <strong>Pontos de atenção</strong><p>${s.paymentScore.pending.length} entregas aguardando pagamento · ${s.paymentScore.pending.filter(p=>p.days>60).length} há mais de 60 dias.</p>
+  </div>
+  <h4>Histórico de pagamentos · 60%</h4><p>${esc(payment)}</p>
+  <h4>Saúde financeira do município · 25%</h4>
+  <p><span data-org-capag role="status">Consultando base municipal…</span> · <a href="https://www.tesourotransparente.gov.br/ckan/dataset/capag-municipios" target="_blank" rel="noopener noreferrer">Fonte: Tesouro</a></p>
+  <h4>Conduta em compras públicas · 15%</h4>
+  <button type="button" class="btn btn-light" data-org-pncp="${M.cnpj(o.cnpj)}" ${M.validCnpj(o.cnpj)?'':'disabled'}>Consultar PNCP</button>
+  <p data-org-pncp-result role="status">${M.validCnpj(o.cnpj)?'Consulte para incluir a nota de compras.':'Cadastre um CNPJ válido para consultar o PNCP.'}</p>
+ </section><div class="or-contacts">${o.contatos.map(c=>`<div><b>${esc(c.setor)}</b><br>${esc(c.nome)}<br>${esc(c.email)}<br>${esc(c.telefone)}</div>`).join('')||'Nenhum contato cadastrado.'}</div><p>${['site','portal'].filter(k=>o[k]).map(k=>`<a href="${esc(o[k])}" target="_blank" rel="noopener noreferrer">${k==='site'?'Site oficial':'Portal de transparência'}</a>`).join(' · ')}</p>`+table(['Registro','Nome original','Empresa','Valor'],s.rows.map(r=>`<tr><td>${r.kind==='contrato'?'Contrato':'Empenho'} ${esc(r.kind==='contrato'?r.contrato:r.numero)}</td><td>${esc(r.orgao)}</td><td>${esc(r.empresa)}</td><td>${money(r.valor||0)}</td></tr>`).join('')||'<tr><td colspan="4">Nenhum registro vinculado nesta seleção.</td></tr>');
+  updateScoreReport($('orDetail').querySelector('[data-score-report]'));
   showCapag(o,$('orDetail').querySelector('[data-org-capag]'));
  }
  function edit(id=null,prefill={}){
@@ -176,8 +208,14 @@
     const response=await fetch('/api/org-pncp?cnpj='+encodeURIComponent(button.dataset.orgPncp));
     if(!response.ok)throw new Error('PNCP indisponível');
     const data=await response.json();
+    const report=result.closest('[data-score-report]');
+    if(Number.isFinite(data.score)&&data.score>=0&&data.score<=100)report.dataset.pncp=data.score;
+    else delete report.dataset.pncp;
+    updateScoreReport(report);
     result.textContent='PNCP · '+data.start+' a '+data.end+' · '+data.cancelled+' anuladas ou revogadas de '+data.total+' contratações · '+(data.score===null?'Amostra insuficiente (mínimo de 20).':'Nota de compras: '+Math.round(data.score)+'/100.');
    }catch{
+    delete result.closest('[data-score-report]').dataset.pncp;
+    updateScoreReport(result.closest('[data-score-report]'));
     result.textContent='Consulta ao PNCP indisponível. Tente novamente.';
    }finally{
     button.disabled=false;
