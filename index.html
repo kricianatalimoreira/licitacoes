@@ -3139,7 +3139,7 @@ table.site-table.site-table-4 th:nth-child(2) { width:140px !important; min-widt
 table.site-table.site-table-4 th:nth-child(3) { width:76px !important; min-width:0 !important; max-width:none !important; }
 table.site-table.site-table-4 th:nth-child(4) { width:auto !important; min-width:0 !important; max-width:none !important; }
 table.site-table.site-table-4 th:nth-child(5) { width:auto !important; min-width:0 !important; max-width:none !important; }
-table.site-table.site-table-4 th:nth-child(7) { width:100px !important; min-width:0 !important; max-width:none !important; }
+table.site-table.site-table-4 th:nth-child(7) { width:140px !important; min-width:0 !important; max-width:none !important; }
 table.site-table.site-table-4 td:nth-child(7) { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
 table.site-table.site-table-4 td:nth-child(7) span { font-size:11px !important; }
 table.site-table.site-table-4 th:nth-child(8) { width:100px !important; min-width:0 !important; max-width:none !important; }
@@ -3281,7 +3281,7 @@ table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(3) {
 table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(4) { width:var(--emp-orgao-width,260px) !important; }
 table.site-table:is(.site-table-4,.site-table-5,.site-table-6) th:nth-child(5) { width:var(--emp-itens-width,190px) !important; }
 table.site-table:is(.site-table-5,.site-table-6) th:nth-child(6) { width:100px !important; }
-table.site-table.site-table-4 th:nth-child(7) { width:100px !important; }
+table.site-table.site-table-4 th:nth-child(7) { width:140px !important; }
 table.site-table:is(.site-table-5,.site-table-6) th:nth-child(7) { width:100px !important; }
 table.site-table.site-table-4 th:nth-child(8) { width:100px !important; }
 table.site-table:is(.site-table-5,.site-table-6) th:nth-child(8) { width:100px !important; }
@@ -8123,7 +8123,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
             return `<tr>
               ${bulkCheckboxTd('empPend', e.id)}
               <td>${empDatasHtml(e, 'pendente', calcEmpFinanceiroRealizado(e).dataCompra)}</td>
-              <td style="font-weight:700;font-size:10px;">${e.numero||'—'}${notifBellHtml(e)}</td>
+              <td style="font-weight:400;font-size:10px;">${e.numero||'—'}${notifBellHtml(e)}</td>
               <td class="cell-wrap">
                 <div class="payer-orgao-heading"><div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>${KMPayerBadges.html(e)}</div>
                 <div class="con-orgao-info">${e.contrato||''}</div>
