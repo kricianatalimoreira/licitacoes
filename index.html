@@ -4099,12 +4099,14 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <h2>📋 Contratos Encerrados</h2>
 </div>
 </div>
-<div class="disputa-stats" style="grid-template-columns:repeat(5,minmax(0,1fr));">
+<div class="disputa-stats" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr));">
 <div class="disputa-stat-card"><div class="disputa-stat-label">Total encerrados</div><div class="disputa-stat-value" id="conEncStatTotal">0</div></div>
 <div class="disputa-stat-card stat-green"><div class="disputa-stat-label">Valor total contratos</div><div class="disputa-stat-value" id="conEncStatValor" style="font-size:16px;color:#1f8a4c;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Total empenhado</div><div class="disputa-stat-value" id="conEncStatEmpenhado" style="font-size:16px;color:#2563eb;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#1a1530;border-color:#4a3a8a;"><div class="disputa-stat-label">Lucro dos empenhos</div><div class="disputa-stat-value" id="conEncStatLucro" style="font-size:16px;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#252010;border-color:#7a6408;"><div class="disputa-stat-label">Taxa de execução média</div><div class="disputa-stat-value" id="conEncStatExecucao" style="font-size:16px;color:#a16207;">0%</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">GADITA</div><div class="disputa-stat-value" id="conEncStatGadita">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">HAMATE</div><div class="disputa-stat-value" id="conEncStatHamate">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -6192,12 +6194,21 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         ? contratosEncerrados.reduce((s,c) => s + taxaExecucao(c), 0) / contratosEncerrados.length
         : 0;
 
+      const valorGadita = contratosEncerrados
+        .filter(c => String(c.empresa || '').trim().toUpperCase() === 'GADITA')
+        .reduce((s,c) => s + (Number(c.valor)||0), 0);
+      const valorHamate = contratosEncerrados
+        .filter(c => String(c.empresa || '').trim().toUpperCase() === 'HAMATE')
+        .reduce((s,c) => s + (Number(c.valor)||0), 0);
+
       qs('conEncStatTotal').textContent     = contratosEncerrados.length;
       qs('conEncStatValor').textContent     = formatCurrency(valorTotal);
       qs('conEncStatEmpenhado').textContent = formatCurrency(empenhadoTotal);
       qs('conEncStatLucro').textContent     = formatCurrency(lucroEmpTotal);
       qs('conEncStatLucro').style.color     = lucroEmpTotal >= 0 ? '#6d28d9' : '#b42318';
       qs('conEncStatExecucao').textContent  = taxaMedia.toFixed(1) + '%';
+      qs('conEncStatGadita').textContent = formatCurrency(valorGadita);
+      qs('conEncStatHamate').textContent = formatCurrency(valorHamate);
 
       // Subtotal filtrado
       const sfValor     = filtrados.reduce((s,c) => s + (Number(c.valor)||0), 0);
@@ -12784,30 +12795,30 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style):nth-child(5n) {
       --kpi-bg:#173629; --kpi-border:#2d6548; --kpi-accent:#43c98a; --kpi-ink:#9bf0c4;
     }
-    :root[data-mode="light"] body .disputa-stat-card:has(#conStatGadita):not(#__preserve-kpi-style) {
+    :root[data-mode="light"] body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita)):not(#__preserve-kpi-style) {
       background:#ddeaff!important; border:1px solid #c6d9fb!important; border-left:4px solid #1a4fb0!important;
     }
-    :root[data-mode="light"] body .disputa-stat-card:has(#conStatGadita):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatGadita) { color:#1a4fb0!important; }
-    :root[data-mode="light"] body .disputa-stat-card:has(#conStatHamate):not(#__preserve-kpi-style) {
+    :root[data-mode="light"] body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita)):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatGadita,#conEncStatGadita) { color:#1a4fb0!important; }
+    :root[data-mode="light"] body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate)):not(#__preserve-kpi-style) {
       background:#d4f5e5!important; border:1px solid #b9e6cf!important; border-left:4px solid #0e6840!important;
     }
-    :root[data-mode="light"] body .disputa-stat-card:has(#conStatHamate):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatHamate) { color:#0e6840!important; }
-    :root:not([data-mode="light"]) body .disputa-stat-card:has(#conStatGadita):not(#__preserve-kpi-style) {
+    :root[data-mode="light"] body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate)):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatHamate,#conEncStatHamate) { color:#0e6840!important; }
+    :root:not([data-mode="light"]) body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita)):not(#__preserve-kpi-style) {
       background:#0d1e3a!important; border:1px solid #243e6b!important; border-left:4px solid #5b9cf6!important;
     }
-    :root:not([data-mode="light"]) body .disputa-stat-card:has(#conStatGadita):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatGadita) { color:#5b9cf6!important; }
-    :root:not([data-mode="light"]) body .disputa-stat-card:has(#conStatHamate):not(#__preserve-kpi-style) {
+    :root:not([data-mode="light"]) body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita)):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatGadita,#conEncStatGadita) { color:#5b9cf6!important; }
+    :root:not([data-mode="light"]) body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate)):not(#__preserve-kpi-style) {
       background:#0a2018!important; border:1px solid #1d4a35!important; border-left:4px solid #2dd47a!important;
     }
-    :root:not([data-mode="light"]) body .disputa-stat-card:has(#conStatHamate):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatHamate) { color:#2dd47a!important; }
+    :root:not([data-mode="light"]) body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate)):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatHamate,#conEncStatHamate) { color:#2dd47a!important; }
 
     :root body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
       .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
       .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style) {
       background:#fff!important;
     }
-    :root body .disputa-stat-card:has(#conStatGadita):not(#__preserve-kpi-style),
-    :root body .disputa-stat-card:has(#conStatHamate):not(#__preserve-kpi-style) {
+    :root body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita)):not(#__preserve-kpi-style),
+    :root body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate)):not(#__preserve-kpi-style) {
       background:#fff!important;
     }
   `;
