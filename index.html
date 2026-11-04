@@ -8126,12 +8126,12 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
               <td style="font-weight:700;font-size:10px;">${e.numero||'—'}${notifBellHtml(e)}</td>
               <td class="cell-wrap">
                 <div class="payer-orgao-heading"><div class="con-orgao-nome">${escapeHTML(e.orgao) || '—'}</div>${KMPayerBadges.html(e)}</div>
-          ${window.KMTratativas?.empBadges(e) || ''}
                 <div class="con-orgao-info">${e.contrato||''}</div>
+                <div class="emp-pend-tratativas">${window.KMTratativas?.empBadges(e) || ''}</div>
               </td>
               <td class="cell-wrap">${itensDesc||'—'}</td>
               <td>${companyBadge(e.empresa)}</td>
-              <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
+              <td class="emp-pend-valor">${formatCurrency(e.valor)}</td>
               <td>${vlCompraHtml}</td>
               <td>${custoHtml}</td>
               <td><div class="emp-lucro-valor">${lucroHtml}</div><div class="emp-lucro-percentual" title="Percentual de lucro">${pctHtml}</div></td>
@@ -12694,6 +12694,18 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   }
 </style>
 <style id="empenho-list-contract-layout">
+  html body table.site-table.emp-table-pend td .emp-pend-tratativas,
+  html body table.site-table.emp-table-pend td .emp-pend-tratativas * {
+    font-size: 8px !important;
+    line-height: 1.25;
+  }
+  html body table.site-table.emp-table-pend td .emp-pend-tratativas:empty { display: none; }
+  html body table.site-table.emp-table-pend td.emp-pend-valor {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    color: var(--text) !important;
+    text-align: right;
+  }
   html body table.site-table.site-list.emp-table thead th {
     vertical-align: middle;
   }
