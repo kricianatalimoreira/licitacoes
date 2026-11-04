@@ -65,15 +65,15 @@
   padding: 12px 16px;
   border-radius: 12px;
 }
-#orSummary > div > span { font-size: 12px; color: inherit; }
-#orSummary > div > strong { align-self: stretch; font-size: 16px; overflow-wrap: anywhere; white-space: normal; }
-#orSummary > div > small { font-size: 10px; }
+#orSummary > div > span { font-size: 12px; color: var(--kpi-ink, var(--text)); }
+#orSummary > div > strong { align-self: stretch; color: var(--kpi-ink, var(--text)); font-size: 16px; font-weight: 800; line-height: 1.1; overflow-wrap: anywhere; white-space: normal; }
+#orSummary > div > small { font-size: 10px; color: var(--muted); }
 
 #orBody .or-table { min-width: 760px !important; }
 #orBody .or-table th {
   height: 44px;
   padding: 5px 8px !important;
-  font-size: 11px !important;
+  font-size: 10px !important;
   text-transform: uppercase;
   border-right: 1px solid var(--line);
 }
@@ -90,3 +90,40 @@
 #orBody[data-tab="entities"] th:last-child { width: 88px; white-space: nowrap !important; }
 #orBody[data-tab="entities"] td:first-child,
 #orBody[data-tab="entities"] td:last-child { text-align: center; }
+
+/* Match the typography of the contract table and its KPI cards. */
+#org-registry :is(.or-table, .or-summary, .or-kpis) {
+  font-family: "Sora", "Segoe UI", sans-serif;
+}
+#org-registry .or-table th {
+  color: var(--muted);
+  font-weight: 600;
+  line-height: 1.35;
+}
+#org-registry .or-table td {
+  color: var(--text);
+  line-height: 1.35;
+}
+#org-registry .or-table .or-link {
+  color: inherit;
+  font-weight: 400;
+}
+#org-registry .or-table .or-number {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+#org-registry .or-table small {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 400;
+}
+#org-registry .or-kpis > div {
+  color: var(--kpi-ink, var(--text));
+  font-size: 12px;
+}
+#org-registry .or-kpis strong {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+#org-registry .or-kpis small { font-size: 10px; }
