@@ -3448,8 +3448,8 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap" rel="stylesheet">
 
 <style id="empenho-status-label-size">
-  html body #empenhos-pendentes table.site-table.site-list.emp-table-pend tbody td:nth-child(11) span.status.emp-status-pendente,
-  html body #empenhos-andamento table.site-table.site-list.emp-table-and tbody td:nth-child(11) span.status.emp-status-liquidacao {
+  /* Both renderers: pending uses status-badge; other stages use status. */
+  html body :is(#empenhos-pendentes, #empenhos-andamento, #empenhos-encerrados) table.emp-table.site-table.site-list tbody td:nth-child(n) span:is(.status, .status-badge) {
     font-size: 8px !important;
   }
 </style>
