@@ -12694,6 +12694,12 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   }
 </style>
 <style id="empenho-list-contract-layout">
+  html body table.site-table.site-list.emp-table-pend :is(thead th, tbody td):nth-child(n+2),
+  html body table.site-table.site-list.emp-table-pend thead th:nth-child(n+2) .historico-header-cell > span,
+  html body table.site-table.site-list.emp-table-pend tbody td:nth-child(n+2) :is(div, span, strong, small, a, button):not(.row-menu *, .emp-pend-tratativas *) {
+    font-size: 12px !important;
+  }
+
   html body table.site-table.site-list.emp-table-pend th:nth-child(n+7):nth-child(-n+10) {
     width: 140px !important;
     min-width: 140px !important;
@@ -12713,7 +12719,7 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   }
   html body table.site-table.site-list.emp-table-pend td:nth-child(n+7):nth-child(-n+10),
   html body table.site-table.site-list.emp-table-pend td:nth-child(n+7):nth-child(-n+10) :is(div, span, strong) {
-    font-size: 11px !important;
+    font-size: 12px !important;
   }
 
   html body table.site-table.emp-table-pend td .emp-pend-tratativas,
@@ -12759,8 +12765,8 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   const style = document.createElement('style');
   style.id = 'contract-column-font-sizes-runtime';
   style.textContent = `
-    html body table.site-table.site-list.emp-table thead th,
-    html body table.site-table.site-list.emp-table thead th :is(.historico-header-cell, .historico-header-cell > span),
+    html body table.site-table.site-list.emp-table:not(.emp-table-pend) thead th,
+    html body table.site-table.site-list.emp-table:not(.emp-table-pend) thead th :is(.historico-header-cell, .historico-header-cell > span),
     html body #org-registry table.or-table thead th,
     html body #org-registry table.or-table thead th :is(span, .or-head-button),
     html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) thead th:nth-child(n+2):nth-child(-n+7),
