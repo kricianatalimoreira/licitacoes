@@ -159,10 +159,26 @@
  }
  function detail(id){
   const o=orgs.find(o=>o.id===id);if(!o){selected=null;$('orDetail').close();return;}selected=id;const s=stats(id);
+  const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Sao_Paulo'}).format(new Date());
+  let totalDays=0, paymentCount=0, purchaseFallbacks=0, coveredRevenue=0;
+  for(const row of s.rows){
+   if(row.kind!=='empenho'||M.norm(row.status)!=='PAGA')continue;
+   const finance=adapter.finance(row);
+   if(finance.temValores!==false&&[finance.vlCompraReal,finance.custoReal,finance.lucroReal].every(value=>value!=null&&Number.isFinite(Number(value))))coveredRevenue+=Number(row.valor)||0;
+   const start=row.dataEntrega||row.dataCompra, end=row.dataPagamento;
+   if(!/^\d{4}-\d{2}-\d{2}$/.test(start||'')||!/^\d{4}-\d{2}-\d{2}$/.test(end||'')||end>today||end<start)continue;
+   const from=new Date(start+'T00:00:00Z'), to=new Date(end+'T00:00:00Z');
+   if(!Number.isFinite(+from)||!Number.isFinite(+to)||from.toISOString().slice(0,10)!==start||to.toISOString().slice(0,10)!==end)continue;
+   totalDays+=(to-from)/86400000;
+   paymentCount++;
+   if(!row.dataEntrega)purchaseFallbacks++;
+  }
+  const paymentAverage=paymentCount?totalDays/paymentCount:null;
+  const profitMargin=coveredRevenue>0?(s.lucro/coveredRevenue).toLocaleString('pt-BR',{style:'percent',maximumFractionDigits:2})+' de margem':'Margem indisponível';
   const classification=s.n<3?'Sem histórico suficiente':s.mean<=15?'Pagador rápido':s.mean<=30?'Pagador regular':s.mean<=60?'Pagador lento':'Pagador crítico';
   // Do not assign a cross-company payer classification in the combined financial view.
   const payment=s.n ? `${classification} · média ${days(s.mean)} · ${s.n} pagamentos válidos · menor ${days(s.min)} / maior ${days(s.max)}` : 'Nenhum pagamento com datas válidas.';
-  $('orDetail').innerHTML=`<div class="or-toolbar"><h3 id="orDetailTitle">${esc(o.nome)}</h3><button class="btn btn-light" data-close-detail>Fechar detalhes</button><button class="btn btn-light" data-edit-org="${o.id}">Editar cadastro</button></div><p>${esc(o.cnpj||'CNPJ não informado')} · ${esc(o.municipio)} / ${o.uf} · ${esc(o.tipo)}</p><div class="or-kpis"><div>Contratos<strong>${s.contracts}</strong><small>${money(s.contractValue)}</small></div><div>Empenhos pagos<strong>${money(s.paidValue)}</strong><small>${s.paid} pagamentos</small></div><div>Compra dos pagos<strong>${s.covered?money(s.compra):'—'}</strong></div><div>Custo dos pagos<strong>${s.covered?money(s.custo):'—'}</strong></div><div>Lucro dos pagos<strong class="${s.lucro<0?'or-negative':s.lucro>0?'or-positive':''}">${s.covered?money(s.lucro):'—'}</strong></div></div><p class="or-note">${s.covered} de ${s.paid} pagos com valores disponíveis · ${s.estimated} previstos. Fórmulas existentes preservadas. Totais de contratos não são somados aos empenhos.</p><section data-score-report data-internal="${s.paymentScore.score??''}" aria-label="Relatório de score">
+  $('orDetail').innerHTML=`<div class="or-toolbar"><h3 id="orDetailTitle">${esc(o.nome)}</h3><button class="btn btn-light" data-close-detail>Fechar detalhes</button><button class="btn btn-light" data-edit-org="${o.id}">Editar cadastro</button></div><p>${esc(o.cnpj||'CNPJ não informado')} · ${esc(o.municipio)} / ${o.uf} · ${esc(o.tipo)}</p><div class="or-kpis" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr))"><div>Contratos<strong>${s.contracts}</strong><small>${money(s.contractValue)}</small></div><div>Empenhos pagos<strong>${money(s.paidValue)}</strong><small>${s.paid} pagamentos</small></div><div>Lucro dos pagos<strong class="${s.lucro<0?'or-negative':s.lucro>0?'or-positive':''}">${s.covered?money(s.lucro):'—'}</strong><small>${profitMargin}</small></div><div>Média de pagamento<strong>${days(paymentAverage)}</strong><small>${paymentCount?paymentCount+' pagamentos · '+purchaseFallbacks+' desde a compra':'Sem datas válidas'}</small></div></div><p class="or-note">${s.covered} de ${s.paid} pagos com valores disponíveis · ${s.estimated} previstos. Fórmulas existentes preservadas. Totais de contratos não são somados aos empenhos.</p><section data-score-report data-internal="${s.paymentScore.score??''}" aria-label="Relatório de score">
   <div style="display:flex;align-items:center;gap:16px;margin:16px 0">
    <div data-score-ring style="display:grid;place-items:center;width:84px;height:84px;flex:none;border-radius:50%"><strong style="display:grid;place-items:center;width:70px;height:70px;border-radius:50%;background:var(--card);font-size:17px">—</strong></div>
    <div><h3 data-score-label></h3><p data-score-coverage role="status"></p></div>
