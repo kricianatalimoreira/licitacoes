@@ -12677,19 +12677,31 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   }
 </style>
 <style id="contract-font-kpi-scale">
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td,
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td :is(span,strong,a,div,p,small) {
+  html body table.site-table:is(.site-table-2,.site-table-3,.site-table-4,.site-table-5,.site-table-6) tbody td,
+  html body table.site-table:is(.site-table-2,.site-table-3,.site-table-4,.site-table-5,.site-table-6) tbody td :is(span,strong,a,div,p,small) {
     font-size: 10px !important;
     line-height: 1.35 !important;
   }
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td :is(.data-hora,.con-orgao-info,.exec-label,.exec-enc-sub) {
+  html body table.site-table:is(.site-table-2,.site-table-3,.site-table-4,.site-table-5,.site-table-6) tbody td :is(.data-hora,.con-orgao-info,.exec-label,.exec-enc-sub) {
     font-size: 9px !important;
   }
-  html body table.site-table:is(.site-table-2,.site-table-3) tbody td :is(
+  html body table.site-table:is(.site-table-2,.site-table-3,.site-table-4,.site-table-5,.site-table-6) tbody td :is(
     .company-badge,.company-gadita,.company-hamate,.uf-badge,
     .status-badge,.link-badge-sistema,.link-badge-drive
   ) {
     font-size: 10px !important;
+  }
+</style>
+<style id="empenho-list-contract-layout">
+  html body table.site-table.site-list.emp-table thead th {
+    vertical-align: middle;
+  }
+  html body table.site-table.site-list.emp-table tbody td {
+    padding-block: 5px !important;
+    vertical-align: top;
+  }
+  html body table.site-table.site-list.emp-table tbody tr:hover td {
+    background-color: var(--primary-th1);
   }
 </style>
 <script id="apply-contract-column-font-sizes">
@@ -12697,6 +12709,8 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   const style = document.createElement('style');
   style.id = 'contract-column-font-sizes-runtime';
   style.textContent = `
+    html body table.site-table.site-list.emp-table thead th,
+    html body table.site-table.site-list.emp-table thead th :is(.historico-header-cell, .historico-header-cell > span),
     html body #org-registry table.or-table thead th,
     html body #org-registry table.or-table thead th :is(span, .or-head-button),
     html body table.site-table.site-list:is(.site-table-2,.site-table-3):is(.con-table,.con-enc-table) thead th:nth-child(n+2):nth-child(-n+7),
