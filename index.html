@@ -12700,8 +12700,15 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     line-height: 1.25;
   }
   html body table.site-table.emp-table-pend td .emp-pend-tratativas:empty { display: none; }
+  html body table.site-table.emp-table-pend td :is(.con-orgao-nome, .con-orgao-info) {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+  }
+  html body table.site-table.emp-table-pend td .emp-data-resumo :is(strong, .emp-data-espera) {
+    font-weight: 400 !important;
+  }
   html body table.site-table.emp-table-pend td.emp-pend-valor {
-    font-size: 13px !important;
+    font-size: 12px !important;
     font-weight: 800 !important;
     color: var(--text) !important;
     text-align: right;
