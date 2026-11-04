@@ -12700,8 +12700,9 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     overflow-wrap: anywhere;
     text-overflow: clip;
   }
-  html body table.site-table.site-list.emp-table-pend td:nth-child(n+7):nth-child(-n+10) {
-    font-size: 10px !important;
+  html body table.site-table.site-list.emp-table-pend td:nth-child(n+7):nth-child(-n+10),
+  html body table.site-table.site-list.emp-table-pend td:nth-child(n+7):nth-child(-n+10) :is(div, span, strong) {
+    font-size: 11px !important;
   }
 
   html body table.site-table.emp-table-pend td .emp-pend-tratativas,
@@ -12727,7 +12728,6 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     min-width: 0;
   }
   html body table.site-table.emp-table-pend td.emp-pend-valor {
-    font-size: 10px !important;
     font-weight: 800 !important;
     color: var(--text) !important;
     text-align: right;
