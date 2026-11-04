@@ -22,6 +22,38 @@
  function clear(){checked.clear();columnFilter={name:'',city:''};sortKey='';if($('orFilter')?.open)$('orFilter').close();epoch++;ready=false;orgs=[];links=[];companies=[];selected=null;editing=null;binding=null;for(const id of ['orEditor','orBind']){const el=$(id);if(el?.open)el.close();}if($('orEditForm'))$('orEditForm').reset();render();adapter.changed();document.dispatchEvent(new Event('km-org-registry-change'));}
  const activeCompany=()=>$('orCompany').value;
  const sources=()=>M.sources(adapter.contracts(),adapter.entries());
+ let capagImport;
+ function loadCapag(){
+  if(!capagImport)capagImport=(async()=>{
+   const response=await fetch('/api/org-capag');
+   if(!response.ok)throw new Error('CAPAG indisponível');
+   const reference=response.headers.get('X-Capag-Reference');
+   const workbook=XLSX.read(await response.arrayBuffer(),{type:'array'});
+   const municipalities=new Map();
+   for(const sheet of workbook.SheetNames){
+    for(const [code,city,uf,grade] of XLSX.utils.sheet_to_json(workbook.Sheets[sheet],{header:1,raw:false,blankrows:false})){
+     const rating=String(grade||'').trim().toUpperCase();
+     if(!/^\d{7}$/.test(String(code||'').trim())||!city||!M.states.includes(uf)||!['A+','A','B+','B','C','D'].includes(rating))continue;
+     const key=M.norm(city)+'|'+uf;
+     if(municipalities.has(key)&&municipalities.get(key)!==rating)municipalities.set(key,null);
+     else municipalities.set(key,rating);
+    }
+   }
+   if(!municipalities.size)throw new Error('Formato da CAPAG não reconhecido');
+   return {municipalities,reference};
+  })().catch(error=>{capagImport=null;throw error;});
+  return capagImport;
+ }
+ async function showCapag(org,target){
+  try{
+   const {municipalities,reference}=await loadCapag();
+   const grade=municipalities.get(M.norm(org.municipio)+'|'+org.uf);
+   const date=/^\d{8}$/.test(reference||'')?reference.slice(6)+'/'+reference.slice(4,6)+'/'+reference.slice(0,4):'';
+   target.textContent=grade?'CAPAG do município: '+grade+(date?' · base de '+date:''):'CAPAG municipal sem nota identificada nesta base.';
+  }catch{
+   target.textContent='Base municipal da CAPAG indisponível. Reabra os detalhes para tentar novamente.';
+  }
+ }
  function paymentScore(rows){
   const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Sao_Paulo'}).format(new Date());
   function day(value){
@@ -92,7 +124,8 @@
   const classification=s.n<3?'Sem histórico suficiente':s.mean<=15?'Pagador rápido':s.mean<=30?'Pagador regular':s.mean<=60?'Pagador lento':'Pagador crítico';
   // Do not assign a cross-company payer classification in the combined financial view.
   const payment=activeCompany()?`${classification} · média ${days(s.mean)} · ${s.n} pagamentos válidos · menor ${days(s.min)} / maior ${days(s.max)}`:'Selecione HAMATE ou GADITA para consultar a classificação de pagamento.';
-  $('orDetail').innerHTML=`<div class="or-toolbar"><h3>${esc(o.nome)}</h3><button class="btn btn-light" data-close-detail>Fechar detalhes</button><button class="btn btn-light" data-edit-org="${o.id}">Editar cadastro</button></div><p>${esc(o.cnpj||'CNPJ não informado')} · ${esc(o.municipio)} / ${o.uf} · ${esc(o.tipo)}</p><div class="or-kpis"><div>Contratos<strong>${s.contracts}</strong><small>${money(s.contractValue)}</small></div><div>Empenhos pagos<strong>${money(s.paidValue)}</strong><small>${s.paid} pagamentos</small></div><div>Compra dos pagos<strong>${s.covered?money(s.compra):'—'}</strong></div><div>Custo dos pagos<strong>${s.covered?money(s.custo):'—'}</strong></div><div>Lucro dos pagos<strong class="${s.lucro<0?'or-negative':s.lucro>0?'or-positive':''}">${s.covered?money(s.lucro):'—'}</strong></div></div><p class="or-note">${s.covered} de ${s.paid} pagos com valores disponíveis · ${s.estimated} previstos. Fórmulas existentes preservadas. Totais de contratos não são somados aos empenhos.</p><p>${esc(payment)}</p><p><a href="https://www.tesourotransparente.gov.br/ckan/dataset/capag-municipios" target="_blank" rel="noopener noreferrer">CAPAG municipal no Tesouro</a> · consulta externa</p><button class="btn btn-light" data-org-pncp="${M.cnpj(o.cnpj)}" ${M.validCnpj(o.cnpj)?'':'disabled'}>Consultar PNCP</button><p data-org-pncp-result role="status"></p><p><strong>Score interno</strong> · ${s.paymentScore.score===null?'Pouco histórico':s.paymentScore.score+'/100 · '+s.paymentScore.label+' · mediana de '+s.paymentScore.median+' dias'} · ${s.paymentScore.n} pagamentos válidos</p><p class="or-note">${s.paymentScore.pending.length} entregues aguardando pagamento. </p><p class="or-note">Entrega física → pagamento. Velocidade histórica, não descumprimento contratual. Apenas datas válidas de pagamentos realizados.</p><div class="or-contacts">${o.contatos.map(c=>`<div><b>${esc(c.setor)}</b><br>${esc(c.nome)}<br>${esc(c.email)}<br>${esc(c.telefone)}</div>`).join('')||'Nenhum contato cadastrado.'}</div><p>${['site','portal'].filter(k=>o[k]).map(k=>`<a href="${esc(o[k])}" target="_blank" rel="noopener noreferrer">${k==='site'?'Site oficial':'Portal de transparência'}</a>`).join(' · ')}</p>`+table(['Registro','Nome original','Empresa','Valor'],s.rows.map(r=>`<tr><td>${r.kind==='contrato'?'Contrato':'Empenho'} ${esc(r.kind==='contrato'?r.contrato:r.numero)}</td><td>${esc(r.orgao)}</td><td>${esc(r.empresa)}</td><td>${money(r.valor||0)}</td></tr>`).join('')||'<tr><td colspan="4">Nenhum registro vinculado nesta seleção.</td></tr>');
+  $('orDetail').innerHTML=`<div class="or-toolbar"><h3>${esc(o.nome)}</h3><button class="btn btn-light" data-close-detail>Fechar detalhes</button><button class="btn btn-light" data-edit-org="${o.id}">Editar cadastro</button></div><p>${esc(o.cnpj||'CNPJ não informado')} · ${esc(o.municipio)} / ${o.uf} · ${esc(o.tipo)}</p><div class="or-kpis"><div>Contratos<strong>${s.contracts}</strong><small>${money(s.contractValue)}</small></div><div>Empenhos pagos<strong>${money(s.paidValue)}</strong><small>${s.paid} pagamentos</small></div><div>Compra dos pagos<strong>${s.covered?money(s.compra):'—'}</strong></div><div>Custo dos pagos<strong>${s.covered?money(s.custo):'—'}</strong></div><div>Lucro dos pagos<strong class="${s.lucro<0?'or-negative':s.lucro>0?'or-positive':''}">${s.covered?money(s.lucro):'—'}</strong></div></div><p class="or-note">${s.covered} de ${s.paid} pagos com valores disponíveis · ${s.estimated} previstos. Fórmulas existentes preservadas. Totais de contratos não são somados aos empenhos.</p><p>${esc(payment)}</p><p><a href="https://www.tesourotransparente.gov.br/ckan/dataset/capag-municipios" target="_blank" rel="noopener noreferrer">CAPAG municipal no Tesouro</a> · <span data-org-capag role="status">Consultando base municipal…</span></p><button class="btn btn-light" data-org-pncp="${M.cnpj(o.cnpj)}" ${M.validCnpj(o.cnpj)?'':'disabled'}>Consultar PNCP</button><p data-org-pncp-result role="status"></p><p><strong>Score interno</strong> · ${s.paymentScore.score===null?'Pouco histórico':s.paymentScore.score+'/100 · '+s.paymentScore.label+' · mediana de '+s.paymentScore.median+' dias'} · ${s.paymentScore.n} pagamentos válidos</p><p class="or-note">${s.paymentScore.pending.length} entregues aguardando pagamento. </p><p class="or-note">Entrega física → pagamento. Velocidade histórica, não descumprimento contratual. Apenas datas válidas de pagamentos realizados.</p><div class="or-contacts">${o.contatos.map(c=>`<div><b>${esc(c.setor)}</b><br>${esc(c.nome)}<br>${esc(c.email)}<br>${esc(c.telefone)}</div>`).join('')||'Nenhum contato cadastrado.'}</div><p>${['site','portal'].filter(k=>o[k]).map(k=>`<a href="${esc(o[k])}" target="_blank" rel="noopener noreferrer">${k==='site'?'Site oficial':'Portal de transparência'}</a>`).join(' · ')}</p>`+table(['Registro','Nome original','Empresa','Valor'],s.rows.map(r=>`<tr><td>${r.kind==='contrato'?'Contrato':'Empenho'} ${esc(r.kind==='contrato'?r.contrato:r.numero)}</td><td>${esc(r.orgao)}</td><td>${esc(r.empresa)}</td><td>${money(r.valor||0)}</td></tr>`).join('')||'<tr><td colspan="4">Nenhum registro vinculado nesta seleção.</td></tr>');
+  showCapag(o,$('orDetail').querySelector('[data-org-capag]'));
  }
  function edit(id=null,prefill={}){
   editing=orgs.find(o=>o.id===id)||null;const o=editing||prefill;
