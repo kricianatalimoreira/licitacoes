@@ -8095,13 +8095,6 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         ? '<tr><td colspan="11" style="text-align:center;padding:32px;color:var(--muted);">Nenhum empenho pendente.</td></tr>'
         : filtered.map(e => {
             const itensDesc = itensEmpCompactHtml(e);
-            const prog = progressoCompra(e);
-            const progBadge = prog.total > 0
-              ? `<span style="display:inline-block;margin-top:4px;font-size:9px;font-weight:700;
-                  background:var(--card);border:1px solid ${prog.comprados===prog.total?'#1a6040':prog.comprados>0?'#f0a938':'var(--line)'};
-                  color:${prog.comprados===prog.total?'#34d399':prog.comprados>0?'#f0a938':'var(--muted)'};
-                  border-radius:5px;padding:1px 6px;">🛒 ${prog.comprados}/${prog.total} itens</span>`
-              : '';
             const fin = calcEmpFinanceiro(e);
             const { vlCompraEmp, custoEmp, lucroEmp, vlEmpTotal } = fin;
             const hasF = vlEmpTotal > 0 || vlCompraEmp > 0;
@@ -8129,7 +8122,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
           <div class="emp-orgao-company">${companyBadge(e.empresa)}</div>${window.KMTratativas?.empBadges(e) || ''}
                 <div class="con-orgao-info">${e.contrato||''}</div>
               </td>
-              <td class="cell-wrap">${itensDesc||'—'}${progBadge}</td>
+              <td class="cell-wrap">${itensDesc||'—'}</td>
               <td style="font-weight:700;color:#2563eb;">${formatCurrency(e.valor)}</td>
               <td>${vlCompraHtml}</td>
               <td>${custoHtml}</td>
