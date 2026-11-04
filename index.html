@@ -4163,13 +4163,15 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <h2>📋 Empenhos pendentes</h2>
 </div>
 </div>
-<div class="disputa-stats" style="grid-template-columns:repeat(6,minmax(0,1fr));margin-bottom:8px;">
+<div class="disputa-stats" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:8px;">
 <div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Empenhos</div><div class="disputa-stat-value" id="empPendStatTotal">0</div></div>
 <div class="disputa-stat-card" style="background:#0d1e3a;border-color:#2a4d8a;"><div class="disputa-stat-label">Valor Empenho</div><div class="disputa-stat-value" id="empPendStatValor" style="font-size:16px;color:#2563eb;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#130d2a;border-color:#4a2a8a;"><div class="disputa-stat-label">Valor da Compra</div><div class="disputa-stat-value" id="empPendStatCompra" style="font-size:16px;color:#a78bfa;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#1a0d08;border-color:#7a3a0a;"><div class="disputa-stat-label">Valor do Custo</div><div class="disputa-stat-value" id="empPendStatCusto" style="font-size:16px;color:#fb923c;">R$ 0,00</div></div>
 <div class="disputa-stat-card" style="background:#0a2018;border-color:#1a6040;"><div class="disputa-stat-label">Lucro</div><div class="disputa-stat-value" id="empPendStatLucro" style="font-size:16px;color:#34d399;">R$ 0,00</div></div>
 <div class="disputa-stat-card"><div class="disputa-stat-label">% Lucro</div><div class="disputa-stat-value" id="empPendStatPct" style="font-size:16px;">—</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">GADITA</div><div class="disputa-stat-value" id="empPendStatGadita">R$ 0,00</div></div>
+<div class="disputa-stat-card"><div class="disputa-stat-label">HAMATE</div><div class="disputa-stat-value" id="empPendStatHamate">R$ 0,00</div></div>
 </div>
 <div class="disputa-table-card">
 <div class="table-wrap">
@@ -8083,6 +8085,14 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       const _totalCusto  = _finPend.reduce((s,f) => s + f.custoEmp, 0);
       const _totalLucro  = _finPend.reduce((s,f) => s + f.lucroEmp, 0);
       const _pctLucro    = _totalValor > 0 ? (_totalLucro / _totalValor) * 100 : 0;
+      // Totais por empresa seguem o mesmo conjunto dos demais KPIs.
+      for (const empresa of ['Gadita', 'Hamate']) {
+        const total = pendentes
+          .filter(e => String(e.empresa || '').trim().toUpperCase() === empresa.toUpperCase())
+          .reduce((s, e) => s + Number(e.valor || 0), 0);
+        const card = qs('empPendStat' + empresa);
+        if (card) card.textContent = formatCurrency(total);
+      }
       if (qs('empPendStatTotal'))  qs('empPendStatTotal').textContent  = pendentes.length;
       if (qs('empPendStatValor'))  qs('empPendStatValor').textContent  = formatCurrency(_totalValor);
       if (qs('empPendStatCompra')) qs('empPendStatCompra').textContent = formatCurrency(_totalCompra);
@@ -12875,30 +12885,30 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
     .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style):nth-child(5n) {
       --kpi-bg:#173629; --kpi-border:#2d6548; --kpi-accent:#43c98a; --kpi-ink:#9bf0c4;
     }
-    :root[data-mode="light"] body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita)):not(#__preserve-kpi-style) {
+    :root[data-mode="light"] body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita,#empPendStatGadita)):not(#__preserve-kpi-style) {
       background:#ddeaff!important; border:1px solid #c6d9fb!important; border-left:4px solid #1a4fb0!important;
     }
-    :root[data-mode="light"] body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita)):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatGadita,#conEncStatGadita) { color:#1a4fb0!important; }
-    :root[data-mode="light"] body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate)):not(#__preserve-kpi-style) {
+    :root[data-mode="light"] body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita,#empPendStatGadita)):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatGadita,#conEncStatGadita,#empPendStatGadita) { color:#1a4fb0!important; }
+    :root[data-mode="light"] body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate,#empPendStatHamate)):not(#__preserve-kpi-style) {
       background:#d4f5e5!important; border:1px solid #b9e6cf!important; border-left:4px solid #0e6840!important;
     }
-    :root[data-mode="light"] body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate)):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatHamate,#conEncStatHamate) { color:#0e6840!important; }
-    :root:not([data-mode="light"]) body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita)):not(#__preserve-kpi-style) {
+    :root[data-mode="light"] body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate,#empPendStatHamate)):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatHamate,#conEncStatHamate,#empPendStatHamate) { color:#0e6840!important; }
+    :root:not([data-mode="light"]) body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita,#empPendStatGadita)):not(#__preserve-kpi-style) {
       background:#0d1e3a!important; border:1px solid #243e6b!important; border-left:4px solid #5b9cf6!important;
     }
-    :root:not([data-mode="light"]) body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita)):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatGadita,#conEncStatGadita) { color:#5b9cf6!important; }
-    :root:not([data-mode="light"]) body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate)):not(#__preserve-kpi-style) {
+    :root:not([data-mode="light"]) body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita,#empPendStatGadita)):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatGadita,#conEncStatGadita,#empPendStatGadita) { color:#5b9cf6!important; }
+    :root:not([data-mode="light"]) body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate,#empPendStatHamate)):not(#__preserve-kpi-style) {
       background:#0a2018!important; border:1px solid #1d4a35!important; border-left:4px solid #2dd47a!important;
     }
-    :root:not([data-mode="light"]) body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate)):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatHamate,#conEncStatHamate) { color:#2dd47a!important; }
+    :root:not([data-mode="light"]) body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate,#empPendStatHamate)):not(#__preserve-kpi-style) :is(.disputa-stat-label,#conStatHamate,#conEncStatHamate,#empPendStatHamate) { color:#2dd47a!important; }
 
     :root body :is(.disputa-stat-card,.stat-alert,.dash-kpi-card,.kpi-card,
       .con-view-metric-card,.con-form-value-card,.review-card,.review-fin-card,
       .pi-kpis>div,.trat-dashboard-card,.or-summary>div,.or-kpis>div,.paid-kpi-grid>div,.emp-saldo-card):not(#__preserve-kpi-style) {
       background:#fff!important;
     }
-    :root body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita)):not(#__preserve-kpi-style),
-    :root body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate)):not(#__preserve-kpi-style) {
+    :root body .disputa-stat-card:has(:is(#conStatGadita,#conEncStatGadita,#empPendStatGadita)):not(#__preserve-kpi-style),
+    :root body .disputa-stat-card:has(:is(#conStatHamate,#conEncStatHamate,#empPendStatHamate)):not(#__preserve-kpi-style) {
       background:#fff!important;
     }
   `;
