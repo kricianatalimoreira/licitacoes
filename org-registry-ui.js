@@ -57,6 +57,28 @@
   report.querySelector('[data-score-label]').textContent=(consolidated?'Score consolidado':'Score interno')+' · '+label;
   report.querySelector('[data-score-coverage]').textContent=available+'/3 componentes disponíveis · Histórico '+(parts[0]||'—')+' · Tesouro '+(parts[1]||'—')+' · PNCP '+(parts[2]===undefined?'—':Math.round(parts[2]));
  }
+ async function queryPncp(button){
+   if(!button||button.disabled)return;
+   const result=button.parentElement.querySelector('[data-org-pncp-result]');
+   button.disabled=true;
+   result.textContent='Consultando contratações publicadas no PNCP…';
+   try{
+    const response=await fetch('/api/org-pncp?cnpj='+encodeURIComponent(button.dataset.orgPncp));
+    if(!response.ok)throw new Error('PNCP indisponível');
+    const data=await response.json();
+    const report=result.closest('[data-score-report]');
+    if(Number.isFinite(data.score)&&data.score>=0&&data.score<=100)report.dataset.pncp=data.score;
+    else delete report.dataset.pncp;
+    updateScoreReport(report);
+    result.textContent='PNCP · '+data.start+' a '+data.end+' · '+data.cancelled+' anuladas ou revogadas de '+data.total+' contratações · '+(data.score===null?'Amostra insuficiente (mínimo de 20).':'Nota de compras: '+Math.round(data.score)+'/100.');
+   }catch{
+    delete result.closest('[data-score-report]').dataset.pncp;
+    updateScoreReport(result.closest('[data-score-report]'));
+    result.textContent='Consulta ao PNCP indisponível. Tente novamente.';
+   }finally{
+    button.disabled=false;
+   }
+ }
  async function showCapag(org,target){
   try{
    const {municipalities,reference}=await loadCapag();
@@ -153,14 +175,15 @@
   <h4>Saúde financeira do município · 25%</h4>
   <p><span data-org-capag role="status">Consultando base municipal…</span> · <a href="https://www.tesourotransparente.gov.br/ckan/dataset/capag-municipios" target="_blank" rel="noopener noreferrer">Fonte: Tesouro</a></p>
   <h4>Conduta em compras públicas · 15%</h4>
-  <button type="button" class="btn btn-light" data-org-pncp="${M.cnpj(o.cnpj)}" ${M.validCnpj(o.cnpj)?'':'disabled'}>Consultar PNCP</button>
+  <button type="button" class="btn btn-light" data-org-pncp="${M.cnpj(o.cnpj)}" ${M.validCnpj(o.cnpj)?'':'disabled'}>Atualizar consulta ao PNCP</button>
   <p data-org-pncp-result role="status">${M.validCnpj(o.cnpj)?'Consulte para incluir a nota de compras.':'Cadastre um CNPJ válido para consultar o PNCP.'}</p>
  </section><div class="or-contacts">${o.contatos.map(c=>`<div><b>${esc(c.setor)}</b><br>${esc(c.nome)}<br>${esc(c.email)}<br>${esc(c.telefone)}</div>`).join('')||'Nenhum contato cadastrado.'}</div><p>${['site','portal'].filter(k=>o[k]).map(k=>`<a href="${esc(o[k])}" target="_blank" rel="noopener noreferrer">${k==='site'?'Site oficial':'Portal de transparência'}</a>`).join(' · ')}</p>`+table(['Registro','Nome original','Empresa','Valor'],s.rows.map(r=>`<tr><td>${r.kind==='contrato'?'Contrato':'Empenho'} ${esc(r.kind==='contrato'?r.contrato:r.numero)}</td><td>${esc(r.orgao)}</td><td>${esc(r.empresa)}</td><td>${money(r.valor||0)}</td></tr>`).join('')||'<tr><td colspan="4">Nenhum registro vinculado nesta seleção.</td></tr>');
   const dialog=$('orDetail');
   if(!dialog.open)dialog.showModal();
   dialog.scrollTop=0;
   updateScoreReport(dialog.querySelector('[data-score-report]'));
-  showCapag(o,$('orDetail').querySelector('[data-org-capag]'));
+  showCapag(o,dialog.querySelector('[data-org-capag]'));
+  queryPncp(dialog.querySelector('[data-org-pncp]'));
  }
  function edit(id=null,prefill={}){
   editing=orgs.find(o=>o.id===id)||null;const o=editing||prefill;
@@ -202,36 +225,14 @@
   document.addEventListener('click',ev=>{if(fd.open&&!fd.contains(ev.target)&&!ev.target.closest('[data-filter]'))fd.close();});
   section.addEventListener('change',ev=>{const el=ev.target;if(el.id==='orSelectAll'){for(const id of visibleIds)el.checked?checked.add(id):checked.delete(id);}else if(el.dataset.selectOrg){el.checked?checked.add(el.dataset.selectOrg):checked.delete(el.dataset.selectOrg);}else return;const top=$('orBody').querySelector('.or-table-wrap').scrollTop;render();$('orBody').querySelector('.or-table-wrap').scrollTop=top;});
   $('orDetail').addEventListener('close',()=>{if(!$('orDetail').open)selected=null;});
-  section.addEventListener('click',async ev=>{
-   const button=ev.target.closest('[data-org-pncp]');
-   if(!button)return;
-   const result=$('orDetail').querySelector('[data-org-pncp-result]');
-   button.disabled=true;
-   result.textContent='Consultando contratações publicadas no PNCP…';
-   try{
-    const response=await fetch('/api/org-pncp?cnpj='+encodeURIComponent(button.dataset.orgPncp));
-    if(!response.ok)throw new Error('PNCP indisponível');
-    const data=await response.json();
-    const report=result.closest('[data-score-report]');
-    if(Number.isFinite(data.score)&&data.score>=0&&data.score<=100)report.dataset.pncp=data.score;
-    else delete report.dataset.pncp;
-    updateScoreReport(report);
-    result.textContent='PNCP · '+data.start+' a '+data.end+' · '+data.cancelled+' anuladas ou revogadas de '+data.total+' contratações · '+(data.score===null?'Amostra insuficiente (mínimo de 20).':'Nota de compras: '+Math.round(data.score)+'/100.');
-   }catch{
-    delete result.closest('[data-score-report]').dataset.pncp;
-    updateScoreReport(result.closest('[data-score-report]'));
-    result.textContent='Consulta ao PNCP indisponível. Tente novamente.';
-   }finally{
-    button.disabled=false;
-   }
-  });
+
   section.addEventListener('click',ev=>{const b=ev.target.closest('button');if(b?.dataset.filter){filterKey=b.dataset.filter;$('orFilterTitle').textContent=b.dataset.filter==='name'?'FILTRAR ÓRGÃO':'FILTRAR MUNICÍPIO';$('orFilterValue').value=columnFilter[filterKey];$('orFilterValue').placeholder=b.dataset.filter==='name'?'Digite parte do órgão':'Digite município, UF ou tipo';const r=b.getBoundingClientRect(),w=210;fd.style.left=Math.max(8,Math.min(r.left,window.innerWidth-w-8))+'px';fd.style.top=Math.min(r.bottom+6,window.innerHeight-110)+'px';fd.show();$('orFilterValue').focus();}if(b?.dataset.sort){sortDirection=sortKey===b.dataset.sort?-sortDirection:1;sortKey=b.dataset.sort;render();}});
   $('orRefresh').onclick=refresh;$('orNew').onclick=()=>edit();$('orEditForm').onsubmit=save;
   $('orLogin').onsubmit=async ev=>{ev.preventDefault();const b=ev.target.querySelector('button');b.disabled=true;try{await S.signIn($('orLoginEmail').value,$('orLoginPassword').value);$('orLoginPassword').value='';await refresh();}catch(e){$('orMessage').textContent=error(e);}finally{b.disabled=false;}};
   $('orConfirmBind').onclick=()=>confirmBind('bind');$('orUnbind').onclick=()=>confirmBind('unbind');
   $('orCreateFromSource').onclick=()=>{const row=binding;$('orBind').close();edit(null,{nome:row.orgao,uf:row.uf||''});};
   for(const dialog of [bd,$('orEditor')])dialog.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).close());
-  section.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;if(b.dataset.orTab){tab=b.dataset.orTab;render();}if(b.dataset.editOrg)edit(b.dataset.editOrg);if(b.dataset.open)detail(b.dataset.open);if(b.hasAttribute('data-close-detail')){selected=null;$('orDetail').close();}if(b.dataset.bindId)bind(b.dataset.bindKind,b.dataset.bindId,b.dataset.bindCompany);});
+  section.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;if(b.dataset.orTab){tab=b.dataset.orTab;render();}if(b.dataset.editOrg)edit(b.dataset.editOrg);if(b.hasAttribute('data-org-pncp'))queryPncp(b);if(b.dataset.open)detail(b.dataset.open);if(b.hasAttribute('data-close-detail')){selected=null;$('orDetail').close();}if(b.dataset.bindId)bind(b.dataset.bindKind,b.dataset.bindId,b.dataset.bindCompany);});
   $('orSearch').oninput=render;for(const id of ['orCompany','orPending','orState','orType','orSort'])$(id).onchange=()=>{if(id==='orSort')sortKey='';render();};
   $('orClear').onclick=()=>{checked.clear();columnFilter={name:'',city:''};sortKey='';for(const id of ['orSearch','orCompany','orState','orType'])$(id).value='';$('orSort').value='asc';$('orPending').checked=true;render();};
   S.onChange(has=>{if(!has)clear();else refresh();});render();if(S.has())refresh();
