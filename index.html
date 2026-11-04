@@ -12694,6 +12694,17 @@ _sectionRenders['org-registry']=()=>KMOrgaos.open();
   }
 </style>
 <style id="empenho-list-contract-layout">
+  html body table.site-table.site-list.emp-table-pend th:nth-child(n+7):nth-child(-n+10) {
+    width: 140px !important;
+    min-width: 140px !important;
+    box-sizing: border-box;
+  }
+  html body table.site-table.site-list.emp-table-pend tbody td:nth-child(n+7):nth-child(-n+10),
+  html body table.site-table.site-list.emp-table-pend tbody td:nth-child(n+7):nth-child(-n+10) :is(div, span, strong) {
+    white-space: nowrap !important;
+    overflow-wrap: normal;
+  }
+
   html body table.site-table.site-list.emp-table-pend :is(th, td):nth-child(n+2):nth-child(-n+11),
   html body table.site-table.site-list.emp-table-pend th .historico-header-cell > span {
     white-space: normal !important;
