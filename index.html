@@ -7267,15 +7267,15 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
             <div style="background:var(--bg);border:1px solid #2a4d8a;border-radius:10px;padding:10px 14px;">
               <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#2563eb;margin-bottom:4px;">Total emitido</div>
-              <div style="font-size:15px;font-weight:800;color:#2563eb;">${formatCurrency(totalEmpV)}</div>
+              <div style="font-size:12px;font-weight:800;color:#2563eb;">${formatCurrency(totalEmpV)}</div>
             </div>
             <div style="background:${saldoEmp>=0?'#f0fdf4':'#fff1f1'};border:1px solid ${saldoEmp>=0?'#86efac':'#fca5a5'};border-radius:10px;padding:10px 14px;">
               <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:${saldoEmp>=0?'#1f8a4c':'#b42318'};margin-bottom:4px;">Saldo restante</div>
-              <div style="font-size:15px;font-weight:800;color:${saldoEmp>=0?'#1f8a4c':'#b42318'};">${formatCurrency(saldoEmp)}</div>
+              <div style="font-size:12px;font-weight:800;color:${saldoEmp>=0?'#1f8a4c':'#b42318'};">${formatCurrency(saldoEmp)}</div>
             </div>
             <div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 14px;">
               <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px;">Qtd. empenhos</div>
-              <div style="font-size:15px;font-weight:800;color:var(--text);">${empDoContrato.length}</div>
+              <div style="font-size:12px;font-weight:800;color:var(--text);">${empDoContrato.length}</div>
             </div>
           </div>
           <!-- Tabela de empenhos -->
@@ -11942,7 +11942,7 @@ function showToast(msg, type = 'info', duration = 3500) {
       !el.closest('.historico-inline-popover,.row-menu,.status-dropdown,svg,button,input,select,textarea') &&
       [...el.childNodes].some(node => node.nodeType === 3 && node.textContent.trim())
     );
-    const metrics = elements.map(el => {
+    const metrics = elements.filter(el => !(table.closest('#conViewWrap') && el.closest('tbody'))).map(el => {
       const style = getComputedStyle(el);
       return { el, size:parseFloat(style.fontSize), line:style.lineHeight };
     });
@@ -13275,6 +13275,12 @@ html body #empenhos-encerrados table.site-table.emp-table-pagos thead th .histor
 }
 html body #empenhos-encerrados table.emp-table-pagos tbody td:nth-child(n+7):nth-child(-n+10) {text-align:right!important;}
 html body #empenhos-encerrados table.emp-table-pagos tbody td:nth-child(3) {font-weight:400!important;}
+</style>
+<style id="contract-modal-table-data-size">
+html body #conViewWrap table.con-view-itens-table.site-table tbody td,
+html body #conViewWrap table.con-view-itens-table.site-table tbody td :is(span,strong,a,div,p,small) {
+  font-size:11px !important;
+}
 </style>
 </body>
 </html>
