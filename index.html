@@ -13121,8 +13121,8 @@ html body #contratos-encerrados table.con-enc-table td:last-child {
   #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(2) { width:6% !important; }
   #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(3) { width:6% !important; }
   #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(4) { width:16% !important; }
-  #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(5) { width:21% !important; }
-  #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(6) { width:6% !important; }
+  #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(5) { width:19% !important; }
+  #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(6) { width:8% !important; }
   #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(7) { width:8% !important; }
   #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(8) { width:8% !important; }
   #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(9) { width:8% !important; }
@@ -13313,6 +13313,24 @@ html body #conViewWrap #conViewEmpenhosWrap table.site-table.site-table-8 td:fir
   text-overflow:clip !important;
   overflow:visible !important;
 }
+</style>
+
+<style id="andamento-company-no-wrap">
+  /* Empresa: título, filtro e badge inteiros na sexta coluna. */
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and :is(th,td):nth-child(6),
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(6) .historico-header-cell > span,
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and td:nth-child(6) .company-badge {
+    white-space:nowrap !important;
+    overflow-wrap:normal !important;
+    word-break:normal !important;
+  }
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(6) .historico-header-cell {
+    flex-wrap:nowrap;
+    gap:4px;
+  }
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(6) .historico-funnel-btn {
+    flex-shrink:0;
+  }
 </style>
 </body>
 </html>
