@@ -13019,8 +13019,15 @@ html body #contratos-encerrados table.con-enc-table td:last-child {
   #empenhos-pendentes table.emp-table-pend th:nth-child(2) { width:6% !important; }
   #empenhos-pendentes table.emp-table-pend th:nth-child(3) { width:6% !important; }
   #empenhos-pendentes table.emp-table-pend th:nth-child(4) { width:16% !important; }
-  #empenhos-pendentes table.emp-table-pend th:nth-child(5) { width:21% !important; }
-  #empenhos-pendentes table.emp-table-pend th:nth-child(6) { width:6% !important; }
+  #empenhos-pendentes table.emp-table-pend th:nth-child(5) { width:19% !important; }
+  #empenhos-pendentes table.emp-table-pend th:nth-child(6) { width:8% !important; }
+  #empenhos-pendentes table.emp-table-pend :is(th,td):nth-child(6),
+  #empenhos-pendentes table.emp-table-pend :is(th,td):nth-child(6) :is(div,span):not(.historico-inline-popover,.historico-inline-popover *) {
+    white-space:nowrap !important; overflow-wrap:normal !important; word-break:normal !important;
+  }
+  #empenhos-pendentes table.emp-table-pend th:nth-child(6) .historico-header-cell {
+    flex-wrap:nowrap;
+  }
   #empenhos-pendentes table.emp-table-pend th:nth-child(7) { width:8% !important; }
   #empenhos-pendentes table.emp-table-pend th:nth-child(8) { width:8% !important; }
   #empenhos-pendentes table.emp-table-pend th:nth-child(9) { width:8% !important; }
