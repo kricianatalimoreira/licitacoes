@@ -6033,9 +6033,9 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       const fim = new Date(String(data).slice(0, 10) + 'T00:00:00');
       if (Number.isNaN(fim.getTime())) return '';
       const dias = Math.ceil((fim - hoje) / 86400000);
-      if (dias < 0) return `<div class="con-venc-badge con-venc-30">Vencido</div>`;
+      if (dias < 0) return `<div class="con-venc-badge con-venc-30">VENCIDO</div>`;
       if (dias <= 60) {
-        const texto = dias === 0 ? 'Vence hoje' : `Vence em ${dias} ${dias === 1 ? 'dia' : 'dias'}`;
+        const texto = dias === 0 ? 'VENCE HOJE' : `VENCE EM ${dias} ${dias === 1 ? 'DIA' : 'DIAS'}`;
         const classe = dias <= 30 ? 'con-venc-30' : 'con-venc-60';
         return `<div class="con-venc-badge ${classe}">${texto}</div>`;
       }
