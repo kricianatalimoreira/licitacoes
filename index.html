@@ -11995,6 +11995,7 @@ function showToast(msg, type = 'info', duration = 3500) {
     document.querySelectorAll('table.site-table').forEach(table => {
       // Pendentes usa fontes fixas e colunas proporcionais, sem zoom automático.
       if (table.matches('.emp-table-pend, .emp-table-and, .emp-table-pagos')) return;
+      if (table.matches('#conViewEmpenhosWrap table.site-table-8')) return;
       const parent = table.parentElement;
       if (!watched.has(parent)) { watched.set(parent, -1); resize.observe(parent); }
       if (!table.getClientRects().length || !parent.clientWidth) return;
@@ -13280,6 +13281,28 @@ html body #empenhos-encerrados table.emp-table-pagos tbody td:nth-child(3) {font
 html body #conViewWrap table.con-view-itens-table.site-table tbody td,
 html body #conViewWrap table.con-view-itens-table.site-table tbody td :is(span,strong,a,div,p,small) {
   font-size:11px !important;
+}
+</style>
+
+<style id="contract-issued-commitments-compact">
+html body #conViewWrap #conViewEmpenhosWrap table.site-table.site-table-8 {
+  width:100% !important; min-width:0 !important; zoom:1 !important;
+}
+html body #conViewWrap #conViewEmpenhosWrap table.site-table.site-table-8 tbody td,
+html body #conViewWrap #conViewEmpenhosWrap table.site-table.site-table-8 tbody td :is(span,strong,a,div,p,small) {
+  font-size:10px !important;
+}
+html body #conViewWrap #conViewEmpenhosWrap table.site-table.site-table-8 thead th {
+  font-size:12.65px !important;
+}
+html body #conViewWrap #conViewEmpenhosWrap table.site-table.site-table-8 th:first-child {
+  width:120px !important;
+}
+html body #conViewWrap #conViewEmpenhosWrap table.site-table.site-table-8 td:first-child {
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+  text-overflow:clip !important;
+  overflow:visible !important;
 }
 </style>
 </body>
