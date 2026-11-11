@@ -4204,6 +4204,9 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <div>
 <h2>📋 Empenhos pendentes</h2>
 </div>
+<div class="actions">
+<button type="button" class="btn btn-light" onclick="exportarEmpPendentesCSV()" title="Exportar os empenhos filtrados, na ordem da tabela, para abrir no Excel">↓ Exportar CSV</button>
+</div>
 </div>
 <div class="disputa-stats" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:8px;">
 <div class="disputa-stat-card stat-yellow"><div class="disputa-stat-label">Empenhos</div><div class="disputa-stat-value" id="empPendStatTotal">0</div></div>
@@ -8096,10 +8099,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       return { comprados, total: itens.length };
     }
 
-    function renderEmpPendentes() {
-      KMPayerBadges.prepare(empenhos, [...contratosAtivos,...contratosEncerrados]);
-      const body = qs('empPendTableBody');
-      if (!body) return;
+    function getEmpPendentesFiltrados() {
       const pendentes = empenhos.filter(e => e.status === 'Pendente');
 
       const fData    = (qs('fEmpPendData')?.value    || '').trim();
@@ -8131,6 +8131,52 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         if (sort.startsWith('pct_'))    { const fa=calcEmpFinanceiro(a), fb=calcEmpFinanceiro(b); const pa=fa.vlEmpTotal>0?(fa.lucroEmp/fa.vlEmpTotal)*100:0, pb=fb.vlEmpTotal>0?(fb.lucroEmp/fb.vlEmpTotal)*100:0; return sort==='pct_desc'?pb-pa:pa-pb; }
         return 0;
       });
+
+      return filtered;
+    }
+
+    function exportarEmpPendentesCSV() {
+      const registros = getEmpPendentesFiltrados();
+      if (!registros.length) {
+        alert('Nenhum empenho pendente para exportar com os filtros atuais.');
+        return;
+      }
+      const decimal = value => Number(value || 0).toFixed(2).replace('.', ',');
+      const cell = value => {
+        let text = String(value ?? '');
+        // Impede que textos cadastrados sejam interpretados como fórmulas.
+        if (/^[\s]*[=+@-]/.test(text) && !/^-\d+(,\d+)?$/.test(text)) text = "'" + text;
+        return '"' + text.replace(/"/g, '""') + '"';
+      };
+      const rows = [['Data do pedido', 'Nº Empenho', 'Órgão', 'Contrato', 'Itens empenhados', 'Empresa', 'Valor empenho (R$)', 'Compra prevista (R$)', 'Custo previsto (R$)', 'Lucro previsto (R$)', 'Lucro (%)', 'Status']];
+      registros.forEach(e => {
+        const fin = calcEmpFinanceiro(e);
+        const hasF = fin.vlEmpTotal > 0 || fin.vlCompraEmp > 0;
+        const itens = (e.itensEmpenhados || []).map(ie =>
+          `${ie.descricao || '—'} ×${ie.qtdEmp} (saldo: ${saldoQtdItem(e.contratoId, ie.itemId)})`
+        ).join(' | ');
+        rows.push([e.data ? formatDate(e.data) : '', e.numero || '', e.orgao || '', e.contrato || '', itens, e.empresa || '',
+          decimal(e.valor), hasF ? decimal(fin.vlCompraEmp) : '', hasF ? decimal(fin.custoEmp) : '',
+          hasF ? decimal(fin.lucroEmp) : '', hasF ? decimal(fin.vlEmpTotal > 0 ? fin.lucroEmp / fin.vlEmpTotal * 100 : 0) : '', e.status]);
+      });
+      // BOM UTF-8 e ponto e vírgula mantêm acentos e colunas no Excel pt-BR.
+      const csv = '\uFEFF' + rows.map(row => row.map(cell).join(';')).join('\r\n') + '\r\n';
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'empenhos-pendentes-' + new Date().toLocaleDateString('sv-SE') + '.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function renderEmpPendentes() {
+      KMPayerBadges.prepare(empenhos, [...contratosAtivos,...contratosEncerrados]);
+      const body = qs('empPendTableBody');
+      if (!body) return;
+      const pendentes = empenhos.filter(e => e.status === 'Pendente');
+      const filtered = getEmpPendentesFiltrados();
 
       // KPIs
       const _finPend     = pendentes.map(e => calcEmpFinanceiro(e));
