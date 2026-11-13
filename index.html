@@ -4412,6 +4412,18 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 </select>
 </div>
 </div></th>
+<th class="historico-th emp-fornecedor-header">
+<div class="historico-header-cell">
+<span>Fornecedor</span>
+<button class="historico-funnel-btn" onclick="abrirFiltroPopover(event,'empAndPopover-fornecedor')" type="button" title="Filtrar por fornecedor" aria-label="Filtrar por fornecedor"><svg fill="none" height="9" viewBox="0 0 10 10" width="9" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h8L6 5v3.5L4 7.5V5L1 1z" fill="currentColor"></path></svg></button>
+<div class="historico-inline-popover hidden" id="empAndPopover-fornecedor">
+<div class="historico-popover-title">Filtrar Fornecedor</div>
+<label for="fEmpAndFornecedor">Nome do fornecedor</label>
+<input autocomplete="off" class="field-box" id="fEmpAndFornecedor" oninput="renderEmpAndamento()" placeholder="Digite parte do fornecedor" type="text"/>
+<div class="historico-actions-row"><button class="btn btn-light btn-sm" onclick="limparFiltroFornecedorEmpAndamento()" type="button">Limpar</button></div>
+</div>
+</div>
+</th>
 <th class="historico-th" style="color:#2563eb;">
 <div class="historico-header-cell">
 <span>Vl. Empenho</span>
@@ -7926,6 +7938,32 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       fecharModalEntrega();
     }
 
+    // Fornecedores são derivados das compras já registradas no Supabase.
+    // Um mesmo empenho pode conter várias compras e fornecedores distintos.
+    function fornecedoresDoEmpenho(empenhoId) {
+      const relacionadas = (typeof compras !== 'undefined' && Array.isArray(compras) ? compras : [])
+        .filter(c => String(c.empenhoId) === String(empenhoId));
+      relacionadas.sort((a,b) => String(b.data || '').localeCompare(String(a.data || '')));
+      const vistos = new Set();
+      const nomes = [];
+      relacionadas.forEach(c => {
+        const nome = String(c.fornecedor || '').trim().replace(/\s+/g, ' ');
+        if (!nome) return;
+        const chave = nome.toLocaleLowerCase('pt-BR');
+        if (!vistos.has(chave)) { vistos.add(chave); nomes.push(nome); }
+      });
+      return nomes;
+    }
+
+    function fornecedorEmpenhoHtml(empenhoId) {
+      const nomes = fornecedoresDoEmpenho(empenhoId);
+      if (!nomes.length) return '<span class="emp-fornecedor-vazio" title="Fornecedor não registrado na compra">—</span>';
+      const principal = escapeHTML(nomes[0]);
+      const titulo = escapeHTML(nomes.join(' • '));
+      const extra = nomes.length - 1;
+      return `<div class="emp-fornecedor-wrap" title="${titulo}" aria-label="${titulo}"><span class="emp-fornecedor-nome">${principal}</span>${extra ? `<span class="emp-fornecedor-extra">+${extra}</span>` : ''}</div>`;
+    }
+
     function empRowHtml(e) {
       const itensDesc = itensEmpCompactHtml(e);
       const statusOpts = ['Pendente','Compra Feita','Ag. Liquidação','Paga']
@@ -7965,6 +8003,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         </td>
         <td class="cell-wrap">${itensDesc || '—'}</td>
         <td>${companyBadge(e.empresa)}</td>
+        <td class="emp-fornecedor-cell">${fornecedorEmpenhoHtml(e.id)}</td>
         <td class="emp-pend-valor">${formatCurrency(e.valor)}</td>
         <td>${vlCompraHtml}${estimado ? '<div style="font-size:9px;color:var(--muted)" title="Compra, impostos, royalties e lucro calculados pela proposta cadastrada">PREVISTO</div>' : ''}</td>
         <td>${custoHtml}</td>
@@ -7994,6 +8033,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       const andamento = empenhos.filter(e => e.status === 'Compra Feita' || e.status === 'Ag. Liquidação');
       const fStatus  = qs('fEmpAndStatus')?.value  || '';
       const fEmpresa = qs('fEmpAndEmpresa')?.value || '';
+      const fFornecedor = (qs('fEmpAndFornecedor')?.value || '').trim().toLocaleLowerCase('pt-BR');
       const fOrgao   = (qs('fEmpAndOrgao')?.value  || '').trim().toLowerCase();
       const fData    = qs('fEmpAndData')?.value    || '';
       const fMes     = qs('fEmpAndMes')?.value     || '';
@@ -8002,6 +8042,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       const filtrados = andamento.filter(e => {
         if (fStatus  && e.status  !== fStatus)                                return false;
         if (fEmpresa && e.empresa !== fEmpresa)                               return false;
+        if (fFornecedor && !fornecedoresDoEmpenho(e.id).some(nome => nome.toLocaleLowerCase('pt-BR').includes(fFornecedor))) return false;
         if (fOrgao   && !String(e.orgao||'').toLowerCase().includes(fOrgao)) return false;
         if (fData    && e.data    !== fData)                                  return false;
         if (fMes     && (e.data||'').slice(5,7) !== fMes.padStart(2,'0'))          return false;
@@ -8069,7 +8110,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       }, 'data_asc');
       body.innerHTML = sortedEmpAnd.length
         ? sortedEmpAnd.map(empRowHtml).join('')
-        : `<tr><td colspan="12"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
+        : `<tr><td colspan="13"><div class="empty-state">Nenhum empenho em andamento.</div></td></tr>`;
     }
 
     // ── Empenhos encerrados (status === 'Paga') ──
@@ -8415,8 +8456,14 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
       btn.textContent = wasHidden ? '− ver menos' : (btn.dataset.moreLabel || '+ ver mais');
     }
 
+    function limparFiltroFornecedorEmpAndamento() {
+      const el = qs('fEmpAndFornecedor');
+      if (el) el.value = '';
+      renderEmpAndamento();
+    }
+
     function limparFiltrosEmpAndamento() {
-      ['fEmpAndStatus','fEmpAndEmpresa','fEmpAndOrgao','fEmpAndData'].forEach(id => { const el = qs(id); if (el) el.value = ''; });
+      ['fEmpAndStatus','fEmpAndEmpresa','fEmpAndFornecedor','fEmpAndOrgao','fEmpAndData','fEmpAndMes','fEmpAndAno'].forEach(id => { const el = qs(id); if (el) el.value = ''; });
       renderEmpAndamento();
     }
 
@@ -9720,6 +9767,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       };
       persistCompras();
       renderCompras();
+      renderEmpAndamento();
       fecharEditCompra();
       mostrarToast('✅ Compra atualizada!', '');
     }
@@ -9730,6 +9778,7 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
       persistCompras();
       sbExcluirCompra(id);
       renderCompras();
+      renderEmpAndamento();
       closeAllMenus();
     }
 
@@ -13377,6 +13426,51 @@ html body #conViewWrap #conViewEmpenhosWrap table.site-table.site-table-8 td:fir
   html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(6) .historico-funnel-btn {
     flex-shrink:0;
   }
+</style>
+
+<style id="emp-andamento-fornecedores">
+  /* Coluna baseada no campo fornecedor das compras, sem criar dados duplicados. */
+  #empenhos-andamento table.site-table.site-list.emp-table-and {
+    width:100% !important; min-width:1380px !important; table-layout:fixed !important;
+  }
+  /* 13 colunas: seleção, datas, empenho, órgão, itens, empresa, fornecedor, financeiros, status, ações. */
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(1) {width:2% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(2) {width:6% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(3) {width:6% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(4) {width:14% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(5) {width:18% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(6) {width:7% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(7) {width:9% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(8) {width:8% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(9) {width:8% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(10) {width:7% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(11) {width:7% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(12) {width:5% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and th:nth-child(13) {width:3% !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and td:nth-child(n+8):nth-child(-n+11) {
+    text-align:right !important; white-space:nowrap !important; font-variant-numeric:tabular-nums;
+  }
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and td:nth-child(7) {
+    text-align:left !important; vertical-align:top; white-space:normal !important;
+  }
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and td:nth-child(12) {text-align:center !important;}
+  html body #empenhos-andamento table.site-table.site-list.emp-table-and td:nth-child(13) {text-align:center !important;}
+  #empenhos-andamento .emp-fornecedor-wrap {
+    display:flex; align-items:center; gap:3px; min-width:0; max-width:100%;
+    font-size:11px; line-height:1.3; cursor:help;
+  }
+  #empenhos-andamento .emp-fornecedor-nome {
+    flex:1 1 auto; min-width:0; overflow:hidden !important; text-overflow:ellipsis !important;
+    white-space:nowrap !important; overflow-wrap:normal !important; word-break:normal !important;
+  }
+  #empenhos-andamento .emp-fornecedor-extra {
+    flex:0 0 auto; white-space:nowrap !important; color:var(--muted); font-size:10px;
+  }
+  #empenhos-andamento .emp-fornecedor-vazio {color:var(--muted);font-size:11px;}
+  #empenhos-andamento table.emp-table-and th.emp-fornecedor-header .historico-header-cell {
+    display:flex; flex-wrap:nowrap; align-items:center; gap:3px;
+  }
+  #empenhos-andamento table.emp-table-and th.emp-fornecedor-header .historico-funnel-btn {flex-shrink:0;}
 </style>
 </body>
 </html>
