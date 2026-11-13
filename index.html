@@ -3619,12 +3619,6 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
 <p id="dashSubtitle" style="font-size:10px;color:var(--muted);">Visão geral operacional</p>
 </div>
 <div class="actions" style="gap:10px;align-items:center;">
-<div class="mode-toggle" title="Alternar claro/escuro">
-<label class="ios-switch">
-  <input type="checkbox" id="modeToggle" onchange="toggleModo(this.checked)"/>
-  <span class="ios-slider"></span>
-</label>
-</div>
 
 <span id="dashDataHora" style="font-size:10px;color:var(--muted);white-space:nowrap;"></span>
 </div>
@@ -10305,33 +10299,14 @@ Responda em português do Brasil. Seja direto e use formatação clara.`;
     // ══════════════════════════════════════════════════════════
     const MODO_KEY = 'km_modo_v1';
 
-    function toggleModo(isDark) {
-      const root = document.documentElement;
-      if (isDark) {
-        root.removeAttribute('data-mode');
-        document.body.style.colorScheme = 'dark';
-      } else {
-        root.setAttribute('data-mode', 'light');
-        document.body.style.colorScheme = 'light';
-      }
-      localStorage.setItem(MODO_KEY, isDark ? 'dark' : 'light');
-      // Re-aplica tema para ajustar cores de fundo ao modo
+    // Interface exclusivamente clara, inclusive para usuários com preferência antiga salva.
+    function carregarModo() {
+      document.documentElement.setAttribute('data-mode', 'light');
+      document.body.style.colorScheme = 'light';
+      document.body.classList.add('modo-claro');
+      localStorage.setItem(MODO_KEY, 'light');
       const temaAtual = localStorage.getItem('km_tema_v1') || 'rosa';
       aplicarTema(temaAtual);
-      if (typeof renderDashboard === 'function') renderDashboard();
-    }
-
-    // Aplica/remove classe ao body para facilitar overrides CSS
-    function _syncModoBody(isLight) {
-      document.body.classList.toggle('modo-claro', isLight);
-    }
-
-    function carregarModo() {
-      const saved = localStorage.getItem(MODO_KEY) || 'dark';
-      const isDark = saved === 'dark';
-      const toggle = document.getElementById('modeToggle');
-      if (toggle) toggle.checked = isDark;
-      toggleModo(isDark);
     }
 
     //  TEMA DE CORES
