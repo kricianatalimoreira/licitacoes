@@ -7821,7 +7821,7 @@ table.site-table:is(.site-table-0,.site-table-1) th:nth-child(11) { width:44px !
         const dias = ultima ? diasEnt(ultima.parsed, hoje) : null;
         const acompanhamento = !ultima ? 'Nenhuma data registrada'
           : dPago ? ''
-          : dias < 0 ? 'Data futura registrada'
+          : dias < 0 ? ''
           : dias === 0 ? 'Hoje' : 'Há ' + dias + (dias === 1 ? ' dia' : ' dias');
         const historico = etapas.map(etapa =>
           `<div class="emp-historico-linha"><span>${etapa.nome}</span><span>${etapa.parsed ? formatDateCurta(etapa.data) : 'Não registrada'}</span></div>`
